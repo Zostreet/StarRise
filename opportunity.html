@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>StarRise Opportunity</title>
+
+  <meta
+    name="description"
+    content="View a StarRise opportunity."
+  >
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: white;
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 24px 8%;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      border-bottom:
+        1px solid rgba(255,255,255,0.1);
+    }
+
+    .logo {
+      font-size: 27px;
+      font-weight: bold;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: auto;
+      padding: 65px 6%;
+    }
+
+    .hero {
+      padding: 45px;
+
+      border-radius: 22px;
+
+      border:
+        1px solid rgba(255,255,255,0.12);
+
+      background:
+        rgba(255,255,255,0.04);
+
+      margin-bottom: 25px;
+    }
+
+    .type {
+      display: inline-block;
+
+      padding: 7px 14px;
+
+      margin-bottom: 18px;
+
+      border-radius: 20px;
+
+      background:
+        rgba(255,255,255,0.08);
+
+      color: #dddddd;
+
+      font-size: 14px;
+    }
+
+    h1 {
+      font-size: clamp(40px, 8vw, 68px);
+
+      line-height: 1.1;
+
+      margin-bottom: 15px;
+    }
+
+    .organization {
+      color: #cccccc;
+      font-size: 18px;
+    }
+
+    .details {
+      color: #999999;
+      margin-top: 8px;
+    }
+
+    .grid {
+      display: grid;
+
+      grid-template-columns:
+        2fr 1fr;
+
+      gap: 22px;
+    }
+
+    .card {
+      padding: 28px;
+
+      border-radius: 18px;
+
+      border:
+        1px solid rgba(255,255,255,0.12);
+
+      background:
+        rgba(255,255,255,0.04);
+
+      margin-bottom: 22px;
+    }
+
+    .card h2 {
+      margin-bottom: 15px;
+      font-size: 25px;
+    }
+
+    .card p {
+      color: #bbbbbb;
+    }
+
+    .card ul {
+      padding-left: 20px;
+      color: #bbbbbb;
+    }
+
+    .card li {
+      margin-bottom: 8px;
+    }
+
+    .apply-card {
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+    }
+
+    .apply-button {
+      display: block;
+
+      width: 100%;
+
+      padding: 15px;
+
+      margin-top: 20px;
+
+      border: none;
+
+      border-radius: 30px;
+
+      background: white;
+      color: #080812;
+
+      text-align: center;
+
+      text-decoration: none;
+
+      font-weight: bold;
+
+      font-size: 16px;
+    }
+
+    .apply-button:hover {
+      opacity: 0.85;
+    }
+
+    .back {
+      display: inline-block;
+
+      margin-bottom: 25px;
+
+      color: #cccccc;
+
+      text-decoration: none;
+    }
+
+    .notice {
+      margin-top: 25px;
+
+      padding: 18px;
+
+      border-radius: 14px;
+
+      background:
+        rgba(255,255,255,0.05);
+
+      color: #aaaaaa;
+
+      text-align: center;
+
+      font-size: 14px;
+    }
+
+    footer {
+      padding: 35px;
+
+      text-align: center;
+
+      color: #999999;
+
+      border-top:
+        1px solid rgba(255,255,255,0.1);
+    }
+
+    @media (max-width: 750px) {
+
+      header {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      nav a {
+        margin: 0 7px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .apply-card {
+        position: static;
+      }
+
+      .hero {
+        padding: 30px;
+      }
+
+      main {
+        padding: 45px 5%;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <header>
+
+    <div class="logo">
+      ⭐ StarRise
+    </div>
+
+    <nav>
+
+      <a href="index.html">
+        Home
+      </a>
+
+      <a href="ecosystem.html">
+        Ecosystem
+      </a>
+
+      <a href="members.html">
+        Members
+      </a>
+
+      <a href="opportunities.html">
+        Opportunities
+      </a>
+
+      <a href="join.html">
+        Join
+      </a>
+
+    </nav>
+
+  </header>
+
+
+  <main>
+
+
+    <a
+      class="back"
+      href="opportunities.html"
+    >
+      ← Back to Opportunities
+    </a>
+
+
+    <section class="hero">
+
+      <span class="type">
+        Audition
+      </span>
+
+      <h1>
+        Open Artist Audition
+      </h1>
+
+      <div class="organization">
+        StarRise Talent Division
+      </div>
+
+      <div class="details">
+        📍 Charlotte, NC
+      </div>
+
+    </section>
+
+
+    <div class="grid">
+
+
+      <div>
+
+
+        <section class="card">
+
+          <h2>
+            About This Opportunity
+          </h2>
+
+          <p>
+            This demonstration opportunity is
+            designed for emerging singers,
+            performers, entertainers, and
+            creative talent interested in
+            showcasing their abilities through
+            StarRise.
+          </p>
+
+        </section>
+
+
+        <section class="card">
+
+          <h2>
+            What We're Looking For
+          </h2>
+
+          <ul>
+
+            <li>
+              Originality and individuality
+            </li>
+
+            <li>
+              Passion for your craft
+            </li>
+
+            <li>
+              Professional attitude
+            </li>
+
+            <li>
+              Willingness to collaborate
+            </li>
+
+            <li>
+              Respect for other members
+            </li>
+
+          </ul>
+
+        </section>
+
+
+        <section class="card">
+
+          <h2>
+            Requirements
+          </h2>
+
+          <ul>
+
+            <li>
+              Complete StarRise member profile
+            </li>
+
+            <li>
+              Provide relevant creative experience
+            </li>
+
+            <li>
+              Submit requested portfolio material
+            </li>
+
+          </ul>
+
+        </section>
+
+
+        <section class="card">
+
+          <h2>
+            About StarRise
+          </h2>
+
+          <p>
+            StarRise is building an entertainment
+            ecosystem designed to connect talent,
+            creators, supporters, clients, vendors,
+            and partners while creating meaningful
+            opportunities for its members.
+          </p>
+
+        </section>
+
+
+      </div>
+
+
+      <aside>
+
+
+        <section class="card apply-card">
+
+          <h2>
+            Opportunity Details
+          </h2>
+
+          <p>
+            <strong>
+              Type
+            </strong>
+          </p>
+
+          <p>
+            Audition
+          </p>
+
+          <br>
+
+          <p>
+            <strong>
+              Location
+            </strong>
+          </p>
+
+          <p>
+            Charlotte, NC
+          </p>
+
+          <br>
+
+          <p>
+            <strong>
+              Deadline
+            </strong>
+          </p>
+
+          <p>
+            Coming Soon
+          </p>
+
+          <a
+            class="apply-button"
+            href="join.html"
+          >
+            Join StarRise to Apply
+          </a>
+
+        </section>
+
+
+      </aside>
+
+
+    </div>
+
+
+    <div class="notice">
+
+      This is a demonstration opportunity.
+      Real applications, deadlines, opportunity
+      owners, and applicant information will be
+      connected through the secure StarRise
+      platform backend.
+
+    </div>
+
+
+  </main>
+
+
+  <footer>
+
+    ⭐ StarRise — Where Talent Rises.
+
+  </footer>
+
+
+</body>
+
+</html>
