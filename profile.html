@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>StarRise Member Profile</title>
+
+  <meta
+    name="description"
+    content="StarRise member profile."
+  >
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: white;
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 24px 8%;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      border-bottom:
+        1px solid rgba(255,255,255,0.1);
+    }
+
+    .logo {
+      font-size: 27px;
+      font-weight: bold;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 60px 6%;
+    }
+
+    .profile-header {
+      text-align: center;
+      padding: 50px 20px;
+
+      border-radius: 22px;
+
+      border:
+        1px solid rgba(255,255,255,0.12);
+
+      background:
+        rgba(255,255,255,0.04);
+    }
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+
+      margin: 0 auto 20px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 50%;
+
+      border:
+        1px solid rgba(255,255,255,0.2);
+
+      background:
+        rgba(255,255,255,0.08);
+
+      font-size: 48px;
+    }
+
+    .profile-header h1 {
+      font-size: clamp(38px, 8vw, 64px);
+      margin-bottom: 8px;
+    }
+
+    .role {
+      color: #cccccc;
+      font-size: 18px;
+    }
+
+    .location {
+      color: #999999;
+      margin-top: 5px;
+    }
+
+    .grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(auto-fit, minmax(260px, 1fr));
+
+      gap: 22px;
+
+      margin-top: 25px;
+    }
+
+    .card {
+      padding: 28px;
+
+      border-radius: 18px;
+
+      border:
+        1px solid rgba(255,255,255,0.12);
+
+      background:
+        rgba(255,255,255,0.04);
+    }
+
+    .card h2 {
+      margin-bottom: 15px;
+      font-size: 24px;
+    }
+
+    .card p {
+      color: #bbbbbb;
+    }
+
+    .skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .skill {
+      padding: 8px 14px;
+
+      border-radius: 20px;
+
+      background:
+        rgba(255,255,255,0.08);
+
+      color: #dddddd;
+    }
+
+    .button {
+      display: inline-block;
+
+      margin-top: 20px;
+
+      padding: 12px 24px;
+
+      border-radius: 30px;
+
+      background: white;
+      color: #080812;
+
+      text-decoration: none;
+
+      font-weight: bold;
+    }
+
+    .button:hover {
+      opacity: 0.85;
+    }
+
+    .notice {
+      margin-top: 25px;
+
+      padding: 18px;
+
+      border-radius: 14px;
+
+      background:
+        rgba(255,255,255,0.05);
+
+      color: #aaaaaa;
+
+      text-align: center;
+    }
+
+    footer {
+      padding: 35px;
+
+      text-align: center;
+
+      color: #999999;
+
+      border-top:
+        1px solid rgba(255,255,255,0.1);
+    }
+
+    @media (max-width: 650px) {
+
+      header {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      nav a {
+        margin: 0 7px;
+      }
+
+      main {
+        padding: 40px 5%;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <header>
+
+    <div class="logo">
+      ⭐ StarRise
+    </div>
+
+    <nav>
+
+      <a href="index.html">
+        Home
+      </a>
+
+      <a href="ecosystem.html">
+        Ecosystem
+      </a>
+
+      <a href="join.html">
+        Join
+      </a>
+
+    </nav>
+
+  </header>
+
+
+  <main>
+
+
+    <section class="profile-header">
+
+      <div class="avatar">
+        ⭐
+      </div>
+
+      <h1>
+        StarRise Member
+      </h1>
+
+      <p class="role">
+        Talent • Creator • Member
+      </p>
+
+      <p class="location">
+        Location coming soon
+      </p>
+
+    </section>
+
+
+    <div class="grid">
+
+
+      <section class="card">
+
+        <h2>
+          About
+        </h2>
+
+        <p>
+          This member profile will showcase
+          the person's story, experience,
+          creativity, goals, and connection
+          to the StarRise ecosystem.
+        </p>
+
+      </section>
+
+
+      <section class="card">
+
+        <h2>
+          Skills & Talents
+        </h2>
+
+        <div class="skills">
+
+          <span class="skill">
+            Music
+          </span>
+
+          <span class="skill">
+            Performance
+          </span>
+
+          <span class="skill">
+            Creativity
+          </span>
+
+        </div>
+
+      </section>
+
+
+      <section class="card">
+
+        <h2>
+          Projects
+        </h2>
+
+        <p>
+          Member projects, performances,
+          collaborations, releases, and
+          creative work will appear here.
+        </p>
+
+      </section>
+
+
+      <section class="card">
+
+        <h2>
+          Opportunities
+        </h2>
+
+        <p>
+          Relevant StarRise opportunities
+          and collaborations can eventually
+          be connected to this profile.
+        </p>
+
+      </section>
+
+
+      <section class="card">
+
+        <h2>
+          Connect
+        </h2>
+
+        <p>
+          Website and approved social links
+          will appear here when a member
+          chooses to share them.
+        </p>
+
+        <a
+          class="button"
+          href="#"
+        >
+          Website Coming Soon
+        </a>
+
+      </section>
+
+
+      <section class="card">
+
+        <h2>
+          StarRise Member
+        </h2>
+
+        <p>
+          This profile represents a member
+          of the StarRise ecosystem.
+        </p>
+
+        <a
+          class="button"
+          href="ecosystem.html"
+        >
+          Explore Ecosystem
+        </a>
+
+      </section>
+
+
+    </div>
+
+
+    <div class="notice">
+
+      Profile publishing, member accounts,
+      authentication, media uploads, and
+      private member data will be connected
+      through the StarRise platform backend
+      in a later stage.
+
+    </div>
+
+
+  </main>
+
+
+  <footer>
+
+    ⭐ StarRise — Where Talent Rises.
+
+  </footer>
+
+
+</body>
+
+</html>
