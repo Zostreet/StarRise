@@ -554,6 +554,26 @@
 
       </form>
 
+<script>
+
+  const params = new URLSearchParams(window.location.search);
+
+  const selectedRole = params.get("role");
+
+  if (selectedRole) {
+
+    const roleInput = document.querySelector(
+      'input[name="role"][value="' + selectedRole + '"]'
+    );
+
+    if (roleInput) {
+      roleInput.checked = true;
+    }
+
+  }
+
+</script>
+
 
     </div>
 
