@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>StarRise Members</title>
+
+  <meta
+    name="description"
+    content="Discover members of the StarRise ecosystem."
+  >
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: white;
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 24px 8%;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      border-bottom:
+        1px solid rgba(255,255,255,0.1);
+    }
+
+    .logo {
+      font-size: 27px;
+      font-weight: bold;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      max-width: 1150px;
+      margin: auto;
+      padding: 65px 6%;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 45px;
+    }
+
+    .hero h1 {
+      font-size: clamp(42px, 9vw, 72px);
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      max-width: 700px;
+      margin: auto;
+      color: #cccccc;
+      font-size: 18px;
+    }
+
+    .controls {
+      display: grid;
+
+      grid-template-columns:
+        2fr 1fr;
+
+      gap: 15px;
+
+      margin-bottom: 35px;
+    }
+
+    input,
+    select {
+      width: 100%;
+
+      padding: 14px;
+
+      border-radius: 10px;
+
+      border:
+        1px solid rgba(255,255,255,0.2);
+
+      background: #11111d;
+
+      color: white;
+
+      font-size: 16px;
+    }
+
+    input:focus,
+    select:focus {
+      outline: 2px solid white;
+    }
+
+    .grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(auto-fit, minmax(260px, 1fr));
+
+      gap: 22px;
+    }
+
+    .member {
+      padding: 28px;
+
+      border-radius: 18px;
+
+      border:
+        1px solid rgba(255,255,255,0.12);
+
+      background:
+        rgba(255,255,255,0.04);
+    }
+
+    .avatar {
+      width: 75px;
+      height: 75px;
+
+      margin-bottom: 18px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 50%;
+
+      background:
+        rgba(255,255,255,0.08);
+
+      font-size: 30px;
+    }
+
+    .member h2 {
+      margin-bottom: 5px;
+    }
+
+    .role {
+      color: #cccccc;
+      font-size: 14px;
+    }
+
+    .location {
+      color: #999999;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+
+    .member p {
+      color: #bbbbbb;
+      margin-bottom: 18px;
+    }
+
+    .button {
+      display: inline-block;
+
+      padding: 10px 20px;
+
+      border-radius: 25px;
+
+      background: white;
+      color: #080812;
+
+      text-decoration: none;
+
+      font-weight: bold;
+    }
+
+    .button:hover {
+      opacity: 0.85;
+    }
+
+    .notice {
+      margin-top: 35px;
+
+      padding: 18px;
+
+      border-radius: 14px;
+
+      background:
+        rgba(255,255,255,0.05);
+
+      color: #aaaaaa;
+
+      text-align: center;
+    }
+
+    footer {
+      padding: 35px;
+
+      text-align: center;
+
+      color: #999999;
+
+      border-top:
+        1px solid rgba(255,255,255,0.1);
+    }
+
+    @media (max-width: 650px) {
+
+      header {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      nav a {
+        margin: 0 7px;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      main {
+        padding: 45px 5%;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <header>
+
+    <div class="logo">
+      ⭐ StarRise
+    </div>
+
+    <nav>
+
+      <a href="index.html">
+        Home
+      </a>
+
+      <a href="ecosystem.html">
+        Ecosystem
+      </a>
+
+      <a href="join.html">
+        Join
+      </a>
+
+    </nav>
+
+  </header>
+
+
+  <main>
+
+
+    <section class="hero">
+
+      <h1>
+        StarRise Members
+      </h1>
+
+      <p>
+        Discover the people who make up the
+        StarRise ecosystem. Talent, creators,
+        supporters, clients, vendors, and
+        partners all have a place here.
+      </p>
+
+    </section>
+
+
+    <section class="controls">
+
+      <input
+        type="search"
+        id="search"
+        placeholder="Search members..."
+      >
+
+      <select id="roleFilter">
+
+        <option value="all">
+          All Roles
+        </option>
+
+        <option value="Talent">
+          Talent
+        </option>
+
+        <option value="Creator">
+          Creator
+        </option>
+
+        <option value="Supporter">
+          Supporter
+        </option>
+
+        <option value="Client">
+          Client
+        </option>
+
+        <option value="Vendor">
+          Vendor
+        </option>
+
+        <option value="Partner">
+          Partner
+        </option>
+
+      </select>
+
+    </section>
+
+
+    <section class="grid" id="members">
+
+
+      <article
+        class="member"
+        data-role="Talent"
+        data-name="Nova Rivers"
+      >
+
+        <div class="avatar">
+          🎤
+        </div>
+
+        <h2>
+          Nova Rivers
+        </h2>
+
+        <div class="role">
+          Talent
+        </div>
+
+        <div class="location">
+          Charlotte, NC
+        </div>
+
+        <p>
+          Independent vocalist and performer
+          building a unique sound and creative
+          identity.
+        </p>
+
+        <a
+          class="button"
+          href="profile.html"
+        >
+          View Profile
+        </a>
+
+      </article>
+
+
+      <article
+        class="member"
+        data-role="Creator"
+        data-name="Jordan Creative"
+      >
+
+        <div class="avatar">
+          ✨
+        </div>
+
+        <h2>
+          Jordan Creative
+        </h2>
+
+        <div class="role">
+          Creator
+        </div>
+
+        <div class="location">
+          Atlanta, GA
+        </div>
+
+        <p>
+          Multimedia creator focused on
+          storytelling, visual projects, and
+          collaboration.
+        </p>
+
+        <a
+          class="button"
+          href="profile.html"
+        >
+          View Profile
+        </a>
+
+      </article>
+
+
+      <article
+        class="member"
+        data-role="Supporter"
+        data-name="StarRise Support"
+      >
+
+        <div class="avatar">
+          ❤️
+        </div>
+
+        <h2>
+          StarRise Support
+        </h2>
+
+        <div class="role">
+          Supporter
+        </div>
+
+        <div class="location">
+          United States
+        </div>
+
+        <p>
+          Supporting emerging talent and
+          creative opportunities within the
+          StarRise community.
+        </p>
+
+        <a
+          class="button"
+          href="profile.html"
+        >
+          View Profile
+        </a>
+
+      </article>
+
+
+      <article
+        class="member"
+        data-role="Client"
+        data-name="Creative Client"
+      >
+
+        <div class="avatar">
+          💼
+        </div>
+
+        <h2>
+          Creative Client
+        </h2>
+
+        <div class="role">
+          Client
+        </div>
+
+        <div class="location">
+          United States
+        </div>
+
+        <p>
+          Looking for creative talent and
+          entertainment services.
+        </p>
+
+        <a
+          class="button"
+          href="profile.html"
+        >
+          View Profile
+        </a>
+
+      </article>
+
+
+      <article
+        class="member"
+        data-role="Vendor"
+        data-name="Creative Supply"
+      >
+
+        <div class="avatar">
+          🛠️
+        </div>
+
+        <h2>
+          Creative Supply
+        </h2>
+
+        <div class="role">
+          Vendor
+        </div>
+
+        <div class="location">
+          United States
+        </div>
+
+        <p>
+          Providing resources and professional
+          services to creative projects.
+        </p>
+
+        <a
+          class="button"
+          href="profile.html"
+        >
+          View Profile
+        </a>
+
+      </article>
+
+
+      <article
+        class="member"
+        data-role="Partner"
+        data-name="StarRise Partners"
+      >
+
+        <div class="avatar">
+          🤝
+        </div>
+
+        <h2>
+          StarRise Partners
+        </h2>
+
+        <div class="role">
+          Partner
+        </div>
+
+        <div class="location">
+          United States
+        </div>
+
+        <p>
+          Collaborating with StarRise to create
+          opportunities and expand the ecosystem.
+        </p>
+
+        <a
+          class="button"
+          href="profile.html"
+        >
+          View Profile
+        </a>
+
+      </article>
+
+
+    </section>
+
+
+    <div class="notice">
+
+      These are demonstration profiles for the
+      StarRise platform. Real member profiles will
+      appear here after member accounts and
+      publishing are connected.
+
+    </div>
+
+
+  </main>
+
+
+  <footer>
+
+    ⭐ StarRise — Where Talent Rises.
+
+  </footer>
+
+
+  <script>
+
+    const searchInput =
+      document.getElementById("search");
+
+    const roleFilter =
+      document.getElementById("roleFilter");
+
+    const members =
+      document.querySelectorAll(".member");
+
+
+    function filterMembers() {
+
+      const search =
+        searchInput.value.toLowerCase();
+
+      const role =
+        roleFilter.value;
+
+
+      members.forEach(member => {
+
+        const name =
+          member.dataset.name.toLowerCase();
+
+        const memberRole =
+          member.dataset.role;
+
+
+        const matchesSearch =
+          name.includes(search);
+
+        const matchesRole =
+          role === "all" ||
+          memberRole === role;
+
+
+        if (
+          matchesSearch &&
+          matchesRole
+        ) {
+
+          member.style.display = "";
+
+        } else {
+
+          member.style.display = "none";
+
+        }
+
+      });
+
+    }
+
+
+    searchInput.addEventListener(
+      "input",
+      filterMembers
+    );
+
+
+    roleFilter.addEventListener(
+      "change",
+      filterMembers
+    );
+
+  </script>
+
+
+</body>
+
+</html>
