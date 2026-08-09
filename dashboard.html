@@ -418,9 +418,12 @@
 
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
+document.getElementById('status').textContent =
+  window.supabase
+    ? 'Supabase library loaded.'
+    : 'Supabase library FAILED to load.';
+</script>
 (function () {
 
   const SUPABASE_URL =
