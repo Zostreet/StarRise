@@ -1,8 +1,8 @@
 <!doctype html>
 
-<html lang="en"><head>  <meta charset="utf-8">
+<html lang="en"><head>
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">  <title>Member Dashboard | StarRise</title>  <style>
-
     * {
       box-sizing: border-box;
     }
@@ -116,6 +116,16 @@
       color: #aaa;
     }
 
+    .error {
+      color: #ffb0b0 !important;
+      background: rgba(220, 70, 70, .12) !important;
+    }
+
+    .success {
+      color: #a8ffc8 !important;
+      background: rgba(50, 180, 100, .12) !important;
+    }
+
     .order-card {
       padding: 20px;
       border-radius: 16px;
@@ -195,7 +205,6 @@
     }
 
     @media (max-width: 650px) {
-
       header {
         flex-direction: column;
       }
@@ -209,9 +218,7 @@
       .panel {
         padding: 22px;
       }
-
     }
-
   </style></head><body><header>  <a href="index.html">
     ⭐ StarRise
   </a>  <button id="signout">
@@ -246,9 +253,7 @@
 
 <div class="profile-grid">
 
-
   <div class="item">
-
     <span class="label">
       Full Name
     </span>
@@ -259,12 +264,10 @@
     >
       Loading...
     </span>
-
   </div>
 
 
   <div class="item">
-
     <span class="label">
       Display / Stage Name
     </span>
@@ -275,12 +278,10 @@
     >
       Loading...
     </span>
-
   </div>
 
 
   <div class="item">
-
     <span class="label">
       Email
     </span>
@@ -291,12 +292,10 @@
     >
       Loading...
     </span>
-
   </div>
 
 
   <div class="item">
-
     <span class="label">
       Location
     </span>
@@ -307,12 +306,10 @@
     >
       Loading...
     </span>
-
   </div>
 
 
   <div class="item">
-
     <span class="label">
       Website
     </span>
@@ -323,12 +320,10 @@
     >
       Loading...
     </span>
-
   </div>
 
 
   <div class="item">
-
     <span class="label">
       Member Since
     </span>
@@ -339,9 +334,7 @@
     >
       Loading...
     </span>
-
   </div>
-
 
 </div>
 
@@ -394,7 +387,6 @@
 
   </section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 
-
 const starRiseSupabase =
   window.supabase.createClient(
     'https://rcnikxotdalxtuvpmlvm.supabase.co',
@@ -403,71 +395,43 @@ const starRiseSupabase =
 
 
 const statusBox =
-  document.getElementById(
-    'status'
-  );
-
+  document.getElementById('status');
 
 const ordersStatus =
-  document.getElementById(
-    'orders-status'
-  );
-
+  document.getElementById('orders-status');
 
 const ordersContainer =
-  document.getElementById(
-    'orders'
-  );
-
+  document.getElementById('orders');
 
 const myOrdersStatus =
-  document.getElementById(
-    'my-orders-status'
-  );
-
+  document.getElementById('my-orders-status');
 
 const myOrdersContainer =
-  document.getElementById(
-    'my-orders'
-  );
+  document.getElementById('my-orders');
 
 
 function escapeHtml(value) {
 
-  return String(value)
-
-    .replaceAll(
-      '&',
-      '&amp;'
-    )
-
-    .replaceAll(
-      '<',
-      '&lt;'
-    )
-
-    .replaceAll(
-      '>',
-      '&gt;'
-    )
-
-    .replaceAll(
-      '"',
-      '&quot;'
-    )
-
-    .replaceAll(
-      "'",
-      '&#039;'
-    );
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 
 }
 
 
-function showStatus(message) {
+function showStatus(
+  message,
+  type = ''
+) {
 
   statusBox.textContent =
     message;
+
+  statusBox.className =
+    type;
 
 }
 
@@ -480,9 +444,7 @@ async function handleAuthCallback() {
 
   if (
     !hash ||
-    !hash.includes(
-      'access_token='
-    )
+    !hash.includes('access_token=')
   ) {
 
     return;
@@ -497,15 +459,10 @@ async function handleAuthCallback() {
 
 
   const accessToken =
-    params.get(
-      'access_token'
-    );
-
+    params.get('access_token');
 
   const refreshToken =
-    params.get(
-      'refresh_token'
-    );
+    params.get('refresh_token');
 
 
   if (
@@ -540,7 +497,8 @@ async function handleAuthCallback() {
     );
 
     showStatus(
-      'We could not complete your sign-in session.'
+      'We could not complete your sign-in session.',
+      'error'
     );
 
     return;
@@ -605,16 +563,12 @@ async function loadProfile(
     error
   } =
     await starRiseSupabase
-
       .from('Profiles')
-
       .select('*')
-
       .eq(
         'id',
         user.id
       )
-
       .single();
 
 
@@ -626,7 +580,8 @@ async function loadProfile(
     );
 
     showStatus(
-      'Your account is signed in, but your profile could not be loaded.'
+      'Your account is signed in, but your profile could not be loaded.',
+      'error'
     );
 
     return;
@@ -682,13 +637,9 @@ async function loadProfile(
       'website'
     ).innerHTML =
       '<a class="website-link" href="' +
-      escapeHtml(
-        profile.website
-      ) +
+      escapeHtml(profile.website) +
       '" target="_blank" rel="noopener noreferrer">' +
-      escapeHtml(
-        profile.website
-      ) +
+      escapeHtml(profile.website) +
       '</a>';
 
   } else {
@@ -725,11 +676,8 @@ async function loadProfile(
     error: rolesError
   } =
     await starRiseSupabase
-
       .from('member_roles')
-
       .select('role')
-
       .eq(
         'user_id',
         user.id
@@ -767,9 +715,7 @@ async function loadProfile(
         .map(
           item =>
             '<span class="role">' +
-            escapeHtml(
-              item.role
-            ) +
+            escapeHtml(item.role) +
             '</span>'
         )
         .join('');
@@ -788,24 +734,20 @@ async function loadIncomingOrders(
     error
   } =
     await starRiseSupabase
-
       .from('service_orders')
-
       .select(`
         id,
         service_id,
         buyer_id,
         amount_cents,
-        request_message,,
+        request_message,
         status,
         created_at
       `)
-
       .eq(
         'seller_id',
         user.id
       )
-
       .order(
         'created_at',
         {
@@ -824,6 +766,9 @@ async function loadIncomingOrders(
     ordersStatus.textContent =
       'Unable to load incoming orders.';
 
+    ordersStatus.className =
+      'error';
+
     return;
 
   }
@@ -841,6 +786,9 @@ async function loadIncomingOrders(
     ordersStatus.textContent =
       'No incoming service requests yet.';
 
+    ordersStatus.className =
+      '';
+
     return;
 
   }
@@ -852,6 +800,9 @@ async function loadIncomingOrders(
         ? ''
         : 's'
     }`;
+
+  ordersStatus.className =
+    '';
 
 
   orders.forEach(
@@ -895,22 +846,18 @@ async function loadIncomingOrders(
         </div>
 
         <div class="order-status">
-          ${escapeHtml(
-            currentStatus
-          )}
+          ${escapeHtml(currentStatus)}
         </div>
 
         <div class="order-request">
           ${escapeHtml(
-            order.client_request ||
+            order.request_message ||
             'No request details provided.'
           )}
         </div>
 
         <div class="order-meta">
-          Submitted ${escapeHtml(
-            date
-          )}
+          Submitted ${escapeHtml(date)}
         </div>
 
         <a
@@ -1002,19 +949,14 @@ async function acceptOrder(
     error
   } =
     await starRiseSupabase
-
       .from('service_orders')
-
       .update({
-        status:
-          'accepted'
+        status: 'accepted'
       })
-
       .eq(
         'id',
         orderId
       )
-
       .eq(
         'seller_id',
         user.id
@@ -1035,7 +977,8 @@ async function acceptOrder(
       'Accept Request';
 
     showStatus(
-      'We could not accept this order.'
+      'We could not accept this order.',
+      'error'
     );
 
     return;
@@ -1043,9 +986,16 @@ async function acceptOrder(
   }
 
 
+  showStatus(
+    'Service request accepted.',
+    'success'
+  );
+
+
   await loadIncomingOrders(
     user
   );
+
 
   await loadMyOrders(
     user
@@ -1063,24 +1013,20 @@ async function loadMyOrders(
     error
   } =
     await starRiseSupabase
-
       .from('service_orders')
-
       .select(`
         id,
         service_id,
         seller_id,
         amount_cents,
-        client_request,
+        request_message,
         status,
         created_at
       `)
-
       .eq(
         'buyer_id',
         user.id
       )
-
       .order(
         'created_at',
         {
@@ -1099,6 +1045,9 @@ async function loadMyOrders(
     myOrdersStatus.textContent =
       'Unable to load your orders.';
 
+    myOrdersStatus.className =
+      'error';
+
     return;
 
   }
@@ -1116,6 +1065,9 @@ async function loadMyOrders(
     myOrdersStatus.textContent =
       'You have not requested any services yet.';
 
+    myOrdersStatus.className =
+      '';
+
     return;
 
   }
@@ -1127,6 +1079,9 @@ async function loadMyOrders(
         ? ''
         : 's'
     }`;
+
+  myOrdersStatus.className =
+    '';
 
 
   orders.forEach(
@@ -1170,9 +1125,7 @@ async function loadMyOrders(
         </div>
 
         <div class="order-status">
-          ${escapeHtml(
-            currentStatus
-          )}
+          ${escapeHtml(currentStatus)}
         </div>
 
         <div class="order-request">
@@ -1183,9 +1136,7 @@ async function loadMyOrders(
         </div>
 
         <div class="order-meta">
-          Submitted ${escapeHtml(
-            date
-          )}
+          Submitted ${escapeHtml(date)}
         </div>
 
         <a
@@ -1211,9 +1162,7 @@ async function loadMyOrders(
 
 
 document
-  .getElementById(
-    'signout'
-  )
+  .getElementById('signout')
   .addEventListener(
     'click',
     async () => {
@@ -1265,4 +1214,5 @@ async function startDashboard() {
 
 startDashboard();
 
-</script></body></html>
+</script></body>
+</html>
