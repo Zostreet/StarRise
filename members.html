@@ -357,7 +357,8 @@
       } = await starRiseSupabase
         .from('public_profiles')
         .select(
-          'id, display_name, role, location, bio, website'
+  'id, display_name, role, location, bio, website, avatar_url'
+)
         )
         .order(
           'display_name',
@@ -464,9 +465,25 @@
           'StarRise Member';
 
         const initial =
-          displayName
-            .charAt(0)
-            .toUpperCase();
+  displayName
+    .charAt(0)
+    .toUpperCase();
+
+const avatarHtml =
+  member.avatar_url
+    ? `
+      <img
+        src="${escapeHtml(member.avatar_url)}"
+        alt="${escapeHtml(displayName)}"
+        style="
+          width:75px;
+          height:75px;
+          object-fit:cover;
+          border-radius:50%;
+        "
+      >
+    `
+    : escapeHtml(initial);
 
         card.innerHTML = `
 
