@@ -6,7 +6,9 @@
   <title>StarRise Dashboard</title>
 
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -32,7 +34,9 @@
       font-weight: bold;
     }
 
-    button { font-family: inherit; }
+    button {
+      font-family: inherit;
+    }
 
     #signout {
       border: 1px solid #ffffff33;
@@ -41,6 +45,10 @@
       padding: 10px 16px;
       border-radius: 20px;
       cursor: pointer;
+    }
+
+    #signout:hover {
+      background: #ffffff10;
     }
 
     main {
@@ -57,9 +65,14 @@
       margin-bottom: 20px;
     }
 
-    h1, h2 { margin-top: 0; }
+    h1,
+    h2 {
+      margin-top: 0;
+    }
 
-    .muted { color: #aaa; }
+    .muted {
+      color: #aaa;
+    }
 
     .status-box {
       padding: 14px;
@@ -100,7 +113,9 @@
       letter-spacing: .08em;
     }
 
-    .profile-value { word-break: break-word; }
+    .profile-value {
+      word-break: break-word;
+    }
 
     .role {
       display: inline-block;
@@ -165,6 +180,10 @@
       cursor: pointer;
     }
 
+    .order-button:hover {
+      opacity: .9;
+    }
+
     .order-button:disabled {
       opacity: .6;
       cursor: wait;
@@ -176,7 +195,11 @@
       border: 1px solid #ffffff35;
     }
 
-    .service-link,
+    .service-link {
+      color: #fff;
+      text-decoration: underline;
+    }
+
     .website-link {
       color: #fff;
       text-decoration: underline;
@@ -225,7 +248,9 @@
       cursor: pointer;
     }
 
-    .star.selected { color: #ffd84d; }
+    .star.selected {
+      color: #ffd84d;
+    }
 
     .review-text {
       width: 100%;
@@ -240,7 +265,9 @@
       margin-bottom: 12px;
     }
 
-    .review-text::placeholder { color: #777; }
+    .review-text::placeholder {
+      color: #777;
+    }
 
     .review-display {
       margin-top: 18px;
@@ -269,18 +296,27 @@
     }
 
     @media (max-width: 650px) {
-      header { flex-direction: column; }
+      header {
+        flex-direction: column;
+      }
 
       main {
         width: calc(100% - 20px);
         margin-top: 20px;
       }
 
-      .hero, .panel { padding: 20px; }
+      .hero,
+      .panel {
+        padding: 20px;
+      }
 
-      .order-actions { flex-direction: column; }
+      .order-actions {
+        flex-direction: column;
+      }
 
-      .order-button { width: 100%; }
+      .order-button {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -319,32 +355,44 @@
 
       <div class="item">
         <span class="label">Full Name</span>
-        <span id="profile-name" class="profile-value">Loading...</span>
+        <span id="profile-name" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Display / Stage Name</span>
-        <span id="display-name" class="profile-value">Loading...</span>
+        <span id="display-name" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Email</span>
-        <span id="email" class="profile-value">Loading...</span>
+        <span id="email" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Location</span>
-        <span id="location" class="profile-value">Loading...</span>
+        <span id="location" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Website</span>
-        <span id="website" class="profile-value">Loading...</span>
+        <span id="website" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Member Since</span>
-        <span id="member-since" class="profile-value">Loading...</span>
+        <span id="member-since" class="profile-value">
+          Loading...
+        </span>
       </div>
 
     </div>
@@ -352,12 +400,18 @@
 
   <section class="panel">
     <h2>About You</h2>
-    <p id="bio" class="muted">Loading...</p>
+
+    <p id="bio" class="muted">
+      Loading...
+    </p>
   </section>
 
   <section class="panel">
     <h2>Your StarRise Roles</h2>
-    <div id="roles">Loading roles...</div>
+
+    <div id="roles">
+      Loading roles...
+    </div>
   </section>
 
   <section class="panel">
@@ -421,11 +475,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-document.getElementById('status').textContent =
-  window.supabase
-    ? 'Supabase library loaded.'
-    : 'Supabase library FAILED to load.';
-</script>
 (function () {
 
   const SUPABASE_URL =
@@ -475,7 +524,11 @@ document.getElementById('status').textContent =
 
   function setStatus(element, message, type) {
     element.textContent = message;
-    element.classList.remove('error', 'success');
+
+    element.classList.remove(
+      'error',
+      'success'
+    );
 
     if (type) {
       element.classList.add(type);
@@ -486,11 +539,27 @@ document.getElementById('status').textContent =
     const value = Number(rating || 0);
 
     return [1, 2, 3, 4, 5]
-      .map(n => n <= value ? '★' : '☆')
+      .map(function (n) {
+        return n <= value ? '★' : '☆';
+      })
       .join('');
   }
 
-  async function getUser() {
+  function formatDate(value) {
+    if (!value) {
+      return 'Unknown';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return 'Unknown';
+    }
+
+    return date.toLocaleDateString();
+  }
+
+  async function initialize() {
 
     if (!window.supabase) {
       throw new Error(
@@ -504,19 +573,25 @@ document.getElementById('status').textContent =
         SUPABASE_KEY
       );
 
-    const result =
+    const sessionResult =
       await supabaseClient.auth.getSession();
 
-    if (result.error) {
-      throw result.error;
+    if (sessionResult.error) {
+      throw sessionResult.error;
     }
 
-    if (!result.data?.session?.user) {
+    const session =
+      sessionResult.data &&
+      sessionResult.data.session;
+
+    if (!session || !session.user) {
       window.location.href = 'login.html';
       return null;
     }
 
-    return result.data.session.user;
+    currentUser = session.user;
+
+    return currentUser;
   }
 
   async function loadProfile(user) {
@@ -572,9 +647,19 @@ document.getElementById('status').textContent =
       profile.website || 'Not provided';
 
     document.getElementById('member-since').textContent =
-      profile.created_at
-        ? new Date(profile.created_at).toLocaleDateString()
-        : 'StarRise Member';
+      formatDate(profile.created_at);
+
+    if (profile.website) {
+      const websiteElement =
+        document.getElementById('website');
+
+      websiteElement.innerHTML =
+        '<a class="website-link" target="_blank" rel="noopener noreferrer" href="' +
+        escapeHtml(profile.website) +
+        '">' +
+        escapeHtml(profile.website) +
+        '</a>';
+    }
 
     return profile;
   }
@@ -596,27 +681,39 @@ document.getElementById('status').textContent =
         throw result.error;
       }
 
-      if (!result.data?.length) {
+      if (!result.data || !result.data.length) {
+
         element.innerHTML =
-          '<span class="muted">No roles assigned yet.</span>';
+          '<span class="muted">' +
+          'No roles assigned yet.' +
+          '</span>';
+
         return;
       }
 
       element.innerHTML =
         result.data
-          .map(item =>
-            '<span class="role">' +
-            escapeHtml(item.role) +
-            '</span>'
-          )
+          .map(function (item) {
+
+            return (
+              '<span class="role">' +
+              escapeHtml(item.role) +
+              '</span>'
+            );
+
+          })
           .join('');
 
     } catch (error) {
 
-      console.error('Roles error:', error);
+      console.error(
+        'Roles error:',
+        error
+      );
 
       element.innerHTML =
-        '<span class="muted">Unable to load roles: ' +
+        '<span class="muted">' +
+        'Unable to load roles: ' +
         escapeHtml(error.message) +
         '</span>';
     }
@@ -635,14 +732,22 @@ document.getElementById('status').textContent =
         .in('order_id', orderIds);
 
     if (result.error) {
-      console.error('Reviews error:', result.error);
+
+      console.error(
+        'Reviews error:',
+        result.error
+      );
+
       return {};
     }
 
     return (result.data || []).reduce(
-      (map, review) => {
+      function (map, review) {
+
         map[review.order_id] = review;
+
         return map;
+
       },
       {}
     );
@@ -656,26 +761,33 @@ document.getElementById('status').textContent =
 
     return `
       <div class="review-display">
-        <span class="label">Review</span>
+
+        <span class="label">
+          Review
+        </span>
 
         <div class="review-stars">
-          ${escapeHtml(starsHtml(review.rating))}
+          ${escapeHtml(
+            starsHtml(review.rating)
+          )}
         </div>
 
         ${
           review.review
-            ? `<div class="review-content">
+            ? `
+              <div class="review-content">
                 ${escapeHtml(review.review)}
-               </div>`
+              </div>
+            `
             : ''
         }
 
         <div class="review-date">
           Reviewed ${escapeHtml(
-            new Date(review.created_at)
-              .toLocaleDateString()
+            formatDate(review.created_at)
           )}
         </div>
+
       </div>
     `;
   }
@@ -683,25 +795,39 @@ document.getElementById('status').textContent =
   function reviewForm(order, review) {
 
     const currentRating =
-      Number(review?.rating || 0);
+      Number(review && review.rating || 0);
 
     return `
       <div class="review-box">
 
         <span class="label">
-          ${review ? 'Update Your Review' : 'Rate This Service'}
+          ${
+            review
+              ? 'Update Your Review'
+              : 'Rate This Service'
+          }
         </span>
 
         <div class="stars">
 
-          ${[1,2,3,4,5].map(n => `
-            <button
-              type="button"
-              class="star ${n <= currentRating ? 'selected' : ''}"
-              data-rating="${n}"
-              data-order="${escapeHtml(order.id)}"
-            >★</button>
-          `).join('')}
+          ${[1, 2, 3, 4, 5]
+            .map(function (n) {
+
+              return `
+                <button
+                  type="button"
+                  class="star ${
+                    n <= currentRating
+                      ? 'selected'
+                      : ''
+                  }"
+                  data-rating="${n}"
+                  data-order="${escapeHtml(order.id)}"
+                >★</button>
+              `;
+
+            })
+            .join('')}
 
         </div>
 
@@ -710,14 +836,22 @@ document.getElementById('status').textContent =
           id="review-text-${escapeHtml(order.id)}"
           maxlength="1000"
           placeholder="Tell us about your StarRise experience..."
-        >${escapeHtml(review?.review || '')}</textarea>
+        >${
+          escapeHtml(
+            review && review.review || ''
+          )
+        }</textarea>
 
         <button
           type="button"
           class="order-button"
           data-submit-review="${escapeHtml(order.id)}"
         >
-          ${review ? 'Update Review' : 'Submit Review'}
+          ${
+            review
+              ? 'Update Review'
+              : 'Submit Review'
+          }
         </button>
 
         <div
@@ -804,16 +938,10 @@ document.getElementById('status').textContent =
       Number(order.amount_cents || 0) / 100;
 
     const created =
-      order.created_at
-        ? new Date(order.created_at)
-            .toLocaleDateString()
-        : 'Unknown';
+      formatDate(order.created_at);
 
     const updated =
-      order.updated_at
-        ? new Date(order.updated_at)
-            .toLocaleDateString()
-        : created;
+      formatDate(order.updated_at);
 
     const card =
       document.createElement('div');
@@ -823,7 +951,11 @@ document.getElementById('status').textContent =
     card.innerHTML = `
 
       <span class="label">
-        ${providerView ? 'Customer Service' : 'Your Service'}
+        ${
+          providerView
+            ? 'Customer Service'
+            : 'Your Service'
+        }
       </span>
 
       <div class="order-price">
@@ -831,7 +963,9 @@ document.getElementById('status').textContent =
       </div>
 
       <div class="order-status">
-        ${escapeHtml(order.status || 'pending')}
+        ${escapeHtml(
+          order.status || 'pending'
+        )}
       </div>
 
       <div class="order-request">
@@ -851,7 +985,9 @@ document.getElementById('status').textContent =
 
       <a
         class="service-link"
-        href="service.html?id=${encodeURIComponent(order.service_id)}"
+        href="service.html?id=${encodeURIComponent(
+          order.service_id || ''
+        )}"
       >
         View Service
       </a>
@@ -905,91 +1041,3 @@ document.getElementById('status').textContent =
       }
 
       const orders =
-        result.data || [];
-
-      if (!orders.length) {
-
-        setStatus(
-          ordersStatus,
-          'No incoming service orders yet.'
-        );
-
-        ordersContainer.innerHTML =
-          '<div class="empty">No customer requests yet.</div>';
-
-        return;
-      }
-
-      const reviews =
-        await getReviews(
-          orders.map(order => order.id)
-        );
-
-      ordersContainer.innerHTML = '';
-
-      orders.forEach(order => {
-
-        ordersContainer.appendChild(
-          buildOrderCard(
-            order,
-            true,
-            reviews[order.id]
-          )
-        );
-
-      });
-
-      setStatus(
-        ordersStatus,
-        orders.length +
-        ' incoming order' +
-        (orders.length === 1 ? '' : 's') +
-        ' loaded.',
-        'success'
-      );
-
-    } catch (error) {
-
-      console.error(
-        'Incoming orders error:',
-        error
-      );
-
-      setStatus(
-        ordersStatus,
-        'Unable to load incoming orders: ' +
-        error.message,
-        'error'
-      );
-    }
-  }
-
-  async function loadCompletedOrders(user) {
-
-    try {
-
-      setStatus(
-        completedOrdersStatus,
-        'Loading completed services...'
-      );
-
-      const result =
-        await supabaseClient
-          .from('service_orders')
-          .select('*')
-          .eq('seller_id', user.id)
-          .eq('status', 'completed')
-          .order('updated_at', {
-            ascending: false
-          });
-
-      if (result.error) {
-        throw result.error;
-      }
-
-      const orders =
-        result.data || [];
-
-      if (!orders.length) {
-
-        setStatus(
