@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Member Dashboard | StarRise</title>
 
   <style>
@@ -45,7 +46,7 @@
     }
 
     main {
-      width: min(950px, calc(100% - 40px));
+      width: min(1000px, calc(100% - 40px));
       margin: 50px auto;
     }
 
@@ -59,7 +60,8 @@
     }
 
     h1,
-    h2 {
+    h2,
+    h3 {
       margin-top: 0;
     }
 
@@ -77,7 +79,6 @@
       padding: 18px;
       border-radius: 14px;
       background: #ffffff08;
-      margin-bottom: 15px;
     }
 
     .label {
@@ -116,17 +117,17 @@
     }
 
     .error {
-      color: #ffb0b0 !important;
-      background: rgba(220,70,70,.12) !important;
+      color: #ffb0b0;
+      background: rgba(220,70,70,.12);
     }
 
     .success {
-      color: #a8ffc8 !important;
-      background: rgba(50,180,100,.12) !important;
+      color: #a8ffc8;
+      background: rgba(50,180,100,.12);
     }
 
     .order-card {
-      padding: 20px;
+      padding: 22px;
       border-radius: 16px;
       background: #ffffff08;
       border: 1px solid #ffffff12;
@@ -134,7 +135,7 @@
     }
 
     .order-price {
-      font-size: 25px;
+      font-size: 27px;
       font-weight: bold;
       margin-bottom: 8px;
     }
@@ -146,6 +147,13 @@
       background: #ffffff12;
       margin: 8px 0;
       text-transform: capitalize;
+    }
+
+    .order-person {
+      padding: 14px;
+      border-radius: 12px;
+      background: #ffffff06;
+      margin: 12px 0;
     }
 
     .order-request {
@@ -177,6 +185,18 @@
       text-decoration: none;
     }
 
+    .secondary-button {
+      display: inline-block;
+      padding: 10px 18px;
+      border-radius: 25px;
+      border: 1px solid #ffffff33;
+      background: transparent;
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      margin: 8px 8px 0 0;
+    }
+
     .order-button:disabled {
       opacity: .6;
       cursor: wait;
@@ -206,7 +226,7 @@
       }
 
       main {
-        width: min(100% - 24px, 950px);
+        width: min(100% - 24px, 1000px);
         margin-top: 30px;
       }
 
@@ -265,7 +285,11 @@
       Your Profile
     </h2>
 
-    <div id="status"></div>
+    <div
+      id="status"
+      class="status"
+      style="display:none;"
+    ></div>
 
     <div class="profile-grid">
 
@@ -282,7 +306,6 @@
         </span>
       </div>
 
-
       <div class="item">
         <span class="label">
           Display / Stage Name
@@ -295,7 +318,6 @@
           Loading...
         </span>
       </div>
-
 
       <div class="item">
         <span class="label">
@@ -310,7 +332,6 @@
         </span>
       </div>
 
-
       <div class="item">
         <span class="label">
           Location
@@ -324,7 +345,6 @@
         </span>
       </div>
 
-
       <div class="item">
         <span class="label">
           Website
@@ -337,7 +357,6 @@
           Loading...
         </span>
       </div>
-
 
       <div class="item">
         <span class="label">
@@ -415,7 +434,7 @@
     </h2>
 
     <p class="muted">
-      Services you have requested from other StarRise members.
+      Services you have requested from other StarRise members appear here.
     </p>
 
     <div
@@ -480,7 +499,10 @@ function showStatus(
     message;
 
   statusBox.className =
-    'status ' + type;
+    `status ${type}`;
+
+  statusBox.style.display =
+    'block';
 
 }
 
@@ -577,6 +599,7 @@ async function getCurrentUser() {
   }
 
   return data.session.user;
+
 }
 
 
@@ -596,10 +619,7 @@ async function loadProfile(user) {
     await starRiseSupabase
       .from('Profiles')
       .select('*')
-      .eq(
-        'id',
-        user.id
-      )
+      .eq('id', user.id)
       .single();
 
 
@@ -623,7 +643,6 @@ async function loadProfile(user) {
     profile.full_name ||
     'StarRise Member';
 
-
   const displayName =
     profile.display_name ||
     fullName;
@@ -634,25 +653,21 @@ async function loadProfile(user) {
   ).textContent =
     displayName;
 
-
   document.getElementById(
     'profile-name'
   ).textContent =
     fullName;
-
 
   document.getElementById(
     'display-name'
   ).textContent =
     displayName;
 
-
   document.getElementById(
     'location'
   ).textContent =
     profile.location ||
     'Not provided';
-
 
   document.getElementById(
     'bio'
@@ -682,23 +697,14 @@ async function loadProfile(user) {
   }
 
 
-  if (profile.created_at) {
-
-    document.getElementById(
-      'member-since'
-    ).textContent =
-      new Date(
-        profile.created_at
-      ).toLocaleDateString();
-
-  } else {
-
-    document.getElementById(
-      'member-since'
-    ).textContent =
-      'StarRise Member';
-
-  }
+  document.getElementById(
+    'member-since'
+  ).textContent =
+    profile.created_at
+      ? new Date(
+          profile.created_at
+        ).toLocaleDateString()
+      : 'StarRise Member';
 
 
   const {
@@ -708,10 +714,7 @@ async function loadProfile(user) {
     await starRiseSupabase
       .from('member_roles')
       .select('role')
-      .eq(
-        'user_id',
-        user.id
-      );
+      .eq('user_id', user.id);
 
 
   const rolesElement =
@@ -747,110 +750,175 @@ async function loadProfile(user) {
             '</span>'
         )
         .join('');
-
   }
 
 }
 
 
-function orderCard(
-  order,
-  type
+/*
+  Load public profiles for the people connected
+  to an order.
+*/
+async function loadPublicProfiles(
+  userIds
 ) {
 
-  const card =
-    document.createElement('div');
+  const uniqueIds =
+    [
+      ...new Set(
+        userIds.filter(Boolean)
+      )
+    ];
 
-  card.className =
-    'order-card';
-
-
-  const amount =
-    Number(
-      order.amount_cents || 0
-    ) / 100;
-
-
-  const date =
-    order.created_at
-      ? new Date(
-          order.created_at
-        ).toLocaleDateString()
-      : 'Unknown date';
+  if (!uniqueIds.length) {
+    return new Map();
+  }
 
 
-  const currentStatus =
-    order.status ||
-    'pending';
+  const {
+    data,
+    error
+  } =
+    await starRiseSupabase
+      .from('public_profiles')
+      .select(
+        'id, display_name, full_name, location, bio, avatar_url'
+      )
+      .in(
+        'id',
+        uniqueIds
+      );
 
 
-  const request =
-    order.request_message ||
-    'No request details provided.';
+  if (error) {
+
+    console.error(
+      'Public profile lookup error:',
+      error
+    );
+
+    return new Map();
+  }
 
 
-  card.innerHTML = `
-
-    <div class="label">
-      ${
-        type === 'incoming'
-          ? 'Customer Request'
-          : 'Your Order'
-      }
-    </div>
-
-    <div class="order-price">
-      $${amount.toFixed(2)}
-    </div>
-
-    <div class="order-status">
-      ${escapeHtml(currentStatus)}
-    </div>
-
-    <div class="order-request">
-      ${escapeHtml(request)}
-    </div>
-
-    <div class="order-meta">
-      Submitted ${escapeHtml(date)}
-    </div>
-
-    <a
-      class="view-button"
-      href="order.html?id=${encodeURIComponent(order.id)}"
-    >
-      View Order
-    </a>
-
-    ${
-      type === 'incoming' &&
-      currentStatus === 'pending'
-        ? `
-          <button
-            class="order-button"
-            data-order-id="${escapeHtml(order.id)}"
-          >
-            Accept Request
-          </button>
-        `
-        : ''
-    }
-
-  `;
-
-
-  return card;
+  return new Map(
+    (data || []).map(
+      profile => [
+        profile.id,
+        profile
+      ]
+    )
+  );
 
 }
 
 
-async function loadIncomingOrders(user) {
+/*
+  Load the actual services attached to orders.
+*/
+async function loadServices(
+  serviceIds
+) {
+
+  const uniqueIds =
+    [
+      ...new Set(
+        serviceIds.filter(Boolean)
+      )
+    ];
+
+  if (!uniqueIds.length) {
+    return new Map();
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await starRiseSupabase
+      .from('star_rise_services')
+      .select(
+        'id, user_id, title, description, category, price_cents, is_active'
+      )
+      .in(
+        'id',
+        uniqueIds
+      );
+
+
+  if (error) {
+
+    console.error(
+      'Service lookup error:',
+      error
+    );
+
+    return new Map();
+  }
+
+
+  return new Map(
+    (data || []).map(
+      service => [
+        service.id,
+        service
+      ]
+    )
+  );
+
+}
+
+
+function profileName(
+  profile
+) {
+
+  if (!profile) {
+    return 'StarRise Member';
+  }
+
+  return (
+    profile.display_name ||
+    profile.full_name ||
+    'StarRise Member'
+  );
+
+}
+
+
+function profileLink(
+  profileId,
+  label
+) {
+
+  if (!profileId) {
+    return escapeHtml(label);
+  }
+
+  return `
+    <a
+      class="secondary-button"
+      href="profile.html?id=${encodeURIComponent(profileId)}"
+    >
+      ${escapeHtml(label)}
+    </a>
+  `;
+
+}
+
+
+/*
+  Incoming orders:
+  seller_id = current member
+  buyer_id  = customer
+*/
+async function loadIncomingOrders(
+  user
+) {
 
   ordersStatus.textContent =
     'Loading incoming orders...';
-
-  ordersContainer.innerHTML =
-    '';
 
 
   const {
@@ -867,6 +935,7 @@ async function loadIncomingOrders(user) {
         amount_cents,
         request_message,
         status,
+        payment_status,
         created_at
       `)
       .eq(
@@ -895,8 +964,11 @@ async function loadIncomingOrders(user) {
       'status error';
 
     return;
-
   }
+
+
+  ordersContainer.innerHTML =
+    '';
 
 
   if (
@@ -911,8 +983,34 @@ async function loadIncomingOrders(user) {
       'status';
 
     return;
-
   }
+
+
+  const profileIds =
+    orders.flatMap(
+      order => [
+        order.buyer_id,
+        order.seller_id
+      ]
+    );
+
+
+  const serviceIds =
+    orders.map(
+      order =>
+        order.service_id
+    );
+
+
+  const profiles =
+    await loadPublicProfiles(
+      profileIds
+    );
+
+  const services =
+    await loadServices(
+      serviceIds
+    );
 
 
   ordersStatus.textContent =
@@ -929,11 +1027,167 @@ async function loadIncomingOrders(user) {
   orders.forEach(
     order => {
 
+      const buyer =
+        profiles.get(
+          order.buyer_id
+        );
+
+      const seller =
+        profiles.get(
+          order.seller_id
+        );
+
+      const service =
+        services.get(
+          order.service_id
+        );
+
+
+      const amount =
+        Number(
+          order.amount_cents || 0
+        ) / 100;
+
+
+      const date =
+        new Date(
+          order.created_at
+        ).toLocaleDateString();
+
+
+      const currentStatus =
+        order.status ||
+        'pending';
+
+
+      const paymentStatus =
+        order.payment_status ||
+        'pending';
+
+
+      const card =
+        document.createElement(
+          'div'
+        );
+
+
+      card.className =
+        'order-card';
+
+
+      card.innerHTML = `
+
+        <div class="label">
+          Incoming Service Order
+        </div>
+
+        <h3>
+          ${escapeHtml(
+            service?.title ||
+            'StarRise Service'
+          )}
+        </h3>
+
+        <div class="order-price">
+          $${amount.toFixed(2)}
+        </div>
+
+        <div class="order-status">
+          Order: ${escapeHtml(
+            currentStatus
+          )}
+        </div>
+
+        <div class="order-status">
+          Payment: ${escapeHtml(
+            paymentStatus
+          )}
+        </div>
+
+        <div class="order-person">
+
+          <strong>
+            Customer
+          </strong>
+
+          <br>
+
+          ${escapeHtml(
+            profileName(buyer)
+          )}
+
+          ${
+            buyer?.location
+              ? `
+                <br>
+                <span class="muted">
+                  ${escapeHtml(
+                    buyer.location
+                  )}
+                </span>
+              `
+              : ''
+          }
+
+          <br>
+
+          ${profileLink(
+            order.buyer_id,
+            'View Customer Profile'
+          )}
+
+        </div>
+
+        <div class="order-request">
+
+          ${escapeHtml(
+            order.request_message ||
+            'No request details provided.'
+          )}
+
+        </div>
+
+        <div class="order-meta">
+          Submitted ${escapeHtml(date)}
+        </div>
+
+        ${
+          service
+            ? `
+              <a
+                class="secondary-button"
+                href="service.html?id=${encodeURIComponent(
+                  service.id
+                )}"
+              >
+                View Service
+              </a>
+            `
+            : ''
+        }
+
+        ${
+          currentStatus === 'pending'
+            ? `
+              <br>
+
+              <button
+                class="order-button"
+                data-order-id="${escapeHtml(
+                  order.id
+                )}"
+              >
+                Accept Request
+              </button>
+            `
+            : ''
+        }
+
+      `;
+
+
       ordersContainer.appendChild(
-        orderCard(
-          order,
-          'incoming'
-        )
+        card
       );
 
     }
@@ -965,6 +1219,9 @@ async function loadIncomingOrders(user) {
 }
 
 
+/*
+  Accept an incoming order.
+*/
 async function acceptOrder(
   orderId,
   button
@@ -992,8 +1249,7 @@ async function acceptOrder(
     await starRiseSupabase
       .from('service_orders')
       .update({
-        status:
-          'accepted'
+        status: 'accepted'
       })
       .eq(
         'id',
@@ -1024,7 +1280,6 @@ async function acceptOrder(
     );
 
     return;
-
   }
 
 
@@ -1045,13 +1300,16 @@ async function acceptOrder(
 }
 
 
-async function loadMyOrders(user) {
+/*
+  My orders:
+  buyer_id = current member
+*/
+async function loadMyOrders(
+  user
+) {
 
   myOrdersStatus.textContent =
     'Loading your orders...';
-
-  myOrdersContainer.innerHTML =
-    '';
 
 
   const {
@@ -1065,136 +1323,4 @@ async function loadMyOrders(user) {
         service_id,
         buyer_id,
         seller_id,
-        amount_cents,
-        request_message,
-        status,
-        created_at
-      `)
-      .eq(
-        'buyer_id',
-        user.id
-      )
-      .order(
-        'created_at',
-        {
-          ascending: false
-        }
-      );
-
-
-  if (error) {
-
-    console.error(
-      'My orders error:',
-      error
-    );
-
-    myOrdersStatus.textContent =
-      'Unable to load your orders.';
-
-    myOrdersStatus.className =
-      'status error';
-
-    return;
-
-  }
-
-
-  if (
-    !orders ||
-    orders.length === 0
-  ) {
-
-    myOrdersStatus.textContent =
-      'You have not requested any services yet.';
-
-    myOrdersStatus.className =
-      'status';
-
-    return;
-
-  }
-
-
-  myOrdersStatus.textContent =
-    `${orders.length} order${
-      orders.length === 1
-        ? ''
-        : 's'
-    }`;
-
-  myOrdersStatus.className =
-    'status';
-
-
-  orders.forEach(
-    order => {
-
-      myOrdersContainer.appendChild(
-        orderCard(
-          order,
-          'mine'
-        )
-      );
-
-    }
-  );
-
-}
-
-
-document
-  .getElementById('signout')
-  .addEventListener(
-    'click',
-    async () => {
-
-      await starRiseSupabase
-        .auth
-        .signOut();
-
-      location.replace(
-        'login.html'
-      );
-
-    }
-  );
-
-
-async function startDashboard() {
-
-  await handleAuthCallback();
-
-
-  const user =
-    await getCurrentUser();
-
-
-  if (!user) {
-    return;
-  }
-
-
-  await loadProfile(
-    user
-  );
-
-
-  await loadIncomingOrders(
-    user
-  );
-
-
-  await loadMyOrders(
-    user
-  );
-
-}
-
-
-startDashboard();
-
-</script>
-
-</body>
-</html>
+   
