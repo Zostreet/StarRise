@@ -1,11 +1,14 @@
 <!doctype html>
-
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Member Dashboard | StarRise</title>  <style>
-    * { box-sizing: border-box; }
+  <title>Member Dashboard | StarRise</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -73,7 +76,6 @@
       padding: 18px;
       border-radius: 14px;
       background: #ffffff08;
-      margin-bottom: 15px;
     }
 
     .label {
@@ -107,7 +109,9 @@
 
     #status,
     #orders-status,
-    #my-orders-status {
+    #my-orders-status,
+    #completed-orders-status,
+    #my-completed-status {
       padding: 14px;
       border-radius: 10px;
       background: #ffffff0d;
@@ -117,12 +121,12 @@
 
     .error {
       color: #ffb0b0 !important;
-      background: rgba(220,70,70,.12) !important;
+      background: rgba(220, 70, 70, .12) !important;
     }
 
     .success {
       color: #b8ffcc !important;
-      background: rgba(50,200,100,.10) !important;
+      background: rgba(50, 200, 100, .10) !important;
     }
 
     .order-card {
@@ -131,6 +135,10 @@
       background: #ffffff08;
       border: 1px solid #ffffff12;
       margin-top: 15px;
+    }
+
+    .completed-card {
+      border-color: #ffffff25;
     }
 
     .order-price {
@@ -198,6 +206,13 @@
       font-weight: bold;
     }
 
+    .empty {
+      padding: 20px;
+      border-radius: 14px;
+      background: #ffffff06;
+      color: #999;
+    }
+
     @media (max-width: 650px) {
       header {
         flex-direction: column;
@@ -221,111 +236,207 @@
         width: 100%;
       }
     }
-  </style></head><body><header>
+  </style>
+</head>
+
+<body>
+
+<header>
   <a href="index.html">⭐ StarRise</a>
-  <button id="signout">Sign Out</button>
-</header><main>  <section class="hero"><p class="muted">MEMBER DASHBOARD</p>
 
-<h1>
-  Welcome,
-  <span id="name">Member</span>
-</h1>
+  <button id="signout">
+    Sign Out
+  </button>
+</header>
 
-<p>Your StarRise member account is active.</p>
+<main>
 
-<a class="edit-link" href="edit-profile.html">
-  Edit Profile
-</a>
+  <section class="hero">
 
-  </section>  <section class="panel"><h2>Your Profile</h2>
+    <p class="muted">MEMBER DASHBOARD</p>
 
-<div id="status">
-  Loading profile...
-</div>
+    <h1>
+      Welcome,
+      <span id="name">Member</span>
+    </h1>
 
-<div class="profile-grid">
+    <p>
+      Your StarRise member account is active.
+    </p>
 
-  <div class="item">
-    <span class="label">Full Name</span>
-    <span id="profile-name" class="profile-value">
+    <a
+      class="edit-link"
+      href="edit-profile.html"
+    >
+      Edit Profile
+    </a>
+
+  </section>
+
+
+  <section class="panel">
+
+    <h2>Your Profile</h2>
+
+    <div id="status">
+      Loading profile...
+    </div>
+
+    <div class="profile-grid">
+
+      <div class="item">
+        <span class="label">Full Name</span>
+        <span id="profile-name" class="profile-value">
+          Loading...
+        </span>
+      </div>
+
+      <div class="item">
+        <span class="label">Display / Stage Name</span>
+        <span id="display-name" class="profile-value">
+          Loading...
+        </span>
+      </div>
+
+      <div class="item">
+        <span class="label">Email</span>
+        <span id="email" class="profile-value">
+          Loading...
+        </span>
+      </div>
+
+      <div class="item">
+        <span class="label">Location</span>
+        <span id="location" class="profile-value">
+          Loading...
+        </span>
+      </div>
+
+      <div class="item">
+        <span class="label">Website</span>
+        <span id="website" class="profile-value">
+          Loading...
+        </span>
+      </div>
+
+      <div class="item">
+        <span class="label">Member Since</span>
+        <span id="member-since" class="profile-value">
+          Loading...
+        </span>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section class="panel">
+
+    <h2>About You</h2>
+
+    <p
+      id="bio"
+      class="muted"
+    >
       Loading...
-    </span>
-  </div>
+    </p>
 
-  <div class="item">
-    <span class="label">Display / Stage Name</span>
-    <span id="display-name" class="profile-value">
-      Loading...
-    </span>
-  </div>
+  </section>
 
-  <div class="item">
-    <span class="label">Email</span>
-    <span id="email" class="profile-value">
-      Loading...
-    </span>
-  </div>
 
-  <div class="item">
-    <span class="label">Location</span>
-    <span id="location" class="profile-value">
-      Loading...
-    </span>
-  </div>
+  <section class="panel">
 
-  <div class="item">
-    <span class="label">Website</span>
-    <span id="website" class="profile-value">
-      Loading...
-    </span>
-  </div>
+    <h2>Your StarRise Roles</h2>
 
-  <div class="item">
-    <span class="label">Member Since</span>
-    <span id="member-since" class="profile-value">
-      Loading...
-    </span>
-  </div>
+    <div id="roles">
+      Loading roles...
+    </div>
 
-</div>
+  </section>
 
-  </section>  <section class="panel"><h2>About You</h2>
 
-<p id="bio" class="muted">
-  Loading...
-</p>
+  <!-- PROVIDER ACTIVE ORDERS -->
 
-  </section>  <section class="panel"><h2>Your StarRise Roles</h2>
+  <section class="panel">
 
-<div id="roles">
-  Loading roles...
-</div>
+    <h2>Incoming Service Orders</h2>
 
-  </section>  <section class="panel"><h2>Incoming Service Orders</h2>
+    <p class="muted">
+      Active service requests from customers appear here.
+    </p>
 
-<p class="muted">
-  Service requests from customers appear here.
-</p>
+    <div id="orders-status">
+      Loading orders...
+    </div>
 
-<div id="orders-status">
-  Loading orders...
-</div>
+    <div id="orders"></div>
 
-<div id="orders"></div>
+  </section>
 
-  </section>  <section class="panel"><h2>My Orders</h2>
 
-<p class="muted">
-  Track services you have requested from other StarRise members.
-</p>
+  <!-- PROVIDER COMPLETED HISTORY -->
 
-<div id="my-orders-status">
-  Loading your orders...
-</div>
+  <section class="panel">
 
-<div id="my-orders"></div>
+    <h2>Completed Services</h2>
 
-  </section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+    <p class="muted">
+      Your completed customer services are recorded here.
+    </p>
+
+    <div id="completed-orders-status">
+      Loading completed services...
+    </div>
+
+    <div id="completed-orders"></div>
+
+  </section>
+
+
+  <!-- CUSTOMER ACTIVE ORDERS -->
+
+  <section class="panel">
+
+    <h2>My Orders</h2>
+
+    <p class="muted">
+      Track services you have requested from other StarRise members.
+    </p>
+
+    <div id="my-orders-status">
+      Loading your orders...
+    </div>
+
+    <div id="my-orders"></div>
+
+  </section>
+
+
+  <!-- CUSTOMER COMPLETED HISTORY -->
+
+  <section class="panel">
+
+    <h2>My Completed Services</h2>
+
+    <p class="muted">
+      Services you have successfully received are recorded here.
+    </p>
+
+    <div id="my-completed-status">
+      Loading completed orders...
+    </div>
+
+    <div id="my-completed"></div>
+
+  </section>
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
 
 const starRiseSupabase =
   window.supabase.createClient(
@@ -343,11 +454,31 @@ const ordersStatus =
 const ordersContainer =
   document.getElementById('orders');
 
+const completedOrdersStatus =
+  document.getElementById(
+    'completed-orders-status'
+  );
+
+const completedOrdersContainer =
+  document.getElementById(
+    'completed-orders'
+  );
+
 const myOrdersStatus =
   document.getElementById('my-orders-status');
 
 const myOrdersContainer =
   document.getElementById('my-orders');
+
+const myCompletedStatus =
+  document.getElementById(
+    'my-completed-status'
+  );
+
+const myCompletedContainer =
+  document.getElementById(
+    'my-completed'
+  );
 
 
 function escapeHtml(value) {
@@ -370,9 +501,17 @@ function showError(element, message) {
 }
 
 
+function clearError(element) {
+
+  element.classList.remove('error');
+
+}
+
+
 async function handleAuthCallback() {
 
-  const hash = window.location.hash;
+  const hash =
+    window.location.hash;
 
   if (
     !hash ||
@@ -400,10 +539,15 @@ async function handleAuthCallback() {
   }
 
   const { error } =
-    await starRiseSupabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken
-    });
+    await starRiseSupabase
+      .auth
+      .setSession({
+        access_token:
+          accessToken,
+
+        refresh_token:
+          refreshToken
+      });
 
   if (error) {
 
@@ -418,7 +562,6 @@ async function handleAuthCallback() {
     );
 
     return;
-
   }
 
   window.history.replaceState(
@@ -437,7 +580,9 @@ async function getCurrentUser() {
     data,
     error
   } =
-    await starRiseSupabase.auth.getSession();
+    await starRiseSupabase
+      .auth
+      .getSession();
 
   if (
     error ||
@@ -445,10 +590,11 @@ async function getCurrentUser() {
     !data.session
   ) {
 
-    location.replace('login.html');
+    location.replace(
+      'login.html'
+    );
 
     return null;
-
   }
 
   return data.session.user;
@@ -472,7 +618,10 @@ async function loadProfile(user) {
     await starRiseSupabase
       .from('Profiles')
       .select('*')
-      .eq('id', user.id)
+      .eq(
+        'id',
+        user.id
+      )
       .single();
 
 
@@ -489,7 +638,6 @@ async function loadProfile(user) {
     );
 
     return;
-
   }
 
 
@@ -502,27 +650,39 @@ async function loadProfile(user) {
     fullName;
 
 
-  document.getElementById('name').textContent =
+  document.getElementById(
+    'name'
+  ).textContent =
     displayName;
 
-  document.getElementById('profile-name').textContent =
+  document.getElementById(
+    'profile-name'
+  ).textContent =
     fullName;
 
-  document.getElementById('display-name').textContent =
+  document.getElementById(
+    'display-name'
+  ).textContent =
     displayName;
 
-  document.getElementById('location').textContent =
+  document.getElementById(
+    'location'
+  ).textContent =
     profile.location ||
     'Not provided';
 
-  document.getElementById('bio').textContent =
+  document.getElementById(
+    'bio'
+  ).textContent =
     profile.bio ||
     'No bio added yet.';
 
 
   if (profile.website) {
 
-    document.getElementById('website').innerHTML =
+    document.getElementById(
+      'website'
+    ).innerHTML =
       '<a class="website-link" href="' +
       escapeHtml(profile.website) +
       '" target="_blank" rel="noopener noreferrer">' +
@@ -531,13 +691,17 @@ async function loadProfile(user) {
 
   } else {
 
-    document.getElementById('website').textContent =
+    document.getElementById(
+      'website'
+    ).textContent =
       'Not provided';
 
   }
 
 
-  document.getElementById('member-since').textContent =
+  document.getElementById(
+    'member-since'
+  ).textContent =
     profile.created_at
       ? new Date(
           profile.created_at
@@ -552,11 +716,16 @@ async function loadProfile(user) {
     await starRiseSupabase
       .from('member_roles')
       .select('role')
-      .eq('user_id', user.id);
+      .eq(
+        'user_id',
+        user.id
+      );
 
 
   const rolesElement =
-    document.getElementById('roles');
+    document.getElementById(
+      'roles'
+    );
 
 
   if (rolesError) {
@@ -589,7 +758,10 @@ async function loadProfile(user) {
 }
 
 
-function getProviderAction(status, orderId) {
+function getProviderActions(
+  status,
+  orderId
+) {
 
   if (status === 'pending') {
 
@@ -661,9 +833,116 @@ function getProviderAction(status, orderId) {
 }
 
 
+function buildOrderCard(
+  order,
+  providerView = false
+) {
+
+  const card =
+    document.createElement('div');
+
+  card.className =
+    'order-card';
+
+
+  const amount =
+    Number(
+      order.amount_cents || 0
+    ) / 100;
+
+
+  const date =
+    order.created_at
+      ? new Date(
+          order.created_at
+        ).toLocaleDateString()
+      : 'Unknown';
+
+
+  const currentStatus =
+    order.status ||
+    'pending';
+
+
+  const completedDate =
+    order.completed_at
+      ? new Date(
+          order.completed_at
+        ).toLocaleDateString()
+      : date;
+
+
+  card.innerHTML = `
+
+    <div class="label">
+      ${providerView ? 'Customer Service' : 'Your Service'}
+    </div>
+
+    <div class="order-price">
+      $${amount.toFixed(2)}
+    </div>
+
+    <div class="order-status">
+      ${escapeHtml(currentStatus)}
+    </div>
+
+    <div class="order-request">
+      ${escapeHtml(
+        order.request_message ||
+        'No request details provided.'
+      )}
+    </div>
+
+    <div class="order-meta">
+      Submitted ${escapeHtml(date)}
+    </div>
+
+    ${
+      currentStatus === 'completed'
+        ? `
+          <div class="order-meta">
+            Completed ${escapeHtml(completedDate)}
+          </div>
+        `
+        : ''
+    }
+
+    <a
+      class="service-link"
+      href="order.html?id=${encodeURIComponent(order.id)}"
+    >
+      View Order
+    </a>
+
+    <br>
+
+    <a
+      class="service-link"
+      href="service.html?id=${encodeURIComponent(order.service_id)}"
+    >
+      View Service
+    </a>
+
+    ${
+      providerView
+        ? getProviderActions(
+            currentStatus,
+            order.id
+          )
+        : ''
+    }
+
+  `;
+
+
+  return card;
+
+}
+
+
 async function loadIncomingOrders(user) {
 
-  ordersStatus.classList.remove('error');
+  clearError(ordersStatus);
 
   ordersStatus.textContent =
     'Loading incoming orders...';
@@ -684,9 +963,17 @@ async function loadIncomingOrders(user) {
         request_message,
         status,
         payment_status,
-        created_at
+        created_at,
+        completed_at
       `)
-      .eq('seller_id', user.id)
+      .eq(
+        'seller_id',
+        user.id
+      )
+      .neq(
+        'status',
+        'completed'
+      )
       .order(
         'created_at',
         {
@@ -709,7 +996,6 @@ async function loadIncomingOrders(user) {
     );
 
     return;
-
   }
 
 
@@ -722,245 +1008,150 @@ async function loadIncomingOrders(user) {
   ) {
 
     ordersStatus.textContent =
-      'No incoming service requests yet.';
+      'No active incoming service requests.';
 
     return;
-
   }
 
 
   ordersStatus.textContent =
-    `${orders.length} incoming request${
-      orders.length === 1 ? '' : 's'
+    `${orders.length} active request${
+      orders.length === 1
+        ? ''
+        : 's'
     }`;
 
 
   orders.forEach(order => {
 
-    const card =
-      document.createElement('div');
-
-    card.className =
-      'order-card';
-
-
-    const amount =
-      Number(
-        order.amount_cents || 0
-      ) / 100;
-
-
-    const date =
-      new Date(
-        order.created_at
-      ).toLocaleDateString();
-
-
-    const currentStatus =
-      order.status ||
-      'pending';
-
-
-    card.innerHTML = `
-
-      <div class="label">
-        Customer Request
-      </div>
-
-      <div class="order-price">
-        $${amount.toFixed(2)}
-      </div>
-
-      <div class="order-status">
-        ${escapeHtml(currentStatus)}
-      </div>
-
-      <div class="order-request">
-        ${escapeHtml(
-          order.request_message ||
-          'No request details provided.'
-        )}
-      </div>
-
-      <div class="order-meta">
-        Submitted ${escapeHtml(date)}
-      </div>
-
-      <a
-        class="service-link"
-        href="order.html?id=${encodeURIComponent(order.id)}"
-      >
-        View Order
-      </a>
-
-      <br>
-
-      <a
-        class="service-link"
-        href="service.html?id=${encodeURIComponent(order.service_id)}"
-      >
-        View Service
-      </a>
-
-      ${getProviderAction(
-        currentStatus,
-        order.id
-      )}
-
-    `;
-
-
-    ordersContainer.appendChild(card);
+    ordersContainer.appendChild(
+      buildOrderCard(
+        order,
+        true
+      )
+    );
 
   });
 
 
-  document
-    .querySelectorAll('[data-action]')
-    .forEach(button => {
-
-      button.addEventListener(
-        'click',
-        async () => {
-
-          const newStatus =
-            button.dataset.action;
-
-          const orderId =
-            button.dataset.orderId;
-
-
-          if (
-            newStatus === 'declined'
-          ) {
-
-            const confirmed =
-              window.confirm(
-                'Are you sure you want to decline this service request?'
-              );
-
-            if (!confirmed) {
-              return;
-            }
-
-          }
-
-
-          await updateOrderStatus(
-            orderId,
-            newStatus,
-            button
-          );
-
-        }
-      );
-
-    });
+  attachOrderButtons(user);
 
 }
 
 
-async function updateOrderStatus(
-  orderId,
-  newStatus,
-  button
-) {
+async function loadCompletedProviderOrders(user) {
 
-  button.disabled = true;
+  clearError(
+    completedOrdersStatus
+  );
 
-
-  const labels = {
-    accepted: 'Accepting...',
-    declined: 'Declining...',
-    in_progress: 'Starting...',
-    completed: 'Completing...'
-  };
-
-
-  button.textContent =
-    labels[newStatus] ||
-    'Updating...';
-
-
-  const user =
-    await getCurrentUser();
-
-
-  if (!user) {
-    return;
-  }
-
-
-  const allowedPreviousStatus = {
-    accepted: 'pending',
-    declined: 'pending',
-    in_progress: 'accepted',
-    completed: 'in_progress'
-  };
-
-
-  const previousStatus =
-    allowedPreviousStatus[newStatus];
+  completedOrdersStatus.textContent =
+    'Loading completed services...';
 
 
   const {
+    data: orders,
     error
   } =
     await starRiseSupabase
       .from('service_orders')
-      .update({
-        status: newStatus
-      })
-      .eq(
-        'id',
-        orderId
-      )
+      .select(`
+        id,
+        service_id,
+        buyer_id,
+        seller_id,
+        amount_cents,
+        request_message,
+        status,
+        payment_status,
+        created_at,
+        completed_at
+      `)
       .eq(
         'seller_id',
         user.id
       )
       .eq(
         'status',
-        previousStatus
+        'completed'
+      )
+      .order(
+        'completed_at',
+        {
+          ascending: false
+        }
       );
 
 
   if (error) {
 
     console.error(
-      'Order status error:',
+      'Completed provider orders error:',
       error
     );
 
-    button.disabled = false;
-
     showError(
-      statusBox,
-      'We could not update this order: ' +
+      completedOrdersStatus,
+      'Unable to load completed services: ' +
       error.message
     );
 
     return;
-
   }
 
 
-  statusBox.classList.remove('error');
-
-  statusBox.textContent =
-    `Order updated to ${newStatus.replace('_', ' ')}.`;
+  completedOrdersContainer.innerHTML = '';
 
 
-  await loadIncomingOrders(user);
+  if (
+    !orders ||
+    orders.length === 0
+  ) {
 
-  await loadMyOrders(user);
+    completedOrdersStatus.textContent =
+      'No completed services yet.';
+
+    completedOrdersContainer.innerHTML =
+      '<div class="empty">Completed services will appear here.</div>';
+
+    return;
+  }
+
+
+  completedOrdersStatus.textContent =
+    `${orders.length} completed service${
+      orders.length === 1
+        ? ''
+        : 's'
+    }`;
+
+
+  orders.forEach(order => {
+
+    const card =
+      buildOrderCard(
+        order,
+        false
+      );
+
+    card.classList.add(
+      'completed-card'
+    );
+
+    completedOrdersContainer.appendChild(
+      card
+    );
+
+  });
 
 }
 
 
 async function loadMyOrders(user) {
 
-  myOrdersStatus.classList.remove('error');
+  clearError(
+    myOrdersStatus
+  );
 
   myOrdersStatus.textContent =
     'Loading your orders...';
@@ -980,11 +1171,16 @@ async function loadMyOrders(user) {
         request_message,
         status,
         payment_status,
-        created_at
+        created_at,
+        completed_at
       `)
       .eq(
         'buyer_id',
         user.id
+      )
+      .neq(
+        'status',
+        'completed'
       )
       .order(
         'created_at',
@@ -1008,7 +1204,6 @@ async function loadMyOrders(user) {
     );
 
     return;
-
   }
 
 
@@ -1021,152 +1216,54 @@ async function loadMyOrders(user) {
   ) {
 
     myOrdersStatus.textContent =
-      'You have not requested any services yet.';
+      'You have no active service orders.';
 
     return;
-
   }
 
 
   myOrdersStatus.textContent =
-    `${orders.length} order${
-      orders.length === 1 ? '' : 's'
+    `${orders.length} active order${
+      orders.length === 1
+        ? ''
+        : 's'
     }`;
 
 
   orders.forEach(order => {
 
-    const card =
-      document.createElement('div');
-
-    card.className =
-      'order-card';
-
-
-    const amount =
-      Number(
-        order.amount_cents || 0
-      ) / 100;
-
-
-    const date =
-      new Date(
-        order.created_at
-      ).toLocaleDateString();
-
-
-    const currentStatus =
-      order.status ||
-      'pending';
-
-
-    card.innerHTML = `
-
-      <div class="label">
-        Your Order
-      </div>
-
-      <div class="order-price">
-        $${amount.toFixed(2)}
-      </div>
-
-      <div class="order-status">
-        ${escapeHtml(currentStatus)}
-      </div>
-
-      <div class="order-request">
-        ${escapeHtml(
-          order.request_message ||
-          'No request details provided.'
-        )}
-      </div>
-
-      <div class="order-meta">
-        Submitted ${escapeHtml(date)}
-      </div>
-
-      <a
-        class="service-link"
-        href="order.html?id=${encodeURIComponent(order.id)}"
-      >
-        View Order
-      </a>
-
-      <br>
-
-      <a
-        class="service-link"
-        href="service.html?id=${encodeURIComponent(order.service_id)}"
-      >
-        View Service
-      </a>
-
-    `;
-
-
-    myOrdersContainer.appendChild(card);
+    myOrdersContainer.appendChild(
+      buildOrderCard(
+        order,
+        false
+      )
+    );
 
   });
 
 }
 
 
-document
-  .getElementById('signout')
-  .addEventListener(
-    'click',
-    async () => {
+async function loadMyCompletedOrders(user) {
 
-      await starRiseSupabase
-        .auth
-        .signOut();
-
-      location.replace(
-        'login.html'
-      );
-
-    }
+  clearError(
+    myCompletedStatus
   );
 
-
-async function startDashboard() {
-
-  try {
-
-    await handleAuthCallback();
-
-    const user =
-      await getCurrentUser();
-
-    if (!user) {
-      return;
-    }
-
-    await loadProfile(user);
-
-    await loadIncomingOrders(user);
-
-    await loadMyOrders(user);
-
-  } catch (error) {
-
-    console.error(
-      'Dashboard fatal error:',
-      error
-    );
-
-    showError(
-      statusBox,
-      'Dashboard error: ' +
-      error.message
-    );
-
-  }
-
-}
+  myCompletedStatus.textContent =
+    'Loading completed orders...';
 
 
-startDashboard();
-
-</script></body>
-</html>
+  const {
+    data: orders,
+    error
+  } =
+    await starRiseSupabase
+      .from('service_orders')
+      .select(`
+        id,
+        service_id,
+        seller_id,
+        amount_cents,
+        request_message,
+ 
