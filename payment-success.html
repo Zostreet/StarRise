@@ -1,0 +1,450 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payment Complete | StarRise</title>  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: #fff;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #ffffff18;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    main {
+      width: min(700px, calc(100% - 32px));
+      margin: 60px auto;
+    }
+
+    .card {
+      border: 1px solid #ffffff18;
+      border-radius: 22px;
+      background: #ffffff08;
+      padding: 30px;
+    }
+
+    .icon {
+      font-size: 56px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+    }
+
+    .muted {
+      color: #aaa;
+    }
+
+    .status {
+      padding: 16px;
+      border-radius: 12px;
+      background: #ffffff0d;
+      margin: 20px 0;
+      color: #ccc;
+    }
+
+    .error {
+      color: #ffb0b0;
+      background: rgba(220, 70, 70, .12);
+    }
+
+    .success {
+      color: #a8ffc8;
+      background: rgba(50, 180, 100, .12);
+    }
+
+    .details {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 16px;
+      background: #00000020;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 10px 0;
+      border-bottom: 1px solid #ffffff12;
+    }
+
+    .row:last-child {
+      border-bottom: 0;
+    }
+
+    .label {
+      color: #999;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .value {
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 12px 20px;
+      border-radius: 25px;
+      background: #fff;
+      color: #080812;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .button.secondary {
+      background: #ffffff12;
+      color: #fff;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      main {
+        margin-top: 30px;
+      }
+
+      .card {
+        padding: 22px;
+      }
+
+      .row {
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .value {
+        text-align: left;
+      }
+    }
+  </style></head><body><header>
+  <a href="index.html">⭐ StarRise</a>
+  <a href="dashboard.html">Dashboard</a>
+</header><main>  <section class="card"><div class="icon">✓</div>
+
+<h1>
+  Payment complete
+</h1>
+
+<p class="muted">
+  We're confirming your StarRise order with Stripe.
+</p>
+
+<div
+  id="status"
+  class="status"
+>
+  Verifying payment...
+</div>
+
+<div
+  id="details"
+  class="details hidden"
+>
+
+  <div class="row">
+    <span class="label">
+      Order
+    </span>
+
+    <span
+      id="order-id"
+      class="value"
+    ></span>
+  </div>
+
+  <div class="row">
+    <span class="label">
+      Amount
+    </span>
+
+    <span
+      id="amount"
+      class="value"
+    ></span>
+  </div>
+
+  <div class="row">
+    <span class="label">
+      Payment
+    </span>
+
+    <span
+      id="payment-status"
+      class="value"
+    >
+      Paid
+    </span>
+  </div>
+
+  <div class="row">
+    <span class="label">
+      Order Status
+    </span>
+
+    <span
+      id="order-status"
+      class="value"
+    ></span>
+  </div>
+
+</div>
+
+<div class="buttons">
+
+  <a
+    class="button"
+    href="dashboard.html"
+  >
+    Go to Dashboard
+  </a>
+
+  <a
+    class="button secondary"
+    href="services.html"
+  >
+    Browse Services
+  </a>
+
+</div>
+
+  </section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+
+const supabase =
+  window.supabase.createClient(
+    'https://rcnikxotdalxtuvpmlvm.supabase.co',
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+  );
+
+
+const statusEl =
+  document.getElementById(
+    'status'
+  );
+
+
+const detailsEl =
+  document.getElementById(
+    'details'
+  );
+
+
+function showError(message) {
+
+  statusEl.textContent =
+    message;
+
+  statusEl.className =
+    'status error';
+
+}
+
+
+function showSuccess(message) {
+
+  statusEl.textContent =
+    message;
+
+  statusEl.className =
+    'status success';
+
+}
+
+
+async function finishPayment() {
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+
+  const sessionId =
+    params.get(
+      'session_id'
+    );
+
+
+  if (!sessionId) {
+
+    showError(
+      'The Stripe checkout session is missing. Please return to your dashboard and check My Orders.'
+    );
+
+    return;
+
+  }
+
+
+  const {
+    data: sessionData,
+    error: sessionError
+  } =
+    await supabase.auth.getSession();
+
+
+  if (
+    sessionError ||
+    !sessionData ||
+    !sessionData.session
+  ) {
+
+    showError(
+      'Your StarRise sign-in session expired. Sign in again to view this order.'
+    );
+
+    return;
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await supabase.functions.invoke(
+      'complete-checkout',
+      {
+        body: {
+          session_id:
+            sessionId
+        }
+      }
+    );
+
+
+  if (error) {
+
+    console.error(
+      'Complete checkout error:',
+      error
+    );
+
+    showError(
+      error.message ||
+      'We could not confirm this payment.'
+    );
+
+    return;
+
+  }
+
+
+  if (
+    !data ||
+    !data.success ||
+    !data.order
+  ) {
+
+    showError(
+      data?.error ||
+      'The payment was received, but the StarRise order could not be confirmed.'
+    );
+
+    return;
+
+  }
+
+
+  const order =
+    data.order;
+
+
+  const amount =
+    (
+      Number(
+        order.amount_cents ||
+        0
+      ) / 100
+    ).toLocaleString(
+      'en-US',
+      {
+        style: 'currency',
+        currency: 'USD'
+      }
+    );
+
+
+  document.getElementById(
+    'order-id'
+  ).textContent =
+    order.id;
+
+
+  document.getElementById(
+    'amount'
+  ).textContent =
+    amount;
+
+
+  document.getElementById(
+    'payment-status'
+  ).textContent =
+    order.payment_status ||
+    'paid';
+
+
+  document.getElementById(
+    'order-status'
+  ).textContent =
+    order.status ||
+    'pending';
+
+
+  detailsEl.classList.remove(
+    'hidden'
+  );
+
+
+  showSuccess(
+    'Your payment has been confirmed and your StarRise order is recorded.'
+  );
+
+
+  window.history.replaceState(
+    {},
+    document.title,
+    'payment-success.html'
+  );
+
+}
+
+
+finishPayment();
+
+</script></body>
+</html>
