@@ -110,6 +110,42 @@
       background: rgba(50, 180, 100, .15);
     }
 
+    .photo-box {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .avatar-preview {
+      width: 130px;
+      height: 130px;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff12;
+      border: 1px solid #ffffff25;
+      font-size: 48px;
+      overflow: hidden;
+    }
+
+    .avatar-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-input {
+      padding: 12px;
+    }
+
+    .hint {
+      color: #999;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
     .back {
       margin-top: 20px;
       text-align: center;
@@ -119,7 +155,6 @@
       color: #fff;
     }
   </style>
-
 </head>
 
 <body>
@@ -145,6 +180,32 @@
     <div id="message"></div>
 
     <form id="profileForm">
+
+      <div class="photo-box">
+
+        <div
+          id="avatarPreview"
+          class="avatar-preview"
+        >
+          ⭐
+        </div>
+
+        <label for="avatar">
+          Profile Photo
+        </label>
+
+        <input
+          id="avatar"
+          class="photo-input"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+        >
+
+        <div class="hint">
+          JPG, PNG, or WebP. Maximum 5 MB.
+        </div>
+
+      </div>
 
       <div class="field">
 
@@ -252,10 +313,11 @@
 
 <script>
 
-const starRiseSupabase = window.supabase.createClient(
-  'https://rcnikxotdalxtuvpmlvm.supabase.co',
-  'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
-);
+const starRiseSupabase =
+  window.supabase.createClient(
+    'https://rcnikxotdalxtuvpmlvm.supabase.co',
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+  );
 
 const form =
   document.getElementById('profileForm');
@@ -266,7 +328,15 @@ const saveButton =
 const message =
   document.getElementById('message');
 
+const avatarInput =
+  document.getElementById('avatar');
+
+const avatarPreview =
+  document.getElementById('avatarPreview');
+
 let currentUser = null;
+let currentAvatarUrl = null;
+
 
 function showMessage(text, type = '') {
 
@@ -275,14 +345,75 @@ function showMessage(text, type = '') {
 
 }
 
+
+function showAvatar(url) {
+
+  if (!url) {
+
+    avatarPreview.innerHTML = '⭐';
+
+    return;
+  }
+
+  avatarPreview.innerHTML = '';
+
+  const image =
+    document.createElement('img');
+
+  image.src = url;
+
+  image.alt =
+    'Profile photo';
+
+  avatarPreview.appendChild(image);
+
+}
+
+
+avatarInput.addEventListener(
+  'change',
+  () => {
+
+    const file =
+      avatarInput.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+
+      showMessage(
+        'Profile photo must be 5 MB or smaller.',
+        'error'
+      );
+
+      avatarInput.value = '';
+
+      return;
+    }
+
+    const previewUrl =
+      URL.createObjectURL(file);
+
+    showAvatar(previewUrl);
+
+  }
+);
+
+
 async function loadProfile() {
 
   const {
     data,
     error
-  } = await starRiseSupabase.auth.getSession();
+  } =
+    await starRiseSupabase.auth.getSession();
 
-  if (error || !data.session) {
+  if (
+    error ||
+    !data.session
+  ) {
 
     location.replace('login.html');
 
@@ -290,16 +421,20 @@ async function loadProfile() {
 
   }
 
-  currentUser = data.session.user;
+  currentUser =
+    data.session.user;
+
 
   const {
     data: profile,
     error: profileError
-  } = await starRiseSupabase
-    .from('Profiles')
-    .select('*')
-    .eq('id', currentUser.id)
-    .single();
+  } =
+    await starRiseSupabase
+      .from('Profiles')
+      .select('*')
+      .eq('id', currentUser.id)
+      .single();
+
 
   if (profileError) {
 
@@ -314,167 +449,350 @@ async function loadProfile() {
 
   }
 
-  document.getElementById('fullName').value =
-    profile.full_name || '';
 
-  document.getElementById('displayName').value =
-    profile.display_name || '';
+  document
+    .getElementById('fullName')
+    .value =
+      profile.full_name || '';
 
-  document.getElementById('location').value =
-    profile.location || '';
 
-  document.getElementById('bio').value =
-    profile.bio || '';
+  document
+    .getElementById('displayName')
+    .value =
+      profile.display_name || '';
 
-  document.getElementById('website').value =
-    profile.website || '';
+
+  document
+    .getElementById('location')
+    .value =
+      profile.location || '';
+
+
+  document
+    .getElementById('bio')
+    .value =
+      profile.bio || '';
+
+
+  document
+    .getElementById('website')
+    .value =
+      profile.website || '';
+
+
+  currentAvatarUrl =
+    profile.avatar_url || null;
+
+
+  showAvatar(
+    currentAvatarUrl
+  );
+
 
   const {
     data: roles,
     error: rolesError
-  } = await starRiseSupabase
-    .from('member_roles')
-    .select('role')
-    .eq('user_id', currentUser.id);
+  } =
+    await starRiseSupabase
+      .from('member_roles')
+      .select('role')
+      .eq('user_id', currentUser.id);
 
-  if (!rolesError && roles && roles.length > 0) {
 
-    document.getElementById('role').value =
-      roles[0].role;
+  if (
+    !rolesError &&
+    roles &&
+    roles.length > 0
+  ) {
+
+    document
+      .getElementById('role')
+      .value =
+        roles[0].role;
 
   }
 
 }
 
-form.addEventListener('submit', async (event) => {
 
-  event.preventDefault();
+async function uploadAvatar(file) {
 
-  if (!currentUser) {
-    return;
+  const extension =
+    file.name
+      .split('.')
+      .pop()
+      .toLowerCase();
+
+  const filePath =
+    `${currentUser.id}/avatar.${extension}`;
+
+
+  const {
+    error: uploadError
+  } =
+    await starRiseSupabase
+      .storage
+      .from('avatars')
+      .upload(
+        filePath,
+        file,
+        {
+          upsert: true,
+          contentType: file.type
+        }
+      );
+
+
+  if (uploadError) {
+
+    throw uploadError;
+
   }
 
-  saveButton.disabled = true;
-  saveButton.textContent = 'Saving...';
 
-  try {
+  const {
+    data
+  } =
+    starRiseSupabase
+      .storage
+      .from('avatars')
+      .getPublicUrl(
+        filePath
+      );
 
-    const fullName =
-      document.getElementById('fullName').value.trim();
 
-    const displayName =
-      document.getElementById('displayName').value.trim();
+  return data.publicUrl;
 
-    const role =
-      document.getElementById('role').value;
+}
 
-    const location =
-      document.getElementById('location').value.trim();
 
-    const bio =
-      document.getElementById('bio').value.trim();
+form.addEventListener(
+  'submit',
+  async (event) => {
 
-    const website =
-      document.getElementById('website').value.trim();
+    event.preventDefault();
 
-    const {
-      error: profileError
-    } = await starRiseSupabase
-      .from('Profiles')
-      .update({
-
-        full_name: fullName,
-
-        display_name: displayName,
-
-        location: location,
-
-        bio: bio,
-
-        website: website,
-
-        updated_at: new Date().toISOString()
-
-      })
-      .eq('id', currentUser.id);
-
-    if (profileError) {
-      throw profileError;
+    if (!currentUser) {
+      return;
     }
 
-    const {
-  data: existingRoles,
-  error: roleLookupError
-} = await starRiseSupabase
-  .from('member_roles')
-  .select('user_id')
-  .eq('user_id', currentUser.id);
 
-if (roleLookupError) {
-  throw roleLookupError;
-}
+    saveButton.disabled = true;
 
-if (existingRoles && existingRoles.length > 0) {
+    saveButton.textContent =
+      'Saving...';
 
-  const {
-    error: roleUpdateError
-  } = await starRiseSupabase
-    .from('member_roles')
-    .update({
-      role: role
-    })
-    .eq('user_id', currentUser.id);
 
-  if (roleUpdateError) {
-    throw roleUpdateError;
+    try {
+
+      const fullName =
+        document
+          .getElementById('fullName')
+          .value
+          .trim();
+
+
+      const displayName =
+        document
+          .getElementById('displayName')
+          .value
+          .trim();
+
+
+      const role =
+        document
+          .getElementById('role')
+          .value;
+
+
+      const location =
+        document
+          .getElementById('location')
+          .value
+          .trim();
+
+
+      const bio =
+        document
+          .getElementById('bio')
+          .value
+          .trim();
+
+
+      const website =
+        document
+          .getElementById('website')
+          .value
+          .trim();
+
+
+      let avatarUrl =
+        currentAvatarUrl;
+
+
+      const selectedFile =
+        avatarInput.files[0];
+
+
+      if (selectedFile) {
+
+        showMessage(
+          'Uploading profile photo...',
+          ''
+        );
+
+
+        avatarUrl =
+          await uploadAvatar(
+            selectedFile
+          );
+
+      }
+
+
+      const {
+        error: profileError
+      } =
+        await starRiseSupabase
+          .from('Profiles')
+          .update({
+
+            full_name:
+              fullName,
+
+            display_name:
+              displayName,
+
+            location:
+              location,
+
+            bio:
+              bio,
+
+            website:
+              website,
+
+            avatar_url:
+              avatarUrl,
+
+            updated_at:
+              new Date().toISOString()
+
+          })
+          .eq(
+            'id',
+            currentUser.id
+          );
+
+
+      if (profileError) {
+        throw profileError;
+      }
+
+
+      const {
+        data: existingRoles,
+        error: roleLookupError
+      } =
+        await starRiseSupabase
+          .from('member_roles')
+          .select('user_id')
+          .eq(
+            'user_id',
+            currentUser.id
+          );
+
+
+      if (roleLookupError) {
+        throw roleLookupError;
+      }
+
+
+      if (
+        existingRoles &&
+        existingRoles.length > 0
+      ) {
+
+        const {
+          error: roleUpdateError
+        } =
+          await starRiseSupabase
+            .from('member_roles')
+            .update({
+              role: role
+            })
+            .eq(
+              'user_id',
+              currentUser.id
+            );
+
+
+        if (roleUpdateError) {
+          throw roleUpdateError;
+        }
+
+      } else {
+
+        const {
+          error: roleInsertError
+        } =
+          await starRiseSupabase
+            .from('member_roles')
+            .insert({
+              user_id:
+                currentUser.id,
+
+              role:
+                role
+            });
+
+
+        if (roleInsertError) {
+          throw roleInsertError;
+        }
+
+      }
+
+
+      showMessage(
+        'Your StarRise profile has been updated.',
+        'success'
+      );
+
+
+      setTimeout(
+        () => {
+          location.replace(
+            'dashboard.html'
+          );
+        },
+        1000
+      );
+
+
+    } catch (error) {
+
+      console.error(error);
+
+      showMessage(
+        error.message ||
+        'We could not save your profile.',
+        'error'
+      );
+
+    } finally {
+
+      saveButton.disabled =
+        false;
+
+      saveButton.textContent =
+        'Save Changes';
+
+    }
+
   }
+);
 
-} else {
-
-  const {
-    error: roleInsertError
-  } = await starRiseSupabase
-    .from('member_roles')
-    .insert({
-      user_id: currentUser.id,
-      role: role
-    });
-
-  if (roleInsertError) {
-    throw roleInsertError;
-  }
-
-}
-
-    showMessage(
-      'Your StarRise profile has been updated.',
-      'success'
-    );
-
-    setTimeout(() => {
-
-      location.replace('dashboard.html');
-
-    }, 800);
-
-  } catch (error) {
-
-    console.error(error);
-
-    showMessage(
-      error.message ||
-      'We could not save your profile.',
-      'error'
-    );
-
-  } finally {
-
-    saveButton.disabled = false;
-    saveButton.textContent = 'Save Changes';
-
-  }
-
-});
 
 loadProfile();
 
