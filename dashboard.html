@@ -171,7 +171,43 @@ function showStatus(message) {
   statusBox.textContent = message;
   statusBox.className = 'show';
 }
+async function handleAuthCallback() {
+  const hash = window.location.hash;
 
+  if (!hash || !hash.includes('access_token=')) {
+    return;
+  }
+
+  const params = new URLSearchParams(hash.substring(1));
+
+  const accessToken = params.get('access_token');
+  const refreshToken = params.get('refresh_token');
+
+  if (!accessToken || !refreshToken) {
+    return;
+  }
+
+  const { error } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken
+  });
+
+  if (error) {
+    console.error('Auth callback error:', error);
+    return;
+  }
+
+  window.history.replaceState(
+    {},
+    document.title,
+    window.location.pathname + window.location.search
+  );
+}
+
+async function startDashboard() {
+  await handleAuthCallback();
+  await loadDashboard();
+}
 async function loadDashboard() {
 
   const {
@@ -259,7 +295,7 @@ document.getElementById('signout').addEventListener(
   }
 );
 
-loadDashboard();
+startDashboard();
 
 </script>
 
