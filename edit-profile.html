@@ -403,22 +403,48 @@ form.addEventListener('submit', async (event) => {
     }
 
     const {
-      error: roleError
-    } = await starRiseSupabase
-      .from('member_roles')
-      .upsert({
+  data: existingRoles,
+  error: roleLookupError
+} = await starRiseSupabase
+  .from('member_roles')
+  .select('user_id')
+  .eq('user_id', currentUser.id);
 
-        user_id: currentUser.id,
+if (roleLookupError) {
+  throw roleLookupError;
+}
 
-        role: role
+if (existingRoles && existingRoles.length > 0) {
 
-      }, {
-        onConflict: 'user_id'
-      });
+  const {
+    error: roleUpdateError
+  } = await starRiseSupabase
+    .from('member_roles')
+    .update({
+      role: role
+    })
+    .eq('user_id', currentUser.id);
 
-    if (roleError) {
-      throw roleError;
-    }
+  if (roleUpdateError) {
+    throw roleUpdateError;
+  }
+
+} else {
+
+  const {
+    error: roleInsertError
+  } = await starRiseSupabase
+    .from('member_roles')
+    .insert({
+      user_id: currentUser.id,
+      role: role
+    });
+
+  if (roleInsertError) {
+    throw roleInsertError;
+  }
+
+}
 
     showMessage(
       'Your StarRise profile has been updated.',
