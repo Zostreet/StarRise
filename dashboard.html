@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Member Dashboard | StarRise</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #ffffff18;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    #signout {
+      border: 1px solid #ffffff33;
+      background: transparent;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    main {
+      width: min(900px, calc(100% - 40px));
+      margin: 50px auto;
+    }
+
+    .hero,
+    .panel {
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+      background: #ffffff08;
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .muted {
+      color: #aaa;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .item {
+      padding: 18px;
+      border-radius: 14px;
+      background: #ffffff08;
+    }
+
+    .label {
+      display: block;
+      color: #999;
+      font-size: 13px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .role {
+      display: inline-block;
+      padding: 7px 12px;
+      border-radius: 20px;
+      background: #ffffff12;
+      margin: 5px 5px 0 0;
+    }
+
+    #status {
+      padding: 14px;
+      border-radius: 10px;
+      background: #ffffff0d;
+      display: none;
+    }
+
+    #status.show {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <a href="index.html">⭐ StarRise</a>
+  <button id="signout">Sign Out</button>
+</header>
+
+<main>
+
+  <section class="hero">
+    <p class="muted">MEMBER DASHBOARD</p>
+    <h1>Welcome, <span id="name">Member</span></h1>
+    <p>Your StarRise member account is active.</p>
+  </section>
+
+  <section class="panel">
+
+    <h2>Your Profile</h2>
+
+    <div id="status"></div>
+
+    <div class="profile-grid">
+
+      <div class="item">
+        <span class="label">Name</span>
+        <span id="profile-name">Loading...</span>
+      </div>
+
+      <div class="item">
+        <span class="label">Email</span>
+        <span id="email">Loading...</span>
+      </div>
+
+      <div class="item">
+        <span class="label">Member Since</span>
+        <span id="member-since">Loading...</span>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section class="panel">
+
+    <h2>Your StarRise Roles</h2>
+
+    <div id="roles">
+      Loading roles...
+    </div>
+
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const supabase = window.supabase.createClient(
+  'https://rcnikxotdalxtuvpmlvm.supabase.co',
+  'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+);
+
+const statusBox = document.getElementById('status');
+
+function showStatus(message) {
+  statusBox.textContent = message;
+  statusBox.className = 'show';
+}
+
+async function loadDashboard() {
+
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    location.replace('login.html');
+    return;
+  }
+
+  const user = session.user;
+
+  document.getElementById('email').textContent =
+    user.email || 'Not available';
+
+  try {
+
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (error) {
+      console.error(error);
+      showStatus(
+        'Your account is signed in, but your profile could not be loaded yet.'
+      );
+      return;
+    }
+
+    const displayName =
+      profile.full_name ||
+      profile.name ||
+      profile.username ||
+      user.email?.split('@')[0] ||
+      'Member';
+
+    document.getElementById('name').textContent = displayName;
+    document.getElementById('profile-name').textContent = displayName;
+
+    if (profile.created_at) {
+      document.getElementById('member-since').textContent =
+        new Date(profile.created_at).toLocaleDateString();
+    } else {
+      document.getElementById('member-since').textContent =
+        'StarRise Member';
+    }
+
+    const rolesElement = document.getElementById('roles');
+
+    let roles = profile.roles || profile.role || [];
+
+    if (typeof roles === 'string') {
+      roles = [roles];
+    }
+
+    if (!Array.isArray(roles) || roles.length === 0) {
+      rolesElement.innerHTML =
+        '<span class="muted">No roles assigned yet.</span>';
+    } else {
+      rolesElement.innerHTML = roles
+        .map(role => `<span class="role">${role}</span>`)
+        .join('');
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    showStatus(
+      'We could not load your profile. Your login session is still active.'
+    );
+  }
+}
+
+document.getElementById('signout').addEventListener(
+  'click',
+  async () => {
+
+    await supabase.auth.signOut();
+
+    location.replace('login.html');
+  }
+);
+
+loadDashboard();
+
+</script>
+
+</body>
+</html>
