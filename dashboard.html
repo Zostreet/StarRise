@@ -479,6 +479,182 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+window.addEventListener('load', async function () {
+
+  const statusBox = document.getElementById('status');
+
+  // Make sure the Supabase library actually loaded.
+  if (!window.supabase) {
+    statusBox.textContent =
+      'StarRise could not load the Supabase connection. Please refresh the page.';
+    statusBox.classList.add('error');
+    console.error(
+      'Supabase JavaScript library did not load.'
+    );
+    return;
+  }
+
+  const starRiseSupabase =
+    window.supabase.createClient(
+      'https://rcnikxotdalxtuvpmlvm.supabase.co',
+      'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+    );
+
+  try {
+
+    statusBox.textContent =
+      'Connecting to your StarRise account...';
+
+    const sessionResult =
+      await Promise.race([
+        starRiseSupabase.auth.getSession(),
+
+        new Promise((_, reject) =>
+          setTimeout(
+            () =>
+              reject(
+                new Error(
+                  'Supabase connection timed out.'
+                )
+              ),
+            10000
+          )
+        )
+      ]);
+
+    if (sessionResult.error) {
+      throw sessionResult.error;
+    }
+
+    const session =
+      sessionResult.data?.session;
+
+    if (!session) {
+
+      statusBox.textContent =
+        'No active StarRise login session was found. Please sign in again.';
+
+      statusBox.classList.add('error');
+
+      setTimeout(() => {
+        window.location.href =
+          'login.html';
+      }, 2000);
+
+      return;
+    }
+
+    const user =
+      session.user;
+
+    document.getElementById('email').textContent =
+      user.email || 'Not available';
+
+    statusBox.textContent =
+      'Signed in. Loading your profile...';
+
+    const profileResult =
+      await starRiseSupabase
+        .from('Profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+
+    if (profileResult.error) {
+
+      console.error(
+        'Profile query error:',
+        profileResult.error
+      );
+
+      statusBox.textContent =
+        'Profile error: ' +
+        profileResult.error.message;
+
+      statusBox.classList.add('error');
+
+      return;
+    }
+
+    const profile =
+      profileResult.data;
+
+    if (!profile) {
+
+      statusBox.textContent =
+        'Your login works, but no profile record was found for this account.';
+
+      statusBox.classList.add('error');
+
+      return;
+    }
+
+    const fullName =
+      profile.full_name ||
+      'StarRise Member';
+
+    const displayName =
+      profile.display_name ||
+      fullName;
+
+    document.getElementById('name').textContent =
+      displayName;
+
+    document.getElementById('profile-name').textContent =
+      fullName;
+
+    document.getElementById('display-name').textContent =
+      displayName;
+
+    document.getElementById('location').textContent =
+      profile.location ||
+      'Not provided';
+
+    document.getElementById('bio').textContent =
+      profile.bio ||
+      'No bio added yet.';
+
+    document.getElementById('website').textContent =
+      profile.website ||
+      'Not provided';
+
+    document.getElementById('member-since').textContent =
+      profile.created_at
+        ? new Date(
+            profile.created_at
+          ).toLocaleDateString()
+        : 'StarRise Member';
+
+    statusBox.textContent =
+      'Profile loaded successfully.';
+
+    statusBox.classList.remove(
+      'error'
+    );
+
+    statusBox.classList.add(
+      'success'
+    );
+
+  } catch (error) {
+
+    console.error(
+      'StarRise dashboard error:',
+      error
+    );
+
+    statusBox.textContent =
+      'Dashboard connection error: ' +
+      error.message;
+
+    statusBox.classList.add(
+      'error'
+    );
+
+  }
+
+});
+</script>
 
 const starRiseSupabase =
   window.supabase.createClient(
