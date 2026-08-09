@@ -2,13 +2,8 @@
 <html lang="en">
 
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Join StarRise</title>
 
@@ -18,7 +13,6 @@
   >
 
   <style>
-
     * {
       box-sizing: border-box;
       margin: 0;
@@ -32,6 +26,594 @@
       line-height: 1.6;
     }
 
+    header {
+      padding: 24px 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .logo {
+      font-size: 27px;
+      font-weight: bold;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+    }
+
+    main {
+      max-width: 850px;
+      margin: auto;
+      padding: 70px 6%;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 45px;
+    }
+
+    .hero h1 {
+      font-size: clamp(42px, 9vw, 70px);
+      margin-bottom: 15px;
+    }
+
+    .hero p {
+      color: #cccccc;
+      font-size: 18px;
+    }
+
+    .form-card {
+      padding: 35px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: #11111d;
+      color: white;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: 2px solid white;
+    }
+
+    .roles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .role {
+      position: relative;
+    }
+
+    .role input {
+      position: absolute;
+      opacity: 0;
+    }
+
+    .role label {
+      display: block;
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .role input:checked + label {
+      border-color: white;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .checkbox {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .checkbox input {
+      width: auto;
+      margin-top: 6px;
+    }
+
+    .submit {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 30px;
+      background: white;
+      color: #080812;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .submit:hover {
+      opacity: 0.85;
+    }
+
+    .submit:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+
+    .notice {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      color: #aaaaaa;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    #message {
+      display: none;
+      margin-bottom: 20px;
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    #message.success {
+      display: block;
+      background: rgba(50, 180, 100, 0.15);
+      border: 1px solid rgba(50, 180, 100, 0.4);
+      color: #9ff0bb;
+    }
+
+    #message.error {
+      display: block;
+      background: rgba(220, 70, 70, 0.15);
+      border: 1px solid rgba(220, 70, 70, 0.4);
+      color: #ffb0b0;
+    }
+
+    footer {
+      padding: 35px;
+      text-align: center;
+      color: #999999;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    @media (max-width: 650px) {
+      header {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      nav a {
+        margin: 0 7px;
+      }
+
+      .form-card {
+        padding: 24px;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <header>
+
+    <div class="logo">
+      ⭐ StarRise
+    </div>
+
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="ecosystem.html">Ecosystem</a>
+      <a href="join.html">Join</a>
+    </nav>
+
+  </header>
+
+  <main>
+
+    <div class="hero">
+
+      <h1>
+        Welcome to StarRise
+      </h1>
+
+      <p>
+        Tell us who you are and how you want
+        to be part of the StarRise ecosystem.
+      </p>
+
+    </div>
+
+    <div class="form-card">
+
+      <div id="message"></div>
+
+      <form id="registerForm">
+
+        <div class="form-group">
+
+          <label>
+            I am joining as
+          </label>
+
+          <div class="roles">
+
+            <div class="role">
+              <input type="radio" id="talent" name="role" value="Talent" required>
+              <label for="talent">🎤<br>Talent</label>
+            </div>
+
+            <div class="role">
+              <input type="radio" id="creator" name="role" value="Creator">
+              <label for="creator">✨<br>Creator</label>
+            </div>
+
+            <div class="role">
+              <input type="radio" id="supporter" name="role" value="Supporter">
+              <label for="supporter">❤️<br>Supporter</label>
+            </div>
+
+            <div class="role">
+              <input type="radio" id="client" name="role" value="Client">
+              <label for="client">💼<br>Client</label>
+            </div>
+
+            <div class="role">
+              <input type="radio" id="vendor" name="role" value="Vendor">
+              <label for="vendor">🛠️<br>Vendor</label>
+            </div>
+
+            <div class="role">
+              <input type="radio" id="partner" name="role" value="Partner">
+              <label for="partner">🤝<br>Partner</label>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="name">
+            Full Name
+          </label>
+
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Your full name"
+            required
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="display">
+            Display / Stage Name
+          </label>
+
+          <input
+            type="text"
+            id="display"
+            name="display"
+            placeholder="How you'd like to be known"
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="email">
+            Email Address
+          </label>
+
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="you@example.com"
+            required
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="password">
+            Password
+          </label>
+
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Create a password"
+            minlength="8"
+            required
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="confirmPassword">
+            Confirm Password
+          </label>
+
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            placeholder="Enter your password again"
+            minlength="8"
+            required
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="location">
+            Location
+          </label>
+
+          <input
+            type="text"
+            id="location"
+            name="location"
+            placeholder="City, State / Country"
+          >
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="bio">
+            Tell us about yourself
+          </label>
+
+          <textarea
+            id="bio"
+            name="bio"
+            placeholder="Tell StarRise a little about who you are, what you do, or what you're looking for."
+          ></textarea>
+
+        </div>
+
+        <div class="form-group">
+
+          <label for="link">
+            Website or Social Link
+          </label>
+
+          <input
+            type="url"
+            id="link"
+            name="link"
+            placeholder="https://"
+          >
+
+        </div>
+
+        <div class="form-group checkbox">
+
+          <input
+            type="checkbox"
+            id="agree"
+            required
+          >
+
+          <label for="agree">
+            I agree to participate in the StarRise
+            community respectfully and honestly.
+          </label>
+
+        </div>
+
+        <button
+          class="submit"
+          id="submitButton"
+          type="submit"
+        >
+          Create My StarRise Profile
+        </button>
+
+        <div class="notice">
+          Your account will be created securely with
+          StarRise authentication. You may need to
+          confirm your email before signing in.
+        </div>
+
+      </form>
+
+    </div>
+
+  </main>
+
+  <footer>
+    ⭐ StarRise — Where Talent Rises.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+
+    const starRiseSupabase = window.supabase.createClient(
+      'https://rcnikxotdalxtuvpmlvm.supabase.co',
+      'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+    );
+
+    const params = new URLSearchParams(window.location.search);
+    const selectedRole = params.get("role");
+
+    if (selectedRole) {
+      const roleInput = document.querySelector(
+        'input[name="role"][value="' + selectedRole + '"]'
+      );
+
+      if (roleInput) {
+        roleInput.checked = true;
+      }
+    }
+
+    const form = document.getElementById("registerForm");
+    const message = document.getElementById("message");
+    const submitButton = document.getElementById("submitButton");
+
+    function showMessage(text, type) {
+      message.textContent = text;
+      message.className = type;
+      message.style.display = "block";
+    }
+
+    form.addEventListener("submit", async function(event) {
+
+      event.preventDefault();
+
+      const role = document.querySelector(
+        'input[name="role"]:checked'
+      )?.value;
+
+      const fullName = document.getElementById("name").value.trim();
+      const displayName = document.getElementById("display").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const location = document.getElementById("location").value.trim();
+      const bio = document.getElementById("bio").value.trim();
+      const website = document.getElementById("link").value.trim();
+
+      if (!role) {
+        showMessage("Please choose how you are joining StarRise.", "error");
+        return;
+      }
+
+      if (password.length < 8) {
+        showMessage("Your password must be at least 8 characters.", "error");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showMessage("The passwords do not match.", "error");
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = "Creating your StarRise account...";
+
+      try {
+
+        const { data, error } =
+          await starRiseSupabase.auth.signUp({
+
+            email: email,
+
+            password: password,
+
+            options: {
+              emailRedirectTo:
+                window.location.origin +
+                window.location.pathname.replace(
+                  "register.html",
+                  "dashboard.html"
+                ),
+
+              data: {
+                full_name: fullName,
+                display_name: displayName,
+                role: role,
+                bio: bio,
+                location: location,
+                website: website
+              }
+            }
+
+          });
+
+        if (error) {
+          throw error;
+        }
+
+        if (data.session) {
+
+          showMessage(
+            "Your StarRise account has been created. Welcome to the community!",
+            "success"
+          );
+
+          setTimeout(function() {
+            window.location.href = "dashboard.html";
+          }, 1200);
+
+        } else {
+
+          showMessage(
+            "Your StarRise account was created. Please check your email and confirm your address before signing in.",
+            "success"
+          );
+
+          form.reset();
+
+        }
+
+      } catch (error) {
+
+        console.error("StarRise registration error:", error);
+
+        showMessage(
+          error.message || "We couldn't create your account. Please try again.",
+          "error"
+        );
+
+      } finally {
+
+        submitButton.disabled = false;
+        submitButton.textContent = "Create My StarRise Profile";
+
+      }
+
+    });
+
+  </script>
+
+</body>
+
+</html>
     header {
       padding: 24px 8%;
       display: flex;
