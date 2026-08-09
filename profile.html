@@ -34,13 +34,10 @@
 
     header {
       padding: 24px 8%;
-
       display: flex;
       justify-content: space-between;
       align-items: center;
-
-      border-bottom:
-        1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 
     .logo {
@@ -54,10 +51,6 @@
       margin-left: 20px;
     }
 
-    nav a:hover {
-      text-decoration: underline;
-    }
-
     main {
       max-width: 1100px;
       margin: auto;
@@ -67,34 +60,21 @@
     .profile-header {
       text-align: center;
       padding: 50px 20px;
-
       border-radius: 22px;
-
-      border:
-        1px solid rgba(255,255,255,0.12);
-
-      background:
-        rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
     }
 
     .avatar {
       width: 120px;
       height: 120px;
-
       margin: 0 auto 20px;
-
       display: flex;
       align-items: center;
       justify-content: center;
-
       border-radius: 50%;
-
-      border:
-        1px solid rgba(255,255,255,0.2);
-
-      background:
-        rgba(255,255,255,0.08);
-
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.08);
       font-size: 48px;
     }
 
@@ -115,25 +95,16 @@
 
     .grid {
       display: grid;
-
-      grid-template-columns:
-        repeat(auto-fit, minmax(260px, 1fr));
-
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 22px;
-
       margin-top: 25px;
     }
 
     .card {
       padding: 28px;
-
       border-radius: 18px;
-
-      border:
-        1px solid rgba(255,255,255,0.12);
-
-      background:
-        rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
     }
 
     .card h2 {
@@ -145,37 +116,14 @@
       color: #bbbbbb;
     }
 
-    .skills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .skill {
-      padding: 8px 14px;
-
-      border-radius: 20px;
-
-      background:
-        rgba(255,255,255,0.08);
-
-      color: #dddddd;
-    }
-
     .button {
       display: inline-block;
-
       margin-top: 20px;
-
       padding: 12px 24px;
-
       border-radius: 30px;
-
       background: white;
       color: #080812;
-
       text-decoration: none;
-
       font-weight: bold;
     }
 
@@ -185,28 +133,28 @@
 
     .notice {
       margin-top: 25px;
-
       padding: 18px;
-
       border-radius: 14px;
-
-      background:
-        rgba(255,255,255,0.05);
-
+      background: rgba(255,255,255,0.05);
       color: #aaaaaa;
+      text-align: center;
+    }
 
+    .error {
+      display: none;
+      margin-top: 25px;
+      padding: 18px;
+      border-radius: 14px;
+      background: rgba(255,0,0,0.1);
+      color: #ffaaaa;
       text-align: center;
     }
 
     footer {
       padding: 35px;
-
       text-align: center;
-
       color: #999999;
-
-      border-top:
-        1px solid rgba(255,255,255,0.1);
+      border-top: 1px solid rgba(255,255,255,0.1);
     }
 
     @media (max-width: 650px) {
@@ -230,9 +178,7 @@
 
 </head>
 
-
 <body>
-
 
   <header>
 
@@ -246,45 +192,49 @@
         Home
       </a>
 
-      <a href="ecosystem.html">
-        Ecosystem
+      <a href="members.html">
+        Members
       </a>
 
-      <a href="join.html">
-        Join
+      <a href="ecosystem.html">
+        Ecosystem
       </a>
 
     </nav>
 
   </header>
 
-
   <main>
-
 
     <section class="profile-header">
 
-      <div class="avatar">
+      <div
+        class="avatar"
+        id="avatar"
+      >
         ⭐
       </div>
 
-      <h1>
-        StarRise Member
+      <h1 id="displayName">
+        Loading...
       </h1>
 
-      <p class="role">
-        Talent • Creator • Member
+      <p
+        class="role"
+        id="role"
+      >
+        Member
       </p>
 
-      <p class="location">
-        Location coming soon
+      <p
+        class="location"
+        id="location"
+      >
       </p>
 
     </section>
 
-
     <div class="grid">
-
 
       <section class="card">
 
@@ -292,70 +242,11 @@
           About
         </h2>
 
-        <p>
-          This member profile will showcase
-          the person's story, experience,
-          creativity, goals, and connection
-          to the StarRise ecosystem.
+        <p id="bio">
+          Loading profile...
         </p>
 
       </section>
-
-
-      <section class="card">
-
-        <h2>
-          Skills & Talents
-        </h2>
-
-        <div class="skills">
-
-          <span class="skill">
-            Music
-          </span>
-
-          <span class="skill">
-            Performance
-          </span>
-
-          <span class="skill">
-            Creativity
-          </span>
-
-        </div>
-
-      </section>
-
-
-      <section class="card">
-
-        <h2>
-          Projects
-        </h2>
-
-        <p>
-          Member projects, performances,
-          collaborations, releases, and
-          creative work will appear here.
-        </p>
-
-      </section>
-
-
-      <section class="card">
-
-        <h2>
-          Opportunities
-        </h2>
-
-        <p>
-          Relevant StarRise opportunities
-          and collaborations can eventually
-          be connected to this profile.
-        </p>
-
-      </section>
-
 
       <section class="card">
 
@@ -364,20 +255,22 @@
         </h2>
 
         <p>
-          Website and approved social links
-          will appear here when a member
-          chooses to share them.
+          Approved website or social links
+          shared by this member will appear here.
         </p>
 
         <a
+          id="websiteLink"
           class="button"
           href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          style="display:none;"
         >
-          Website Coming Soon
+          Visit Website
         </a>
 
       </section>
-
 
       <section class="card">
 
@@ -390,32 +283,18 @@
           of the StarRise ecosystem.
         </p>
 
-        <a
-          class="button"
-          href="ecosystem.html"
-        >
-          Explore Ecosystem
-        </a>
-
       </section>
 
-
     </div>
 
-
-    <div class="notice">
-
-      Profile publishing, member accounts,
-      authentication, media uploads, and
-      private member data will be connected
-      through the StarRise platform backend
-      in a later stage.
-
+    <div
+      id="error"
+      class="error"
+    >
+      We couldn't find this StarRise member.
     </div>
-
 
   </main>
-
 
   <footer>
 
@@ -423,6 +302,146 @@
 
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+
+    const starRiseSupabase =
+      window.supabase.createClient(
+        'https://rcnikxotdalxtuvpmlvm.supabase.co',
+        'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+      );
+
+    async function loadProfile() {
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+      const memberId =
+        params.get('id');
+
+      if (!memberId) {
+
+        showError();
+
+        return;
+
+      }
+
+      const {
+        data,
+        error
+      } = await starRiseSupabase
+        .from('public_profiles')
+        .select(
+          'id, display_name, role, location, bio, website'
+        )
+        .eq('id', memberId)
+        .maybeSingle();
+
+      if (error) {
+
+        console.error(error);
+
+        showError();
+
+        return;
+
+      }
+
+      if (!data) {
+
+        showError();
+
+        return;
+
+      }
+
+      document
+        .getElementById('displayName')
+        .textContent =
+          data.display_name ||
+          'StarRise Member';
+
+      document
+        .getElementById('role')
+        .textContent =
+          data.role ||
+          'StarRise Member';
+
+      document
+        .getElementById('location')
+        .textContent =
+          data.location ||
+          '';
+
+      document
+        .getElementById('bio')
+        .textContent =
+          data.bio ||
+          'This member has not added a bio yet.';
+
+      const initial =
+        (
+          data.display_name ||
+          'S'
+        )
+        .charAt(0)
+        .toUpperCase();
+
+      document
+        .getElementById('avatar')
+        .textContent =
+          initial;
+
+      if (data.website) {
+
+        const link =
+          document.getElementById(
+            'websiteLink'
+          );
+
+        link.href =
+          data.website;
+
+        link.style.display =
+          'inline-block';
+
+      }
+
+      document.title =
+        (
+          data.display_name ||
+          'StarRise Member'
+        ) +
+        ' | StarRise';
+
+    }
+
+    function showError() {
+
+      document
+        .getElementById('displayName')
+        .textContent =
+          'Profile Not Found';
+
+      document
+        .getElementById('bio')
+        .textContent =
+          'This profile could not be loaded.';
+
+      document
+        .getElementById('error')
+        .style.display =
+          'block';
+
+    }
+
+    loadProfile();
+
+  </script>
 
 </body>
 
