@@ -51,10 +51,6 @@
       margin-left: 20px;
     }
 
-    nav a:hover {
-      text-decoration: underline;
-    }
-
     main {
       max-width: 1150px;
       margin: auto;
@@ -96,11 +92,6 @@
       font-size: 16px;
     }
 
-    input:focus,
-    select:focus {
-      outline: 2px solid white;
-    }
-
     .grid {
       display: grid;
       grid-template-columns:
@@ -125,6 +116,14 @@
       border-radius: 50%;
       background: rgba(255,255,255,0.08);
       font-size: 30px;
+      overflow: hidden;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .member h2 {
@@ -214,357 +213,423 @@
 
 <body>
 
-  <header>
+<header>
 
-    <div class="logo">
-      ⭐ StarRise
-    </div>
+  <div class="logo">
+    ⭐ StarRise
+  </div>
 
-    <nav>
+  <nav>
 
-      <a href="index.html">
-        Home
-      </a>
+    <a href="index.html">
+      Home
+    </a>
 
-      <a href="ecosystem.html">
-        Ecosystem
-      </a>
+    <a href="ecosystem.html">
+      Ecosystem
+    </a>
 
-      <a href="join.html">
-        Join
-      </a>
+    <a href="join.html">
+      Join
+    </a>
 
-    </nav>
+  </nav>
 
-  </header>
+</header>
 
-  <main>
+<main>
 
-    <section class="hero">
+  <section class="hero">
 
-      <h1>
-        StarRise Members
-      </h1>
+    <h1>
+      StarRise Members
+    </h1>
 
-      <p>
-        Discover the people who make up the
-        StarRise ecosystem. Talent, creators,
-        supporters, clients, vendors, and
-        partners all have a place here.
-      </p>
+    <p>
+      Discover the people who make up the
+      StarRise ecosystem. Talent, creators,
+      supporters, clients, vendors, and
+      partners all have a place here.
+    </p>
 
-    </section>
+  </section>
 
-    <section class="controls">
+  <section class="controls">
 
-      <input
-        type="search"
-        id="search"
-        placeholder="Search members..."
-        autocomplete="off"
-      >
-
-      <select id="roleFilter">
-
-        <option value="all">
-          All Roles
-        </option>
-
-        <option value="Talent">
-          Talent
-        </option>
-
-        <option value="Creator">
-          Creator
-        </option>
-
-        <option value="Supporter">
-          Supporter
-        </option>
-
-        <option value="Client">
-          Client
-        </option>
-
-        <option value="Vendor">
-          Vendor
-        </option>
-
-        <option value="Partner">
-          Partner
-        </option>
-
-      </select>
-
-    </section>
-
-    <div
-      id="status"
-      class="status"
+    <input
+      type="search"
+      id="search"
+      placeholder="Search members..."
+      autocomplete="off"
     >
-      Loading StarRise members...
-    </div>
 
-    <section
-      class="grid"
-      id="members"
-    ></section>
+    <select id="roleFilter">
 
-    <div class="notice">
+      <option value="all">
+        All Roles
+      </option>
 
-      StarRise members can choose what information
-      they make publicly available.
+      <option value="Talent">
+        Talent
+      </option>
 
-    </div>
+      <option value="Creator">
+        Creator
+      </option>
 
-  </main>
+      <option value="Supporter">
+        Supporter
+      </option>
 
-  <footer>
+      <option value="Client">
+        Client
+      </option>
 
-    ⭐ StarRise — Where Talent Rises.
+      <option value="Vendor">
+        Vendor
+      </option>
 
-  </footer>
+      <option value="Partner">
+        Partner
+      </option>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    </select>
 
-  <script>
+  </section>
 
-    const starRiseSupabase =
-      window.supabase.createClient(
-        'https://rcnikxotdalxtuvpmlvm.supabase.co',
-        'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+  <div
+    id="status"
+    class="status"
+  >
+    Loading StarRise members...
+  </div>
+
+  <section
+    class="grid"
+    id="members"
+  ></section>
+
+  <div class="notice">
+
+    StarRise members can choose what information
+    they make publicly available.
+
+  </div>
+
+</main>
+
+<footer>
+
+  ⭐ StarRise — Where Talent Rises.
+
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const starRiseSupabase =
+  window.supabase.createClient(
+    'https://rcnikxotdalxtuvpmlvm.supabase.co',
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+  );
+
+
+const membersContainer =
+  document.getElementById('members');
+
+const status =
+  document.getElementById('status');
+
+const searchInput =
+  document.getElementById('search');
+
+const roleFilter =
+  document.getElementById('roleFilter');
+
+
+let allMembers = [];
+
+
+async function loadMembers() {
+
+  const {
+    data,
+    error
+  } =
+    await starRiseSupabase
+      .from('public_profiles')
+      .select(
+        'id, display_name, role, location, bio, website, avatar_url'
+      )
+      .order(
+        'display_name',
+        {
+          ascending: true
+        }
       );
 
-    const membersContainer =
-      document.getElementById('members');
 
-    const status =
-      document.getElementById('status');
+  if (error) {
 
-    const searchInput =
-      document.getElementById('search');
+    console.error(error);
 
-    const roleFilter =
-      document.getElementById('roleFilter');
+    status.textContent =
+      'We could not load the StarRise members.';
 
-    let allMembers = [];
+    status.classList.add('error');
 
-    async function loadMembers() {
+    return;
 
-      const {
-        data,
-        error
-      } = await starRiseSupabase
-        .from('public_profiles')
-        .select(
-  'id, display_name, role, location, bio, website, avatar_url'
-)
-        )
-        .order(
-          'display_name',
-          {
-            ascending: true
-          }
+  }
+
+
+  allMembers =
+    data || [];
+
+  renderMembers();
+
+}
+
+
+function renderMembers() {
+
+  const search =
+    searchInput.value
+      .trim()
+      .toLowerCase();
+
+
+  const selectedRole =
+    roleFilter.value;
+
+
+  const filteredMembers =
+    allMembers.filter(
+      member => {
+
+        const name =
+          (member.display_name || '')
+            .toLowerCase();
+
+        const bio =
+          (member.bio || '')
+            .toLowerCase();
+
+        const location =
+          (member.location || '')
+            .toLowerCase();
+
+
+        const matchesSearch =
+          !search ||
+          name.includes(search) ||
+          bio.includes(search) ||
+          location.includes(search);
+
+
+        const matchesRole =
+          selectedRole === 'all' ||
+          member.role === selectedRole;
+
+
+        return (
+          matchesSearch &&
+          matchesRole
         );
 
-      if (error) {
-
-        console.error(error);
-
-        status.textContent =
-          'We could not load the StarRise members.';
-
-        status.classList.add('error');
-
-        return;
-
       }
+    );
 
-      allMembers = data || [];
 
-      renderMembers();
+  membersContainer.innerHTML = '';
 
-    }
 
-    function renderMembers() {
+  if (
+    filteredMembers.length === 0
+  ) {
 
-      const search =
-        searchInput.value
-          .trim()
-          .toLowerCase();
+    status.textContent =
+      allMembers.length === 0
+        ? 'No public StarRise members yet.'
+        : 'No members matched your search.';
 
-      const selectedRole =
-        roleFilter.value;
+    status.className =
+      'status';
 
-      const filteredMembers =
-        allMembers.filter(member => {
+    return;
 
-          const name =
-            (member.display_name || '')
-              .toLowerCase();
+  }
 
-          const bio =
-            (member.bio || '')
-              .toLowerCase();
 
-          const location =
-            (member.location || '')
-              .toLowerCase();
+  status.textContent =
+    `${filteredMembers.length} StarRise member${
+      filteredMembers.length === 1
+        ? ''
+        : 's'
+    }`;
 
-          const matchesSearch =
-            !search ||
-            name.includes(search) ||
-            bio.includes(search) ||
-            location.includes(search);
 
-          const matchesRole =
-            selectedRole === 'all' ||
-            member.role === selectedRole;
+  status.className =
+    'status';
 
-          return (
-            matchesSearch &&
-            matchesRole
-          );
 
-        });
+  filteredMembers.forEach(
+    member => {
 
-      membersContainer.innerHTML = '';
+      const card =
+        document.createElement(
+          'article'
+        );
 
-      if (filteredMembers.length === 0) {
+      card.className =
+        'member';
 
-        status.textContent =
-          allMembers.length === 0
-            ? 'No public StarRise members yet.'
-            : 'No members matched your search.';
 
-        status.className =
-          'status';
+      const displayName =
+        member.display_name ||
+        'StarRise Member';
 
-        return;
 
-      }
+      const initial =
+        displayName
+          .charAt(0)
+          .toUpperCase();
 
-      status.textContent =
-        `${filteredMembers.length} StarRise member${
-          filteredMembers.length === 1 ? '' : 's'
-        }`;
 
-      status.className =
-        'status';
+      let avatarHtml;
 
-      filteredMembers.forEach(member => {
 
-        const card =
-          document.createElement('article');
+      if (
+        member.avatar_url
+      ) {
 
-        card.className =
-          'member';
-
-        const displayName =
-          member.display_name ||
-          'StarRise Member';
-
-        const initial =
-  displayName
-    .charAt(0)
-    .toUpperCase();
-
-const avatarHtml =
-  member.avatar_url
-    ? `
-      <img
-        src="${escapeHtml(member.avatar_url)}"
-        alt="${escapeHtml(displayName)}"
-        style="
-          width:75px;
-          height:75px;
-          object-fit:cover;
-          border-radius:50%;
-        "
-      >
-    `
-    : escapeHtml(initial);
-
-        card.innerHTML = `
-
-          <div class="avatar">
-            ${escapeHtml(initial)}
-          </div>
-
-          <h2>
-            ${escapeHtml(displayName)}
-          </h2>
-
-          <div class="role">
-            ${escapeHtml(
-              member.role || 'Member'
-            )}
-          </div>
-
-          ${
-            member.location
-              ? `
-                <div class="location">
-                  ${escapeHtml(member.location)}
-                </div>
-              `
-              : ''
-          }
-
-          <p>
-            ${escapeHtml(
-              member.bio ||
-              'This member has not added a bio yet.'
-            )}
-          </p>
-
-          <a
-            class="button"
-            href="profile.html?id=${encodeURIComponent(member.id)}"
+        avatarHtml = `
+          <img
+            src="${escapeHtml(
+              member.avatar_url
+            )}"
+            alt="${escapeHtml(
+              displayName
+            )}"
           >
-            View Profile
-          </a>
-
         `;
 
-        membersContainer.appendChild(card);
+      } else {
 
-      });
+        avatarHtml =
+          escapeHtml(initial);
+
+      }
+
+
+      card.innerHTML = `
+
+        <div class="avatar">
+          ${avatarHtml}
+        </div>
+
+        <h2>
+          ${escapeHtml(
+            displayName
+          )}
+        </h2>
+
+        <div class="role">
+          ${escapeHtml(
+            member.role ||
+            'Member'
+          )}
+        </div>
+
+        ${
+          member.location
+            ? `
+              <div class="location">
+                ${escapeHtml(
+                  member.location
+                )}
+              </div>
+            `
+            : ''
+        }
+
+        <p>
+          ${escapeHtml(
+            member.bio ||
+            'This member has not added a bio yet.'
+          )}
+        </p>
+
+        <a
+          class="button"
+          href="profile.html?id=${encodeURIComponent(
+            member.id
+          )}"
+        >
+          View Profile
+        </a>
+
+      `;
+
+
+      membersContainer.appendChild(
+        card
+      );
 
     }
+  );
 
-    function escapeHtml(value) {
+}
 
-      return String(value)
 
-        .replaceAll('&', '&amp;')
+function escapeHtml(value) {
 
-        .replaceAll('<', '&lt;')
+  return String(value)
 
-        .replaceAll('>', '&gt;')
+    .replaceAll(
+      '&',
+      '&amp;'
+    )
 
-        .replaceAll('"', '&quot;')
+    .replaceAll(
+      '<',
+      '&lt;'
+    )
 
-        .replaceAll(
-          "'",
-          '&#039;'
-        );
+    .replaceAll(
+      '>',
+      '&gt;'
+    )
 
-    }
+    .replaceAll(
+      '"',
+      '&quot;'
+    )
 
-    searchInput.addEventListener(
-      'input',
-      renderMembers
+    .replaceAll(
+      "'",
+      '&#039;'
     );
 
-    roleFilter.addEventListener(
-      'change',
-      renderMembers
-    );
+}
 
-    loadMembers();
 
-  </script>
+searchInput.addEventListener(
+  'input',
+  renderMembers
+);
+
+
+roleFilter.addEventListener(
+  'change',
+  renderMembers
+);
+
+
+loadMembers();
+
+</script>
 
 </body>
 
