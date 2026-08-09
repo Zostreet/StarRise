@@ -2,23 +2,12 @@
 <html lang="en">
 
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>StarRise Member Profile</title>
 
-  <meta
-    name="description"
-    content="StarRise member profile."
-  >
-
   <style>
-
     * {
       box-sizing: border-box;
       margin: 0;
@@ -52,14 +41,14 @@
     }
 
     main {
-      max-width: 1100px;
+      max-width: 1000px;
       margin: auto;
       padding: 60px 6%;
     }
 
-    .profile-header {
+    .profile {
       text-align: center;
-      padding: 50px 20px;
+      padding: 45px 20px;
       border-radius: 22px;
       border: 1px solid rgba(255,255,255,0.12);
       background: rgba(255,255,255,0.04);
@@ -69,35 +58,32 @@
       width: 120px;
       height: 120px;
       margin: 0 auto 20px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.2);
       background: rgba(255,255,255,0.08);
       font-size: 48px;
     }
 
-    .profile-header h1 {
-      font-size: clamp(38px, 8vw, 64px);
-      margin-bottom: 8px;
+    h1 {
+      font-size: clamp(36px, 8vw, 60px);
     }
 
     .role {
-      color: #cccccc;
+      color: #ccc;
       font-size: 18px;
     }
 
     .location {
-      color: #999999;
+      color: #999;
       margin-top: 5px;
     }
 
     .grid {
       display: grid;
-      grid-template-columns:
-        repeat(auto-fit, minmax(260px, 1fr));
-      gap: 22px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
       margin-top: 25px;
     }
 
@@ -109,370 +95,309 @@
     }
 
     .card h2 {
-      margin-bottom: 15px;
-      font-size: 24px;
+      margin-bottom: 12px;
     }
 
     .card p {
-      color: #bbbbbb;
+      color: #bbb;
+      white-space: pre-wrap;
     }
 
     .button {
       display: inline-block;
-      margin-top: 20px;
-      padding: 12px 24px;
-      border-radius: 30px;
+      margin-top: 18px;
+      padding: 11px 22px;
+      border-radius: 25px;
       background: white;
       color: #080812;
       text-decoration: none;
       font-weight: bold;
     }
 
-    .notice,
-    .error {
-      margin-top: 25px;
-      padding: 18px;
-      border-radius: 14px;
+    #status {
       text-align: center;
-    }
-
-    .notice {
-      background: rgba(255,255,255,0.05);
-      color: #aaaaaa;
+      margin: 25px 0;
+      color: #aaa;
     }
 
     .error {
-      display: none;
-      background: rgba(255,0,0,0.1);
-      color: #ffaaaa;
+      color: #ffaaaa !important;
     }
 
     footer {
+      margin-top: 40px;
       padding: 35px;
       text-align: center;
-      color: #999999;
+      color: #999;
       border-top: 1px solid rgba(255,255,255,0.1);
     }
-
   </style>
-
 </head>
 
 <body>
 
-  <header>
+<header>
+  <div class="logo">⭐ StarRise</div>
 
-    <div class="logo">
-      ⭐ StarRise
-    </div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="members.html">Members</a>
+    <a href="ecosystem.html">Ecosystem</a>
+  </nav>
+</header>
 
-    <nav>
+<main>
 
-      <a href="index.html">
-        Home
-      </a>
+  <div id="status">
+    Loading StarRise member...
+  </div>
 
-      <a href="members.html">
-        Members
-      </a>
-
-      <a href="ecosystem.html">
-        Ecosystem
-      </a>
-
-    </nav>
-
-  </header>
-
-  <main>
-
-    <section class="profile-header">
-
-      <div
-        class="avatar"
-        id="avatar"
-      >
-        ⭐
-      </div>
-
-      <h1 id="displayName">
-        Loading...
-      </h1>
-
-      <p
-        class="role"
-        id="role"
-      >
-        Loading...
-      </p>
-
-      <p
-        class="location"
-        id="location"
-      ></p>
-
-    </section>
-
-    <div class="grid">
-
-      <section class="card">
-
-        <h2>
-          About
-        </h2>
-
-        <p id="bio">
-          Loading profile...
-        </p>
-
-      </section>
-
-      <section class="card">
-
-        <h2>
-          Connect
-        </h2>
-
-        <p>
-          Approved website or social links
-          shared by this member will appear here.
-        </p>
-
-        <a
-          id="websiteLink"
-          class="button"
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
-          style="display:none;"
-        >
-          Visit Website
-        </a>
-
-      </section>
-
-      <section class="card">
-
-        <h2>
-          StarRise
-        </h2>
-
-        <p>
-          This profile represents a member
-          of the StarRise ecosystem.
-        </p>
-
-      </section>
-
-    </div>
+  <section class="profile">
 
     <div
-      id="error"
-      class="error"
-    ></div>
-
-    <div class="notice">
-
-      StarRise members control the information
-      they choose to make publicly available.
-
+      class="avatar"
+      id="avatar"
+    >
+      ⭐
     </div>
 
-  </main>
+    <h1 id="displayName">
+      StarRise Member
+    </h1>
 
-  <footer>
+    <div
+      class="role"
+      id="role"
+    ></div>
 
-    ⭐ StarRise — Where Talent Rises.
+    <div
+      class="location"
+      id="location"
+    ></div>
 
-  </footer>
+  </section>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <div class="grid">
 
-  <script>
+    <section class="card">
+      <h2>About</h2>
 
-    const starRiseSupabase =
-      window.supabase.createClient(
-        'https://rcnikxotdalxtuvpmlvm.supabase.co',
-        'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+      <p id="bio">
+        Loading...
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Connect</h2>
+
+      <p id="websiteText">
+        No website provided.
+      </p>
+
+      <a
+        id="website"
+        class="button"
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="display:none;"
+      >
+        Visit Website
+      </a>
+    </section>
+
+  </div>
+
+</main>
+
+<footer>
+  ⭐ StarRise — Where Talent Rises.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const supabaseClient =
+  window.supabase.createClient(
+    'https://rcnikxotdalxtuvpmlvm.supabase.co',
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+  );
+
+
+async function loadProfile() {
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  const id =
+    params.get('id');
+
+
+  if (!id) {
+
+    showError(
+      'No member ID was provided.'
+    );
+
+    return;
+  }
+
+
+  console.log(
+    'StarRise profile ID:',
+    id
+  );
+
+
+  const result =
+    await supabaseClient
+      .from('public_profiles')
+      .select(
+        'id, display_name, role, location, bio, website'
+      )
+      .eq('id', id)
+      .maybeSingle();
+
+
+  console.log(
+    'StarRise profile result:',
+    result
+  );
+
+
+  if (result.error) {
+
+    console.error(
+      'Supabase error:',
+      result.error
+    );
+
+    showError(
+      'Unable to load this member profile.'
+    );
+
+    return;
+  }
+
+
+  if (!result.data) {
+
+    showError(
+      'No StarRise profile was found for this member.'
+    );
+
+    return;
+  }
+
+
+  const member =
+    result.data;
+
+
+  const name =
+    member.display_name ||
+    'StarRise Member';
+
+
+  document
+    .getElementById('displayName')
+    .textContent =
+      name;
+
+
+  document
+    .getElementById('avatar')
+    .textContent =
+      name
+        .charAt(0)
+        .toUpperCase();
+
+
+  document
+    .getElementById('role')
+    .textContent =
+      member.role ||
+      'Member';
+
+
+  document
+    .getElementById('location')
+    .textContent =
+      member.location ||
+      '';
+
+
+  document
+    .getElementById('bio')
+    .textContent =
+      member.bio ||
+      'This member has not added a bio yet.';
+
+
+  if (
+    member.website &&
+    member.website.trim()
+  ) {
+
+    document
+      .getElementById('websiteText')
+      .textContent =
+        member.website;
+
+
+    const link =
+      document.getElementById(
+        'website'
       );
 
 
-    async function loadProfile() {
-
-      const params =
-        new URLSearchParams(
-          window.location.search
-        );
-
-      const profileId =
-        params.get('id');
+    link.href =
+      member.website;
 
 
-      if (!profileId) {
-
-        showError(
-          'No member profile was specified.'
-        );
-
-        return;
-
-      }
+    link.style.display =
+      'inline-block';
+  }
 
 
-      let result =
-        await starRiseSupabase
-          .from('public_profiles')
-          .select(
-            'id, display_name, role, location, bio, website'
-          .eq('id', profileId)
-          .maybeSingle();
+  document
+    .getElementById('status')
+    .textContent =
+      'StarRise member profile';
 
 
-      if (
-        !result.data &&
-        !result.error
-      ) {
+  document.title =
+    name +
+    ' | StarRise';
 
-        result =
-          await starRiseSupabase
-            .from('public_profiles')
-            .select(
-              'id, display_name, role, location, bio, website'
-            .eq('user_id', profileId)
-            .maybeSingle();
-
-      }
+}
 
 
-      if (result.error) {
+function showError(message) {
 
-        console.error(
-          result.error
-        );
-
-        showError(
-          'We could not load this member profile.'
-        );
-
-        return;
-
-      }
+  const status =
+    document.getElementById(
+      'status'
+    );
 
 
-      if (!result.data) {
-
-        showError(
-          'We could not find this StarRise member.'
-        );
-
-        return;
-
-      }
+  status.textContent =
+    message;
 
 
-      const member =
-        result.data;
+  status.classList.add(
+    'error'
+  );
+
+}
 
 
-      const displayName =
-        member.display_name ||
-        'StarRise Member';
+loadProfile();
 
-
-      document
-        .getElementById('displayName')
-        .textContent =
-          displayName;
-
-
-      document
-        .getElementById('role')
-        .textContent =
-          member.role ||
-          'StarRise Member';
-
-
-      document
-        .getElementById('location')
-        .textContent =
-          member.location ||
-          '';
-
-
-      document
-        .getElementById('bio')
-        .textContent =
-          member.bio ||
-          'This member has not added a bio yet.';
-
-
-      document
-        .getElementById('avatar')
-        .textContent =
-          displayName
-            .charAt(0)
-            .toUpperCase();
-
-
-      if (
-        member.website &&
-        member.website.trim()
-      ) {
-
-        const website =
-          document.getElementById(
-            'websiteLink'
-          );
-
-        website.href =
-          member.website;
-
-        website.style.display =
-          'inline-block';
-
-      }
-
-
-      document.title =
-        displayName +
-        ' | StarRise';
-
-    }
-
-
-    function showError(message) {
-
-      document
-        .getElementById('displayName')
-        .textContent =
-          'Profile Not Found';
-
-
-      document
-        .getElementById('bio')
-        .textContent =
-          message;
-
-
-      const error =
-        document.getElementById(
-          'error'
-        );
-
-
-      error.textContent =
-        message;
-
-
-      error.style.display =
-        'block';
-
-    }
-
-
-    loadProfile();
-
-  </script>
+</script>
 
 </body>
 
