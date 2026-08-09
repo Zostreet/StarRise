@@ -1,0 +1,490 @@
+<!doctype html>
+
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">  <title>StarRise Services</title>  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: #fff;
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 20px 8%;
+      border-bottom: 1px solid #ffffff18;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a {
+      margin-left: 20px;
+    }
+
+    main {
+      width: min(1150px, calc(100% - 40px));
+      margin: 50px auto;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .hero h1 {
+      font-size: clamp(42px, 8vw, 70px);
+      margin: 0 0 12px;
+    }
+
+    .hero p {
+      color: #bbb;
+      max-width: 700px;
+      margin: auto;
+      font-size: 18px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid #ffffff25;
+      background: #11111d;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    .status {
+      text-align: center;
+      color: #aaa;
+      padding: 25px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .service {
+      padding: 25px;
+      border-radius: 18px;
+      border: 1px solid #ffffff18;
+      background: #ffffff08;
+    }
+
+    .category {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: #ffffff12;
+      color: #ccc;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .service h2 {
+      margin: 0 0 8px;
+    }
+
+    .service p {
+      color: #bbb;
+      min-height: 70px;
+    }
+
+    .price {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 18px 0;
+    }
+
+    .provider {
+      color: #999;
+      font-size: 14px;
+    }
+
+    .button {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 11px 20px;
+      border-radius: 25px;
+      background: #fff;
+      color: #080812;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .button:hover {
+      opacity: .85;
+    }
+
+    .notice {
+      margin-top: 35px;
+      padding: 20px;
+      border-radius: 15px;
+      background: #ffffff08;
+      color: #aaa;
+      text-align: center;
+    }
+
+    footer {
+      margin-top: 50px;
+      padding: 35px;
+      text-align: center;
+      color: #999;
+      border-top: 1px solid #ffffff18;
+    }
+
+    @media (max-width: 650px) {
+
+      header {
+        flex-direction: column;
+      }
+
+      nav a {
+        margin: 0 7px;
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      main {
+        width: min(100% - 24px, 1150px);
+        margin-top: 30px;
+      }
+
+    }
+
+  </style></head><body><header>  <a href="index.html">
+    ⭐ StarRise
+  </a>  <nav><a href="members.html">
+  Members
+</a>
+
+<a href="services.html">
+  Services
+</a>
+
+<a href="dashboard.html">
+  Dashboard
+</a>
+
+  </nav></header><main>  <section class="hero"><h1>
+  StarRise Services
+</h1>
+
+<p>
+  Discover creative services offered by
+  members of the StarRise ecosystem.
+  Find talent, production, performance,
+  design, events, and more.
+</p>
+
+  </section>  <section class="controls"><input
+  id="search"
+  type="search"
+  placeholder="Search services..."
+  autocomplete="off"
+>
+
+<select id="category">
+
+  <option value="all">
+    All Categories
+  </option>
+
+  <option value="Music">
+    Music
+  </option>
+
+  <option value="Performance">
+    Performance
+  </option>
+
+  <option value="Production">
+    Production
+  </option>
+
+  <option value="Design">
+    Design
+  </option>
+
+  <option value="Video">
+    Video
+  </option>
+
+  <option value="Photography">
+    Photography
+  </option>
+
+  <option value="Events">
+    Events
+  </option>
+
+  <option value="Marketing">
+    Marketing
+  </option>
+
+  <option value="Consulting">
+    Consulting
+  </option>
+
+  <option value="Other">
+    Other
+  </option>
+
+</select>
+
+  </section>  <div
+    id="status"
+    class="status"
+  >
+    Loading StarRise services...
+  </div>  <section
+    id="services"
+    class="grid"
+  ></section>  <div class="notice">More services will appear as StarRise members
+create their professional offerings.
+
+  </div></main><footer>⭐ StarRise — Where Talent Rises.
+
+</footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+
+const starRiseSupabase =
+  window.supabase.createClient(
+    'https://rcnikxotdalxtuvpmlvm.supabase.co',
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+  );
+
+
+const servicesContainer =
+  document.getElementById('services');
+
+const status =
+  document.getElementById('status');
+
+const searchInput =
+  document.getElementById('search');
+
+const categoryFilter =
+  document.getElementById('category');
+
+
+let allServices = [];
+
+
+function escapeHtml(value) {
+
+  return String(value)
+
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+
+}
+
+
+function renderServices() {
+
+  const search =
+    searchInput.value
+      .trim()
+      .toLowerCase();
+
+  const category =
+    categoryFilter.value;
+
+
+  const filtered =
+    allServices.filter(service => {
+
+      const title =
+        (service.title || '')
+          .toLowerCase();
+
+      const description =
+        (service.description || '')
+          .toLowerCase();
+
+      const matchesSearch =
+        !search ||
+        title.includes(search) ||
+        description.includes(search);
+
+      const matchesCategory =
+        category === 'all' ||
+        service.category === category;
+
+      return (
+        matchesSearch &&
+        matchesCategory
+      );
+
+    });
+
+
+  servicesContainer.innerHTML = '';
+
+
+  if (filtered.length === 0) {
+
+    status.textContent =
+      allServices.length === 0
+        ? 'No services are listed yet.'
+        : 'No services matched your search.';
+
+    return;
+
+  }
+
+
+  status.textContent =
+    `${filtered.length} service${
+      filtered.length === 1 ? '' : 's'
+    } available`;
+
+
+  filtered.forEach(service => {
+
+    const card =
+      document.createElement('article');
+
+    card.className =
+      'service';
+
+
+    const price =
+      Number(service.price_cents || 0) / 100;
+
+
+    card.innerHTML = `
+
+      <span class="category">
+        ${escapeHtml(service.category || 'Other')}
+      </span>
+
+      <h2>
+        ${escapeHtml(service.title)}
+      </h2>
+
+      <p>
+        ${escapeHtml(
+          service.description ||
+          'No description provided.'
+        )}
+      </p>
+
+      <div class="price">
+        $${price.toFixed(2)}
+      </div>
+
+      <div class="provider">
+        StarRise Member
+      </div>
+
+      <a
+        class="button"
+        href="profile.html?id=${encodeURIComponent(service.user_id)}"
+      >
+        View Member
+      </a>
+
+    `;
+
+
+    servicesContainer.appendChild(card);
+
+  });
+
+}
+
+
+async function loadServices() {
+
+  const {
+    data,
+    error
+  } =
+    await starRiseSupabase
+
+      .from('star_rise_services')
+
+      .select(
+        'id, user_id, title, description, category, price_cents, created_at'
+      )
+
+      .eq(
+        'is_active',
+        true
+      )
+
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      );
+
+
+  if (error) {
+
+    console.error(
+      'Services error:',
+      error
+    );
+
+    status.textContent =
+      'We could not load StarRise services.';
+
+    return;
+
+  }
+
+
+  allServices =
+    data || [];
+
+  renderServices();
+
+}
+
+
+searchInput.addEventListener(
+  'input',
+  renderServices
+);
+
+
+categoryFilter.addEventListener(
+  'change',
+  renderServices
+);
+
+
+loadServices();
+
+</script></body></html>
