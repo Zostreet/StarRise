@@ -1,6 +1,7 @@
 <!doctype html>
 
-<html lang="en"><head>
+<html lang="en">
+<head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">  <title>Member Dashboard | StarRise</title>  <style>
     * {
@@ -91,7 +92,7 @@
 
     .website-link,
     .service-link {
-      color: white;
+      color: #fff;
       text-decoration: underline;
     }
 
@@ -118,6 +119,11 @@
     .error {
       color: #ffb0b0 !important;
       background: rgba(220, 70, 70, .12) !important;
+    }
+
+    .success {
+      color: #b8ffcc !important;
+      background: rgba(50, 200, 100, .10) !important;
     }
 
     .order-card {
@@ -148,6 +154,13 @@
       font-size: 14px;
     }
 
+    .order-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
     .order-button {
       border: 0;
       padding: 11px 20px;
@@ -156,7 +169,12 @@
       color: #080812;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 10px;
+    }
+
+    .decline-button {
+      background: transparent;
+      color: #fff;
+      border: 1px solid #ffffff33;
     }
 
     .order-button:disabled {
@@ -181,13 +199,6 @@
       font-weight: bold;
     }
 
-    .empty {
-      padding: 20px;
-      border-radius: 14px;
-      background: #ffffff06;
-      color: #999;
-    }
-
     @media (max-width: 650px) {
       header {
         flex-direction: column;
@@ -201,6 +212,14 @@
       .hero,
       .panel {
         padding: 22px;
+      }
+
+      .order-actions {
+        flex-direction: column;
+      }
+
+      .order-button {
+        width: 100%;
       }
     }
   </style></head><body><header>  <a href="index.html">
@@ -568,11 +587,6 @@ async function loadProfile(user) {
 
   if (rolesError) {
 
-    console.error(
-      'Roles error:',
-      rolesError
-    );
-
     rolesElement.innerHTML =
       '<span class="muted">Unable to load roles.</span>';
 
@@ -708,6 +722,30 @@ async function loadIncomingOrders(user) {
       'pending';
 
 
+    const actionButtons =
+      currentStatus === 'pending'
+        ? `
+          <div class="order-actions">
+
+            <button
+              class="order-button accept-button"
+              data-order-id="${escapeHtml(order.id)}"
+            >
+              Accept Request
+            </button>
+
+            <button
+              class="order-button decline-button decline-action"
+              data-order-id="${escapeHtml(order.id)}"
+            >
+              Decline Request
+            </button>
+
+          </div>
+        `
+        : '';
+
+
     card.innerHTML = `
 
       <div class="label">
@@ -749,20 +787,7 @@ async function loadIncomingOrders(user) {
         View Service
       </a>
 
-      ${
-        currentStatus === 'pending'
-          ? `
-            <br>
-
-            <button
-              class="order-button"
-              data-order-id="${escapeHtml(order.id)}"
-            >
-              Accept Request
-            </button>
-          `
-          : ''
-      }
+      ${actionButtons}
 
     `;
 
@@ -773,15 +798,45 @@ async function loadIncomingOrders(user) {
 
 
   document
-    .querySelectorAll('.order-button')
+    .querySelectorAll('.accept-button')
     .forEach(button => {
 
       button.addEventListener(
         'click',
         async () => {
 
-          await acceptOrder(
+          await updateOrderStatus(
             button.dataset.orderId,
+            'accepted',
+            button
+          );
+
+        }
+      );
+
+    });
+
+
+  document
+    .querySelectorAll('.decline-action')
+    .forEach(button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          const confirmed =
+            window.confirm(
+              'Are you sure you want to decline this service request?'
+            );
+
+          if (!confirmed) {
+            return;
+          }
+
+          await updateOrderStatus(
+            button.dataset.orderId,
+            'declined',
             button
           );
 
@@ -793,13 +848,18 @@ async function loadIncomingOrders(user) {
 }
 
 
-async function acceptOrder(
+async function updateOrderStatus(
   orderId,
+  newStatus,
   button
 ) {
 
   button.disabled = true;
-  button.textContent = 'Accepting...';
+
+  button.textContent =
+    newStatus === 'accepted'
+      ? 'Accepting...'
+      : 'Declining...';
 
 
   const user =
@@ -819,7 +879,7 @@ async function acceptOrder(
       .from('service_orders')
 
       .update({
-        status: 'accepted'
+        status: newStatus
       })
 
       .eq(
@@ -830,22 +890,32 @@ async function acceptOrder(
       .eq(
         'seller_id',
         user.id
+      )
+
+      .eq(
+        'status',
+        'pending'
       );
 
 
   if (error) {
 
     console.error(
-      'Accept order error:',
+      'Order status error:',
       error
     );
 
     button.disabled = false;
-    button.textContent = 'Accept Request';
+
+    button.textContent =
+      newStatus === 'accepted'
+        ? 'Accept Request'
+        : 'Decline Request';
+
 
     showError(
       statusBox,
-      'We could not accept this order: ' +
+      'We could not update this order: ' +
       error.message
     );
 
@@ -1041,21 +1111,16 @@ async function startDashboard() {
 
     await handleAuthCallback();
 
-
     const user =
       await getCurrentUser();
-
 
     if (!user) {
       return;
     }
 
-
     await loadProfile(user);
 
-
     await loadIncomingOrders(user);
-
 
     await loadMyOrders(user);
 
