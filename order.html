@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Order | StarRise</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: #fff;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #ffffff18;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    main {
+      width: min(900px, calc(100% - 40px));
+      margin: 50px auto;
+    }
+
+    .panel {
+      padding: 30px;
+      border-radius: 20px;
+      border: 1px solid #ffffff18;
+      background: #ffffff08;
+      margin-bottom: 20px;
+    }
+
+    .label {
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    h1 {
+      font-size: clamp(36px, 7vw, 60px);
+      line-height: 1.1;
+      margin: 5px 0 20px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .muted {
+      color: #aaa;
+    }
+
+    .price {
+      font-size: 34px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 30px;
+      background: #ffffff12;
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+
+    .request {
+      margin-top: 20px;
+      padding: 18px;
+      border-radius: 14px;
+      background: #00000025;
+      color: #ccc;
+      white-space: pre-wrap;
+    }
+
+    .info {
+      padding: 16px;
+      border-radius: 14px;
+      background: #ffffff06;
+      margin-top: 15px;
+    }
+
+    .button {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 13px 22px;
+      border-radius: 30px;
+      background: #fff;
+      color: #080812;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .error {
+      color: #ffb0b0;
+      background: rgba(220,70,70,.12);
+      padding: 16px;
+      border-radius: 12px;
+    }
+
+    .loading {
+      color: #aaa;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .step {
+      padding: 15px 18px;
+      border-radius: 12px;
+      background: #ffffff06;
+      border: 1px solid #ffffff10;
+      color: #888;
+    }
+
+    .step.active {
+      color: #fff;
+      border-color: #ffffff35;
+      background: #ffffff10;
+    }
+
+    @media (max-width: 650px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      main {
+        width: min(100% - 24px, 900px);
+        margin-top: 30px;
+      }
+
+      .panel {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+
+  <a href="index.html">
+    ⭐ StarRise
+  </a>
+
+  <nav>
+    <a href="services.html">Services</a>
+    <a href="members.html">Members</a>
+    <a href="dashboard.html">Dashboard</a>
+  </nav>
+
+</header>
+
+<main>
+
+  <section
+    id="loading"
+    class="panel loading"
+  >
+    Loading your order...
+  </section>
+
+  <section
+    id="orderPanel"
+    style="display:none;"
+  >
+
+    <div class="panel">
+
+      <div class="label">
+        StarRise Order
+      </div>
+
+      <h1 id="serviceTitle">
+        Service
+      </h1>
+
+      <div
+        id="orderStatus"
+        class="status"
+      >
+        Pending
+      </div>
+
+      <div
+        id="price"
+        class="price"
+      >
+        $0.00
+      </div>
+
+      <div class="info">
+
+        <div class="label">
+          Provider
+        </div>
+
+        <div id="provider">
+          Loading...
+        </div>
+
+      </div>
+
+      <div class="info">
+
+        <div class="label">
+          Order Date
+        </div>
+
+        <div id="orderDate">
+          Loading...
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="panel">
+
+      <h2>
+        Your Request
+      </h2>
+
+      <div
+        id="request"
+        class="request"
+      >
+        Loading...
+      </div>
+
+    </div>
+
+    <div class="panel">
+
+      <h2>
+        Order Progress
+      </h2>
+
+      <div class="timeline">
+
+        <div
+          id="stepPending"
+          class="step"
+        >
+          1. Request Submitted
+        </div>
+
+        <div
+          id="stepAccepted"
+          class="step"
+        >
+          2. Provider Accepted
+        </div>
+
+        <div
+          id="stepProgress"
+          class="step"
+        >
+          3. Work In Progress
+        </div>
+
+        <div
+          id="stepCompleted"
+          class="step"
+        >
+          4. Completed
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="panel">
+
+      <a
+        class="button"
+        href="dashboard.html"
+      >
+        ← Back to Dashboard
+      </a>
+
+      <a
+        id="serviceLink"
+        class="button"
+        href="#"
+      >
+        View Service
+      </a>
+
+    </div>
+
+  </section>
+
+  <section
+    id="errorPanel"
+    class="panel"
+    style="display:none;"
+  >
+
+    <h2>
+      Order Not Found
+    </h2>
+
+    <p id="errorMessage">
+      We could not find this order.
+    </p>
+
+    <a
+      class="button"
+      href="dashboard.html"
+    >
+      Back to Dashboard
+    </a>
+
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const starRiseSupabase =
+  window.supabase.createClient(
+    'https://rcnikxotdalxtuvpmlvm.supabase.co',
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+  );
+
+
+const loading =
+  document.getElementById('loading');
+
+const orderPanel =
+  document.getElementById('orderPanel');
+
+const errorPanel =
+  document.getElementById('errorPanel');
+
+const errorMessage =
+  document.getElementById('errorMessage');
+
+
+function escapeHtml(value) {
+
+  return String(value ?? '')
+
+    .replaceAll('&', '&amp;')
+
+    .replaceAll('<', '&lt;')
+
+    .replaceAll('>', '&gt;')
+
+    .replaceAll('"', '&quot;')
+
+    .replaceAll("'", '&#039;');
+
+}
+
+
+function getOrderId() {
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  return params.get('id');
+
+}
+
+
+function showError(message) {
+
+  loading.style.display =
+    'none';
+
+  orderPanel.style.display =
+    'none';
+
+  errorPanel.style.display =
+    'block';
+
+  errorMessage.textContent =
+    message;
+
+}
+
+
+function updateProgress(status) {
+
+  const steps = {
+    pending: 1,
+    accepted: 2,
+    in_progress: 3,
+    completed: 4
+  };
+
+  const current =
+    steps[status] || 1;
+
+
+  const stepIds = [
+    'stepPending',
+    'stepAccepted',
+    'stepProgress',
+    'stepCompleted'
+  ];
+
+
+  stepIds.forEach(
+    (id, index) => {
+
+      const element =
+        document.getElementById(id);
+
+      if (
+        index + 1 <= current
+      ) {
+
+        element.classList.add(
+          'active'
+        );
+
+      } else {
+
+        element.classList.remove(
+          'active'
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+async function loadOrder() {
+
+  const orderId =
+    getOrderId();
+
+
+  if (!orderId) {
+
+    showError(
+      'No order ID was provided.'
+    );
+
+    return;
+
+  }
+
+
+  const {
+    data: sessionData,
+    error: sessionError
+  } =
+    await starRiseSupabase
+      .auth
+      .getSession();
+
+
+  if (
+    sessionError ||
+    !sessionData ||
+    !sessionData.session
+  ) {
+
+    location.replace(
+      'login.html'
+    );
+
+    return;
+
+  }
+
+
+  const user =
+    sessionData.session.user;
+
+
+  const {
+    data: order,
+    error
+  } =
+    await starRiseSupabase
+
+      .from('service_orders')
+
+      .select(`
+        id,
+        buyer_id,
+        seller_id,
+        service_id,
+        amount_cents,
+        client_request,
+        request_message,
+        status,
+        created_at
+      `)
+
+      .eq(
+        'id',
+        orderId
+      )
+
+      .eq(
+        'buyer_id',
+        user.id
+      )
+
+      .single();
+
+
+  if (error || !order) {
+
+    console.error(
+      'Order error:',
+      error
+    );
+
+    showError(
+      'This order could not be found or you do not have permission to view it.'
+    );
+
+    return;
+
+  }
+
+
+  const {
+    data: service
+  } =
+    await starRiseSupabase
+
+      .from('star_rise_services')
+
+      .select(`
+        id,
+        title,
+        description
+      `)
+
+      .eq(
+        'id',
+        order.service_id
+      )
+
+      .maybeSingle();
+
+
+  const {
+    data: profile
+  } =
+    await starRiseSupabase
+
+      .from('Profiles')
+
+      .select(`
+        id,
+        display_name,
+        full_name
+      `)
+
+      .eq(
+        'id',
+        order.seller_id
+      )
+
+      .maybeSingle();
+
+
+  const serviceTitle =
+    service?.title ||
+    'StarRise Service';
+
+
+  const providerName =
+    profile?.display_name ||
+    profile?.full_name ||
+    'StarRise Member';
+
+
+  const amount =
+    Number(
+      order.amount_cents || 0
+    ) / 100;
+
+
+  const orderDate =
+    new Date(
+      order.created_at
+    ).toLocaleString();
+
+
+  const requestText =
+    order.client_request ||
+    order.request_message ||
+    'No request details provided.';
+
+
+  document.getElementById(
+    'serviceTitle'
+  ).textContent =
+    serviceTitle;
+
+
+  document.getElementById(
+    'provider'
+  ).textContent =
+    providerName;
+
+
+  document.getElementById(
+    'price'
+  ).textContent =
+    amount.toLocaleString(
+      'en-US',
+      {
+        style: 'currency',
+        currency: 'USD'
+      }
+    );
+
+
+  document.getElementById(
+    'orderDate'
+  ).textContent =
+    orderDate;
+
+
+  document.getElementById(
+    'request'
+  ).textContent =
+    requestText;
+
+
+  document.getElementById(
+    'orderStatus'
+  ).textContent =
+    order.status ||
+    'pending';
+
+
+  document.getElementById(
+    'serviceLink'
+  ).href =
+    'service.html?id=' +
+    encodeURIComponent(
+      order.service_id
+    );
+
+
+  updateProgress(
+    order.status ||
+    'pending'
+  );
+
+
+  loading.style.display =
+    'none';
+
+  orderPanel.style.display =
+    'block';
+
+}
+
+
+loadOrder();
+
+</script>
+
+</body>
+</html>
