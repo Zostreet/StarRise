@@ -184,7 +184,25 @@
   </style>
 </head>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const starRiseSupabase = window.supabase.createClient(
+    'https://rcnikxotdalxtuvpmlvm.supabase.co',
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+  );
 
+  starRiseSupabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname + window.location.search
+      );
+
+      window.location.replace('dashboard.html');
+    }
+  });
+</script>
 <body>
 
   <header>
