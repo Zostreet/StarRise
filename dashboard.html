@@ -54,12 +54,49 @@
       margin-bottom: 20px;
     }
 
+    .hero {
+      text-align: center;
+    }
+
     h1 {
       margin-top: 0;
     }
 
     .muted {
       color: #aaa;
+    }
+
+    .avatar {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff12;
+      border: 2px solid #ffffff22;
+      font-size: 48px;
+      font-weight: bold;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .edit-profile {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 11px 22px;
+      border-radius: 25px;
+      background: #fff;
+      color: #080812;
+      text-decoration: none;
+      font-weight: bold;
     }
 
     .profile-grid {
@@ -124,10 +161,34 @@
 <main>
 
   <section class="hero">
+
+    <div
+      id="avatar"
+      class="avatar"
+    >
+      ⭐
+    </div>
+
     <p class="muted">MEMBER DASHBOARD</p>
-    <h1>Welcome, <span id="name">Member</span></h1>
-    <p>Your StarRise member account is active.</p>
+
+    <h1>
+      Welcome,
+      <span id="name">Member</span>
+    </h1>
+
+    <p>
+      Your StarRise member account is active.
+    </p>
+
+    <a
+      class="edit-profile"
+      href="edit-profile.html"
+    >
+      Edit Profile
+    </a>
+
   </section>
+
 
   <section class="panel">
 
@@ -139,37 +200,50 @@
 
       <div class="item">
         <span class="label">Full Name</span>
-        <span id="profile-name" class="profile-value">Loading...</span>
+        <span id="profile-name" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Display / Stage Name</span>
-        <span id="display-name" class="profile-value">Loading...</span>
+        <span id="display-name" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Email</span>
-        <span id="email" class="profile-value">Loading...</span>
+        <span id="email" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Location</span>
-        <span id="location" class="profile-value">Loading...</span>
+        <span id="location" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Website</span>
-        <span id="website" class="profile-value">Loading...</span>
+        <span id="website" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Member Since</span>
-        <span id="member-since" class="profile-value">Loading...</span>
+        <span id="member-since" class="profile-value">
+          Loading...
+        </span>
       </div>
 
     </div>
 
   </section>
+
 
   <section class="panel">
 
@@ -180,6 +254,7 @@
     </p>
 
   </section>
+
 
   <section class="panel">
 
@@ -193,171 +268,345 @@
 
 </main>
 
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-const starRiseSupabase = window.supabase.createClient(
-  'https://rcnikxotdalxtuvpmlvm.supabase.co',
-  'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
-);
+const starRiseSupabase =
+  window.supabase.createClient(
+    'https://rcnikxotdalxtuvpmlvm.supabase.co',
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+  );
 
-const statusBox = document.getElementById('status');
+
+const statusBox =
+  document.getElementById('status');
+
 
 function showStatus(message) {
-  statusBox.textContent = message;
-  statusBox.className = 'show';
+
+  statusBox.textContent =
+    message;
+
+  statusBox.className =
+    'show';
+
 }
+
 
 async function handleAuthCallback() {
 
-  const hash = window.location.hash;
+  const hash =
+    window.location.hash;
 
-  if (!hash || !hash.includes('access_token=')) {
+
+  if (
+    !hash ||
+    !hash.includes('access_token=')
+  ) {
+
     return;
+
   }
 
-  const params = new URLSearchParams(hash.substring(1));
 
-  const accessToken = params.get('access_token');
-  const refreshToken = params.get('refresh_token');
+  const params =
+    new URLSearchParams(
+      hash.substring(1)
+    );
 
-  if (!accessToken || !refreshToken) {
+
+  const accessToken =
+    params.get('access_token');
+
+  const refreshToken =
+    params.get('refresh_token');
+
+
+  if (
+    !accessToken ||
+    !refreshToken
+  ) {
+
     return;
+
   }
 
-  const { error } = await starRiseSupabase.auth.setSession({
-    access_token: accessToken,
-    refresh_token: refreshToken
-  });
+
+  const { error } =
+    await starRiseSupabase.auth.setSession({
+
+      access_token:
+        accessToken,
+
+      refresh_token:
+        refreshToken
+
+    });
+
 
   if (error) {
-    console.error('Auth callback error:', error);
-    showStatus('We could not complete your sign-in session.');
+
+    console.error(
+      'Auth callback error:',
+      error
+    );
+
+    showStatus(
+      'We could not complete your sign-in session.'
+    );
+
     return;
+
   }
+
 
   window.history.replaceState(
     {},
     document.title,
-    window.location.pathname + window.location.search
+    window.location.pathname +
+    window.location.search
   );
+
 }
+
 
 async function loadDashboard() {
 
   const {
     data: { session },
     error: sessionError
-  } = await starRiseSupabase.auth.getSession();
+  } =
+    await starRiseSupabase.auth.getSession();
 
-  if (sessionError || !session) {
-    location.replace('login.html');
+
+  if (
+    sessionError ||
+    !session
+  ) {
+
+    location.replace(
+      'login.html'
+    );
+
     return;
+
   }
 
-  const user = session.user;
 
-  document.getElementById('email').textContent =
-    user.email || 'Not available';
+  const user =
+    session.user;
+
+
+  document.getElementById(
+    'email'
+  ).textContent =
+    user.email ||
+    'Not available';
+
 
   try {
 
     const {
       data: profile,
       error: profileError
-    } = await starRiseSupabase
-      .from('Profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
+    } =
+      await starRiseSupabase
+        .from('Profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
 
     if (profileError) {
-      console.error('Profile error:', profileError);
+
+      console.error(
+        'Profile error:',
+        profileError
+      );
 
       showStatus(
         'Your account is signed in, but your StarRise profile could not be loaded.'
       );
 
       return;
+
     }
+
 
     const fullName =
       profile.full_name ||
       'StarRise Member';
 
+
     const displayName =
       profile.display_name ||
       fullName;
 
-    document.getElementById('name').textContent =
+
+    document.getElementById(
+      'name'
+    ).textContent =
       displayName;
 
-    document.getElementById('profile-name').textContent =
+
+    document.getElementById(
+      'profile-name'
+    ).textContent =
       fullName;
 
-    document.getElementById('display-name').textContent =
+
+    document.getElementById(
+      'display-name'
+    ).textContent =
       displayName;
 
-    document.getElementById('location').textContent =
-      profile.location || 'Not provided';
 
-    document.getElementById('bio').textContent =
-      profile.bio || 'No bio added yet.';
+    document.getElementById(
+      'location'
+    ).textContent =
+      profile.location ||
+      'Not provided';
 
-    if (profile.website) {
+
+    document.getElementById(
+      'bio'
+    ).textContent =
+      profile.bio ||
+      'No bio added yet.';
+
+
+    /*
+      PROFILE PHOTO
+    */
+
+    const avatar =
+      document.getElementById(
+        'avatar'
+      );
+
+
+    if (
+      profile.avatar_url
+    ) {
+
+      avatar.innerHTML = `
+
+        <img
+          src="${escapeHtml(
+            profile.avatar_url
+          )}"
+          alt="${escapeHtml(
+            displayName
+          )} profile photo"
+        >
+
+      `;
+
+    } else {
+
+      avatar.textContent =
+        displayName
+          .charAt(0)
+          .toUpperCase() ||
+        '⭐';
+
+    }
+
+
+    if (
+      profile.website
+    ) {
 
       const websiteElement =
-        document.getElementById('website');
+        document.getElementById(
+          'website'
+        );
+
 
       websiteElement.innerHTML =
         '<a class="website-link" href="' +
-        profile.website +
+        escapeHtml(
+          profile.website
+        ) +
         '" target="_blank" rel="noopener noreferrer">' +
-        profile.website +
+        escapeHtml(
+          profile.website
+        ) +
         '</a>';
 
     } else {
 
-      document.getElementById('website').textContent =
+      document.getElementById(
+        'website'
+      ).textContent =
         'Not provided';
 
     }
 
-    if (profile.created_at) {
 
-      document.getElementById('member-since').textContent =
-        new Date(profile.created_at).toLocaleDateString();
+    if (
+      profile.created_at
+    ) {
+
+      document.getElementById(
+        'member-since'
+      ).textContent =
+        new Date(
+          profile.created_at
+        ).toLocaleDateString();
 
     } else {
 
-      document.getElementById('member-since').textContent =
+      document.getElementById(
+        'member-since'
+      ).textContent =
         'StarRise Member';
 
     }
 
+
     const {
       data: memberRoles,
       error: rolesError
-    } = await starRiseSupabase
-      .from('member_roles')
-      .select('role')
-      .eq('user_id', user.id);
+    } =
+      await starRiseSupabase
+        .from('member_roles')
+        .select('role')
+        .eq(
+          'user_id',
+          user.id
+        );
+
 
     if (rolesError) {
 
-      console.error('Roles error:', rolesError);
+      console.error(
+        'Roles error:',
+        rolesError
+      );
 
-      document.getElementById('roles').innerHTML =
+      document.getElementById(
+        'roles'
+      ).innerHTML =
         '<span class="muted">Unable to load roles.</span>';
 
       return;
+
     }
 
-    const rolesElement =
-      document.getElementById('roles');
 
-    if (!memberRoles || memberRoles.length === 0) {
+    const rolesElement =
+      document.getElementById(
+        'roles'
+      );
+
+
+    if (
+      !memberRoles ||
+      memberRoles.length === 0
+    ) {
 
       rolesElement.innerHTML =
         '<span class="muted">No roles assigned yet.</span>';
@@ -366,34 +615,86 @@ async function loadDashboard() {
 
       rolesElement.innerHTML =
         memberRoles
-          .map(item =>
-            '<span class="role">' +
-            item.role +
-            '</span>'
+          .map(
+            item =>
+              '<span class="role">' +
+              escapeHtml(
+                item.role
+              ) +
+              '</span>'
           )
           .join('');
 
     }
 
+
   } catch (error) {
 
-    console.error('Dashboard error:', error);
+    console.error(
+      'Dashboard error:',
+      error
+    );
 
     showStatus(
       'We could not load your StarRise profile.'
     );
+
   }
+
 }
 
+
+function escapeHtml(value) {
+
+  return String(value)
+
+    .replaceAll(
+      '&',
+      '&amp;'
+    )
+
+    .replaceAll(
+      '<',
+      '&lt;'
+    )
+
+    .replaceAll(
+      '>',
+      '&gt;'
+    )
+
+    .replaceAll(
+      '"',
+      '&quot;'
+    )
+
+    .replaceAll(
+      "'",
+      '&#039;'
+    );
+
+}
+
+
 document
-  .getElementById('signout')
-  .addEventListener('click', async () => {
+  .getElementById(
+    'signout'
+  )
+  .addEventListener(
+    'click',
+    async () => {
 
-    await starRiseSupabase.auth.signOut();
+      await starRiseSupabase
+        .auth
+        .signOut();
 
-    location.replace('login.html');
+      location.replace(
+        'login.html'
+      );
 
-  });
+    }
+  );
+
 
 async function startDashboard() {
 
@@ -402,6 +703,7 @@ async function startDashboard() {
   await loadDashboard();
 
 }
+
 
 startDashboard();
 
