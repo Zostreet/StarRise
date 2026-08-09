@@ -2,18 +2,12 @@
 <html lang="en">
 
 <head>
-
   <meta charset="utf-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Service | StarRise</title>
 
   <style>
-
     * {
       box-sizing: border-box;
     }
@@ -41,8 +35,15 @@
       font-weight: bold;
     }
 
+    nav {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
     nav a {
-      margin-left: 20px;
+      color: #fff;
+      text-decoration: none;
     }
 
     main {
@@ -89,10 +90,6 @@
       border-top: 1px solid #ffffff18;
     }
 
-    .provider a {
-      color: #fff;
-    }
-
     label {
       display: block;
       margin-bottom: 8px;
@@ -102,7 +99,6 @@
     textarea {
       width: 100%;
       min-height: 150px;
-      box-sizing: border-box;
       padding: 14px;
       border-radius: 10px;
       border: 1px solid #ffffff25;
@@ -164,14 +160,21 @@
       color: #fff;
     }
 
-    @media (max-width: 650px) {
+    .hidden {
+      display: none;
+    }
 
+    .signin-note {
+      padding: 16px;
+      border-radius: 12px;
+      background: #ffffff08;
+      color: #aaa;
+      margin-top: 15px;
+    }
+
+    @media (max-width: 650px) {
       header {
         flex-direction: column;
-      }
-
-      nav a {
-        margin: 0 7px;
       }
 
       main {
@@ -182,11 +185,8 @@
       .panel {
         padding: 22px;
       }
-
     }
-
   </style>
-
 </head>
 
 <body>
@@ -221,17 +221,14 @@
     id="servicePanel"
     class="panel"
   >
-
     <div class="loading">
       Loading service...
     </div>
-
   </section>
 
   <section
     id="requestPanel"
-    class="panel"
-    style="display:none;"
+    class="panel hidden"
   >
 
     <h2>
@@ -240,8 +237,6 @@
 
     <p class="muted">
       Tell the provider what you need.
-      Your request will be saved as a
-      StarRise order before checkout.
     </p>
 
     <div id="message"></div>
@@ -263,10 +258,17 @@
         id="orderButton"
         type="submit"
       >
-        Continue to Payment
+        Request Service
       </button>
 
     </form>
+
+    <div
+      id="signinNote"
+      class="signin-note hidden"
+    >
+      You must be signed in to request a service.
+    </div>
 
   </section>
 
@@ -321,37 +323,28 @@ const message =
   );
 
 
+const signinNote =
+  document.getElementById(
+    'signinNote'
+  );
+
+
 let service = null;
 
 
 function escapeHtml(value) {
 
-  return String(value)
+  return String(value ?? '')
 
-    .replaceAll(
-      '&',
-      '&amp;'
-    )
+    .replaceAll('&', '&amp;')
 
-    .replaceAll(
-      '<',
-      '&lt;'
-    )
+    .replaceAll('<', '&lt;')
 
-    .replaceAll(
-      '>',
-      '&gt;'
-    )
+    .replaceAll('>', '&gt;')
 
-    .replaceAll(
-      '"',
-      '&quot;'
-    )
+    .replaceAll('"', '&quot;')
 
-    .replaceAll(
-      "'",
-      '&#039;'
-    );
+    .replaceAll("'", '&#039;');
 
 }
 
@@ -382,6 +375,66 @@ function getServiceId() {
 }
 
 
+async function updateRequestAccess() {
+
+  const {
+    data: sessionData
+  } =
+    await starRiseSupabase
+      .auth
+      .getSession();
+
+  const session =
+    sessionData?.session;
+
+  if (!session) {
+
+    orderForm.classList.add(
+      'hidden'
+    );
+
+    signinNote.classList.remove(
+      'hidden'
+    );
+
+    signinNote.innerHTML =
+      'Please <a href="login.html">sign in</a> to request this service.';
+
+    return;
+
+  }
+
+  if (
+    service &&
+    session.user.id === service.user_id
+  ) {
+
+    orderForm.classList.add(
+      'hidden'
+    );
+
+    signinNote.classList.remove(
+      'hidden'
+    );
+
+    signinNote.textContent =
+      'You cannot order your own service.';
+
+    return;
+
+  }
+
+  orderForm.classList.remove(
+    'hidden'
+  );
+
+  signinNote.classList.add(
+    'hidden'
+  );
+
+}
+
+
 async function loadService() {
 
   const serviceId =
@@ -391,15 +444,10 @@ async function loadService() {
   if (!serviceId) {
 
     servicePanel.innerHTML = `
-
-      <h1>
-        Service Not Found
-      </h1>
-
+      <h1>Service Not Found</h1>
       <p class="muted">
         No service ID was provided.
       </p>
-
     `;
 
     return;
@@ -413,9 +461,7 @@ async function loadService() {
   } =
     await starRiseSupabase
 
-      .from(
-        'star_rise_services'
-      )
+      .from('star_rise_services')
 
       .select(`
         id,
@@ -438,7 +484,7 @@ async function loadService() {
         true
       )
 
-      .single();
+      .maybeSingle();
 
 
   if (error) {
@@ -448,17 +494,28 @@ async function loadService() {
       error
     );
 
+    servicePanel.innerHTML = `
+      <h1>Unable to Load Service</h1>
+      <p class="muted">
+        ${escapeHtml(
+          error.message ||
+          'There was a problem loading this service.'
+        )}
+      </p>
+    `;
+
+    return;
+
+  }
+
+
+  if (!data) {
 
     servicePanel.innerHTML = `
-
-      <h1>
-        Service Not Found
-      </h1>
-
+      <h1>Service Not Found</h1>
       <p class="muted">
-        This service may no longer be available.
+        This service is not available.
       </p>
-
     `;
 
     return;
@@ -474,13 +531,15 @@ async function loadService() {
   } =
     await starRiseSupabase
 
-      .from(
-        'Profiles'
-      )
+      .from('Profiles')
 
-      .select(
-        'id, display_name, full_name, location, avatar_url'
-      )
+      .select(`
+        id,
+        display_name,
+        full_name,
+        location,
+        avatar_url
+      `)
 
       .eq(
         'id',
@@ -498,7 +557,9 @@ async function loadService() {
 
   const price =
     (
-      service.price_cents / 100
+      Number(
+        service.price_cents || 0
+      ) / 100
     ).toLocaleString(
       'en-US',
       {
@@ -513,13 +574,14 @@ async function loadService() {
     <div class="category">
       ${escapeHtml(
         service.category ||
-        'StarRise Service'
+        'Service'
       )}
     </div>
 
     <h1>
       ${escapeHtml(
-        service.title
+        service.title ||
+        'StarRise Service'
       )}
     </h1>
 
@@ -563,8 +625,12 @@ async function loadService() {
   `;
 
 
-  requestPanel.style.display =
-    'block';
+  requestPanel.classList.remove(
+    'hidden'
+  );
+
+
+  await updateRequestAccess();
 
 }
 
@@ -577,41 +643,16 @@ orderForm.addEventListener(
 
 
     if (!service) {
-
-      showMessage(
-        'The service has not finished loading.',
-        'error'
-      );
-
       return;
-
     }
 
 
     const {
-      data: sessionData,
-      error: sessionError
+      data: sessionData
     } =
       await starRiseSupabase
         .auth
         .getSession();
-
-
-    if (sessionError) {
-
-      console.error(
-        'Session error:',
-        sessionError
-      );
-
-      showMessage(
-        'We could not verify your account.',
-        'error'
-      );
-
-      return;
-
-    }
 
 
     const session =
@@ -629,12 +670,9 @@ orderForm.addEventListener(
     }
 
 
-    const buyerId =
-      session.user.id;
-
-
     if (
-      buyerId === service.user_id
+      session.user.id ===
+      service.user_id
     ) {
 
       showMessage(
@@ -665,49 +703,27 @@ orderForm.addEventListener(
     }
 
 
-    if (
-      !service.price_cents ||
-      Number(service.price_cents) <= 0
-    ) {
-
-      showMessage(
-        'This service does not have a valid price.',
-        'error'
-      );
-
-      return;
-
-    }
-
-
     orderButton.disabled =
       true;
 
     orderButton.textContent =
-      'Creating Order...';
+      'Submitting...';
 
 
     try {
 
-      /*
-       * STEP 1
-       * Create the StarRise order.
-       */
-
       const {
         data: order,
-        error: orderError
+        error
       } =
         await starRiseSupabase
 
-          .from(
-            'service_orders'
-          )
+          .from('service_orders')
 
           .insert({
 
             buyer_id:
-              buyerId,
+              session.user.id,
 
             seller_id:
               service.user_id,
@@ -726,103 +742,40 @@ orderForm.addEventListener(
 
           })
 
-          .select(
-            'id'
-          )
+          .select('id')
 
           .single();
 
 
-      if (orderError) {
-
-        throw orderError;
-
+      if (error) {
+        throw error;
       }
 
 
-      /*
-       * STEP 2
-       * Create the Stripe Checkout session.
-       */
+      showMessage(
+        'Your service request has been submitted.',
+        'success'
+      );
+
+
+      orderForm.reset();
+
 
       orderButton.textContent =
-        'Opening Secure Checkout...';
-
-
-      const {
-        data: checkout,
-        error: checkoutError
-      } =
-        await starRiseSupabase
-          .functions
-          .invoke(
-            'create-checkout',
-            {
-              body: {
-
-                service_id:
-                  service.id,
-
-                order_id:
-                  order.id,
-
-                amount_cents:
-                  service.price_cents,
-
-                service_name:
-                  service.title
-
-              }
-            }
-          );
-
-
-      if (checkoutError) {
-
-        console.error(
-          'Checkout function error:',
-          checkoutError
-        );
-
-        throw new Error(
-          'We could not start secure checkout.'
-        );
-
-      }
-
-
-      if (
-        !checkout ||
-        !checkout.url
-      ) {
-
-        throw new Error(
-          'Stripe did not return a checkout URL.'
-        );
-
-      }
-
-
-      /*
-       * STEP 3
-       * Send the customer to Stripe.
-       */
-
-      window.location.href =
-        checkout.url;
+        'Request Submitted';
 
 
     } catch (error) {
 
       console.error(
-        'Checkout error:',
+        'Order error:',
         error
       );
 
 
       showMessage(
         error.message ||
-        'We could not start your order.',
+        'We could not submit your request.',
         'error'
       );
 
@@ -831,7 +784,7 @@ orderForm.addEventListener(
         false;
 
       orderButton.textContent =
-        'Continue to Payment';
+        'Request Service';
 
     }
 
@@ -844,5 +797,4 @@ loadService();
 </script>
 
 </body>
-
 </html>
