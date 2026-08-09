@@ -1,8 +1,18 @@
 <!doctype html>
+<html lang="en">
 
-<html lang="en"><head>
+<head>
+
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">  <title>Service | StarRise</title>  <style>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <title>Service | StarRise</title>
+
+  <style>
 
     * {
       box-sizing: border-box;
@@ -175,69 +185,104 @@
 
     }
 
-  </style></head><body><header>  <a href="index.html">
+  </style>
+
+</head>
+
+<body>
+
+<header>
+
+  <a href="index.html">
     ⭐ StarRise
-  </a>  <nav><a href="services.html">
-  Services
-</a>
+  </a>
 
-<a href="members.html">
-  Members
-</a>
+  <nav>
 
-<a href="dashboard.html">
-  Dashboard
-</a>
+    <a href="services.html">
+      Services
+    </a>
 
-  </nav></header><main>  <section
+    <a href="members.html">
+      Members
+    </a>
+
+    <a href="dashboard.html">
+      Dashboard
+    </a>
+
+  </nav>
+
+</header>
+
+<main>
+
+  <section
     id="servicePanel"
     class="panel"
-  ><div class="loading">
-  Loading service...
-</div>
+  >
 
-  </section>  <section
+    <div class="loading">
+      Loading service...
+    </div>
+
+  </section>
+
+  <section
     id="requestPanel"
     class="panel"
     style="display:none;"
-  ><h2>
-  Request This Service
-</h2>
-
-<p class="muted">
-  Tell the provider what you need. Your request
-  will be saved as a StarRise order.
-</p>
-
-<div id="message"></div>
-
-<form id="orderForm">
-
-  <label for="request">
-    What do you need?
-  </label>
-
-  <textarea
-    id="request"
-    maxlength="2000"
-    placeholder="Describe your project, deadline, requirements, or other important details..."
-    required
-  ></textarea>
-
-  <button
-    id="orderButton"
-    type="submit"
   >
-    Request Service
-  </button>
 
-</form>
+    <h2>
+      Request This Service
+    </h2>
 
-  </section>  <div class="back"><a href="services.html">
-  ← Back to Services
-</a>
+    <p class="muted">
+      Tell the provider what you need.
+      Your request will be saved as a
+      StarRise order before checkout.
+    </p>
 
-  </div></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+    <div id="message"></div>
+
+    <form id="orderForm">
+
+      <label for="request">
+        What do you need?
+      </label>
+
+      <textarea
+        id="request"
+        maxlength="2000"
+        placeholder="Describe your project, deadline, requirements, or other important details..."
+        required
+      ></textarea>
+
+      <button
+        id="orderButton"
+        type="submit"
+      >
+        Continue to Payment
+      </button>
+
+    </form>
+
+  </section>
+
+  <div class="back">
+
+    <a href="services.html">
+      ← Back to Services
+    </a>
+
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
 
 const starRiseSupabase =
   window.supabase.createClient(
@@ -346,10 +391,15 @@ async function loadService() {
   if (!serviceId) {
 
     servicePanel.innerHTML = `
-      <h1>Service Not Found</h1>
+
+      <h1>
+        Service Not Found
+      </h1>
+
       <p class="muted">
         No service ID was provided.
       </p>
+
     `;
 
     return;
@@ -400,10 +450,15 @@ async function loadService() {
 
 
     servicePanel.innerHTML = `
-      <h1>Service Not Found</h1>
+
+      <h1>
+        Service Not Found
+      </h1>
+
       <p class="muted">
         This service may no longer be available.
       </p>
+
     `;
 
     return;
@@ -457,7 +512,8 @@ async function loadService() {
 
     <div class="category">
       ${escapeHtml(
-        service.category
+        service.category ||
+        'StarRise Service'
       )}
     </div>
 
@@ -469,7 +525,8 @@ async function loadService() {
 
     <div class="description">
       ${escapeHtml(
-        service.description
+        service.description ||
+        'No description provided.'
       )}
     </div>
 
@@ -520,16 +577,41 @@ orderForm.addEventListener(
 
 
     if (!service) {
+
+      showMessage(
+        'The service has not finished loading.',
+        'error'
+      );
+
       return;
+
     }
 
 
     const {
-      data: sessionData
+      data: sessionData,
+      error: sessionError
     } =
       await starRiseSupabase
         .auth
         .getSession();
+
+
+    if (sessionError) {
+
+      console.error(
+        'Session error:',
+        sessionError
+      );
+
+      showMessage(
+        'We could not verify your account.',
+        'error'
+      );
+
+      return;
+
+    }
 
 
     const session =
@@ -583,17 +665,38 @@ orderForm.addEventListener(
     }
 
 
+    if (
+      !service.price_cents ||
+      Number(service.price_cents) <= 0
+    ) {
+
+      showMessage(
+        'This service does not have a valid price.',
+        'error'
+      );
+
+      return;
+
+    }
+
+
     orderButton.disabled =
       true;
 
     orderButton.textContent =
-      'Submitting...';
+      'Creating Order...';
 
 
     try {
 
+      /*
+       * STEP 1
+       * Create the StarRise order.
+       */
+
       const {
-        error
+        data: order,
+        error: orderError
       } =
         await starRiseSupabase
 
@@ -621,38 +724,105 @@ orderForm.addEventListener(
             status:
               'pending'
 
-          });
+          })
+
+          .select(
+            'id'
+          )
+
+          .single();
 
 
-      if (error) {
-        throw error;
+      if (orderError) {
+
+        throw orderError;
+
       }
 
 
-      showMessage(
-        'Your service request has been submitted.',
-        'success'
-      );
-
-
-      orderForm.reset();
-
+      /*
+       * STEP 2
+       * Create the Stripe Checkout session.
+       */
 
       orderButton.textContent =
-        'Request Submitted';
+        'Opening Secure Checkout...';
+
+
+      const {
+        data: checkout,
+        error: checkoutError
+      } =
+        await starRiseSupabase
+          .functions
+          .invoke(
+            'create-checkout',
+            {
+              body: {
+
+                service_id:
+                  service.id,
+
+                order_id:
+                  order.id,
+
+                amount_cents:
+                  service.price_cents,
+
+                service_name:
+                  service.title
+
+              }
+            }
+          );
+
+
+      if (checkoutError) {
+
+        console.error(
+          'Checkout function error:',
+          checkoutError
+        );
+
+        throw new Error(
+          'We could not start secure checkout.'
+        );
+
+      }
+
+
+      if (
+        !checkout ||
+        !checkout.url
+      ) {
+
+        throw new Error(
+          'Stripe did not return a checkout URL.'
+        );
+
+      }
+
+
+      /*
+       * STEP 3
+       * Send the customer to Stripe.
+       */
+
+      window.location.href =
+        checkout.url;
 
 
     } catch (error) {
 
       console.error(
-        'Order error:',
+        'Checkout error:',
         error
       );
 
 
       showMessage(
         error.message ||
-        'We could not submit your request.',
+        'We could not start your order.',
         'error'
       );
 
@@ -661,7 +831,7 @@ orderForm.addEventListener(
         false;
 
       orderButton.textContent =
-        'Request Service';
+        'Continue to Payment';
 
     }
 
@@ -671,4 +841,8 @@ orderForm.addEventListener(
 
 loadService();
 
-</script></body></html>
+</script>
+
+</body>
+
+</html>
