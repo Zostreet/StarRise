@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Edit Profile | StarRise</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: #fff;
+    }
+
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #ffffff18;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    main {
+      width: min(700px, calc(100% - 40px));
+      margin: 50px auto;
+    }
+
+    .panel {
+      padding: 30px;
+      border-radius: 20px;
+      border: 1px solid #ffffff18;
+      background: #ffffff08;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid #ffffff33;
+      background: #11111d;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: 0;
+      border-radius: 30px;
+      background: #fff;
+      color: #080812;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    #message {
+      display: none;
+      padding: 14px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+    }
+
+    #message.show {
+      display: block;
+      background: #ffffff12;
+    }
+
+    #message.error {
+      background: rgba(220, 70, 70, .15);
+    }
+
+    #message.success {
+      background: rgba(50, 180, 100, .15);
+    }
+
+    .back {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .back a {
+      color: #fff;
+    }
+  </style>
+
+</head>
+
+<body>
+
+<header>
+
+  <a href="dashboard.html">
+    ← StarRise Dashboard
+  </a>
+
+</header>
+
+<main>
+
+  <section class="panel">
+
+    <h1>Edit Your Profile</h1>
+
+    <p>
+      Keep your StarRise member profile current.
+    </p>
+
+    <div id="message"></div>
+
+    <form id="profileForm">
+
+      <div class="field">
+
+        <label for="fullName">
+          Full Name
+        </label>
+
+        <input
+          id="fullName"
+          type="text"
+          required
+        >
+
+      </div>
+
+      <div class="field">
+
+        <label for="displayName">
+          Display / Stage Name
+        </label>
+
+        <input
+          id="displayName"
+          type="text"
+        >
+
+      </div>
+
+      <div class="field">
+
+        <label for="role">
+          StarRise Role
+        </label>
+
+        <select id="role" required>
+
+          <option value="Talent">Talent</option>
+          <option value="Creator">Creator</option>
+          <option value="Supporter">Supporter</option>
+          <option value="Client">Client</option>
+          <option value="Vendor">Vendor</option>
+          <option value="Partner">Partner</option>
+
+        </select>
+
+      </div>
+
+      <div class="field">
+
+        <label for="location">
+          Location
+        </label>
+
+        <input
+          id="location"
+          type="text"
+        >
+
+      </div>
+
+      <div class="field">
+
+        <label for="bio">
+          Bio
+        </label>
+
+        <textarea id="bio"></textarea>
+
+      </div>
+
+      <div class="field">
+
+        <label for="website">
+          Website / Social Link
+        </label>
+
+        <input
+          id="website"
+          type="url"
+          placeholder="https://"
+        >
+
+      </div>
+
+      <button
+        id="saveButton"
+        type="submit"
+      >
+        Save Changes
+      </button>
+
+    </form>
+
+    <div class="back">
+      <a href="dashboard.html">
+        Return to Dashboard
+      </a>
+    </div>
+
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const starRiseSupabase = window.supabase.createClient(
+  'https://rcnikxotdalxtuvpmlvm.supabase.co',
+  'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+);
+
+const form =
+  document.getElementById('profileForm');
+
+const saveButton =
+  document.getElementById('saveButton');
+
+const message =
+  document.getElementById('message');
+
+let currentUser = null;
+
+function showMessage(text, type = '') {
+
+  message.textContent = text;
+  message.className = 'show ' + type;
+
+}
+
+async function loadProfile() {
+
+  const {
+    data,
+    error
+  } = await starRiseSupabase.auth.getSession();
+
+  if (error || !data.session) {
+
+    location.replace('login.html');
+
+    return;
+
+  }
+
+  currentUser = data.session.user;
+
+  const {
+    data: profile,
+    error: profileError
+  } = await starRiseSupabase
+    .from('Profiles')
+    .select('*')
+    .eq('id', currentUser.id)
+    .single();
+
+  if (profileError) {
+
+    console.error(profileError);
+
+    showMessage(
+      'We could not load your profile.',
+      'error'
+    );
+
+    return;
+
+  }
+
+  document.getElementById('fullName').value =
+    profile.full_name || '';
+
+  document.getElementById('displayName').value =
+    profile.display_name || '';
+
+  document.getElementById('location').value =
+    profile.location || '';
+
+  document.getElementById('bio').value =
+    profile.bio || '';
+
+  document.getElementById('website').value =
+    profile.website || '';
+
+  const {
+    data: roles,
+    error: rolesError
+  } = await starRiseSupabase
+    .from('member_roles')
+    .select('role')
+    .eq('user_id', currentUser.id);
+
+  if (!rolesError && roles && roles.length > 0) {
+
+    document.getElementById('role').value =
+      roles[0].role;
+
+  }
+
+}
+
+form.addEventListener('submit', async (event) => {
+
+  event.preventDefault();
+
+  if (!currentUser) {
+    return;
+  }
+
+  saveButton.disabled = true;
+  saveButton.textContent = 'Saving...';
+
+  try {
+
+    const fullName =
+      document.getElementById('fullName').value.trim();
+
+    const displayName =
+      document.getElementById('displayName').value.trim();
+
+    const role =
+      document.getElementById('role').value;
+
+    const location =
+      document.getElementById('location').value.trim();
+
+    const bio =
+      document.getElementById('bio').value.trim();
+
+    const website =
+      document.getElementById('website').value.trim();
+
+    const {
+      error: profileError
+    } = await starRiseSupabase
+      .from('Profiles')
+      .update({
+
+        full_name: fullName,
+
+        display_name: displayName,
+
+        location: location,
+
+        bio: bio,
+
+        website: website,
+
+        updated_at: new Date().toISOString()
+
+      })
+      .eq('id', currentUser.id);
+
+    if (profileError) {
+      throw profileError;
+    }
+
+    const {
+      error: roleError
+    } = await starRiseSupabase
+      .from('member_roles')
+      .upsert({
+
+        user_id: currentUser.id,
+
+        role: role
+
+      }, {
+        onConflict: 'user_id'
+      });
+
+    if (roleError) {
+      throw roleError;
+    }
+
+    showMessage(
+      'Your StarRise profile has been updated.',
+      'success'
+    );
+
+    setTimeout(() => {
+
+      location.replace('dashboard.html');
+
+    }, 800);
+
+  } catch (error) {
+
+    console.error(error);
+
+    showMessage(
+      error.message ||
+      'We could not save your profile.',
+      'error'
+    );
+
+  } finally {
+
+    saveButton.disabled = false;
+    saveButton.textContent = 'Save Changes';
+
+  }
+
+});
+
+loadProfile();
+
+</script>
+
+</body>
+
+</html>
