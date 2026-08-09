@@ -796,7 +796,7 @@ async function loadIncomingOrders(
         service_id,
         buyer_id,
         amount_cents,
-        client_request,
+        request_message,,
         status,
         created_at
       `)
@@ -1177,7 +1177,7 @@ async function loadMyOrders(
 
         <div class="order-request">
           ${escapeHtml(
-            order.client_request ||
+            order.request_message ||
             'No request details provided.'
           )}
         </div>
