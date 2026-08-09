@@ -1,8 +1,13 @@
 <!doctype html>
+<html lang="en">
 
-<html lang="en"><head>  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">  <title>Member Dashboard | StarRise</title>  <style>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <title>Services | StarRise</title>
+
+  <style>
     * {
       box-sizing: border-box;
     }
@@ -31,336 +36,198 @@
       font-weight: bold;
     }
 
-    #signout {
-      border: 1px solid #ffffff33;
-      background: transparent;
+    nav {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
       color: #fff;
-      padding: 10px 16px;
-      border-radius: 20px;
-      cursor: pointer;
+      text-decoration: none;
     }
 
     main {
-      width: min(900px, calc(100% - 40px));
+      width: min(1100px, calc(100% - 40px));
       margin: 50px auto;
     }
 
-    .hero,
-    .panel {
-      border: 1px solid #ffffff18;
+    .hero {
+      padding: 30px;
       border-radius: 20px;
+      border: 1px solid #ffffff18;
       background: #ffffff08;
-      padding: 28px;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
     }
 
-    h1 {
-      margin-top: 0;
-    }
-
-    h2 {
-      margin-top: 0;
-    }
-
-    .muted {
+    .hero p {
       color: #aaa;
     }
 
-    .profile-grid {
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(38px, 7vw, 64px);
+      line-height: 1.1;
+    }
+
+    .services-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(
+        auto-fit,
+        minmax(280px, 1fr)
+      );
+      gap: 20px;
     }
 
-    .item {
-      padding: 18px;
-      border-radius: 14px;
+    .service-card {
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
       background: #ffffff08;
-      margin-bottom: 15px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
     }
 
-    .label {
-      display: block;
-      color: #999;
+    .category {
+      color: #aaa;
       font-size: 13px;
-      margin-bottom: 6px;
       text-transform: uppercase;
       letter-spacing: .08em;
+      margin-bottom: 8px;
     }
 
-    .role {
-      display: inline-block;
-      padding: 7px 12px;
-      border-radius: 20px;
-      background: #ffffff12;
-      margin: 5px 5px 0 0;
+    .service-card h2 {
+      margin: 0 0 10px;
+      font-size: 25px;
     }
 
-    #status,
-    #orders-status {
-      padding: 14px;
-      border-radius: 10px;
-      background: #ffffff0d;
-      display: none;
-      margin-bottom: 16px;
-    }
-
-    #status.show,
-    #orders-status.show {
-      display: block;
-    }
-
-    .profile-value {
-      word-break: break-word;
-    }
-
-    .website-link {
-      color: white;
-      text-decoration: underline;
-    }
-
-    .order-card {
-      padding: 20px;
-      border-radius: 16px;
-      background: #ffffff08;
-      border: 1px solid #ffffff12;
-      margin-top: 15px;
-    }
-
-    .order-price {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    .order-status {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 20px;
-      background: #ffffff12;
-      margin: 8px 0;
-      text-transform: capitalize;
-    }
-
-    .order-request {
-      padding: 15px;
-      border-radius: 12px;
-      background: #00000020;
+    .description {
       color: #ccc;
       white-space: pre-wrap;
-      margin: 12px 0;
+      margin-bottom: 20px;
+      flex: 1;
     }
 
-    .order-button {
-      border: 0;
-      padding: 11px 20px;
-      border-radius: 25px;
-      background: #fff;
-      color: #080812;
+    .price {
+      font-size: 28px;
       font-weight: bold;
-      cursor: pointer;
-      margin-top: 8px;
+      margin-bottom: 8px;
     }
 
-    .order-button:disabled {
-      opacity: .6;
-      cursor: wait;
+    .provider {
+      color: #aaa;
+      margin-bottom: 18px;
     }
 
-    .edit-link {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 11px 20px;
-      border-radius: 25px;
+    .view-button {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border-radius: 30px;
       background: #fff;
       color: #080812;
       text-decoration: none;
+      text-align: center;
       font-weight: bold;
     }
 
-    @media (max-width: 650px) {
+    .status {
+      padding: 18px;
+      border-radius: 14px;
+      background: #ffffff08;
+      border: 1px solid #ffffff18;
+      color: #aaa;
+      text-align: center;
+    }
 
+    .error {
+      color: #ffb0b0;
+      background: rgba(220, 70, 70, .12);
+    }
+
+    .empty {
+      padding: 30px;
+      border-radius: 20px;
+      border: 1px solid #ffffff18;
+      background: #ffffff08;
+      text-align: center;
+      color: #aaa;
+    }
+
+    @media (max-width: 650px) {
       header {
         flex-direction: column;
+        align-items: flex-start;
       }
 
       main {
-        width: min(100% - 24px, 900px);
+        width: min(100% - 24px, 1100px);
         margin-top: 30px;
       }
 
-      .hero,
-      .panel {
+      .hero {
         padding: 22px;
       }
-
     }
+  </style>
+</head>
 
-  </style></head><body><header>  <a href="index.html">
+<body>
+
+<header>
+
+  <a href="index.html">
     ⭐ StarRise
-  </a>  <button id="signout">
-    Sign Out
-  </button></header><main>  <section class="hero"><p class="muted">
-  MEMBER DASHBOARD
-</p>
+  </a>
 
-<h1>
-  Welcome,
-  <span id="name">
-    Member
-  </span>
-</h1>
+  <nav>
 
-<p>
-  Your StarRise member account is active.
-</p>
+    <a href="services.html">
+      Services
+    </a>
 
-<a
-  class="edit-link"
-  href="edit-profile.html"
->
-  Edit Profile
-</a>
+    <a href="members.html">
+      Members
+    </a>
 
-  </section>  <section class="panel"><h2>
-  Your Profile
-</h2>
+    <a href="dashboard.html">
+      Dashboard
+    </a>
 
-<div id="status"></div>
+  </nav>
 
-<div class="profile-grid">
+</header>
 
-  <div class="item">
+<main>
 
-    <span class="label">
-      Full Name
-    </span>
+  <section class="hero">
 
-    <span
-      id="profile-name"
-      class="profile-value"
-    >
-      Loading...
-    </span>
+    <h1>StarRise Services</h1>
 
+    <p>
+      Discover services offered by StarRise members.
+    </p>
+
+  </section>
+
+  <div
+    id="status"
+    class="status"
+  >
+    Loading services...
   </div>
 
+  <section
+    id="services"
+    class="services-grid"
+    style="display:none;"
+  ></section>
 
-  <div class="item">
+</main>
 
-    <span class="label">
-      Display / Stage Name
-    </span>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <span
-      id="display-name"
-      class="profile-value"
-    >
-      Loading...
-    </span>
-
-  </div>
-
-
-  <div class="item">
-
-    <span class="label">
-      Email
-    </span>
-
-    <span
-      id="email"
-      class="profile-value"
-    >
-      Loading...
-    </span>
-
-  </div>
-
-
-  <div class="item">
-
-    <span class="label">
-      Location
-    </span>
-
-    <span
-      id="location"
-      class="profile-value"
-    >
-      Loading...
-    </span>
-
-  </div>
-
-
-  <div class="item">
-
-    <span class="label">
-      Website
-    </span>
-
-    <span
-      id="website"
-      class="profile-value"
-    >
-      Loading...
-    </span>
-
-  </div>
-
-
-  <div class="item">
-
-    <span class="label">
-      Member Since
-    </span>
-
-    <span
-      id="member-since"
-      class="profile-value"
-    >
-      Loading...
-    </span>
-
-  </div>
-
-</div>
-
-  </section>  <section class="panel"><h2>
-  About You
-</h2>
-
-<p
-  id="bio"
-  class="muted"
->
-  Loading...
-</p>
-
-  </section>  <section class="panel"><h2>
-  Your StarRise Roles
-</h2>
-
-<div id="roles">
-  Loading roles...
-</div>
-
-  </section>  <section class="panel"><h2>
-  Service Orders
-</h2>
-
-<p class="muted">
-  Requests from customers for your StarRise services will appear here.
-</p>
-
-<div id="orders-status">
-  Loading orders...
-</div>
-
-<div id="orders"></div>
-
-  </section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+<script>
 
 const starRiseSupabase =
   window.supabase.createClient(
@@ -369,401 +236,62 @@ const starRiseSupabase =
   );
 
 
-const statusBox =
+const statusElement =
   document.getElementById('status');
 
 
-const ordersStatus =
-  document.getElementById('orders-status');
-
-
-const ordersContainer =
-  document.getElementById('orders');
-
-
-function showStatus(message) {
-
-  statusBox.textContent =
-    message;
-
-  statusBox.className =
-    'show';
-
-}
+const servicesElement =
+  document.getElementById('services');
 
 
 function escapeHtml(value) {
 
-  return String(value)
+  return String(value ?? '')
 
-    .replaceAll(
-      '&',
-      '&amp;'
-    )
+    .replaceAll('&', '&amp;')
 
-    .replaceAll(
-      '<',
-      '&lt;'
-    )
+    .replaceAll('<', '&lt;')
 
-    .replaceAll(
-      '>',
-      '&gt;'
-    )
+    .replaceAll('>', '&gt;')
 
-    .replaceAll(
-      '"',
-      '&quot;'
-    )
+    .replaceAll('"', '&quot;')
 
-    .replaceAll(
-      "'",
-      '&#039;'
-    );
+    .replaceAll("'", '&#039;');
 
 }
 
 
-async function handleAuthCallback() {
+async function loadServices() {
 
-  const hash =
-    window.location.hash;
+  statusElement.textContent =
+    'Loading services...';
 
-
-  if (
-    !hash ||
-    !hash.includes('access_token=')
-  ) {
-
-    return;
-
-  }
-
-
-  const params =
-    new URLSearchParams(
-      hash.substring(1)
-    );
-
-
-  const accessToken =
-    params.get('access_token');
-
-
-  const refreshToken =
-    params.get('refresh_token');
-
-
-  if (
-    !accessToken ||
-    !refreshToken
-  ) {
-
-    return;
-
-  }
+  statusElement.className =
+    'status';
 
 
   const {
-    error
-  } =
-    await starRiseSupabase
-      .auth
-      .setSession({
-        access_token:
-          accessToken,
-        refresh_token:
-          refreshToken
-      });
-
-
-  if (error) {
-
-    console.error(
-      'Auth callback error:',
-      error
-    );
-
-    showStatus(
-      'We could not complete your sign-in session.'
-    );
-
-    return;
-
-  }
-
-
-  window.history.replaceState(
-    {},
-    document.title,
-    window.location.pathname +
-    window.location.search
-  );
-
-}
-
-
-async function loadDashboard() {
-
-  const {
-    data: sessionData,
-    error: sessionError
-  } =
-    await starRiseSupabase
-      .auth
-      .getSession();
-
-
-  if (
-    sessionError ||
-    !sessionData.session
-  ) {
-
-    location.replace(
-      'login.html'
-    );
-
-    return null;
-
-  }
-
-
-  const user =
-    sessionData.session.user;
-
-
-  document.getElementById(
-    'email'
-  ).textContent =
-    user.email ||
-    'Not available';
-
-
-  const {
-    data: profile,
-    error: profileError
-  } =
-    await starRiseSupabase
-
-      .from('Profiles')
-
-      .select('*')
-
-      .eq(
-        'id',
-        user.id
-      )
-
-      .single();
-
-
-  if (profileError) {
-
-    console.error(
-      'Profile error:',
-      profileError
-    );
-
-    showStatus(
-      'Your account is signed in, but your StarRise profile could not be loaded.'
-    );
-
-    return user;
-
-  }
-
-
-  const fullName =
-    profile.full_name ||
-    'StarRise Member';
-
-
-  const displayName =
-    profile.display_name ||
-    fullName;
-
-
-  document.getElementById(
-    'name'
-  ).textContent =
-    displayName;
-
-
-  document.getElementById(
-    'profile-name'
-  ).textContent =
-    fullName;
-
-
-  document.getElementById(
-    'display-name'
-  ).textContent =
-    displayName;
-
-
-  document.getElementById(
-    'location'
-  ).textContent =
-    profile.location ||
-    'Not provided';
-
-
-  document.getElementById(
-    'bio'
-  ).textContent =
-    profile.bio ||
-    'No bio added yet.';
-
-
-  if (profile.website) {
-
-    const websiteElement =
-      document.getElementById(
-        'website'
-      );
-
-
-    websiteElement.innerHTML =
-      '<a class="website-link" href="' +
-      escapeHtml(profile.website) +
-      '" target="_blank" rel="noopener noreferrer">' +
-      escapeHtml(profile.website) +
-      '</a>';
-
-  } else {
-
-    document.getElementById(
-      'website'
-    ).textContent =
-      'Not provided';
-
-  }
-
-
-  if (profile.created_at) {
-
-    document.getElementById(
-      'member-since'
-    ).textContent =
-      new Date(
-        profile.created_at
-      ).toLocaleDateString();
-
-  } else {
-
-    document.getElementById(
-      'member-since'
-    ).textContent =
-      'StarRise Member';
-
-  }
-
-
-  const {
-    data: memberRoles,
-    error: rolesError
-  } =
-    await starRiseSupabase
-
-      .from('member_roles')
-
-      .select('role')
-
-      .eq(
-        'user_id',
-        user.id
-      );
-
-
-  const rolesElement =
-    document.getElementById(
-      'roles'
-    );
-
-
-  if (rolesError) {
-
-    console.error(
-      'Roles error:',
-      rolesError
-    );
-
-    rolesElement.innerHTML =
-      '<span class="muted">Unable to load roles.</span>';
-
-  } else if (
-    !memberRoles ||
-    memberRoles.length === 0
-  ) {
-
-    rolesElement.innerHTML =
-      '<span class="muted">No roles assigned yet.</span>';
-
-  } else {
-
-    rolesElement.innerHTML =
-      memberRoles
-        .map(item =>
-          '<span class="role">' +
-          escapeHtml(item.role) +
-          '</span>'
-        )
-        .join('');
-
-  }
-
-
-  return user;
-
-}
-
-
-async function loadOrders() {
-
-  const {
-    data: sessionData
-  } =
-    await starRiseSupabase
-      .auth
-      .getSession();
-
-
-  if (
-    !sessionData ||
-    !sessionData.session
-  ) {
-
-    return;
-
-  }
-
-
-  const user =
-    sessionData.session.user;
-
-
-  const {
-    data: orders,
+    data: services,
     error
   } =
     await starRiseSupabase
 
-      .from('service_orders')
+      .from('star_rise_services')
 
       .select(`
         id,
-        buyer_id,
-        seller_id,
-        service_id,
-        amount_cents,
-        client_request,
-        status,
+        user_id,
+        title,
+        description,
+        category,
+        price_cents,
+        is_active,
         created_at
       `)
 
       .eq(
-        'seller_id',
-        user.id
+        'is_active',
+        true
       )
 
       .order(
@@ -777,268 +305,210 @@ async function loadOrders() {
   if (error) {
 
     console.error(
-      'Orders error:',
+      'Services error:',
       error
     );
 
-    ordersStatus.textContent =
-      'Unable to load service orders.';
+    statusElement.textContent =
+      'Unable to load services.';
 
-    ordersStatus.className =
-      'show';
+    statusElement.className =
+      'status error';
 
     return;
 
   }
-
-
-  ordersContainer.innerHTML =
-    '';
 
 
   if (
-    !orders ||
-    orders.length === 0
+    !services ||
+    services.length === 0
   ) {
 
-    ordersStatus.textContent =
-      'No service requests yet.';
+    statusElement.textContent =
+      '';
 
-    ordersStatus.className =
-      'show';
+    statusElement.className =
+      '';
 
-    return;
-
-  }
-
-
-  ordersStatus.textContent =
-    `${orders.length} service request${
-      orders.length === 1
-        ? ''
-        : 's'
-    }`;
-
-
-  ordersStatus.className =
-    'show';
-
-
-  orders.forEach(order => {
-
-    const card =
-      document.createElement(
-        'div'
-      );
-
-
-    card.className =
-      'order-card';
-
-
-    const amount =
-      Number(
-        order.amount_cents || 0
-      ) / 100;
-
-
-    const date =
-      new Date(
-        order.created_at
-      ).toLocaleDateString();
-
-
-    const currentStatus =
-      order.status ||
-      'pending';
-
-
-    card.innerHTML = `
-
-      <div class="label">
-        Service Request
+    statusElement.innerHTML = `
+      <div class="empty">
+        <h2>No services available yet</h2>
+        <p>
+          StarRise members have not published any
+          services yet.
+        </p>
       </div>
-
-      <div class="order-price">
-        $${amount.toFixed(2)}
-      </div>
-
-      <div class="order-status">
-        ${escapeHtml(
-          currentStatus
-        )}
-      </div>
-
-      <div class="order-request">
-        ${escapeHtml(
-          order.client_request ||
-          'No request details provided.'
-        )}
-      </div>
-
-      <div class="muted">
-        Submitted ${escapeHtml(date)}
-      </div>
-
-      ${
-        currentStatus === 'pending'
-          ? `
-            <button
-              class="order-button"
-              data-order-id="${escapeHtml(order.id)}"
-            >
-              Accept Request
-            </button>
-          `
-          : ''
-      }
-
     `;
 
-
-    ordersContainer.appendChild(
-      card
-    );
-
-  });
-
-
-  document
-    .querySelectorAll(
-      '.order-button'
-    )
-    .forEach(button => {
-
-      button.addEventListener(
-        'click',
-        async () => {
-
-          await acceptOrder(
-            button.dataset.orderId,
-            button
-          );
-
-        }
-      );
-
-    });
-
-}
-
-
-async function acceptOrder(
-  orderId,
-  button
-) {
-
-  button.disabled =
-    true;
-
-  button.textContent =
-    'Accepting...';
-
-
-  const {
-    data: sessionData
-  } =
-    await starRiseSupabase
-      .auth
-      .getSession();
-
-
-  if (
-    !sessionData ||
-    !sessionData.session
-  ) {
-
     return;
 
   }
 
 
-  const user =
-    sessionData.session.user;
+  const providerIds =
+    [
+      ...new Set(
+        services.map(
+          service =>
+            service.user_id
+        )
+      )
+    ];
 
 
   const {
-    error
+    data: profiles,
+    error: profileError
   } =
     await starRiseSupabase
 
-      .from('service_orders')
+      .from('Profiles')
 
-      .update({
-        status:
-          'accepted'
-      })
+      .select(`
+        id,
+        display_name,
+        full_name,
+        location
+      `)
 
-      .eq(
+      .in(
         'id',
-        orderId
-      )
-
-      .eq(
-        'seller_id',
-        user.id
+        providerIds
       );
 
 
-  if (error) {
+  if (profileError) {
 
     console.error(
-      'Accept order error:',
-      error
+      'Provider profile error:',
+      profileError
     );
-
-    button.disabled =
-      false;
-
-    button.textContent =
-      'Accept Request';
-
-    showStatus(
-      'We could not accept this order.'
-    );
-
-    return;
 
   }
 
 
-  await loadOrders();
+  const profileMap =
+    new Map(
+      (profiles || []).map(
+        profile => [
+          profile.id,
+          profile
+        ]
+      )
+    );
+
+
+  servicesElement.innerHTML =
+    services.map(
+      service => {
+
+        const profile =
+          profileMap.get(
+            service.user_id
+          );
+
+
+        const providerName =
+          profile?.display_name ||
+          profile?.full_name ||
+          'StarRise Member';
+
+
+        const price =
+          (
+            Number(
+              service.price_cents || 0
+            ) / 100
+          ).toLocaleString(
+            'en-US',
+            {
+              style: 'currency',
+              currency: 'USD'
+            }
+          );
+
+
+        return `
+
+          <article class="service-card">
+
+            <div class="category">
+              ${escapeHtml(
+                service.category ||
+                'Service'
+              )}
+            </div>
+
+            <h2>
+              ${escapeHtml(
+                service.title ||
+                'StarRise Service'
+              )}
+            </h2>
+
+            <div class="description">
+              ${escapeHtml(
+                service.description ||
+                'No description provided.'
+              )}
+            </div>
+
+            <div class="price">
+              ${price}
+            </div>
+
+            <div class="provider">
+              Provided by
+              <strong>
+                ${escapeHtml(
+                  providerName
+                )}
+              </strong>
+
+              ${
+                profile?.location
+                  ? `
+                    <br>
+                    ${escapeHtml(
+                      profile.location
+                    )}
+                  `
+                  : ''
+              }
+
+            </div>
+
+            <a
+              class="view-button"
+              href="service.html?id=${encodeURIComponent(
+                service.id
+              )}"
+            >
+              View Service
+            </a>
+
+          </article>
+
+        `;
+
+      }
+    ).join('');
+
+
+  statusElement.style.display =
+    'none';
+
+  servicesElement.style.display =
+    'grid';
 
 }
 
 
-document
-  .getElementById('signout')
-  .addEventListener(
-    'click',
-    async () => {
+loadServices();
 
-      await starRiseSupabase
-        .auth
-        .signOut();
+</script>
 
-      location.replace(
-        'login.html'
-      );
+</body>
 
-    }
-  );
-
-
-async function startDashboard() {
-
-  await handleAuthCallback();
-
-  await loadDashboard();
-
-  await loadOrders();
-
-}
-
-
-startDashboard();
-
-</script></body></html>
+</html>
