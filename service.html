@@ -94,6 +94,12 @@
       border-top: 1px solid #ffffff18;
     }
 
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
     textarea {
       width: 100%;
       min-height: 150px;
@@ -136,11 +142,13 @@
     }
 
     #message.error {
+      display: block;
       background: rgba(220,70,70,.15);
       color: #ffb0b0;
     }
 
     #message.success {
+      display: block;
       background: rgba(50,180,100,.15);
       color: #a8ffc8;
     }
@@ -158,6 +166,11 @@
       color: #fff;
     }
 
+    .success-box {
+      text-align: center;
+      padding: 20px;
+    }
+
     @media (max-width: 650px) {
       header {
         flex-direction: column;
@@ -173,6 +186,7 @@
       }
     }
   </style>
+
 </head>
 
 <body>
@@ -184,6 +198,7 @@
   </a>
 
   <nav>
+
     <a href="services.html">
       Services
     </a>
@@ -195,6 +210,7 @@
     <a href="dashboard.html">
       Dashboard
     </a>
+
   </nav>
 
 </header>
@@ -205,10 +221,13 @@
     id="servicePanel"
     class="panel"
   >
+
     <div class="loading">
       Loading service...
     </div>
+
   </section>
+
 
   <section
     id="requestPanel"
@@ -221,9 +240,9 @@
     </h2>
 
     <p class="muted">
-      Tell the provider what you need. After your
-      request is submitted, you'll continue to
-      secure checkout.
+      Tell the provider what you need.
+      You'll continue to secure checkout after
+      submitting your request.
     </p>
 
     <div id="message"></div>
@@ -252,15 +271,20 @@
 
   </section>
 
+
   <div class="back">
+
     <a href="services.html">
       ← Back to Services
     </a>
+
   </div>
 
 </main>
 
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
 <script>
 
@@ -272,19 +296,33 @@ const starRiseSupabase =
 
 
 const servicePanel =
-  document.getElementById('servicePanel');
+  document.getElementById(
+    'servicePanel'
+  );
+
 
 const requestPanel =
-  document.getElementById('requestPanel');
+  document.getElementById(
+    'requestPanel'
+  );
+
 
 const orderForm =
-  document.getElementById('orderForm');
+  document.getElementById(
+    'orderForm'
+  );
+
 
 const orderButton =
-  document.getElementById('orderButton');
+  document.getElementById(
+    'orderButton'
+  );
+
 
 const message =
-  document.getElementById('message');
+  document.getElementById(
+    'message'
+  );
 
 
 let service = null;
@@ -293,25 +331,45 @@ let service = null;
 function escapeHtml(value) {
 
   return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+
+    .replaceAll(
+      '&',
+      '&amp;'
+    )
+
+    .replaceAll(
+      '<',
+      '&lt;'
+    )
+
+    .replaceAll(
+      '>',
+      '&gt;'
+    )
+
+    .replaceAll(
+      '"',
+      '&quot;'
+    )
+
+    .replaceAll(
+      "'",
+      '&#039;'
+    );
 
 }
 
 
 function showMessage(
   text,
-  type = ''
+  type
 ) {
 
   message.textContent =
     text;
 
   message.className =
-    'show ' + type;
+    'show ' + (type || '');
 
 }
 
@@ -324,6 +382,34 @@ function getServiceId() {
     );
 
   return params.get('id');
+
+}
+
+
+async function getCurrentSession() {
+
+  const {
+    data,
+    error
+  } =
+    await starRiseSupabase
+      .auth
+      .getSession();
+
+
+  if (error) {
+
+    console.error(
+      'Session error:',
+      error
+    );
+
+    return null;
+
+  }
+
+
+  return data?.session || null;
 
 }
 
@@ -354,7 +440,9 @@ async function loadService() {
   } =
     await starRiseSupabase
 
-      .from('star_rise_services')
+      .from(
+        'star_rise_services'
+      )
 
       .select(`
         id,
@@ -387,8 +475,10 @@ async function loadService() {
       error
     );
 
+
     servicePanel.innerHTML = `
       <h1>Service Not Found</h1>
+
       <p class="muted">
         This service may no longer be available.
       </p>
@@ -407,7 +497,9 @@ async function loadService() {
   } =
     await starRiseSupabase
 
-      .from('public_profiles')
+      .from(
+        'public_profiles'
+      )
 
       .select(`
         id,
@@ -432,7 +524,9 @@ async function loadService() {
 
   const price =
     (
-      Number(service.price_cents || 0) / 100
+      Number(
+        service.price_cents || 0
+      ) / 100
     ).toLocaleString(
       'en-US',
       {
@@ -498,20 +592,8 @@ async function loadService() {
   `;
 
 
-  requestPanel.style.display =
-    'block';
-
-
-  const {
-    data: sessionData
-  } =
-    await starRiseSupabase
-      .auth
-      .getSession();
-
-
   const session =
-    sessionData?.session;
+    await getCurrentSession();
 
 
   if (
@@ -521,15 +603,24 @@ async function loadService() {
 
     requestPanel.innerHTML = `
 
-      <h2>
-        Your Service
-      </h2>
+      <div class="success-box">
 
-      <p class="muted">
-        You cannot purchase your own service.
-      </p>
+        <h2>
+          Your Service
+        </h2>
+
+        <p class="muted">
+          You cannot purchase your own service.
+        </p>
+
+      </div>
 
     `;
+
+  } else {
+
+    requestPanel.style.display =
+      'block';
 
   }
 
@@ -544,27 +635,25 @@ orderForm.addEventListener(
 
 
     if (!service) {
+
+      showMessage(
+        'Service information is not loaded yet.',
+        'error'
+      );
+
       return;
+
     }
 
 
-    const {
-      data: sessionData
-    } =
-    await starRiseSupabase
-      .auth
-      .getSession();
-
-
     const session =
-      sessionData?.session;
+      await getCurrentSession();
 
 
     if (!session) {
 
-      location.replace(
-        'login.html'
-      );
+      window.location.href =
+        'login.html';
 
       return;
 
@@ -590,9 +679,12 @@ orderForm.addEventListener(
 
 
     const request =
-      document.getElementById(
-        'request'
-      ).value.trim();
+      document
+        .getElementById(
+          'request'
+        )
+        .value
+        .trim();
 
 
     if (!request) {
@@ -616,13 +708,20 @@ orderForm.addEventListener(
 
     try {
 
+      /*
+       * STEP 1
+       * Create the StarRise order.
+       */
+
       const {
         data: order,
         error: orderError
       } =
       await starRiseSupabase
 
-        .from('service_orders')
+        .from(
+          'service_orders'
+        )
 
         .insert({
 
@@ -636,9 +735,11 @@ orderForm.addEventListener(
             service.id,
 
           amount_cents:
-            Number(service.price_cents),
+            Number(
+              service.price_cents
+            ),
 
-          request_message:
+          client_request:
             request,
 
           status:
@@ -646,15 +747,28 @@ orderForm.addEventListener(
 
         })
 
-        .select('id')
+        .select(
+          'id'
+        )
 
         .single();
 
 
       if (orderError) {
-        throw orderError;
+
+        throw new Error(
+          'Order could not be created: ' +
+          orderError.message
+        );
+
       }
 
+
+      /*
+       * STEP 2
+       * Ask the Supabase Edge Function
+       * to create the Stripe Checkout Session.
+       */
 
       orderButton.textContent =
         'Opening Checkout...';
@@ -664,51 +778,123 @@ orderForm.addEventListener(
         data: checkoutData,
         error: checkoutError
       } =
-      await starRiseSupabase.functions.invoke(
-        'create-checkout',
-        {
-          body: {
-            service_id:
-              service.id,
+      await starRiseSupabase
+        .functions
+        .invoke(
+          'create-checkout',
+          {
+            body: {
 
-            amount_cents:
-              Number(service.price_cents),
+              service_id:
+                String(
+                  service.id
+                ),
 
-            service_name:
-              service.title,
+              amount_cents:
+                Number(
+                  service.price_cents
+                ),
 
-            order_id:
-              order.id
+              service_name:
+                String(
+                  service.title
+                ),
+
+              order_id:
+                String(
+                  order.id
+                )
+
+            }
           }
-        }
-      );
+        );
 
 
       if (checkoutError) {
-        throw checkoutError;
-      }
+
+        let details =
+          checkoutError.message ||
+          'Checkout function failed.';
 
 
-      if (
-        !checkoutData ||
-        !checkoutData.url
-      ) {
+        try {
+
+          if (
+            checkoutError.context
+          ) {
+
+            const response =
+              checkoutError.context;
+
+            const text =
+              await response.text();
+
+            if (text) {
+              details =
+                text;
+            }
+
+          }
+
+        } catch (
+          ignored
+        ) {}
+
 
         throw new Error(
-          'Checkout session was not created.'
+          'Checkout error: ' +
+          details
         );
 
       }
 
 
+      if (
+        !checkoutData
+      ) {
+
+        throw new Error(
+          'The checkout function returned no data.'
+        );
+
+      }
+
+
+      if (
+        checkoutData.error
+      ) {
+
+        throw new Error(
+          'Stripe: ' +
+          checkoutData.error
+        );
+
+      }
+
+
+      if (
+        !checkoutData.url
+      ) {
+
+        throw new Error(
+          'Stripe Checkout did not return a payment URL.'
+        );
+
+      }
+
+
+      /*
+       * STEP 3
+       * Send the customer to Stripe.
+       */
+
       window.location.href =
         checkoutData.url;
-
 
     } catch (error) {
 
       console.error(
-        'Checkout error:',
+        'Checkout process failed:',
         error
       );
 
@@ -737,5 +923,4 @@ loadService();
 </script>
 
 </body>
-
 </html>
