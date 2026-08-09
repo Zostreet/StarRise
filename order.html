@@ -1,11 +1,9 @@
 <!doctype html>
+
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>My Order | StarRise</title>
-
-  <style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">  <title>Order | StarRise</title>  <style>
     * {
       box-sizing: border-box;
     }
@@ -34,42 +32,22 @@
       font-weight: bold;
     }
 
-    nav {
-      display: flex;
-      gap: 18px;
-      flex-wrap: wrap;
-    }
-
-    nav a {
-      color: #fff;
-      text-decoration: none;
-    }
-
     main {
-      width: min(900px, calc(100% - 40px));
-      margin: 50px auto;
+      width: min(850px, calc(100% - 32px));
+      margin: 45px auto;
     }
 
     .panel {
-      padding: 30px;
+      padding: 28px;
       border-radius: 20px;
       border: 1px solid #ffffff18;
       background: #ffffff08;
       margin-bottom: 20px;
     }
 
-    .label {
-      color: #999;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      font-size: 13px;
-      margin-bottom: 6px;
-    }
-
     h1 {
-      font-size: clamp(36px, 7vw, 60px);
-      line-height: 1.1;
-      margin: 5px 0 20px;
+      margin: 0 0 10px;
+      font-size: clamp(34px, 7vw, 58px);
     }
 
     h2 {
@@ -80,79 +58,81 @@
       color: #aaa;
     }
 
-    .price {
-      font-size: 34px;
-      font-weight: bold;
-      margin: 20px 0;
+    .status {
+      padding: 16px;
+      border-radius: 12px;
+      background: #ffffff0d;
+      color: #aaa;
+      margin-bottom: 20px;
     }
 
-    .status {
-      display: inline-block;
-      padding: 8px 16px;
-      border-radius: 30px;
-      background: #ffffff12;
+    .error {
+      color: #ffb0b0;
+      background: rgba(220, 70, 70, .12);
+    }
+
+    .success {
+      color: #b8ffcc;
+      background: rgba(50, 200, 100, .10);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .field {
+      padding: 17px;
+      border-radius: 14px;
+      background: #ffffff08;
+      margin-bottom: 14px;
+    }
+
+    .label {
+      display: block;
+      color: #888;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 5px;
+    }
+
+    .value {
+      word-break: break-word;
+    }
+
+    .amount {
+      font-size: 34px;
       font-weight: bold;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 7px 13px;
+      border-radius: 20px;
+      background: #ffffff12;
       text-transform: capitalize;
     }
 
     .request {
-      margin-top: 20px;
       padding: 18px;
       border-radius: 14px;
       background: #00000025;
       color: #ccc;
       white-space: pre-wrap;
-    }
-
-    .info {
-      padding: 16px;
-      border-radius: 14px;
-      background: #ffffff06;
-      margin-top: 15px;
+      min-height: 60px;
     }
 
     .button {
       display: inline-block;
-      margin-top: 20px;
-      padding: 13px 22px;
-      border-radius: 30px;
+      padding: 12px 22px;
+      border-radius: 25px;
       background: #fff;
       color: #080812;
       text-decoration: none;
       font-weight: bold;
-    }
-
-    .error {
-      color: #ffb0b0;
-      background: rgba(220,70,70,.12);
-      padding: 16px;
-      border-radius: 12px;
-    }
-
-    .loading {
-      color: #aaa;
-      text-align: center;
-      padding: 30px;
-    }
-
-    .timeline {
-      display: grid;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .step {
-      padding: 15px 18px;
-      border-radius: 12px;
-      background: #ffffff06;
-      border: 1px solid #ffffff10;
-      color: #888;
-    }
-
-    .step.active {
-      color: #fff;
-      border-color: #ffffff35;
-      background: #ffffff10;
+      margin-top: 10px;
+      border: 0;
+      cursor: pointer;
     }
 
     @media (max-width: 650px) {
@@ -162,203 +142,113 @@
       }
 
       main {
-        width: min(100% - 24px, 900px);
-        margin-top: 30px;
+        margin-top: 28px;
       }
 
       .panel {
         padding: 22px;
       }
     }
-  </style>
-</head>
+  </style></head><body><header>
+  <a href="dashboard.html">⭐ StarRise</a>
+  <a href="dashboard.html">Dashboard</a>
+</header><main>  <div id="loading" class="status">
+    Loading order...
+  </div>  <div id="error" class="status error hidden"></div>  <section id="order-content" class="hidden"><div class="panel">
 
-<body>
+  <p class="muted">STAR RISE ORDER</p>
 
-<header>
+  <h1 id="service-name">
+    Service Order
+  </h1>
 
-  <a href="index.html">
-    ⭐ StarRise
+  <p class="muted">
+    Order details and status
+  </p>
+
+</div>
+
+<div class="panel">
+
+  <h2>Order Status</h2>
+
+  <div class="field">
+    <span class="label">Status</span>
+    <span id="order-status" class="badge">
+      Pending
+    </span>
+  </div>
+
+  <div class="field">
+    <span class="label">Payment Status</span>
+    <span id="payment-status" class="badge">
+      Unpaid
+    </span>
+  </div>
+
+  <div class="field">
+    <span class="label">Order Amount</span>
+    <div id="amount" class="amount">
+      $0.00
+    </div>
+  </div>
+
+</div>
+
+<div class="panel">
+
+  <h2>Client Request</h2>
+
+  <div id="request-message" class="request">
+    No request details provided.
+  </div>
+
+</div>
+
+<div class="panel">
+
+  <h2>Order Information</h2>
+
+  <div class="field">
+    <span class="label">Order ID</span>
+    <div id="order-id" class="value"></div>
+  </div>
+
+  <div class="field">
+    <span class="label">Created</span>
+    <div id="created-at" class="value"></div>
+  </div>
+
+  <div class="field">
+    <span class="label">Last Updated</span>
+    <div id="updated-at" class="value"></div>
+  </div>
+
+  <div class="field">
+    <span class="label">Your Role</span>
+    <div id="user-role" class="value"></div>
+  </div>
+
+  <a
+    id="service-link"
+    class="button"
+    href="#"
+  >
+    View Service
   </a>
 
-  <nav>
-    <a href="services.html">Services</a>
-    <a href="members.html">Members</a>
-    <a href="dashboard.html">Dashboard</a>
-  </nav>
-
-</header>
-
-<main>
-
-  <section
-    id="loading"
-    class="panel loading"
+  <a
+    class="button"
+    href="dashboard.html"
   >
-    Loading your order...
-  </section>
+    Back to Dashboard
+  </a>
 
-  <section
-    id="orderPanel"
-    style="display:none;"
-  >
+</div>
 
-    <div class="panel">
+  </section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 
-      <div class="label">
-        StarRise Order
-      </div>
-
-      <h1 id="serviceTitle">
-        Service
-      </h1>
-
-      <div
-        id="orderStatus"
-        class="status"
-      >
-        Pending
-      </div>
-
-      <div
-        id="price"
-        class="price"
-      >
-        $0.00
-      </div>
-
-      <div class="info">
-
-        <div class="label">
-          Provider
-        </div>
-
-        <div id="provider">
-          Loading...
-        </div>
-
-      </div>
-
-      <div class="info">
-
-        <div class="label">
-          Order Date
-        </div>
-
-        <div id="orderDate">
-          Loading...
-        </div>
-
-      </div>
-
-    </div>
-
-    <div class="panel">
-
-      <h2>
-        Your Request
-      </h2>
-
-      <div
-        id="request"
-        class="request"
-      >
-        Loading...
-      </div>
-
-    </div>
-
-    <div class="panel">
-
-      <h2>
-        Order Progress
-      </h2>
-
-      <div class="timeline">
-
-        <div
-          id="stepPending"
-          class="step"
-        >
-          1. Request Submitted
-        </div>
-
-        <div
-          id="stepAccepted"
-          class="step"
-        >
-          2. Provider Accepted
-        </div>
-
-        <div
-          id="stepProgress"
-          class="step"
-        >
-          3. Work In Progress
-        </div>
-
-        <div
-          id="stepCompleted"
-          class="step"
-        >
-          4. Completed
-        </div>
-
-      </div>
-
-    </div>
-
-    <div class="panel">
-
-      <a
-        class="button"
-        href="dashboard.html"
-      >
-        ← Back to Dashboard
-      </a>
-
-      <a
-        id="serviceLink"
-        class="button"
-        href="#"
-      >
-        View Service
-      </a>
-
-    </div>
-
-  </section>
-
-  <section
-    id="errorPanel"
-    class="panel"
-    style="display:none;"
-  >
-
-    <h2>
-      Order Not Found
-    </h2>
-
-    <p id="errorMessage">
-      We could not find this order.
-    </p>
-
-    <a
-      class="button"
-      href="dashboard.html"
-    >
-      Back to Dashboard
-    </a>
-
-  </section>
-
-</main>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-
-const starRiseSupabase =
+const supabaseClient =
   window.supabase.createClient(
     'https://rcnikxotdalxtuvpmlvm.supabase.co',
     'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
@@ -368,115 +258,56 @@ const starRiseSupabase =
 const loading =
   document.getElementById('loading');
 
-const orderPanel =
-  document.getElementById('orderPanel');
+const errorBox =
+  document.getElementById('error');
 
-const errorPanel =
-  document.getElementById('errorPanel');
-
-const errorMessage =
-  document.getElementById('errorMessage');
-
-
-function escapeHtml(value) {
-
-  return String(value ?? '')
-
-    .replaceAll('&', '&amp;')
-
-    .replaceAll('<', '&lt;')
-
-    .replaceAll('>', '&gt;')
-
-    .replaceAll('"', '&quot;')
-
-    .replaceAll("'", '&#039;');
-
-}
-
-
-function getOrderId() {
-
-  const params =
-    new URLSearchParams(
-      window.location.search
-    );
-
-  return params.get('id');
-
-}
+const content =
+  document.getElementById('order-content');
 
 
 function showError(message) {
 
-  loading.style.display =
-    'none';
+  loading.classList.add('hidden');
 
-  orderPanel.style.display =
-    'none';
-
-  errorPanel.style.display =
-    'block';
-
-  errorMessage.textContent =
+  errorBox.textContent =
     message;
+
+  errorBox.classList.remove('hidden');
 
 }
 
 
-function updateProgress(status) {
+function formatDate(value) {
 
-  const steps = {
-    pending: 1,
-    accepted: 2,
-    in_progress: 3,
-    completed: 4
-  };
+  if (!value) {
+    return 'Not available';
+  }
 
-  const current =
-    steps[status] || 1;
+  return new Date(value)
+    .toLocaleString();
+}
 
 
-  const stepIds = [
-    'stepPending',
-    'stepAccepted',
-    'stepProgress',
-    'stepCompleted'
-  ];
+function formatStatus(value) {
 
+  return String(
+    value || 'pending'
+  )
+    .replaceAll('_', ' ');
 
-  stepIds.forEach(
-    (id, index) => {
-
-      const element =
-        document.getElementById(id);
-
-      if (
-        index + 1 <= current
-      ) {
-
-        element.classList.add(
-          'active'
-        );
-
-      } else {
-
-        element.classList.remove(
-          'active'
-        );
-
-      }
-
-    }
-  );
 
 }
 
 
 async function loadOrder() {
 
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
   const orderId =
-    getOrderId();
+    params.get('id');
 
 
   if (!orderId) {
@@ -494,7 +325,7 @@ async function loadOrder() {
     data: sessionData,
     error: sessionError
   } =
-    await starRiseSupabase
+    await supabaseClient
       .auth
       .getSession();
 
@@ -505,9 +336,8 @@ async function loadOrder() {
     !sessionData.session
   ) {
 
-    location.replace(
-      'login.html'
-    );
+    window.location.href =
+      'login.html';
 
     return;
 
@@ -520,22 +350,23 @@ async function loadOrder() {
 
   const {
     data: order,
-    error
+    error: orderError
   } =
-    await starRiseSupabase
+    await supabaseClient
 
       .from('service_orders')
 
       .select(`
         id,
+        service_id,
         buyer_id,
         seller_id,
-        service_id,
         amount_cents,
-        client_request,
         request_message,
         status,
-        created_at
+        payment_status,
+        created_at,
+        updated_at
       `)
 
       .eq(
@@ -543,20 +374,26 @@ async function loadOrder() {
         orderId
       )
 
-      .eq(
-        'buyer_id',
-        user.id
-      )
-
-      .single();
+      .maybeSingle();
 
 
-  if (error || !order) {
+  if (orderError) {
 
     console.error(
-      'Order error:',
-      error
+      'Order lookup error:',
+      orderError
     );
+
+    showError(
+      'We could not load this order.'
+    );
+
+    return;
+
+  }
+
+
+  if (!order) {
 
     showError(
       'This order could not be found or you do not have permission to view it.'
@@ -567,17 +404,42 @@ async function loadOrder() {
   }
 
 
+  const isBuyer =
+    order.buyer_id === user.id;
+
+  const isSeller =
+    order.seller_id === user.id;
+
+
+  if (
+    !isBuyer &&
+    !isSeller
+  ) {
+
+    showError(
+      'You do not have permission to view this order.'
+    );
+
+    return;
+
+  }
+
+
+  let serviceName =
+    'StarRise Service';
+
+
   const {
-    data: service
+    data: service,
+    error: serviceError
   } =
-    await starRiseSupabase
+    await supabaseClient
 
       .from('star_rise_services')
 
       .select(`
         id,
-        title,
-        description
+        title
       `)
 
       .eq(
@@ -588,36 +450,38 @@ async function loadOrder() {
       .maybeSingle();
 
 
-  const {
-    data: profile
-  } =
-    await starRiseSupabase
+  if (
+    !serviceError &&
+    service
+  ) {
 
-      .from('Profiles')
+    serviceName =
+      service.title ||
+      serviceName;
 
-      .select(`
-        id,
-        display_name,
-        full_name
-      `)
-
-      .eq(
-        'id',
-        order.seller_id
-      )
-
-      .maybeSingle();
+  }
 
 
-  const serviceTitle =
-    service?.title ||
-    'StarRise Service';
+  document.getElementById(
+    'service-name'
+  ).textContent =
+    serviceName;
 
 
-  const providerName =
-    profile?.display_name ||
-    profile?.full_name ||
-    'StarRise Member';
+  document.getElementById(
+    'order-status'
+  ).textContent =
+    formatStatus(
+      order.status
+    );
+
+
+  document.getElementById(
+    'payment-status'
+  ).textContent =
+    formatStatus(
+      order.payment_status
+    );
 
 
   const amount =
@@ -626,32 +490,8 @@ async function loadOrder() {
     ) / 100;
 
 
-  const orderDate =
-    new Date(
-      order.created_at
-    ).toLocaleString();
-
-
-  const requestText =
-    order.client_request ||
-    order.request_message ||
-    'No request details provided.';
-
-
   document.getElementById(
-    'serviceTitle'
-  ).textContent =
-    serviceTitle;
-
-
-  document.getElementById(
-    'provider'
-  ).textContent =
-    providerName;
-
-
-  document.getElementById(
-    'price'
+    'amount'
   ).textContent =
     amount.toLocaleString(
       'en-US',
@@ -663,51 +503,62 @@ async function loadOrder() {
 
 
   document.getElementById(
-    'orderDate'
+    'request-message'
   ).textContent =
-    orderDate;
+    order.request_message ||
+    'No request details provided.';
 
 
   document.getElementById(
-    'request'
+    'order-id'
   ).textContent =
-    requestText;
+    order.id;
 
 
   document.getElementById(
-    'orderStatus'
+    'created-at'
   ).textContent =
-    order.status ||
-    'pending';
-
-
-  document.getElementById(
-    'serviceLink'
-  ).href =
-    'service.html?id=' +
-    encodeURIComponent(
-      order.service_id
+    formatDate(
+      order.created_at
     );
 
 
-  updateProgress(
-    order.status ||
-    'pending'
+  document.getElementById(
+    'updated-at'
+  ).textContent =
+    formatDate(
+      order.updated_at
+    );
+
+
+  document.getElementById(
+    'user-role'
+  ).textContent =
+    isSeller
+      ? 'Service Provider'
+      : 'Customer';
+
+
+  document.getElementById(
+    'service-link'
+  ).href =
+    `service.html?id=${encodeURIComponent(
+      order.service_id
+    )}`;
+
+
+  loading.classList.add(
+    'hidden'
   );
 
-
-  loading.style.display =
-    'none';
-
-  orderPanel.style.display =
-    'block';
+  content.classList.remove(
+    'hidden'
+  );
 
 }
 
 
 loadOrder();
 
-</script>
-
-</body>
+</script></body>
 </html>
