@@ -72,6 +72,10 @@
       line-height: 1.1;
     }
 
+    h2 {
+      margin-top: 0;
+    }
+
     .description {
       color: #ccc;
       font-size: 18px;
@@ -88,12 +92,6 @@
       margin-top: 20px;
       padding-top: 20px;
       border-top: 1px solid #ffffff18;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: bold;
     }
 
     textarea {
@@ -160,18 +158,6 @@
       color: #fff;
     }
 
-    .hidden {
-      display: none;
-    }
-
-    .signin-note {
-      padding: 16px;
-      border-radius: 12px;
-      background: #ffffff08;
-      color: #aaa;
-      margin-top: 15px;
-    }
-
     @media (max-width: 650px) {
       header {
         flex-direction: column;
@@ -198,7 +184,6 @@
   </a>
 
   <nav>
-
     <a href="services.html">
       Services
     </a>
@@ -210,7 +195,6 @@
     <a href="dashboard.html">
       Dashboard
     </a>
-
   </nav>
 
 </header>
@@ -228,7 +212,8 @@
 
   <section
     id="requestPanel"
-    class="panel hidden"
+    class="panel"
+    style="display:none;"
   >
 
     <h2>
@@ -236,7 +221,9 @@
     </h2>
 
     <p class="muted">
-      Tell the provider what you need.
+      Tell the provider what you need. After your
+      request is submitted, you'll continue to
+      secure checkout.
     </p>
 
     <div id="message"></div>
@@ -258,26 +245,17 @@
         id="orderButton"
         type="submit"
       >
-        Request Service
+        Continue to Checkout
       </button>
 
     </form>
 
-    <div
-      id="signinNote"
-      class="signin-note hidden"
-    >
-      You must be signed in to request a service.
-    </div>
-
   </section>
 
   <div class="back">
-
     <a href="services.html">
       ← Back to Services
     </a>
-
   </div>
 
 </main>
@@ -294,39 +272,19 @@ const starRiseSupabase =
 
 
 const servicePanel =
-  document.getElementById(
-    'servicePanel'
-  );
-
+  document.getElementById('servicePanel');
 
 const requestPanel =
-  document.getElementById(
-    'requestPanel'
-  );
-
+  document.getElementById('requestPanel');
 
 const orderForm =
-  document.getElementById(
-    'orderForm'
-  );
-
+  document.getElementById('orderForm');
 
 const orderButton =
-  document.getElementById(
-    'orderButton'
-  );
-
+  document.getElementById('orderButton');
 
 const message =
-  document.getElementById(
-    'message'
-  );
-
-
-const signinNote =
-  document.getElementById(
-    'signinNote'
-  );
+  document.getElementById('message');
 
 
 let service = null;
@@ -335,15 +293,10 @@ let service = null;
 function escapeHtml(value) {
 
   return String(value ?? '')
-
     .replaceAll('&', '&amp;')
-
     .replaceAll('<', '&lt;')
-
     .replaceAll('>', '&gt;')
-
     .replaceAll('"', '&quot;')
-
     .replaceAll("'", '&#039;');
 
 }
@@ -371,66 +324,6 @@ function getServiceId() {
     );
 
   return params.get('id');
-
-}
-
-
-async function updateRequestAccess() {
-
-  const {
-    data: sessionData
-  } =
-    await starRiseSupabase
-      .auth
-      .getSession();
-
-  const session =
-    sessionData?.session;
-
-  if (!session) {
-
-    orderForm.classList.add(
-      'hidden'
-    );
-
-    signinNote.classList.remove(
-      'hidden'
-    );
-
-    signinNote.innerHTML =
-      'Please <a href="login.html">sign in</a> to request this service.';
-
-    return;
-
-  }
-
-  if (
-    service &&
-    session.user.id === service.user_id
-  ) {
-
-    orderForm.classList.add(
-      'hidden'
-    );
-
-    signinNote.classList.remove(
-      'hidden'
-    );
-
-    signinNote.textContent =
-      'You cannot order your own service.';
-
-    return;
-
-  }
-
-  orderForm.classList.remove(
-    'hidden'
-  );
-
-  signinNote.classList.add(
-    'hidden'
-  );
 
 }
 
@@ -484,7 +377,7 @@ async function loadService() {
         true
       )
 
-      .maybeSingle();
+      .single();
 
 
   if (error) {
@@ -495,26 +388,9 @@ async function loadService() {
     );
 
     servicePanel.innerHTML = `
-      <h1>Unable to Load Service</h1>
-      <p class="muted">
-        ${escapeHtml(
-          error.message ||
-          'There was a problem loading this service.'
-        )}
-      </p>
-    `;
-
-    return;
-
-  }
-
-
-  if (!data) {
-
-    servicePanel.innerHTML = `
       <h1>Service Not Found</h1>
       <p class="muted">
-        This service is not available.
+        This service may no longer be available.
       </p>
     `;
 
@@ -531,12 +407,12 @@ async function loadService() {
   } =
     await starRiseSupabase
 
-      .from('Profiles')
+      .from('public_profiles')
 
       .select(`
         id,
         display_name,
-        full_name,
+        role,
         location,
         avatar_url
       `)
@@ -551,15 +427,12 @@ async function loadService() {
 
   const providerName =
     profile?.display_name ||
-    profile?.full_name ||
     'StarRise Member';
 
 
   const price =
     (
-      Number(
-        service.price_cents || 0
-      ) / 100
+      Number(service.price_cents || 0) / 100
     ).toLocaleString(
       'en-US',
       {
@@ -625,12 +498,40 @@ async function loadService() {
   `;
 
 
-  requestPanel.classList.remove(
-    'hidden'
-  );
+  requestPanel.style.display =
+    'block';
 
 
-  await updateRequestAccess();
+  const {
+    data: sessionData
+  } =
+    await starRiseSupabase
+      .auth
+      .getSession();
+
+
+  const session =
+    sessionData?.session;
+
+
+  if (
+    session &&
+    session.user.id === service.user_id
+  ) {
+
+    requestPanel.innerHTML = `
+
+      <h2>
+        Your Service
+      </h2>
+
+      <p class="muted">
+        You cannot purchase your own service.
+      </p>
+
+    `;
+
+  }
 
 }
 
@@ -650,9 +551,9 @@ orderForm.addEventListener(
     const {
       data: sessionData
     } =
-      await starRiseSupabase
-        .auth
-        .getSession();
+    await starRiseSupabase
+      .auth
+      .getSession();
 
 
     const session =
@@ -670,9 +571,12 @@ orderForm.addEventListener(
     }
 
 
+    const buyerId =
+      session.user.id;
+
+
     if (
-      session.user.id ===
-      service.user_id
+      buyerId === service.user_id
     ) {
 
       showMessage(
@@ -707,75 +611,111 @@ orderForm.addEventListener(
       true;
 
     orderButton.textContent =
-      'Submitting...';
+      'Creating Order...';
 
 
     try {
 
       const {
         data: order,
-        error
+        error: orderError
       } =
-        await starRiseSupabase
+      await starRiseSupabase
 
-          .from('service_orders')
+        .from('service_orders')
 
-          .insert({
+        .insert({
 
-            buyer_id:
-              session.user.id,
+          buyer_id:
+            buyerId,
 
-            seller_id:
-              service.user_id,
+          seller_id:
+            service.user_id,
 
+          service_id:
+            service.id,
+
+          amount_cents:
+            Number(service.price_cents),
+
+          request_message:
+            request,
+
+          status:
+            'pending'
+
+        })
+
+        .select('id')
+
+        .single();
+
+
+      if (orderError) {
+        throw orderError;
+      }
+
+
+      orderButton.textContent =
+        'Opening Checkout...';
+
+
+      const {
+        data: checkoutData,
+        error: checkoutError
+      } =
+      await starRiseSupabase.functions.invoke(
+        'create-checkout',
+        {
+          body: {
             service_id:
               service.id,
 
             amount_cents:
-              service.price_cents,
+              Number(service.price_cents),
 
-            request_message:
-  request,
+            service_name:
+              service.title,
 
-            status:
-              'pending'
-
-          })
-
-          .select('id')
-
-          .single();
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      showMessage(
-        'Your service request has been submitted.',
-        'success'
+            order_id:
+              order.id
+          }
+        }
       );
 
 
-      orderForm.reset();
+      if (checkoutError) {
+        throw checkoutError;
+      }
 
 
-      orderButton.textContent =
-        'Request Submitted';
+      if (
+        !checkoutData ||
+        !checkoutData.url
+      ) {
+
+        throw new Error(
+          'Checkout session was not created.'
+        );
+
+      }
+
+
+      window.location.href =
+        checkoutData.url;
 
 
     } catch (error) {
 
       console.error(
-        'Order error:',
+        'Checkout error:',
         error
       );
 
 
       showMessage(
         error.message ||
-        'We could not submit your request.',
+        'We could not start checkout.',
         'error'
       );
 
@@ -784,7 +724,7 @@ orderForm.addEventListener(
         false;
 
       orderButton.textContent =
-        'Request Service';
+        'Continue to Checkout';
 
     }
 
@@ -797,4 +737,5 @@ loadService();
 </script>
 
 </body>
+
 </html>
