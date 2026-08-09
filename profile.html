@@ -256,8 +256,8 @@ async function loadProfile() {
     await supabaseClient
       .from('public_profiles')
       .select(
-        'id, display_name, role, location, bio, website'
-      )
+  'id, display_name, role, location, bio, website, avatar_url'
+)
       .eq('id', id)
       .maybeSingle();
 
@@ -308,13 +308,30 @@ async function loadProfile() {
       name;
 
 
-  document
-    .getElementById('avatar')
-    .textContent =
-      name
-        .charAt(0)
-        .toUpperCase();
+  const avatar =
+  document.getElementById('avatar');
 
+if (member.avatar_url) {
+
+  avatar.innerHTML = `
+    <img
+      src="${member.avatar_url}"
+      alt="${name}"
+      style="
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        border-radius:50%;
+      "
+    >
+  `;
+
+} else {
+
+  avatar.textContent =
+    name.charAt(0).toUpperCase();
+
+}
 
   document
     .getElementById('role')
