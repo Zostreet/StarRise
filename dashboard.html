@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Member Dashboard | StarRise</title>
+  <title>StarRise Dashboard</title>
 
   <style>
     * {
@@ -34,6 +34,10 @@
       font-weight: bold;
     }
 
+    button {
+      font-family: inherit;
+    }
+
     #signout {
       border: 1px solid #ffffff33;
       background: transparent;
@@ -44,8 +48,8 @@
     }
 
     main {
-      width: min(950px, calc(100% - 40px));
-      margin: 50px auto;
+      width: min(950px, calc(100% - 30px));
+      margin: 35px auto 60px;
     }
 
     .hero,
@@ -53,7 +57,7 @@
       border: 1px solid #ffffff18;
       border-radius: 20px;
       background: #ffffff08;
-      padding: 28px;
+      padding: 25px;
       margin-bottom: 20px;
     }
 
@@ -66,14 +70,32 @@
       color: #aaa;
     }
 
+    .status-box {
+      padding: 14px;
+      border-radius: 12px;
+      background: #ffffff08;
+      color: #aaa;
+      margin-bottom: 15px;
+    }
+
+    .error {
+      color: #ffb5b5 !important;
+      background: rgba(200, 50, 50, .12) !important;
+    }
+
+    .success {
+      color: #baffca !important;
+      background: rgba(50, 200, 100, .10) !important;
+    }
+
     .profile-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
     }
 
     .item {
-      padding: 18px;
+      padding: 17px;
       border-radius: 14px;
       background: #ffffff08;
     }
@@ -81,8 +103,8 @@
     .label {
       display: block;
       color: #999;
-      font-size: 13px;
-      margin-bottom: 6px;
+      font-size: 12px;
+      margin-bottom: 5px;
       text-transform: uppercase;
       letter-spacing: .08em;
     }
@@ -91,42 +113,12 @@
       word-break: break-word;
     }
 
-    .website-link,
-    .service-link {
-      color: #fff;
-      text-decoration: underline;
-    }
-
-    .role,
-    .order-status {
+    .role {
       display: inline-block;
       padding: 7px 12px;
+      margin: 4px;
       border-radius: 20px;
       background: #ffffff12;
-      margin: 5px 5px 0 0;
-      text-transform: capitalize;
-    }
-
-    #status,
-    #orders-status,
-    #my-orders-status,
-    #completed-orders-status,
-    #my-completed-status {
-      padding: 14px;
-      border-radius: 10px;
-      background: #ffffff0d;
-      margin-bottom: 16px;
-      color: #aaa;
-    }
-
-    .error {
-      color: #ffb0b0 !important;
-      background: rgba(220, 70, 70, .12) !important;
-    }
-
-    .success {
-      color: #b8ffcc !important;
-      background: rgba(50, 200, 100, .10) !important;
     }
 
     .order-card {
@@ -138,19 +130,28 @@
     }
 
     .completed-card {
-      border-color: #ffffff25;
+      border-color: #ffffff28;
     }
 
     .order-price {
       font-size: 25px;
       font-weight: bold;
-      margin-bottom: 8px;
+      margin-bottom: 5px;
+    }
+
+    .order-status {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: #ffffff12;
+      text-transform: capitalize;
+      margin-bottom: 10px;
     }
 
     .order-request {
-      padding: 15px;
+      padding: 14px;
       border-radius: 12px;
-      background: #00000020;
+      background: #00000025;
       color: #ccc;
       white-space: pre-wrap;
       margin: 12px 0;
@@ -159,13 +160,14 @@
     .order-meta {
       color: #888;
       font-size: 14px;
+      margin-top: 4px;
     }
 
     .order-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 14px;
+      margin-top: 15px;
     }
 
     .order-button {
@@ -178,26 +180,26 @@
       cursor: pointer;
     }
 
-    .decline-button {
-      background: transparent;
-      color: #fff;
-      border: 1px solid #ffffff33;
-    }
-
     .order-button:disabled {
       opacity: .6;
       cursor: wait;
     }
 
-    .service-link {
-      display: inline-block;
-      margin-top: 10px;
-      font-weight: bold;
+    .decline-button {
+      background: transparent;
+      color: #fff;
+      border: 1px solid #ffffff35;
+    }
+
+    .service-link,
+    .website-link {
+      color: #fff;
+      text-decoration: underline;
     }
 
     .edit-link {
       display: inline-block;
-      margin-top: 20px;
+      margin-top: 18px;
       padding: 11px 20px;
       border-radius: 25px;
       background: #fff;
@@ -207,25 +209,26 @@
     }
 
     .empty {
-      padding: 20px;
+      padding: 18px;
       border-radius: 14px;
       background: #ffffff06;
       color: #999;
+      margin-top: 12px;
     }
 
-    /* REVIEW */
+    /* Reviews */
 
     .review-box {
       margin-top: 18px;
       padding: 18px;
       border-radius: 14px;
-      background: #00000020;
+      background: #00000022;
       border: 1px solid #ffffff12;
     }
 
     .stars {
       display: flex;
-      gap: 5px;
+      gap: 4px;
       margin: 10px 0 14px;
     }
 
@@ -233,7 +236,7 @@
       border: 0;
       background: transparent;
       color: #555;
-      font-size: 32px;
+      font-size: 31px;
       line-height: 1;
       padding: 2px;
       cursor: pointer;
@@ -264,7 +267,7 @@
       margin-top: 18px;
       padding: 16px;
       border-radius: 14px;
-      background: #00000020;
+      background: #00000022;
       border: 1px solid #ffffff12;
     }
 
@@ -272,7 +275,6 @@
       color: #ffd84d;
       font-size: 22px;
       letter-spacing: 2px;
-      margin-bottom: 6px;
     }
 
     .review-content {
@@ -293,13 +295,13 @@
       }
 
       main {
-        width: min(100% - 24px, 950px);
-        margin-top: 30px;
+        width: calc(100% - 20px);
+        margin-top: 20px;
       }
 
       .hero,
       .panel {
-        padding: 22px;
+        padding: 20px;
       }
 
       .order-actions {
@@ -326,8 +328,7 @@
     <p class="muted">MEMBER DASHBOARD</p>
 
     <h1>
-      Welcome,
-      <span id="name">Member</span>
+      Welcome, <span id="name">Member</span>
     </h1>
 
     <p>Your StarRise member account is active.</p>
@@ -342,7 +343,7 @@
 
     <h2>Your Profile</h2>
 
-    <div id="status">
+    <div id="status" class="status-box">
       Loading profile...
     </div>
 
@@ -350,47 +351,36 @@
 
       <div class="item">
         <span class="label">Full Name</span>
-        <span id="profile-name" class="profile-value">
-          Loading...
-        </span>
+        <span id="profile-name" class="profile-value">Loading...</span>
       </div>
 
       <div class="item">
         <span class="label">Display / Stage Name</span>
-        <span id="display-name" class="profile-value">
-          Loading...
-        </span>
+        <span id="display-name" class="profile-value">Loading...</span>
       </div>
 
       <div class="item">
         <span class="label">Email</span>
-        <span id="email" class="profile-value">
-          Loading...
-        </span>
+        <span id="email" class="profile-value">Loading...</span>
       </div>
 
       <div class="item">
         <span class="label">Location</span>
-        <span id="location" class="profile-value">
-          Loading...
-        </span>
+        <span id="location" class="profile-value">Loading...</span>
       </div>
 
       <div class="item">
         <span class="label">Website</span>
-        <span id="website" class="profile-value">
-          Loading...
-        </span>
+        <span id="website" class="profile-value">Loading...</span>
       </div>
 
       <div class="item">
         <span class="label">Member Since</span>
-        <span id="member-since" class="profile-value">
-          Loading...
-        </span>
+        <span id="member-since" class="profile-value">Loading...</span>
       </div>
 
     </div>
+
   </section>
 
 
@@ -424,7 +414,7 @@
       Active service requests from customers appear here.
     </p>
 
-    <div id="orders-status">
+    <div id="orders-status" class="status-box">
       Loading orders...
     </div>
 
@@ -438,10 +428,10 @@
     <h2>Completed Services</h2>
 
     <p class="muted">
-      Your completed customer services are recorded here.
+      Services you completed appear here.
     </p>
 
-    <div id="completed-orders-status">
+    <div id="completed-orders-status" class="status-box">
       Loading completed services...
     </div>
 
@@ -455,10 +445,10 @@
     <h2>My Orders</h2>
 
     <p class="muted">
-      Track services you have requested from other StarRise members.
+      Services you requested from other StarRise members.
     </p>
 
-    <div id="my-orders-status">
+    <div id="my-orders-status" class="status-box">
       Loading your orders...
     </div>
 
@@ -472,10 +462,10 @@
     <h2>My Completed Services</h2>
 
     <p class="muted">
-      Services you have successfully received are recorded here.
+      Completed services you received.
     </p>
 
-    <div id="my-completed-status">
+    <div id="my-completed-status" class="status-box">
       Loading completed orders...
     </div>
 
@@ -557,11 +547,10 @@ function starsHtml(rating) {
   const value =
     Number(rating || 0);
 
-  return '★★★★★'
-    .split('')
+  return [1, 2, 3, 4, 5]
     .map(
-      (star, index) =>
-        index < value
+      number =>
+        number <= value
           ? '★'
           : '☆'
     )
@@ -601,15 +590,10 @@ async function handleAuthCallback() {
   }
 
   const { error } =
-    await starRiseSupabase
-      .auth
-      .setSession({
-        access_token:
-          accessToken,
-
-        refresh_token:
-          refreshToken
-      });
+    await starRiseSupabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken
+    });
 
   if (error) {
 
@@ -642,9 +626,7 @@ async function getCurrentUser() {
     data,
     error
   } =
-    await starRiseSupabase
-      .auth
-      .getSession();
+    await starRiseSupabase.auth.getSession();
 
   if (
     error ||
@@ -652,7 +634,7 @@ async function getCurrentUser() {
     !data.session
   ) {
 
-    location.replace('login.html');
+    window.location.replace('login.html');
 
     return null;
   }
@@ -665,8 +647,7 @@ async function getCurrentUser() {
 async function loadProfile(user) {
 
   document.getElementById('email').textContent =
-    user.email ||
-    'Not available';
+    user.email || 'Not available';
 
   const {
     data: profile,
@@ -687,7 +668,8 @@ async function loadProfile(user) {
 
     showError(
       statusBox,
-      'Your account is signed in, but your profile could not be loaded.'
+      'Your account is signed in, but your profile could not be loaded: ' +
+      error.message
     );
 
     return;
@@ -782,6 +764,194 @@ async function loadProfile(user) {
 }
 
 
+async function getReviewsForOrders(orders) {
+
+  if (
+    !orders ||
+    orders.length === 0
+  ) {
+    return {};
+  }
+
+  const orderIds =
+    orders.map(
+      order => order.id
+    );
+
+  const {
+    data,
+    error
+  } =
+    await starRiseSupabase
+      .from('service_reviews')
+      .select(`
+        id,
+        order_id,
+        reviewer_id,
+        seller_id,
+        rating,
+        review,
+        created_at,
+        updated_at
+      `)
+      .in(
+        'order_id',
+        orderIds
+      );
+
+  if (error) {
+
+    console.error(
+      'Review load error:',
+      error
+    );
+
+    return {};
+  }
+
+  return (data || []).reduce(
+    (result, review) => {
+
+      result[review.order_id] =
+        review;
+
+      return result;
+
+    },
+    {}
+  );
+
+}
+
+
+function buildReviewDisplay(review) {
+
+  if (!review) {
+    return '';
+  }
+
+  return `
+    <div class="review-display">
+
+      <span class="label">
+        Customer Review
+      </span>
+
+      <div class="review-stars">
+        ${escapeHtml(
+          starsHtml(review.rating)
+        )}
+      </div>
+
+      ${
+        review.review
+          ? `
+            <div class="review-content">
+              ${escapeHtml(review.review)}
+            </div>
+          `
+          : ''
+      }
+
+      <div class="review-date">
+        Reviewed ${escapeHtml(
+          new Date(
+            review.created_at
+          ).toLocaleDateString()
+        )}
+      </div>
+
+    </div>
+  `;
+
+}
+
+
+function buildReviewForm(
+  order,
+  existingReview
+) {
+
+  const rating =
+    existingReview
+      ? Number(existingReview.rating)
+      : 0;
+
+  const reviewText =
+    existingReview?.review || '';
+
+  return `
+    <div
+      class="review-box"
+      data-review-box="${escapeHtml(order.id)}"
+    >
+
+      <span class="label">
+        ${
+          existingReview
+            ? 'Update Your Review'
+            : 'Rate This Service'
+        }
+      </span>
+
+      <div
+        class="stars"
+        data-stars="${escapeHtml(order.id)}"
+      >
+
+        ${[1, 2, 3, 4, 5]
+          .map(
+            value =>
+              `
+                <button
+                  type="button"
+                  class="star ${
+                    value <= rating
+                      ? 'selected'
+                      : ''
+                  }"
+                  data-rating="${value}"
+                  data-order-id="${escapeHtml(order.id)}"
+                >
+                  ★
+                </button>
+              `
+          )
+          .join('')}
+
+      </div>
+
+      <textarea
+        class="review-text"
+        data-review-text="${escapeHtml(order.id)}"
+        maxlength="1000"
+        placeholder="Tell us about your StarRise experience..."
+      >${escapeHtml(reviewText)}</textarea>
+
+      <button
+        type="button"
+        class="order-button review-submit"
+        data-review-submit="${escapeHtml(order.id)}"
+      >
+        ${
+          existingReview
+            ? 'Update Review'
+            : 'Submit Review'
+        }
+      </button>
+
+      <div
+        class="muted"
+        data-review-message="${escapeHtml(order.id)}"
+        style="margin-top:10px;"
+      ></div>
+
+    </div>
+  `;
+
+}
+
+
 function getProviderActions(
   status,
   orderId
@@ -854,189 +1024,6 @@ function getProviderActions(
 }
 
 
-async function getReviewsForOrders(orders) {
-
-  if (
-    !orders ||
-    orders.length === 0
-  ) {
-    return {};
-  }
-
-  const orderIds =
-    orders.map(
-      order => order.id
-    );
-
-  const {
-    data,
-    error
-  } =
-    await starRiseSupabase
-      .from('service_reviews')
-      .select(
-        'id, order_id, reviewer_id, seller_id, rating, review, created_at, updated_at'
-      )
-      .in(
-        'order_id',
-        orderIds
-      );
-
-  if (error) {
-
-    console.error(
-      'Reviews error:',
-      error
-    );
-
-    return {};
-  }
-
-  return (data || []).reduce(
-    (result, review) => {
-
-      result[
-        review.order_id
-      ] = review;
-
-      return result;
-
-    },
-    {}
-  );
-
-}
-
-
-function buildReviewDisplay(review) {
-
-  if (!review) {
-    return '';
-  }
-
-  return `
-    <div class="review-display">
-
-      <div class="label">
-        Customer Review
-      </div>
-
-      <div class="review-stars">
-        ${escapeHtml(
-          starsHtml(review.rating)
-        )}
-      </div>
-
-      ${
-        review.review
-          ? `
-            <div class="review-content">
-              ${escapeHtml(review.review)}
-            </div>
-          `
-          : ''
-      }
-
-      <div class="review-date">
-        Reviewed ${escapeHtml(
-          new Date(
-            review.created_at
-          ).toLocaleDateString()
-        )}
-      </div>
-
-    </div>
-  `;
-
-}
-
-
-function buildReviewForm(
-  order,
-  existingReview
-) {
-
-  const rating =
-    existingReview
-      ? Number(existingReview.rating)
-      : 0;
-
-  const reviewText =
-    existingReview?.review ||
-    '';
-
-  return `
-    <div
-      class="review-box"
-      data-review-box="${escapeHtml(order.id)}"
-    >
-
-      <div class="label">
-        ${
-          existingReview
-            ? 'Update Your Review'
-            : 'Rate This Service'
-        }
-      </div>
-
-      <div
-        class="stars"
-        data-stars="${escapeHtml(order.id)}"
-      >
-
-        ${[1, 2, 3, 4, 5]
-          .map(
-            value =>
-              `
-                <button
-                  type="button"
-                  class="star ${
-                    value <= rating
-                      ? 'selected'
-                      : ''
-                  }"
-                  data-rating="${value}"
-                  data-order-id="${escapeHtml(order.id)}"
-                >
-                  ★
-                </button>
-              `
-          )
-          .join('')}
-
-      </div>
-
-      <textarea
-        class="review-text"
-        data-review-text="${escapeHtml(order.id)}"
-        maxlength="1000"
-        placeholder="Tell us about your StarRise experience..."
-      >${escapeHtml(reviewText)}</textarea>
-
-      <button
-        type="button"
-        class="order-button review-submit"
-        data-review-submit="${escapeHtml(order.id)}"
-      >
-        ${
-          existingReview
-            ? 'Update Review'
-            : 'Submit Review'
-        }
-      </button>
-
-      <div
-        class="muted"
-        data-review-message="${escapeHtml(order.id)}"
-        style="margin-top:10px;"
-      ></div>
-
-    </div>
-  `;
-
-}
-
-
 function buildOrderCard(
   order,
   providerView = false,
@@ -1054,33 +1041,33 @@ function buildOrderCard(
       order.amount_cents || 0
     ) / 100;
 
-  const date =
+  const createdDate =
     order.created_at
       ? new Date(
           order.created_at
         ).toLocaleDateString()
       : 'Unknown';
 
+  const updatedDate =
+    order.updated_at
+      ? new Date(
+          order.updated_at
+        ).toLocaleDateString()
+      : createdDate;
+
   const currentStatus =
     order.status ||
     'pending';
 
-  const completedDate =
-    order.completed_at
-      ? new Date(
-          order.completed_at
-        ).toLocaleDateString()
-      : date;
-
   card.innerHTML = `
 
-    <div class="label">
+    <span class="label">
       ${
         providerView
           ? 'Customer Service'
           : 'Your Service'
       }
-    </div>
+    </span>
 
     <div class="order-price">
       $${amount.toFixed(2)}
@@ -1098,14 +1085,14 @@ function buildOrderCard(
     </div>
 
     <div class="order-meta">
-      Submitted ${escapeHtml(date)}
+      Submitted ${escapeHtml(createdDate)}
     </div>
 
     ${
       currentStatus === 'completed'
         ? `
           <div class="order-meta">
-            Completed ${escapeHtml(completedDate)}
+            Last updated ${escapeHtml(updatedDate)}
           </div>
         `
         : ''
@@ -1119,13 +1106,15 @@ function buildOrderCard(
     </a>
 
     ${
-      currentStatus === 'completed' && providerView
+      currentStatus === 'completed' &&
+      providerView
         ? buildReviewDisplay(review)
         : ''
     }
 
     ${
-      currentStatus === 'completed' && !providerView
+      currentStatus === 'completed' &&
+      !providerView
         ? (
             review
               ? buildReviewDisplay(review) +
@@ -1159,6 +1148,9 @@ function buildOrderCard(
 
 async function loadIncomingOrders(user) {
 
-  clearError(ordersStatus);
+  clearError(
+    ordersStatus
+  );
 
-  ordersStatus.textC
+  ordersStatus.textContent =
+    'Loading incoming orders
