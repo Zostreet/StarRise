@@ -323,7 +323,7 @@
         await starRiseSupabase
           .from('public_profiles')
           .select(
-            ''id, user_id, display_name, role, location, bio, website'
+            'id, display_name, role, location, bio, website'
           .eq('id', profileId)
           .maybeSingle();
 
@@ -337,7 +337,7 @@
           await starRiseSupabase
             .from('public_profiles')
             .select(
-              'id, user_id, display_name, role, location, bio, website'
+              'id, display_name, role, location, bio, website'
             .eq('user_id', profileId)
             .maybeSingle();
 
