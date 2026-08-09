@@ -195,11 +195,7 @@
       border: 1px solid #ffffff35;
     }
 
-    .service-link {
-      color: #fff;
-      text-decoration: underline;
-    }
-
+    .service-link,
     .website-link {
       color: #fff;
       text-decoration: underline;
@@ -546,6 +542,7 @@
   }
 
   function formatDate(value) {
+
     if (!value) {
       return 'Unknown';
     }
@@ -573,16 +570,16 @@
         SUPABASE_KEY
       );
 
-    const sessionResult =
+    const result =
       await supabaseClient.auth.getSession();
 
-    if (sessionResult.error) {
-      throw sessionResult.error;
+    if (result.error) {
+      throw result.error;
     }
 
     const session =
-      sessionResult.data &&
-      sessionResult.data.session;
+      result.data &&
+      result.data.session;
 
     if (!session || !session.user) {
       window.location.href = 'login.html';
@@ -638,30 +635,21 @@
       displayName;
 
     document.getElementById('location').textContent =
-      profile.location || 'Not provided';
+      profile.location ||
+      'Not provided';
 
     document.getElementById('bio').textContent =
-      profile.bio || 'No bio added yet.';
+      profile.bio ||
+      'No bio added yet.';
 
     document.getElementById('website').textContent =
-      profile.website || 'Not provided';
+      profile.website ||
+      'Not provided';
 
     document.getElementById('member-since').textContent =
-      formatDate(profile.created_at);
-
-    if (profile.website) {
-      const websiteElement =
-        document.getElementById('website');
-
-      websiteElement.innerHTML =
-        '<a class="website-link" target="_blank" rel="noopener noreferrer" href="' +
-        escapeHtml(profile.website) +
-        '">' +
-        escapeHtml(profile.website) +
-        '</a>';
-    }
-
-    return profile;
+      profile.created_at
+        ? formatDate(profile.created_at)
+        : 'StarRise Member';
   }
 
   async function loadRoles(user) {
@@ -706,10 +694,7 @@
 
     } catch (error) {
 
-      console.error(
-        'Roles error:',
-        error
-      );
+      console.error('Roles error:', error);
 
       element.innerHTML =
         '<span class="muted">' +
@@ -732,7 +717,6 @@
         .in('order_id', orderIds);
 
     if (result.error) {
-
       console.error(
         'Reviews error:',
         result.error
@@ -795,7 +779,7 @@
   function reviewForm(order, review) {
 
     const currentRating =
-      Number(review && review.rating || 0);
+      Number(review?.rating || 0);
 
     return `
       <div class="review-box">
@@ -808,9 +792,12 @@
           }
         </span>
 
-        <div class="stars">
+        <div
+          class="stars"
+          data-review-stars="${escapeHtml(order.id)}"
+        >
 
-          ${[1, 2, 3, 4, 5]
+          ${[1,2,3,4,5]
             .map(function (n) {
 
               return `
@@ -836,11 +823,7 @@
           id="review-text-${escapeHtml(order.id)}"
           maxlength="1000"
           placeholder="Tell us about your StarRise experience..."
-        >${
-          escapeHtml(
-            review && review.review || ''
-          )
-        }</textarea>
+        >${escapeHtml(review?.review || '')}</textarea>
 
         <button
           type="button"
@@ -937,16 +920,11 @@
     const amount =
       Number(order.amount_cents || 0) / 100;
 
-    const created =
-      formatDate(order.created_at);
-
-    const updated =
-      formatDate(order.updated_at);
-
     const card =
       document.createElement('div');
 
-    card.className = 'order-card';
+    card.className =
+      'order-card';
 
     card.innerHTML = `
 
@@ -976,21 +954,34 @@
       </div>
 
       <div class="order-meta">
-        Submitted ${escapeHtml(created)}
+        Submitted ${escapeHtml(
+          formatDate(order.created_at)
+        )}
       </div>
 
       <div class="order-meta">
-        Updated ${escapeHtml(updated)}
+        Updated ${escapeHtml(
+          formatDate(
+            order.updated_at ||
+            order.created_at
+          )
+        )}
       </div>
 
-      <a
-        class="service-link"
-        href="service.html?id=${encodeURIComponent(
-          order.service_id || ''
-        )}"
-      >
-        View Service
-      </a>
+      ${
+        order.service_id
+          ? `
+            <a
+              class="service-link"
+              href="service.html?id=${encodeURIComponent(
+                order.service_id
+              )}"
+            >
+              View Service
+            </a>
+          `
+          : ''
+      }
 
       ${
         providerView &&
@@ -1041,3 +1032,15 @@
       }
 
       const orders =
+        result.data || [];
+
+      if (!orders.length) {
+
+        setStatus(
+          ordersStatus,
+          'No incoming service orders yet.'
+        );
+
+        ordersContainer.innerHTML =
+          '<div class="empty">' +
+          
