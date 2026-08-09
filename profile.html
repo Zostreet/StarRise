@@ -95,7 +95,8 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns:
+        repeat(auto-fit, minmax(260px, 1fr));
       gap: 22px;
       margin-top: 25px;
     }
@@ -127,27 +128,23 @@
       font-weight: bold;
     }
 
-    .button:hover {
-      opacity: 0.85;
-    }
-
-    .notice {
+    .notice,
+    .error {
       margin-top: 25px;
       padding: 18px;
       border-radius: 14px;
+      text-align: center;
+    }
+
+    .notice {
       background: rgba(255,255,255,0.05);
       color: #aaaaaa;
-      text-align: center;
     }
 
     .error {
       display: none;
-      margin-top: 25px;
-      padding: 18px;
-      border-radius: 14px;
       background: rgba(255,0,0,0.1);
       color: #ffaaaa;
-      text-align: center;
     }
 
     footer {
@@ -155,23 +152,6 @@
       text-align: center;
       color: #999999;
       border-top: 1px solid rgba(255,255,255,0.1);
-    }
-
-    @media (max-width: 650px) {
-
-      header {
-        flex-direction: column;
-        gap: 15px;
-      }
-
-      nav a {
-        margin: 0 7px;
-      }
-
-      main {
-        padding: 40px 5%;
-      }
-
     }
 
   </style>
@@ -223,14 +203,13 @@
         class="role"
         id="role"
       >
-        Member
+        Loading...
       </p>
 
       <p
         class="location"
         id="location"
-      >
-      </p>
+      ></p>
 
     </section>
 
@@ -275,7 +254,7 @@
       <section class="card">
 
         <h2>
-          StarRise Member
+          StarRise
         </h2>
 
         <p>
@@ -290,8 +269,13 @@
     <div
       id="error"
       class="error"
-    >
-      We couldn't find this StarRise member.
+    ></div>
+
+    <div class="notice">
+
+      StarRise members control the information
+      they choose to make publicly available.
+
     </div>
 
   </main>
@@ -312,6 +296,7 @@
         'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
       );
 
+
     async function loadProfile() {
 
       const params =
@@ -319,125 +304,173 @@
           window.location.search
         );
 
-      const memberId =
+      const profileId =
         params.get('id');
 
-      if (!memberId) {
 
-        showError();
+      if (!profileId) {
 
-        return;
-
-      }
-
-      const {
-        data,
-        error
-      } = await starRiseSupabase
-        .from('public_profiles')
-        .select(
-          'id, display_name, role, location, bio, website'
-        )
-        .eq('id', memberId)
-        .maybeSingle();
-
-      if (error) {
-
-        console.error(error);
-
-        showError();
+        showError(
+          'No member profile was specified.'
+        );
 
         return;
 
       }
 
-      if (!data) {
 
-        showError();
+      let result =
+        await starRiseSupabase
+          .from('public_profiles')
+          .select(
+            'id, user_id, display_name, role, location, bio, website'
+          )
+          .eq('id', profileId)
+          .maybeSingle();
+
+
+      if (
+        !result.data &&
+        !result.error
+      ) {
+
+        result =
+          await starRiseSupabase
+            .from('public_profiles')
+            .select(
+              'id, user_id, display_name, role, location, bio, website'
+            )
+            .eq('user_id', profileId)
+            .maybeSingle();
+
+      }
+
+
+      if (result.error) {
+
+        console.error(
+          result.error
+        );
+
+        showError(
+          'We could not load this member profile.'
+        );
 
         return;
 
       }
+
+
+      if (!result.data) {
+
+        showError(
+          'We could not find this StarRise member.'
+        );
+
+        return;
+
+      }
+
+
+      const member =
+        result.data;
+
+
+      const displayName =
+        member.display_name ||
+        'StarRise Member';
+
 
       document
         .getElementById('displayName')
         .textContent =
-          data.display_name ||
-          'StarRise Member';
+          displayName;
+
 
       document
         .getElementById('role')
         .textContent =
-          data.role ||
+          member.role ||
           'StarRise Member';
+
 
       document
         .getElementById('location')
         .textContent =
-          data.location ||
+          member.location ||
           '';
+
 
       document
         .getElementById('bio')
         .textContent =
-          data.bio ||
+          member.bio ||
           'This member has not added a bio yet.';
 
-      const initial =
-        (
-          data.display_name ||
-          'S'
-        )
-        .charAt(0)
-        .toUpperCase();
 
       document
         .getElementById('avatar')
         .textContent =
-          initial;
+          displayName
+            .charAt(0)
+            .toUpperCase();
 
-      if (data.website) {
 
-        const link =
+      if (
+        member.website &&
+        member.website.trim()
+      ) {
+
+        const website =
           document.getElementById(
             'websiteLink'
           );
 
-        link.href =
-          data.website;
+        website.href =
+          member.website;
 
-        link.style.display =
+        website.style.display =
           'inline-block';
 
       }
 
+
       document.title =
-        (
-          data.display_name ||
-          'StarRise Member'
-        ) +
+        displayName +
         ' | StarRise';
 
     }
 
-    function showError() {
+
+    function showError(message) {
 
       document
         .getElementById('displayName')
         .textContent =
           'Profile Not Found';
 
+
       document
         .getElementById('bio')
         .textContent =
-          'This profile could not be loaded.';
+          message;
 
-      document
-        .getElementById('error')
-        .style.display =
-          'block';
+
+      const error =
+        document.getElementById(
+          'error'
+        );
+
+
+      error.textContent =
+        message;
+
+
+      error.style.display =
+        'block';
 
     }
+
 
     loadProfile();
 
