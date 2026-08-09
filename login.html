@@ -1,8 +1,10 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Sign In | StarRise</title>
 
   <style>
@@ -56,6 +58,7 @@
 
     button:disabled {
       opacity: .6;
+      cursor: wait;
     }
 
     .msg {
@@ -68,6 +71,16 @@
 
     .msg.show {
       display: block;
+    }
+
+    .msg.error {
+      background: rgba(220, 70, 70, .15);
+      border: 1px solid rgba(220, 70, 70, .4);
+    }
+
+    .msg.success {
+      background: rgba(50, 180, 100, .15);
+      border: 1px solid rgba(50, 180, 100, .4);
     }
 
     a {
@@ -86,11 +99,17 @@
 
   <p>Sign in to your StarRise member account.</p>
 
-  <div id="msg" class="msg" role="status" aria-live="polite"></div>
+  <div
+    id="msg"
+    class="msg"
+    role="status"
+    aria-live="polite">
+  </div>
 
   <form id="form">
 
     <label for="email">Email</label>
+
     <input
       id="email"
       type="email"
@@ -99,6 +118,7 @@
     >
 
     <label for="password">Password</label>
+
     <input
       id="password"
       type="password"
@@ -123,7 +143,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const supabase = window.supabase.createClient(
+
+const starRiseSupabase = window.supabase.createClient(
   'https://rcnikxotdalxtuvpmlvm.supabase.co',
   'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
 );
@@ -132,38 +153,140 @@ const form = document.getElementById('form');
 const btn = document.getElementById('btn');
 const msg = document.getElementById('msg');
 
-function showMessage(text) {
+function showMessage(text, type = '') {
+
   msg.textContent = text;
-  msg.className = 'msg show';
+  msg.className = 'msg show ' + type;
+
 }
 
-supabase.auth.getSession().then(({ data }) => {
-  if (data.session) {
-    location.replace('dashboard.html');
+async function checkExistingSession() {
+
+  try {
+
+    const {
+      data,
+      error
+    } = await starRiseSupabase.auth.getSession();
+
+    if (error) {
+      console.error('Session check error:', error);
+      return;
+    }
+
+    if (data.session) {
+
+      window.location.replace('dashboard.html');
+
+    }
+
+  } catch (error) {
+
+    console.error('Session error:', error);
+
   }
-});
 
-form.addEventListener('submit', async (e) => {
+}
 
-  e.preventDefault();
+checkExistingSession();
+
+form.addEventListener('submit', async (event) => {
+
+  event.preventDefault();
+
+  const email =
+    document.getElementById('email').value.trim();
+
+  const password =
+    document.getElementById('password').value;
+
+  if (!email || !password) {
+
+    showMessage(
+      'Please enter your email and password.',
+      'error'
+    );
+
+    return;
+
+  }
 
   btn.disabled = true;
   btn.textContent = 'Signing in...';
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: document.getElementById('email').value.trim(),
-    password: document.getElementById('password').value
-  });
+  showMessage('Connecting to StarRise...');
 
-  if (error) {
-    showMessage(error.message);
+  try {
+
+    const {
+      data,
+      error
+    } = await starRiseSupabase.auth.signInWithPassword({
+
+      email: email,
+
+      password: password
+
+    });
+
+    if (error) {
+
+      console.error('Login error:', error);
+
+      showMessage(
+        error.message ||
+        'We could not sign you in.',
+        'error'
+      );
+
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+
+      return;
+
+    }
+
+    if (!data.session) {
+
+      showMessage(
+        'Your login was accepted, but no session was created. Please try again.',
+        'error'
+      );
+
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+
+      return;
+
+    }
+
+    showMessage(
+      'Signed in successfully. Opening your StarRise dashboard...',
+      'success'
+    );
+
+    setTimeout(() => {
+
+      window.location.replace('dashboard.html');
+
+    }, 700);
+
+  } catch (error) {
+
+    console.error('Unexpected login error:', error);
+
+    showMessage(
+      'Something went wrong while signing in. Please try again.',
+      'error'
+    );
+
     btn.disabled = false;
     btn.textContent = 'Sign In';
-    return;
+
   }
 
-  location.replace('dashboard.html');
 });
+
 </script>
 
 </body>
