@@ -3,10 +3,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">  <title>Member Dashboard | StarRise</title>  <style>
-    * {
-      box-sizing: border-box;
-    }
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Member Dashboard | StarRise</title>  <style>
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -118,12 +117,12 @@
 
     .error {
       color: #ffb0b0 !important;
-      background: rgba(220, 70, 70, .12) !important;
+      background: rgba(220,70,70,.12) !important;
     }
 
     .success {
       color: #b8ffcc !important;
-      background: rgba(50, 200, 100, .10) !important;
+      background: rgba(50,200,100,.10) !important;
     }
 
     .order-card {
@@ -158,7 +157,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 12px;
+      margin-top: 14px;
     }
 
     .order-button {
@@ -222,27 +221,19 @@
         width: 100%;
       }
     }
-  </style></head><body><header>  <a href="index.html">
-    ⭐ StarRise
-  </a>  <button id="signout">
-    Sign Out
-  </button></header><main>  <section class="hero"><p class="muted">
-  MEMBER DASHBOARD
-</p>
+  </style></head><body><header>
+  <a href="index.html">⭐ StarRise</a>
+  <button id="signout">Sign Out</button>
+</header><main>  <section class="hero"><p class="muted">MEMBER DASHBOARD</p>
 
 <h1>
   Welcome,
   <span id="name">Member</span>
 </h1>
 
-<p>
-  Your StarRise member account is active.
-</p>
+<p>Your StarRise member account is active.</p>
 
-<a
-  class="edit-link"
-  href="edit-profile.html"
->
+<a class="edit-link" href="edit-profile.html">
   Edit Profile
 </a>
 
@@ -381,8 +372,7 @@ function showError(element, message) {
 
 async function handleAuthCallback() {
 
-  const hash =
-    window.location.hash;
+  const hash = window.location.hash;
 
   if (
     !hash ||
@@ -512,39 +502,27 @@ async function loadProfile(user) {
     fullName;
 
 
-  document.getElementById(
-    'name'
-  ).textContent =
+  document.getElementById('name').textContent =
     displayName;
 
-  document.getElementById(
-    'profile-name'
-  ).textContent =
+  document.getElementById('profile-name').textContent =
     fullName;
 
-  document.getElementById(
-    'display-name'
-  ).textContent =
+  document.getElementById('display-name').textContent =
     displayName;
 
-  document.getElementById(
-    'location'
-  ).textContent =
+  document.getElementById('location').textContent =
     profile.location ||
     'Not provided';
 
-  document.getElementById(
-    'bio'
-  ).textContent =
+  document.getElementById('bio').textContent =
     profile.bio ||
     'No bio added yet.';
 
 
   if (profile.website) {
 
-    document.getElementById(
-      'website'
-    ).innerHTML =
+    document.getElementById('website').innerHTML =
       '<a class="website-link" href="' +
       escapeHtml(profile.website) +
       '" target="_blank" rel="noopener noreferrer">' +
@@ -553,17 +531,13 @@ async function loadProfile(user) {
 
   } else {
 
-    document.getElementById(
-      'website'
-    ).textContent =
+    document.getElementById('website').textContent =
       'Not provided';
 
   }
 
 
-  document.getElementById(
-    'member-since'
-  ).textContent =
+  document.getElementById('member-since').textContent =
     profile.created_at
       ? new Date(
           profile.created_at
@@ -615,6 +589,78 @@ async function loadProfile(user) {
 }
 
 
+function getProviderAction(status, orderId) {
+
+  if (status === 'pending') {
+
+    return `
+      <div class="order-actions">
+
+        <button
+          class="order-button"
+          data-action="accepted"
+          data-order-id="${escapeHtml(orderId)}"
+        >
+          Accept Request
+        </button>
+
+        <button
+          class="order-button decline-button"
+          data-action="declined"
+          data-order-id="${escapeHtml(orderId)}"
+        >
+          Decline Request
+        </button>
+
+      </div>
+    `;
+
+  }
+
+
+  if (status === 'accepted') {
+
+    return `
+      <div class="order-actions">
+
+        <button
+          class="order-button"
+          data-action="in_progress"
+          data-order-id="${escapeHtml(orderId)}"
+        >
+          Start Service
+        </button>
+
+      </div>
+    `;
+
+  }
+
+
+  if (status === 'in_progress') {
+
+    return `
+      <div class="order-actions">
+
+        <button
+          class="order-button"
+          data-action="completed"
+          data-order-id="${escapeHtml(orderId)}"
+        >
+          Complete Service
+        </button>
+
+      </div>
+    `;
+
+  }
+
+
+  return '';
+
+}
+
+
 async function loadIncomingOrders(user) {
 
   ordersStatus.classList.remove('error');
@@ -628,9 +674,7 @@ async function loadIncomingOrders(user) {
     error
   } =
     await starRiseSupabase
-
       .from('service_orders')
-
       .select(`
         id,
         service_id,
@@ -642,12 +686,7 @@ async function loadIncomingOrders(user) {
         payment_status,
         created_at
       `)
-
-      .eq(
-        'seller_id',
-        user.id
-      )
-
+      .eq('seller_id', user.id)
       .order(
         'created_at',
         {
@@ -722,30 +761,6 @@ async function loadIncomingOrders(user) {
       'pending';
 
 
-    const actionButtons =
-      currentStatus === 'pending'
-        ? `
-          <div class="order-actions">
-
-            <button
-              class="order-button accept-button"
-              data-order-id="${escapeHtml(order.id)}"
-            >
-              Accept Request
-            </button>
-
-            <button
-              class="order-button decline-button decline-action"
-              data-order-id="${escapeHtml(order.id)}"
-            >
-              Decline Request
-            </button>
-
-          </div>
-        `
-        : '';
-
-
     card.innerHTML = `
 
       <div class="label">
@@ -787,7 +802,10 @@ async function loadIncomingOrders(user) {
         View Service
       </a>
 
-      ${actionButtons}
+      ${getProviderAction(
+        currentStatus,
+        order.id
+      )}
 
     `;
 
@@ -798,45 +816,39 @@ async function loadIncomingOrders(user) {
 
 
   document
-    .querySelectorAll('.accept-button')
+    .querySelectorAll('[data-action]')
     .forEach(button => {
 
       button.addEventListener(
         'click',
         async () => {
 
-          await updateOrderStatus(
-            button.dataset.orderId,
-            'accepted',
-            button
-          );
+          const newStatus =
+            button.dataset.action;
 
-        }
-      );
-
-    });
+          const orderId =
+            button.dataset.orderId;
 
 
-  document
-    .querySelectorAll('.decline-action')
-    .forEach(button => {
+          if (
+            newStatus === 'declined'
+          ) {
 
-      button.addEventListener(
-        'click',
-        async () => {
+            const confirmed =
+              window.confirm(
+                'Are you sure you want to decline this service request?'
+              );
 
-          const confirmed =
-            window.confirm(
-              'Are you sure you want to decline this service request?'
-            );
+            if (!confirmed) {
+              return;
+            }
 
-          if (!confirmed) {
-            return;
           }
 
+
           await updateOrderStatus(
-            button.dataset.orderId,
-            'declined',
+            orderId,
+            newStatus,
             button
           );
 
@@ -856,10 +868,18 @@ async function updateOrderStatus(
 
   button.disabled = true;
 
+
+  const labels = {
+    accepted: 'Accepting...',
+    declined: 'Declining...',
+    in_progress: 'Starting...',
+    completed: 'Completing...'
+  };
+
+
   button.textContent =
-    newStatus === 'accepted'
-      ? 'Accepting...'
-      : 'Declining...';
+    labels[newStatus] ||
+    'Updating...';
 
 
   const user =
@@ -871,30 +891,37 @@ async function updateOrderStatus(
   }
 
 
+  const allowedPreviousStatus = {
+    accepted: 'pending',
+    declined: 'pending',
+    in_progress: 'accepted',
+    completed: 'in_progress'
+  };
+
+
+  const previousStatus =
+    allowedPreviousStatus[newStatus];
+
+
   const {
     error
   } =
     await starRiseSupabase
-
       .from('service_orders')
-
       .update({
         status: newStatus
       })
-
       .eq(
         'id',
         orderId
       )
-
       .eq(
         'seller_id',
         user.id
       )
-
       .eq(
         'status',
-        'pending'
+        previousStatus
       );
 
 
@@ -907,12 +934,6 @@ async function updateOrderStatus(
 
     button.disabled = false;
 
-    button.textContent =
-      newStatus === 'accepted'
-        ? 'Accept Request'
-        : 'Decline Request';
-
-
     showError(
       statusBox,
       'We could not update this order: ' +
@@ -924,7 +945,14 @@ async function updateOrderStatus(
   }
 
 
+  statusBox.classList.remove('error');
+
+  statusBox.textContent =
+    `Order updated to ${newStatus.replace('_', ' ')}.`;
+
+
   await loadIncomingOrders(user);
+
   await loadMyOrders(user);
 
 }
@@ -943,9 +971,7 @@ async function loadMyOrders(user) {
     error
   } =
     await starRiseSupabase
-
       .from('service_orders')
-
       .select(`
         id,
         service_id,
@@ -956,12 +982,10 @@ async function loadMyOrders(user) {
         payment_status,
         created_at
       `)
-
       .eq(
         'buyer_id',
         user.id
       )
-
       .order(
         'created_at',
         {
