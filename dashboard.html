@@ -1,8 +1,10 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Member Dashboard | StarRise</title>
 
   <style>
@@ -94,10 +96,20 @@
       border-radius: 10px;
       background: #ffffff0d;
       display: none;
+      margin-bottom: 16px;
     }
 
     #status.show {
       display: block;
+    }
+
+    .profile-value {
+      word-break: break-word;
+    }
+
+    .website-link {
+      color: white;
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -126,21 +138,46 @@
     <div class="profile-grid">
 
       <div class="item">
-        <span class="label">Name</span>
-        <span id="profile-name">Loading...</span>
+        <span class="label">Full Name</span>
+        <span id="profile-name" class="profile-value">Loading...</span>
+      </div>
+
+      <div class="item">
+        <span class="label">Display / Stage Name</span>
+        <span id="display-name" class="profile-value">Loading...</span>
       </div>
 
       <div class="item">
         <span class="label">Email</span>
-        <span id="email">Loading...</span>
+        <span id="email" class="profile-value">Loading...</span>
+      </div>
+
+      <div class="item">
+        <span class="label">Location</span>
+        <span id="location" class="profile-value">Loading...</span>
+      </div>
+
+      <div class="item">
+        <span class="label">Website</span>
+        <span id="website" class="profile-value">Loading...</span>
       </div>
 
       <div class="item">
         <span class="label">Member Since</span>
-        <span id="member-since">Loading...</span>
+        <span id="member-since" class="profile-value">Loading...</span>
       </div>
 
     </div>
+
+  </section>
+
+  <section class="panel">
+
+    <h2>About You</h2>
+
+    <p id="bio" class="muted">
+      Loading...
+    </p>
 
   </section>
 
@@ -160,7 +197,7 @@
 
 <script>
 
-const supabase = window.supabase.createClient(
+const starRiseSupabase = window.supabase.createClient(
   'https://rcnikxotdalxtuvpmlvm.supabase.co',
   'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
 );
@@ -171,7 +208,9 @@ function showStatus(message) {
   statusBox.textContent = message;
   statusBox.className = 'show';
 }
+
 async function handleAuthCallback() {
+
   const hash = window.location.hash;
 
   if (!hash || !hash.includes('access_token=')) {
@@ -187,13 +226,14 @@ async function handleAuthCallback() {
     return;
   }
 
-  const { error } = await supabase.auth.setSession({
+  const { error } = await starRiseSupabase.auth.setSession({
     access_token: accessToken,
     refresh_token: refreshToken
   });
 
   if (error) {
     console.error('Auth callback error:', error);
+    showStatus('We could not complete your sign-in session.');
     return;
   }
 
@@ -204,17 +244,14 @@ async function handleAuthCallback() {
   );
 }
 
-async function startDashboard() {
-  await handleAuthCallback();
-  await loadDashboard();
-}
 async function loadDashboard() {
 
   const {
-    data: { session }
-  } = await supabase.auth.getSession();
+    data: { session },
+    error: sessionError
+  } = await starRiseSupabase.auth.getSession();
 
-  if (!session) {
+  if (sessionError || !session) {
     location.replace('login.html');
     return;
   }
@@ -226,74 +263,145 @@ async function loadDashboard() {
 
   try {
 
-    const { data: profile, error } = await supabase
-      .from('profiles')
+    const {
+      data: profile,
+      error: profileError
+    } = await starRiseSupabase
+      .from('Profiles')
       .select('*')
       .eq('id', user.id)
       .single();
 
-    if (error) {
-      console.error(error);
+    if (profileError) {
+      console.error('Profile error:', profileError);
+
       showStatus(
-        'Your account is signed in, but your profile could not be loaded yet.'
+        'Your account is signed in, but your StarRise profile could not be loaded.'
       );
+
       return;
     }
 
-    const displayName =
+    const fullName =
       profile.full_name ||
-      profile.name ||
-      profile.username ||
-      user.email?.split('@')[0] ||
-      'Member';
+      'StarRise Member';
 
-    document.getElementById('name').textContent = displayName;
-    document.getElementById('profile-name').textContent = displayName;
+    const displayName =
+      profile.display_name ||
+      fullName;
+
+    document.getElementById('name').textContent =
+      displayName;
+
+    document.getElementById('profile-name').textContent =
+      fullName;
+
+    document.getElementById('display-name').textContent =
+      displayName;
+
+    document.getElementById('location').textContent =
+      profile.location || 'Not provided';
+
+    document.getElementById('bio').textContent =
+      profile.bio || 'No bio added yet.';
+
+    if (profile.website) {
+
+      const websiteElement =
+        document.getElementById('website');
+
+      websiteElement.innerHTML =
+        '<a class="website-link" href="' +
+        profile.website +
+        '" target="_blank" rel="noopener noreferrer">' +
+        profile.website +
+        '</a>';
+
+    } else {
+
+      document.getElementById('website').textContent =
+        'Not provided';
+
+    }
 
     if (profile.created_at) {
+
       document.getElementById('member-since').textContent =
         new Date(profile.created_at).toLocaleDateString();
+
     } else {
+
       document.getElementById('member-since').textContent =
         'StarRise Member';
+
     }
 
-    const rolesElement = document.getElementById('roles');
+    const {
+      data: memberRoles,
+      error: rolesError
+    } = await starRiseSupabase
+      .from('member_roles')
+      .select('role')
+      .eq('user_id', user.id);
 
-    let roles = profile.roles || profile.role || [];
+    if (rolesError) {
 
-    if (typeof roles === 'string') {
-      roles = [roles];
+      console.error('Roles error:', rolesError);
+
+      document.getElementById('roles').innerHTML =
+        '<span class="muted">Unable to load roles.</span>';
+
+      return;
     }
 
-    if (!Array.isArray(roles) || roles.length === 0) {
+    const rolesElement =
+      document.getElementById('roles');
+
+    if (!memberRoles || memberRoles.length === 0) {
+
       rolesElement.innerHTML =
         '<span class="muted">No roles assigned yet.</span>';
+
     } else {
-      rolesElement.innerHTML = roles
-        .map(role => `<span class="role">${role}</span>`)
-        .join('');
+
+      rolesElement.innerHTML =
+        memberRoles
+          .map(item =>
+            '<span class="role">' +
+            item.role +
+            '</span>'
+          )
+          .join('');
+
     }
 
   } catch (error) {
 
-    console.error(error);
+    console.error('Dashboard error:', error);
 
     showStatus(
-      'We could not load your profile. Your login session is still active.'
+      'We could not load your StarRise profile.'
     );
   }
 }
 
-document.getElementById('signout').addEventListener(
-  'click',
-  async () => {
+document
+  .getElementById('signout')
+  .addEventListener('click', async () => {
 
-    await supabase.auth.signOut();
+    await starRiseSupabase.auth.signOut();
 
     location.replace('login.html');
-  }
-);
+
+  });
+
+async function startDashboard() {
+
+  await handleAuthCallback();
+
+  await loadDashboard();
+
+}
 
 startDashboard();
 
