@@ -1,0 +1,674 @@
+<!doctype html>
+
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">  <title>Service | StarRise</title>  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: #fff;
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 20px 8%;
+      border-bottom: 1px solid #ffffff18;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a {
+      margin-left: 20px;
+    }
+
+    main {
+      width: min(850px, calc(100% - 40px));
+      margin: 50px auto;
+    }
+
+    .panel {
+      padding: 30px;
+      border-radius: 20px;
+      border: 1px solid #ffffff18;
+      background: #ffffff08;
+      margin-bottom: 20px;
+    }
+
+    .category {
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 13px;
+    }
+
+    h1 {
+      font-size: clamp(34px, 7vw, 60px);
+      margin: 8px 0 12px;
+      line-height: 1.1;
+    }
+
+    .description {
+      color: #ccc;
+      font-size: 18px;
+      white-space: pre-wrap;
+    }
+
+    .price {
+      font-size: 34px;
+      font-weight: bold;
+      margin-top: 25px;
+    }
+
+    .provider {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #ffffff18;
+    }
+
+    .provider a {
+      color: #fff;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      box-sizing: border-box;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid #ffffff25;
+      background: #11111d;
+      color: #fff;
+      font-size: 16px;
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 18px;
+      padding: 15px;
+      border: 0;
+      border-radius: 30px;
+      background: #fff;
+      color: #080812;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    #message {
+      display: none;
+      padding: 14px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+    }
+
+    #message.show {
+      display: block;
+    }
+
+    #message.error {
+      background: rgba(220,70,70,.15);
+      color: #ffb0b0;
+    }
+
+    #message.success {
+      background: rgba(50,180,100,.15);
+      color: #a8ffc8;
+    }
+
+    .loading,
+    .muted {
+      color: #aaa;
+    }
+
+    .back {
+      margin-top: 20px;
+    }
+
+    .back a {
+      color: #fff;
+    }
+
+    @media (max-width: 650px) {
+
+      header {
+        flex-direction: column;
+      }
+
+      nav a {
+        margin: 0 7px;
+      }
+
+      main {
+        width: min(100% - 24px, 850px);
+        margin-top: 30px;
+      }
+
+      .panel {
+        padding: 22px;
+      }
+
+    }
+
+  </style></head><body><header>  <a href="index.html">
+    ⭐ StarRise
+  </a>  <nav><a href="services.html">
+  Services
+</a>
+
+<a href="members.html">
+  Members
+</a>
+
+<a href="dashboard.html">
+  Dashboard
+</a>
+
+  </nav></header><main>  <section
+    id="servicePanel"
+    class="panel"
+  ><div class="loading">
+  Loading service...
+</div>
+
+  </section>  <section
+    id="requestPanel"
+    class="panel"
+    style="display:none;"
+  ><h2>
+  Request This Service
+</h2>
+
+<p class="muted">
+  Tell the provider what you need. Your request
+  will be saved as a StarRise order.
+</p>
+
+<div id="message"></div>
+
+<form id="orderForm">
+
+  <label for="request">
+    What do you need?
+  </label>
+
+  <textarea
+    id="request"
+    maxlength="2000"
+    placeholder="Describe your project, deadline, requirements, or other important details..."
+    required
+  ></textarea>
+
+  <button
+    id="orderButton"
+    type="submit"
+  >
+    Request Service
+  </button>
+
+</form>
+
+  </section>  <div class="back"><a href="services.html">
+  ← Back to Services
+</a>
+
+  </div></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+
+const starRiseSupabase =
+  window.supabase.createClient(
+    'https://rcnikxotdalxtuvpmlvm.supabase.co',
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+  );
+
+
+const servicePanel =
+  document.getElementById(
+    'servicePanel'
+  );
+
+
+const requestPanel =
+  document.getElementById(
+    'requestPanel'
+  );
+
+
+const orderForm =
+  document.getElementById(
+    'orderForm'
+  );
+
+
+const orderButton =
+  document.getElementById(
+    'orderButton'
+  );
+
+
+const message =
+  document.getElementById(
+    'message'
+  );
+
+
+let service = null;
+
+
+function escapeHtml(value) {
+
+  return String(value)
+
+    .replaceAll(
+      '&',
+      '&amp;'
+    )
+
+    .replaceAll(
+      '<',
+      '&lt;'
+    )
+
+    .replaceAll(
+      '>',
+      '&gt;'
+    )
+
+    .replaceAll(
+      '"',
+      '&quot;'
+    )
+
+    .replaceAll(
+      "'",
+      '&#039;'
+    );
+
+}
+
+
+function showMessage(
+  text,
+  type = ''
+) {
+
+  message.textContent =
+    text;
+
+  message.className =
+    'show ' + type;
+
+}
+
+
+function getServiceId() {
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  return params.get('id');
+
+}
+
+
+async function loadService() {
+
+  const serviceId =
+    getServiceId();
+
+
+  if (!serviceId) {
+
+    servicePanel.innerHTML = `
+      <h1>Service Not Found</h1>
+      <p class="muted">
+        No service ID was provided.
+      </p>
+    `;
+
+    return;
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await starRiseSupabase
+
+      .from(
+        'star_rise_services'
+      )
+
+      .select(`
+        id,
+        user_id,
+        title,
+        description,
+        category,
+        price_cents,
+        is_active,
+        created_at
+      `)
+
+      .eq(
+        'id',
+        serviceId
+      )
+
+      .eq(
+        'is_active',
+        true
+      )
+
+      .single();
+
+
+  if (error) {
+
+    console.error(
+      'Service error:',
+      error
+    );
+
+
+    servicePanel.innerHTML = `
+      <h1>Service Not Found</h1>
+      <p class="muted">
+        This service may no longer be available.
+      </p>
+    `;
+
+    return;
+
+  }
+
+
+  service = data;
+
+
+  const {
+    data: profile
+  } =
+    await starRiseSupabase
+
+      .from(
+        'Profiles'
+      )
+
+      .select(
+        'id, display_name, full_name, location, avatar_url'
+      )
+
+      .eq(
+        'id',
+        service.user_id
+      )
+
+      .maybeSingle();
+
+
+  const providerName =
+    profile?.display_name ||
+    profile?.full_name ||
+    'StarRise Member';
+
+
+  const price =
+    (
+      service.price_cents / 100
+    ).toLocaleString(
+      'en-US',
+      {
+        style: 'currency',
+        currency: 'USD'
+      }
+    );
+
+
+  servicePanel.innerHTML = `
+
+    <div class="category">
+      ${escapeHtml(
+        service.category
+      )}
+    </div>
+
+    <h1>
+      ${escapeHtml(
+        service.title
+      )}
+    </h1>
+
+    <div class="description">
+      ${escapeHtml(
+        service.description
+      )}
+    </div>
+
+    <div class="price">
+      ${price}
+    </div>
+
+    <div class="provider">
+
+      <strong>
+        Provided by
+      </strong>
+
+      <div>
+        ${escapeHtml(
+          providerName
+        )}
+      </div>
+
+      ${
+        profile?.location
+          ? `
+            <div class="muted">
+              ${escapeHtml(
+                profile.location
+              )}
+            </div>
+          `
+          : ''
+      }
+
+    </div>
+
+  `;
+
+
+  requestPanel.style.display =
+    'block';
+
+}
+
+
+orderForm.addEventListener(
+  'submit',
+  async event => {
+
+    event.preventDefault();
+
+
+    if (!service) {
+      return;
+    }
+
+
+    const {
+      data: sessionData
+    } =
+      await starRiseSupabase
+        .auth
+        .getSession();
+
+
+    const session =
+      sessionData?.session;
+
+
+    if (!session) {
+
+      location.replace(
+        'login.html'
+      );
+
+      return;
+
+    }
+
+
+    const buyerId =
+      session.user.id;
+
+
+    if (
+      buyerId === service.user_id
+    ) {
+
+      showMessage(
+        'You cannot order your own service.',
+        'error'
+      );
+
+      return;
+
+    }
+
+
+    const request =
+      document.getElementById(
+        'request'
+      ).value.trim();
+
+
+    if (!request) {
+
+      showMessage(
+        'Please describe what you need.',
+        'error'
+      );
+
+      return;
+
+    }
+
+
+    orderButton.disabled =
+      true;
+
+    orderButton.textContent =
+      'Submitting...';
+
+
+    try {
+
+      const {
+        error
+      } =
+        await starRiseSupabase
+
+          .from(
+            'service_orders'
+          )
+
+          .insert({
+
+            buyer_id:
+              buyerId,
+
+            seller_id:
+              service.user_id,
+
+            service_id:
+              service.id,
+
+            amount_cents:
+              service.price_cents,
+
+            client_request:
+              request,
+
+            status:
+              'pending'
+
+          });
+
+
+      if (error) {
+        throw error;
+      }
+
+
+      showMessage(
+        'Your service request has been submitted.',
+        'success'
+      );
+
+
+      orderForm.reset();
+
+
+      orderButton.textContent =
+        'Request Submitted';
+
+
+    } catch (error) {
+
+      console.error(
+        'Order error:',
+        error
+      );
+
+
+      showMessage(
+        error.message ||
+        'We could not submit your request.',
+        'error'
+      );
+
+
+      orderButton.disabled =
+        false;
+
+      orderButton.textContent =
+        'Request Service';
+
+    }
+
+  }
+);
+
+
+loadService();
+
+</script></body></html>
