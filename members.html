@@ -607,7 +607,60 @@
         roleFilter.value;
 
 
-      members.forEach(member => {
+      filtered.forEach(member => {
+
+  const card = document.createElement('article');
+
+  card.className = 'card';
+
+  const displayName =
+    member.display_name || 'StarRise Member';
+
+  const initial =
+    displayName.charAt(0).toUpperCase();
+
+  card.innerHTML = `
+
+    <div class="avatar">
+      ${initial}
+    </div>
+
+    <h2>
+      ${escapeHtml(displayName)}
+    </h2>
+
+    <div class="role">
+      ${escapeHtml(member.role || 'Member')}
+    </div>
+
+    ${
+      member.location
+        ? `<div class="location">
+             ${escapeHtml(member.location)}
+           </div>`
+        : ''
+    }
+
+    ${
+      member.bio
+        ? `<div class="bio">
+             ${escapeHtml(member.bio)}
+           </div>`
+        : ''
+    }
+
+    <a
+      class="profile-link"
+      href="profile.html?id=${encodeURIComponent(member.id)}"
+    >
+      View Profile →
+    </a>
+
+  `;
+
+  membersContainer.appendChild(card);
+
+});
 
         const name =
           member.dataset.name.toLowerCase();
