@@ -431,12 +431,18 @@
   const statusBox = document.getElementById('status');
   const ordersStatus = document.getElementById('orders-status');
   const ordersContainer = document.getElementById('orders');
-  const completedOrdersStatus = document.getElementById('completed-orders-status');
-  const completedOrdersContainer = document.getElementById('completed-orders');
-  const myOrdersStatus = document.getElementById('my-orders-status');
-  const myOrdersContainer = document.getElementById('my-orders');
-  const myCompletedStatus = document.getElementById('my-completed-status');
-  const myCompletedContainer = document.getElementById('my-completed');
+  const completedOrdersStatus =
+    document.getElementById('completed-orders-status');
+  const completedOrdersContainer =
+    document.getElementById('completed-orders');
+  const myOrdersStatus =
+    document.getElementById('my-orders-status');
+  const myOrdersContainer =
+    document.getElementById('my-orders');
+  const myCompletedStatus =
+    document.getElementById('my-completed-status');
+  const myCompletedContainer =
+    document.getElementById('my-completed');
 
   let supabaseClient = null;
   let currentUser = null;
@@ -967,6 +973,4 @@
           buildOrderCard(
             order,
             true,
-            reviews[order.id]
-          )
-       
+            reviews[order
