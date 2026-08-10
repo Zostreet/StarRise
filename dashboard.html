@@ -47,6 +47,10 @@
       cursor: pointer;
     }
 
+    #signout:hover {
+      background: #ffffff10;
+    }
+
     main {
       width: min(950px, calc(100% - 30px));
       margin: 35px auto 60px;
@@ -176,6 +180,10 @@
       cursor: pointer;
     }
 
+    .order-button:hover {
+      opacity: .9;
+    }
+
     .order-button:disabled {
       opacity: .6;
       cursor: wait;
@@ -273,6 +281,12 @@
       margin-top: 8px;
     }
 
+    .service-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
     @media (max-width: 650px) {
       header {
         flex-direction: column;
@@ -333,32 +347,44 @@
 
       <div class="item">
         <span class="label">Full Name</span>
-        <span id="profile-name" class="profile-value">Loading...</span>
+        <span id="profile-name" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Display / Stage Name</span>
-        <span id="display-name" class="profile-value">Loading...</span>
+        <span id="display-name" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Email</span>
-        <span id="email" class="profile-value">Loading...</span>
+        <span id="email" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Location</span>
-        <span id="location" class="profile-value">Loading...</span>
+        <span id="location" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Website</span>
-        <span id="website" class="profile-value">Loading...</span>
+        <span id="website" class="profile-value">
+          Loading...
+        </span>
       </div>
 
       <div class="item">
         <span class="label">Member Since</span>
-        <span id="member-since" class="profile-value">Loading...</span>
+        <span id="member-since" class="profile-value">
+          Loading...
+        </span>
       </div>
 
     </div>
@@ -475,6 +501,9 @@
   let supabaseClient = null;
   let currentUser = null;
 
+  /*
+   * Keeps HTML inserted from database fields safe.
+   */
   function escapeHtml(value) {
     return String(value ?? '')
       .replace(/&/g, '&amp;')
@@ -515,17 +544,31 @@
     return date.toLocaleDateString();
   }
 
+  function formatMoney(cents) {
+
+    const amount =
+      Number(cents || 0) / 100;
+
+    return '$' + amount.toFixed(2);
+  }
+
   function starsHtml(rating) {
 
-    const value = Number(rating || 0);
+    const value =
+      Number(rating || 0);
 
     return [1, 2, 3, 4, 5]
       .map(function (number) {
-        return number <= value ? '★' : '☆';
+        return number <= value
+          ? '★'
+          : '☆';
       })
       .join('');
   }
 
+  /*
+   * Initialize Supabase and load dashboard.
+   */
   async function initialize() {
 
     try {
@@ -573,10 +616,14 @@
         return;
       }
 
-      currentUser = session.user;
+      currentUser =
+        session.user;
 
-      document.getElementById('email').textContent =
-        currentUser.email || 'Not available';
+      document.getElementById(
+        'email'
+      ).textContent =
+        currentUser.email ||
+        'Not available';
 
       setStatus(
         statusBox,
@@ -586,10 +633,22 @@
 
       await loadProfile(currentUser);
       await loadRoles(currentUser);
-      await loadIncomingOrders(currentUser);
-      await loadCompletedOrders(currentUser);
-      await loadMyOrders(currentUser);
-      await loadMyCompletedOrders(currentUser);
+
+      await loadIncomingOrders(
+        currentUser
+      );
+
+      await loadCompletedOrders(
+        currentUser
+      );
+
+      await loadMyOrders(
+        currentUser
+      );
+
+      await loadMyCompletedOrders(
+        currentUser
+      );
 
     } catch (error) {
 
@@ -601,12 +660,16 @@
       setStatus(
         statusBox,
         'Dashboard error: ' +
-        (error.message || 'Unknown error'),
+        (error.message ||
+          'Unknown error'),
         'error'
       );
     }
   }
 
+  /*
+   * Load member profile.
+   */
   async function loadProfile(user) {
 
     const result =
@@ -624,12 +687,49 @@
     }
 
     if (!result.data) {
-      throw new Error(
-        'Profile: no profile record exists for this account.'
+
+      /*
+       * Some older StarRise accounts may have
+       * User_id populated instead of id.
+       */
+      const fallback =
+        await supabaseClient
+          .from('Profiles')
+          .select('*')
+          .eq('User_id', user.id)
+          .maybeSingle();
+
+      if (fallback.error) {
+        throw new Error(
+          'Profile: ' +
+          fallback.error.message
+        );
+      }
+
+      if (!fallback.data) {
+        throw new Error(
+          'Profile: no profile record exists for this account.'
+        );
+      }
+
+      renderProfile(
+        fallback.data,
+        user
       );
+
+      return;
     }
 
-    const profile = result.data;
+    renderProfile(
+      result.data,
+      user
+    );
+  }
+
+  function renderProfile(
+    profile,
+    user
+  ) {
 
     const fullName =
       profile.full_name ||
@@ -639,31 +739,56 @@
       profile.display_name ||
       fullName;
 
-    document.getElementById('name').textContent =
+    document.getElementById(
+      'name'
+    ).textContent =
       displayName;
 
-    document.getElementById('profile-name').textContent =
+    document.getElementById(
+      'profile-name'
+    ).textContent =
       fullName;
 
-    document.getElementById('display-name').textContent =
+    document.getElementById(
+      'display-name'
+    ).textContent =
       displayName;
 
-    document.getElementById('location').textContent =
+    document.getElementById(
+      'email'
+    ).textContent =
+      user.email ||
+      'Not available';
+
+    document.getElementById(
+      'location'
+    ).textContent =
       profile.location ||
       'Not provided';
 
-    document.getElementById('bio').textContent =
+    document.getElementById(
+      'bio'
+    ).textContent =
       profile.bio ||
       'No bio added yet.';
 
-    document.getElementById('website').textContent =
+    document.getElementById(
+      'website'
+    ).textContent =
       profile.website ||
       'Not provided';
 
-    document.getElementById('member-since').textContent =
-      formatDate(profile.created_at);
+    document.getElementById(
+      'member-since'
+    ).textContent =
+      formatDate(
+        profile.created_at
+      );
   }
 
+  /*
+   * Load StarRise roles.
+   */
   async function loadRoles(user) {
 
     const element =
@@ -675,13 +800,17 @@
         await supabaseClient
           .from('member_roles')
           .select('role')
-          .eq('user_id', user.id);
+          .eq('user_id', user.id)
+          .order('role');
 
       if (result.error) {
         throw result.error;
       }
 
-      if (!result.data || !result.data.length) {
+      if (
+        !result.data ||
+        !result.data.length
+      ) {
 
         element.innerHTML =
           '<span class="muted">' +
@@ -694,11 +823,13 @@
       element.innerHTML =
         result.data
           .map(function (item) {
+
             return (
               '<span class="role">' +
               escapeHtml(item.role) +
               '</span>'
             );
+
           })
           .join('');
 
@@ -717,6 +848,9 @@
     }
   }
 
+  /*
+   * Get reviews for a group of orders.
+   */
   async function getReviews(orderIds) {
 
     if (!orderIds.length) {
@@ -727,7 +861,10 @@
       await supabaseClient
         .from('service_reviews')
         .select('*')
-        .in('order_id', orderIds);
+        .in(
+          'order_id',
+          orderIds
+        );
 
     if (result.error) {
 
@@ -740,15 +877,22 @@
     }
 
     return (result.data || [])
-      .reduce(function (map, review) {
+      .reduce(
+        function (map, review) {
 
-        map[review.order_id] = review;
+          map[review.order_id] =
+            review;
 
-        return map;
+          return map;
 
-      }, {});
+        },
+        {}
+      );
   }
 
+  /*
+   * Display an existing review.
+   */
   function reviewDisplay(review) {
 
     if (!review) {
@@ -772,15 +916,20 @@
           review.review
             ? `
               <div class="review-content">
-                ${escapeHtml(review.review)}
+                ${escapeHtml(
+                  review.review
+                )}
               </div>
             `
             : ''
         }
 
         <div class="review-date">
-          Reviewed ${escapeHtml(
-            formatDate(review.created_at)
+          Reviewed
+          ${escapeHtml(
+            formatDate(
+              review.created_at
+            )
           )}
         </div>
 
@@ -788,11 +937,18 @@
     `;
   }
 
-  function reviewForm(order, review) {
+  /*
+   * Review form for the buyer.
+   */
+  function reviewForm(
+    order,
+    review
+  ) {
 
     const currentRating =
       Number(
-        review && review.rating
+        review &&
+        review.rating
           ? review.rating
           : 0
       );
@@ -808,7 +964,12 @@
           }
         </span>
 
-        <div class="stars">
+        <div
+          class="stars"
+          data-stars-for="${escapeHtml(
+            order.id
+          )}"
+        >
 
           ${[1, 2, 3, 4, 5]
             .map(function (number) {
@@ -822,7 +983,9 @@
                       : ''
                   }"
                   data-rating="${number}"
-                  data-order="${escapeHtml(order.id)}"
+                  data-order="${escapeHtml(
+                    order.id
+                  )}"
                 >★</button>
               `;
 
@@ -833,12 +996,15 @@
 
         <textarea
           class="review-text"
-          id="review-text-${escapeHtml(order.id)}"
+          id="review-text-${escapeHtml(
+            order.id
+          )}"
           maxlength="1000"
           placeholder="Tell us about your StarRise experience..."
         >${
           escapeHtml(
-            review && review.review
+            review &&
+            review.review
               ? review.review
               : ''
           )
@@ -847,7 +1013,9 @@
         <button
           type="button"
           class="order-button"
-          data-submit-review="${escapeHtml(order.id)}"
+          data-submit-review="${escapeHtml(
+            order.id
+          )}"
         >
           ${
             review
@@ -857,7 +1025,9 @@
         </button>
 
         <div
-          id="review-message-${escapeHtml(order.id)}"
+          id="review-message-${escapeHtml(
+            order.id
+          )}"
           class="muted"
           style="margin-top:10px;"
         ></div>
@@ -866,6 +1036,9 @@
     `;
   }
 
+  /*
+   * Seller/provider actions.
+   */
   function providerActions(order) {
 
     if (order.status === 'pending') {
@@ -876,7 +1049,9 @@
           <button
             class="order-button"
             data-order-action="accepted"
-            data-order-id="${escapeHtml(order.id)}"
+            data-order-id="${escapeHtml(
+              order.id
+            )}"
           >
             Accept Request
           </button>
@@ -884,7 +1059,9 @@
           <button
             class="order-button decline-button"
             data-order-action="declined"
-            data-order-id="${escapeHtml(order.id)}"
+            data-order-id="${escapeHtml(
+              order.id
+            )}"
           >
             Decline Request
           </button>
@@ -901,132 +1078,5 @@
           <button
             class="order-button"
             data-order-action="in_progress"
-            data-order-id="${escapeHtml(order.id)}"
-          >
-            Start Service
-          </button>
-
-        </div>
-      `;
-    }
-
-    if (order.status === 'in_progress') {
-
-      return `
-        <div class="order-actions">
-
-          <button
-            class="order-button"
-            data-order-action="completed"
-            data-order-id="${escapeHtml(order.id)}"
-          >
-            Complete Service
-          </button>
-
-        </div>
-      `;
-    }
-
-    return '';
-  }
-
-  function buildOrderCard(
-    order,
-    providerView,
-    review
-  ) {
-
-    const amount =
-      Number(order.amount_cents || 0) / 100;
-
-    const card =
-      document.createElement('div');
-
-    card.className = 'order-card';
-
-    card.innerHTML = `
-
-      <span class="label">
-        ${
-          providerView
-            ? 'Customer Service'
-            : 'Your Service'
-        }
-      </span>
-
-      <div class="order-price">
-        $${amount.toFixed(2)}
-      </div>
-
-      <div class="order-status">
-        ${escapeHtml(
-          order.status || 'pending'
-        )}
-      </div>
-
-      <div class="order-request">
-        ${escapeHtml(
-          order.request_message ||
-          'No request details provided.'
-        )}
-      </div>
-
-      <div class="order-meta">
-        Submitted ${escapeHtml(
-          formatDate(order.created_at)
-        )}
-      </div>
-
-      <div class="order-meta">
-        Updated ${escapeHtml(
-          formatDate(order.updated_at)
-        )}
-      </div>
-
-      <a
-        class="service-link"
-        href="service.html?id=${encodeURIComponent(
-          order.service_id || ''
-        )}"
-      >
-        View Service
-      </a>
-
-      ${
-        providerView &&
-        order.status === 'completed'
-          ? reviewDisplay(review)
-          : ''
-      }
-
-      ${
-        !providerView &&
-        order.status === 'completed'
-          ? reviewDisplay(review) +
-            reviewForm(order, review)
-          : ''
-      }
-
-      ${
-        providerView
-          ? providerActions(order)
-          : ''
-      }
-
-    `;
-
-    return card;
-  }
-
-  async function fetchOrders(
-    column,
-    userId
-  ) {
-
-    const result =
-      await supabaseClient
-        .from('service_orders')
-        .select('*')
-        .eq(column, userId)
-        .order('created_at', {
-          asc
+            data-order-id="${escapeHtml(
+        
