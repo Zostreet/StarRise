@@ -100,7 +100,9 @@
       letter-spacing: .08em;
     }
 
-    .profile-value { word-break: break-word; }
+    .profile-value {
+      word-break: break-word;
+    }
 
     .role {
       display: inline-block;
@@ -177,6 +179,8 @@
     }
 
     .service-link {
+      display: inline-block;
+      margin-top: 12px;
       color: #fff;
       text-decoration: underline;
     }
@@ -225,7 +229,9 @@
       cursor: pointer;
     }
 
-    .star.selected { color: #ffd84d; }
+    .star.selected {
+      color: #ffd84d;
+    }
 
     .review-text {
       width: 100%;
@@ -259,7 +265,9 @@
     }
 
     @media (max-width: 650px) {
-      header { flex-direction: column; }
+      header {
+        flex-direction: column;
+      }
 
       main {
         width: calc(100% - 20px);
@@ -428,19 +436,30 @@
   const SUPABASE_KEY =
     'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
-  const statusBox = document.getElementById('status');
-  const ordersStatus = document.getElementById('orders-status');
-  const ordersContainer = document.getElementById('orders');
+  const statusBox =
+    document.getElementById('status');
+
+  const ordersStatus =
+    document.getElementById('orders-status');
+
+  const ordersContainer =
+    document.getElementById('orders');
+
   const completedOrdersStatus =
     document.getElementById('completed-orders-status');
+
   const completedOrdersContainer =
     document.getElementById('completed-orders');
+
   const myOrdersStatus =
     document.getElementById('my-orders-status');
+
   const myOrdersContainer =
     document.getElementById('my-orders');
+
   const myCompletedStatus =
     document.getElementById('my-completed-status');
+
   const myCompletedContainer =
     document.getElementById('my-completed');
 
@@ -460,7 +479,11 @@
     if (!element) return;
 
     element.textContent = message;
-    element.classList.remove('error', 'success');
+
+    element.classList.remove(
+      'error',
+      'success'
+    );
 
     if (type) {
       element.classList.add(type);
@@ -468,13 +491,30 @@
   }
 
   function starsHtml(rating) {
-    const value = Number(rating || 0);
+
+    const value =
+      Number(rating || 0);
 
     return [1, 2, 3, 4, 5]
       .map(function (n) {
         return n <= value ? '★' : '☆';
       })
       .join('');
+  }
+
+  function formatDate(value) {
+
+    if (!value) {
+      return 'Unknown';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return 'Unknown';
+    }
+
+    return date.toLocaleDateString();
   }
 
   async function initialize() {
@@ -506,9 +546,10 @@
       }
 
       const session =
-        sessionResult.data?.session;
+        sessionResult.data &&
+        sessionResult.data.session;
 
-      if (!session?.user) {
+      if (!session || !session.user) {
 
         setStatus(
           statusBox,
@@ -523,7 +564,8 @@
         return;
       }
 
-      currentUser = session.user;
+      currentUser =
+        session.user;
 
       setStatus(
         statusBox,
@@ -532,7 +574,8 @@
       );
 
       document.getElementById('email').textContent =
-        currentUser.email || 'Not available';
+        currentUser.email ||
+        'Not available';
 
       await Promise.all([
         loadProfile(currentUser),
@@ -570,7 +613,8 @@
 
     if (result.error) {
       throw new Error(
-        'Profile: ' + result.error.message
+        'Profile: ' +
+        result.error.message
       );
     }
 
@@ -580,7 +624,8 @@
       );
     }
 
-    const profile = result.data;
+    const profile =
+      result.data;
 
     const fullName =
       profile.full_name ||
@@ -600,18 +645,19 @@
       displayName;
 
     document.getElementById('location').textContent =
-      profile.location || 'Not provided';
+      profile.location ||
+      'Not provided';
 
     document.getElementById('bio').textContent =
-      profile.bio || 'No bio added yet.';
+      profile.bio ||
+      'No bio added yet.';
 
     document.getElementById('website').textContent =
-      profile.website || 'Not provided';
+      profile.website ||
+      'Not provided';
 
     document.getElementById('member-since').textContent =
-      profile.created_at
-        ? new Date(profile.created_at).toLocaleDateString()
-        : 'StarRise Member';
+      formatDate(profile.created_at);
   }
 
   async function loadRoles(user) {
@@ -631,10 +677,13 @@
         throw result.error;
       }
 
-      if (!result.data?.length) {
+      if (!result.data ||
+          !result.data.length) {
 
         element.innerHTML =
-          '<span class="muted">No roles assigned yet.</span>';
+          '<span class="muted">' +
+          'No roles assigned yet.' +
+          '</span>';
 
         return;
       }
@@ -642,17 +691,22 @@
       element.innerHTML =
         result.data
           .map(function (item) {
+
             return (
               '<span class="role">' +
               escapeHtml(item.role) +
               '</span>'
             );
+
           })
           .join('');
 
     } catch (error) {
 
-      console.error('Roles error:', error);
+      console.error(
+        'Roles error:',
+        error
+      );
 
       element.innerHTML =
         '<span class="muted">' +
@@ -664,7 +718,8 @@
 
   async function getReviews(orderIds) {
 
-    if (!orderIds.length) {
+    if (!orderIds ||
+        !orderIds.length) {
       return {};
     }
 
@@ -675,17 +730,27 @@
         .in('order_id', orderIds);
 
     if (result.error) {
-      console.error('Reviews error:', result.error);
+
+      console.error(
+        'Reviews error:',
+        result.error
+      );
+
       return {};
     }
 
-    return (result.data || []).reduce(
-      function (map, review) {
-        map[review.order_id] = review;
-        return map;
-      },
-      {}
-    );
+    return (result.data || [])
+      .reduce(
+        function (map, review) {
+
+          map[review.order_id] =
+            review;
+
+          return map;
+
+        },
+        {}
+      );
   }
 
   function reviewDisplay(review) {
@@ -696,26 +761,33 @@
 
     return `
       <div class="review-display">
-        <span class="label">Review</span>
+
+        <span class="label">
+          Review
+        </span>
 
         <div class="review-stars">
-          ${escapeHtml(starsHtml(review.rating))}
+          ${escapeHtml(
+            starsHtml(review.rating)
+          )}
         </div>
 
         ${
           review.review
-            ? `<div class="review-content">
+            ? `
+              <div class="review-content">
                 ${escapeHtml(review.review)}
-               </div>`
+              </div>
+            `
             : ''
         }
 
         <div class="review-date">
           Reviewed ${escapeHtml(
-            new Date(review.created_at)
-              .toLocaleDateString()
+            formatDate(review.created_at)
           )}
         </div>
+
       </div>
     `;
   }
@@ -723,27 +795,44 @@
   function reviewForm(order, review) {
 
     const currentRating =
-      Number(review?.rating || 0);
+      Number(
+        review &&
+        review.rating
+          ? review.rating
+          : 0
+      );
 
     return `
       <div class="review-box">
 
         <span class="label">
-          ${review ? 'Update Your Review' : 'Rate This Service'}
+          ${
+            review
+              ? 'Update Your Review'
+              : 'Rate This Service'
+          }
         </span>
 
         <div class="stars">
 
-          ${[1,2,3,4,5].map(function (n) {
-            return `
-              <button
-                type="button"
-                class="star ${n <= currentRating ? 'selected' : ''}"
-                data-rating="${n}"
-                data-order="${escapeHtml(order.id)}"
-              >★</button>
-            `;
-          }).join('')}
+          ${[1,2,3,4,5]
+            .map(function (n) {
+
+              return `
+                <button
+                  type="button"
+                  class="star ${
+                    n <= currentRating
+                      ? 'selected'
+                      : ''
+                  }"
+                  data-rating="${n}"
+                  data-order="${escapeHtml(order.id)}"
+                >★</button>
+              `;
+
+            })
+            .join('')}
 
         </div>
 
@@ -752,14 +841,25 @@
           id="review-text-${escapeHtml(order.id)}"
           maxlength="1000"
           placeholder="Tell us about your StarRise experience..."
-        >${escapeHtml(review?.review || '')}</textarea>
+        >${
+          escapeHtml(
+            review &&
+            review.review
+              ? review.review
+              : ''
+          )
+        }</textarea>
 
         <button
           type="button"
           class="order-button"
           data-submit-review="${escapeHtml(order.id)}"
         >
-          ${review ? 'Update Review' : 'Submit Review'}
+          ${
+            review
+              ? 'Update Review'
+              : 'Submit Review'
+          }
         </button>
 
         <div
@@ -836,30 +936,35 @@
     return '';
   }
 
-  function buildOrderCard(order, providerView, review) {
+  function buildOrderCard(
+    order,
+    providerView,
+    review
+  ) {
 
     const amount =
       Number(order.amount_cents || 0) / 100;
 
     const created =
-      order.created_at
-        ? new Date(order.created_at).toLocaleDateString()
-        : 'Unknown';
+      formatDate(order.created_at);
 
     const updated =
-      order.updated_at
-        ? new Date(order.updated_at).toLocaleDateString()
-        : created;
+      formatDate(order.updated_at);
 
     const card =
       document.createElement('div');
 
-    card.className = 'order-card';
+    card.className =
+      'order-card';
 
     card.innerHTML = `
 
       <span class="label">
-        ${providerView ? 'Customer Service' : 'Your Service'}
+        ${
+          providerView
+            ? 'Customer Service'
+            : 'Your Service'
+        }
       </span>
 
       <div class="order-price">
@@ -867,7 +972,9 @@
       </div>
 
       <div class="order-status">
-        ${escapeHtml(order.status || 'pending')}
+        ${escapeHtml(
+          order.status || 'pending'
+        )}
       </div>
 
       <div class="order-request">
@@ -904,8 +1011,10 @@
       ${
         !providerView &&
         order.status === 'completed'
-          ? reviewDisplay(review) +
-            reviewForm(order, review)
+          ? (
+              reviewDisplay(review) +
+              reviewForm(order, review)
+            )
           : ''
       }
 
@@ -926,51 +1035,4 @@
 
       setStatus(
         ordersStatus,
-        'Loading incoming orders...'
-      );
-
-      const result =
-        await supabaseClient
-          .from('service_orders')
-          .select('*')
-          .eq('seller_id', user.id)
-          .order('created_at', {
-            ascending: false
-          });
-
-      if (result.error) {
-        throw result.error;
-      }
-
-      const orders =
-        result.data || [];
-
-      if (!orders.length) {
-
-        setStatus(
-          ordersStatus,
-          'No incoming service orders yet.'
-        );
-
-        ordersContainer.innerHTML =
-          '<div class="empty">No customer requests yet.</div>';
-
-        return;
-      }
-
-      const reviews =
-        await getReviews(
-          orders.map(function (order) {
-            return order.id;
-          })
-        );
-
-      ordersContainer.innerHTML = '';
-
-      orders.forEach(function (order) {
-
-        ordersContainer.appendChild(
-          buildOrderCard(
-            order,
-            true,
-            reviews[order
+      
