@@ -1027,7 +1027,7 @@
           : ''
       }
 
-        function buildOrderCard(
+          function buildOrderCard(
     order,
     providerView,
     review,
@@ -1048,21 +1048,27 @@
         service.service_name
       );
 
-    const providerName =
-      order.provider_name ||
-      order.seller_name ||
-      order.provider ||
-      'StarRise Member';
+    const requestText =
+      order.request ||
+      order.message ||
+      order.description ||
+      order.notes ||
+      'No additional request details.';
 
-    const customerName =
-      order.customer_name ||
-      order.buyer_name ||
-      order.customer ||
-      'Customer';
+    const createdAt =
+      order.created_at ||
+      order.Created_at;
 
-    const statusText =
-      String(order.status || 'unknown')
-        .replace(/_/g, ' ');
+    const completedAt =
+      order.completed_at ||
+      order.completedAt;
+
+    const price =
+      order.price_cents ??
+      order.amount_cents ??
+      order.price ??
+      order.amount ??
+      0;
 
     card.innerHTML = `
 
@@ -1085,72 +1091,70 @@
       }
 
       <div class="order-price">
-        ${formatMoney(
-          order.price_cents ??
-          order.amount_cents ??
-          order.price ??
-          0
-        )}
+        ${escapeHtml(formatMoney(price))}
       </div>
 
       <div class="order-status">
-        ${escapeHtml(statusText)}
-      </div>
-
-      ${
-        providerView
-          ? `
-            <div class="order-meta">
-              Requested by:
-              ${escapeHtml(customerName)}
-            </div>
-          `
-          : `
-            <div class="order-meta">
-              Service provider:
-              ${escapeHtml(providerName)}
-            </div>
-          `
-      }
-
-      ${
-        order.request
-          ? `
-            <div class="order-request">
-              ${escapeHtml(order.request)}
-            </div>
-          `
-          : ''
-      }
-
-      ${
-        order.message
-          ? `
-            <div class="order-request">
-              ${escapeHtml(order.message)}
-            </div>
-          `
-          : ''
-      }
-
-      <div class="order-meta">
-        Ordered:
         ${escapeHtml(
-          formatDate(
-            order.created_at ||
-            order.createdAt
-          )
+          String(order.status || 'unknown')
+            .replace(/_/g, ' ')
         )}
       </div>
 
+      <div class="order-request">
+        ${escapeHtml(requestText)}
+      </div>
+
       ${
-        order.service_id
+        order.customer_name
+          ? `
+            <div class="order-meta">
+              Customer:
+              ${escapeHtml(order.customer_name)}
+            </div>
+          `
+          : ''
+      }
+
+      ${
+        order.provider_name
+          ? `
+            <div class="order-meta">
+              Provider:
+              ${escapeHtml(order.provider_name)}
+            </div>
+          `
+          : ''
+      }
+
+      ${
+        createdAt
+          ? `
+            <div class="order-meta">
+              Requested:
+              ${escapeHtml(formatDate(createdAt))}
+            </div>
+          `
+          : ''
+      }
+
+      ${
+        completedAt
+          ? `
+            <div class="order-meta">
+              Completed:
+              ${escapeHtml(formatDate(completedAt))}
+            </div>
+          `
+          : ''
+      }
+
+      ${
+        service && service.id
           ? `
             <a
               class="service-link"
-              href="service.html?id=${encodeURIComponent(
-                order.service_id
-              )}"
+              href="service.html?id=${encodeURIComponent(service.id)}"
             >
               View Service
             </a>
@@ -1167,9 +1171,11 @@
       ${
         !providerView &&
         order.status === 'completed'
-          ? review
-            ? reviewDisplay(review)
-            : reviewForm(order, review)
+          ? (
+              review
+                ? reviewDisplay(review)
+                : reviewForm(order, null)
+            )
           : ''
       }
 
@@ -1178,10 +1184,44 @@
     return card;
   }
 
-  /*
-   * Load incoming orders where the
-   * current member is the service provider.
-   */
+  async function getService(serviceId) {
+
+    if (!serviceId) {
+      return null;
+    }
+
+    try {
+
+      const result =
+        await supabaseClient
+          .from('services')
+          .select('*')
+          .eq('id', serviceId)
+          .maybeSingle();
+
+      if (result.error) {
+
+        console.error(
+          'Service lookup error:',
+          result.error
+        );
+
+        return null;
+      }
+
+      return result.data || null;
+
+    } catch (error) {
+
+      console.error(
+        'Service lookup error:',
+        error
+      );
+
+      return null;
+    }
+  }
+
   async function loadIncomingOrders(user) {
 
     setStatus(
@@ -1189,9 +1229,11 @@
       'Loading incoming orders...'
     );
 
+    ordersContainer.innerHTML = '';
+
     try {
 
-      let result =
+      const result =
         await supabaseClient
           .from('service_orders')
           .select('*')
@@ -1218,13 +1260,11 @@
       const orders =
         result.data || [];
 
-      ordersContainer.innerHTML = '';
-
       if (!orders.length) {
 
         setStatus(
           ordersStatus,
-          'No incoming service orders.'
+          'No active incoming service orders.'
         );
 
         ordersContainer.innerHTML =
@@ -1235,72 +1275,34 @@
         return;
       }
 
-      /*
-       * Load service information if the
-       * service_id column exists.
-       */
-      let services = {};
-
-      const serviceIds =
-        orders
-          .map(function (order) {
-            return order.service_id;
-          })
-          .filter(Boolean);
-
-      if (serviceIds.length) {
-
-        const serviceResult =
-          await supabaseClient
-            .from('services')
-            .select('*')
-            .in(
-              'id',
-              serviceIds
-            );
-
-        if (!serviceResult.error) {
-
-          services =
-            (serviceResult.data || [])
-              .reduce(
-                function (map, service) {
-
-                  map[service.id] =
-                    service;
-
-                  return map;
-
-                },
-                {}
-              );
-        }
-      }
-
       setStatus(
         ordersStatus,
         orders.length +
-        ' active order' +
+        ' active service request' +
         (orders.length === 1 ? '' : 's') +
         '.',
         'success'
       );
 
-      orders.forEach(function (order) {
+      for (const order of orders) {
+
+        const serviceId =
+          order.service_id ||
+          order.Service_id;
 
         const service =
-          services[order.service_id] ||
-          null;
+          await getService(serviceId);
 
-        ordersContainer.appendChild(
+        const card =
           buildOrderCard(
             order,
             true,
             null,
             service
-          )
-        );
-      });
+          );
+
+        ordersContainer.appendChild(card);
+      }
 
     } catch (error) {
 
@@ -1312,24 +1314,20 @@
       setStatus(
         ordersStatus,
         'Unable to load incoming orders: ' +
-        error.message,
+        (error.message || 'Unknown error'),
         'error'
       );
-
-      ordersContainer.innerHTML = '';
     }
   }
 
-  /*
-   * Load services completed by the
-   * current member.
-   */
   async function loadCompletedOrders(user) {
 
     setStatus(
       completedOrdersStatus,
       'Loading completed services...'
     );
+
+    completedOrdersContainer.innerHTML = '';
 
     try {
 
@@ -1340,7 +1338,7 @@
           .eq('provider_id', user.id)
           .eq('status', 'completed')
           .order(
-            'created_at',
+            'completed_at',
             {
               ascending: false
             }
@@ -1353,8 +1351,6 @@
       const orders =
         result.data || [];
 
-      completedOrdersContainer.innerHTML = '';
-
       if (!orders.length) {
 
         setStatus(
@@ -1364,48 +1360,10 @@
 
         completedOrdersContainer.innerHTML =
           '<div class="empty">' +
-          'Completed services will appear here.' +
+          'You have not completed any services yet.' +
           '</div>';
 
         return;
-      }
-
-      const serviceIds =
-        orders
-          .map(function (order) {
-            return order.service_id;
-          })
-          .filter(Boolean);
-
-      let services = {};
-
-      if (serviceIds.length) {
-
-        const serviceResult =
-          await supabaseClient
-            .from('services')
-            .select('*')
-            .in(
-              'id',
-              serviceIds
-            );
-
-        if (!serviceResult.error) {
-
-          services =
-            (serviceResult.data || [])
-              .reduce(
-                function (map, service) {
-
-                  map[service.id] =
-                    service;
-
-                  return map;
-
-                },
-                {}
-              );
-        }
       }
 
       setStatus(
@@ -1417,45 +1375,58 @@
         'success'
       );
 
-      orders.forEach(function (order) {
+      const orderIds =
+        orders.map(function (order) {
+          return order.id;
+        });
 
-        completedOrdersContainer.appendChild(
+      const reviews =
+        await getReviews(orderIds);
+
+      for (const order of orders) {
+
+        const serviceId =
+          order.service_id ||
+          order.Service_id;
+
+        const service =
+          await getService(serviceId);
+
+        const card =
           buildOrderCard(
             order,
             true,
-            null,
-            services[order.service_id] || null
-          )
-        );
-      });
+            reviews[order.id],
+            service
+          );
+
+        completedOrdersContainer.appendChild(card);
+      }
 
     } catch (error) {
 
       console.error(
-        'Completed orders error:',
+        'Completed provider orders error:',
         error
       );
 
       setStatus(
         completedOrdersStatus,
         'Unable to load completed services: ' +
-        error.message,
+        (error.message || 'Unknown error'),
         'error'
       );
-
-      completedOrdersContainer.innerHTML = '';
     }
   }
 
-  /*
-   * Load orders created by the current user.
-   */
   async function loadMyOrders(user) {
 
     setStatus(
       myOrdersStatus,
       'Loading your orders...'
     );
+
+    myOrdersContainer.innerHTML = '';
 
     try {
 
@@ -1464,10 +1435,14 @@
           .from('service_orders')
           .select('*')
           .eq('customer_id', user.id)
-          .not(
+          .in(
             'status',
-            'eq',
-            'completed'
+            [
+              'pending',
+              'accepted',
+              'in_progress',
+              'declined'
+            ]
           )
           .order(
             'created_at',
@@ -1483,88 +1458,49 @@
       const orders =
         result.data || [];
 
-      myOrdersContainer.innerHTML = '';
-
       if (!orders.length) {
 
         setStatus(
           myOrdersStatus,
-          'No active orders.'
+          'You have no active orders.'
         );
 
         myOrdersContainer.innerHTML =
           '<div class="empty">' +
-          'Orders you place with StarRise members will appear here.' +
+          'You have not requested any services yet.' +
           '</div>';
 
         return;
       }
 
-      const reviews =
-        await getReviews(
-          orders.map(function (order) {
-            return order.id;
-          })
-        );
-
-      const serviceIds =
-        orders
-          .map(function (order) {
-            return order.service_id;
-          })
-          .filter(Boolean);
-
-      let services = {};
-
-      if (serviceIds.length) {
-
-        const serviceResult =
-          await supabaseClient
-            .from('services')
-            .select('*')
-            .in(
-              'id',
-              serviceIds
-            );
-
-        if (!serviceResult.error) {
-
-          services =
-            (serviceResult.data || [])
-              .reduce(
-                function (map, service) {
-
-                  map[service.id] =
-                    service;
-
-                  return map;
-
-                },
-                {}
-              );
-        }
-      }
-
       setStatus(
         myOrdersStatus,
         orders.length +
-        ' active order' +
+        ' order' +
         (orders.length === 1 ? '' : 's') +
         '.',
         'success'
       );
 
-      orders.forEach(function (order) {
+      for (const order of orders) {
 
-        myOrdersContainer.appendChild(
+        const serviceId =
+          order.service_id ||
+          order.Service_id;
+
+        const service =
+          await getService(serviceId);
+
+        const card =
           buildOrderCard(
             order,
             false,
-            reviews[order.id] || null,
-            services[order.service_id] || null
-          )
-        );
-      });
+            null,
+            service
+          );
+
+        myOrdersContainer.appendChild(card);
+      }
 
     } catch (error) {
 
@@ -1576,24 +1512,20 @@
       setStatus(
         myOrdersStatus,
         'Unable to load your orders: ' +
-        error.message,
+        (error.message || 'Unknown error'),
         'error'
       );
-
-      myOrdersContainer.innerHTML = '';
     }
   }
 
-  /*
-   * Load completed orders purchased
-   * by the current user.
-   */
   async function loadMyCompletedOrders(user) {
 
     setStatus(
       myCompletedStatus,
       'Loading completed orders...'
     );
+
+    myCompletedContainer.innerHTML = '';
 
     try {
 
@@ -1604,7 +1536,7 @@
           .eq('customer_id', user.id)
           .eq('status', 'completed')
           .order(
-            'created_at',
+            'completed_at',
             {
               ascending: false
             }
@@ -1617,88 +1549,57 @@
       const orders =
         result.data || [];
 
-      myCompletedContainer.innerHTML = '';
-
       if (!orders.length) {
 
         setStatus(
           myCompletedStatus,
-          'No completed orders yet.'
+          'No completed services yet.'
         );
 
         myCompletedContainer.innerHTML =
           '<div class="empty">' +
-          'Completed services you receive will appear here.' +
+          'You have not received any completed services yet.' +
           '</div>';
 
         return;
       }
 
-      const reviews =
-        await getReviews(
-          orders.map(function (order) {
-            return order.id;
-          })
-        );
-
-      const serviceIds =
-        orders
-          .map(function (order) {
-            return order.service_id;
-          })
-          .filter(Boolean);
-
-      let services = {};
-
-      if (serviceIds.length) {
-
-        const serviceResult =
-          await supabaseClient
-            .from('services')
-            .select('*')
-            .in(
-              'id',
-              serviceIds
-            );
-
-        if (!serviceResult.error) {
-
-          services =
-            (serviceResult.data || [])
-              .reduce(
-                function (map, service) {
-
-                  map[service.id] =
-                    service;
-
-                  return map;
-
-                },
-                {}
-              );
-        }
-      }
-
       setStatus(
         myCompletedStatus,
         orders.length +
-        ' completed service' +
+        ' completed order' +
         (orders.length === 1 ? '' : 's') +
         '.',
         'success'
       );
 
-      orders.forEach(function (order) {
+      const orderIds =
+        orders.map(function (order) {
+          return order.id;
+        });
 
-        myCompletedContainer.appendChild(
+      const reviews =
+        await getReviews(orderIds);
+
+      for (const order of orders) {
+
+        const serviceId =
+          order.service_id ||
+          order.Service_id;
+
+        const service =
+          await getService(serviceId);
+
+        const card =
           buildOrderCard(
             order,
             false,
-            reviews[order.id] || null,
-            services[order.service_id] || null
-          )
-        );
-      });
+            reviews[order.id],
+            service
+          );
+
+        myCompletedContainer.appendChild(card);
+      }
 
     } catch (error) {
 
@@ -1710,21 +1611,20 @@
       setStatus(
         myCompletedStatus,
         'Unable to load completed orders: ' +
-        error.message,
+        (error.message || 'Unknown error'),
         'error'
       );
-
-      myCompletedContainer.innerHTML = '';
     }
   }
 
-  /*
-   * Update an order's status.
-   */
   async function updateOrderStatus(
     orderId,
     newStatus
   ) {
+
+    if (!currentUser) {
+      return;
+    }
 
     try {
 
@@ -1741,32 +1641,35 @@
         button.disabled = true;
       }
 
+      const updateData = {
+        status: newStatus
+      };
+
+      if (newStatus === 'completed') {
+        updateData.completed_at =
+          new Date().toISOString();
+      }
+
       const result =
         await supabaseClient
           .from('service_orders')
-          .update({
-            status: newStatus
-          })
-          .eq('id', orderId);
+          .update(updateData)
+          .eq('id', orderId)
+          .eq('provider_id', currentUser.id);
 
       if (result.error) {
         throw result.error;
       }
 
-      await loadIncomingOrders(
-        currentUser
-      );
+      await loadIncomingOrders(currentUser);
+      await loadCompletedOrders(currentUser);
+      await loadMyOrders(currentUser);
+      await loadMyCompletedOrders(currentUser);
 
-      await loadCompletedOrders(
-        currentUser
-      );
-
-      await loadMyOrders(
-        currentUser
-      );
-
-      await loadMyCompletedOrders(
-        currentUser
+      setStatus(
+        statusBox,
+        'Order updated successfully.',
+        'success'
       );
 
     } catch (error) {
@@ -1776,31 +1679,33 @@
         error
       );
 
-      alert(
+      setStatus(
+        statusBox,
         'Unable to update order: ' +
-        error.message
+        (error.message || 'Unknown error'),
+        'error'
       );
+
     }
   }
 
-  /*
-   * Submit or update a service review.
-   */
   async function submitReview(orderId) {
+
+    if (!currentUser) {
+      return;
+    }
 
     const message =
       document.getElementById(
-        'review-message-' +
-        orderId
+        'review-message-' + orderId
       );
 
-    const textarea =
+    const textElement =
       document.getElementById(
-        'review-text-' +
-        orderId
+        'review-text-' + orderId
       );
 
-    const stars =
+    const starsElement =
       document.querySelector(
         '[data-stars-for="' +
         CSS.escape(orderId) +
@@ -1808,8 +1713,8 @@
       );
 
     const selectedStar =
-      stars &&
-      stars.querySelector(
+      starsElement &&
+      starsElement.querySelector(
         '.star.selected'
       );
 
@@ -1821,8 +1726,8 @@
         : 0;
 
     const reviewText =
-      textarea
-        ? textarea.value.trim()
+      textElement
+        ? textElement.value.trim()
         : '';
 
     if (!rating) {
@@ -1830,6 +1735,8 @@
       if (message) {
         message.textContent =
           'Please select a star rating.';
+        message.className =
+          'error';
       }
 
       return;
@@ -1840,20 +1747,16 @@
       if (message) {
         message.textContent =
           'Saving review...';
+        message.className =
+          'muted';
       }
 
       const existing =
         await supabaseClient
           .from('service_reviews')
           .select('id')
-          .eq(
-            'order_id',
-            orderId
-          )
-          .eq(
-            'reviewer_id',
-            currentUser.id
-          )
+          .eq('order_id', orderId)
+          .eq('reviewer_id', currentUser.id)
           .maybeSingle();
 
       if (existing.error) {
@@ -1869,7 +1772,9 @@
             .from('service_reviews')
             .update({
               rating: rating,
-              review: reviewText
+              review: reviewText,
+              updated_at:
+                new Date().toISOString()
             })
             .eq(
               'id',
@@ -1894,13 +1799,15 @@
       }
 
       if (message) {
+
         message.textContent =
-          'Review saved.';
+          'Review saved successfully.';
+
+        message.className =
+          'success';
       }
 
-      await loadMyCompletedOrders(
-        currentUser
-      );
+      await loadMyCompletedOrders(currentUser);
 
     } catch (error) {
 
@@ -1910,24 +1817,23 @@
       );
 
       if (message) {
+
         message.textContent =
           'Unable to save review: ' +
-          error.message;
+          (error.message || 'Unknown error');
+
+        message.className =
+          'error';
       }
     }
   }
 
-  /*
-   * Star-rating click handling.
-   */
   document.addEventListener(
     'click',
-    function (event) {
+    async function (event) {
 
       const star =
-        event.target.closest(
-          '.star'
-        );
+        event.target.closest('.star');
 
       if (star) {
 
@@ -1935,53 +1841,33 @@
           star.dataset.order;
 
         const rating =
-          Number(
-            star.dataset.rating
-          );
+          Number(star.dataset.rating);
 
-        const container =
+        const starsContainer =
           document.querySelector(
             '[data-stars-for="' +
             CSS.escape(orderId) +
             '"]'
           );
 
-        if (container) {
+        if (starsContainer) {
 
-          container
+          starsContainer
             .querySelectorAll('.star')
-            .forEach(function (item) {
+            .forEach(function (button) {
 
-              item.classList.toggle(
-                'selected',
+              const buttonRating =
                 Number(
-                  item.dataset.rating
-                ) <= rating
+                  button.dataset.rating
+                );
+
+              button.classList.toggle(
+                'selected',
+                buttonRating <= rating
               );
 
             });
         }
-
-        return;
-      }
-
-      const actionButton =
-        event.target.closest(
-          '[data-order-action]'
-        );
-
-      if (actionButton) {
-
-        const orderId =
-          actionButton.dataset.orderId;
-
-        const action =
-          actionButton.dataset.orderAction;
-
-        updateOrderStatus(
-          orderId,
-          action
-        );
 
         return;
       }
@@ -1993,19 +1879,34 @@
 
       if (reviewButton) {
 
-        submitReview(
+        await submitReview(
           reviewButton.dataset.submitReview
         );
 
         return;
       }
 
+      const orderButton =
+        event.target.closest(
+          '[data-order-action]'
+        );
+
+      if (orderButton) {
+
+        const orderId =
+          orderButton.dataset.orderId;
+
+        const action =
+          orderButton.dataset.orderAction;
+
+        await updateOrderStatus(
+          orderId,
+          action
+        );
+      }
     }
   );
 
-  /*
-   * Sign out.
-   */
   document
     .getElementById('signout')
     .addEventListener(
@@ -2031,44 +1932,16 @@
             error
           );
 
-          alert(
+          setStatus(
+            statusBox,
             'Unable to sign out: ' +
-            error.message
+            (error.message || 'Unknown error'),
+            'error'
           );
         }
       }
     );
 
-  /*
-   * Keep dashboard synchronized if
-   * authentication changes.
-   */
-  function listenForAuthChanges() {
-
-    if (!supabaseClient) {
-      return;
-    }
-
-    supabaseClient.auth.onAuthStateChange(
-      function (event, session) {
-
-        if (
-          event === 'SIGNED_OUT' ||
-          !session
-        ) {
-
-          window.location.href =
-            'login.html';
-
-        }
-
-      }
-    );
-  }
-
-  /*
-   * Start everything.
-   */
   initialize();
 
 })();
@@ -2077,15 +1950,10 @@
 </body>
 </html>
       
-  
-
     
-  
+        
+              
 
-      
-    
-
-      
       
         
       
