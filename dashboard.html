@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -591,7 +590,6 @@
       );
 
       if (!window.supabase) {
-
         throw new Error(
           'Supabase JavaScript library failed to load.'
         );
@@ -674,7 +672,6 @@
         .maybeSingle();
 
     if (result.error) {
-
       throw new Error(
         'Profile: ' +
         result.error.message
@@ -691,7 +688,6 @@
           .maybeSingle();
 
       if (result.error) {
-
         throw new Error(
           'Profile: ' +
           result.error.message
@@ -700,7 +696,6 @@
     }
 
     if (!result.data) {
-
       throw new Error(
         'Profile: no profile record exists for this account.'
       );
@@ -789,10 +784,7 @@
         throw result.error;
       }
 
-      if (
-        !result.data ||
-        !result.data.length
-      ) {
+      if (!result.data || !result.data.length) {
 
         element.innerHTML =
           '<span class="muted">' +
@@ -805,13 +797,11 @@
       element.innerHTML =
         result.data
           .map(function (item) {
-
             return (
               '<span class="role">' +
               escapeHtml(item.role) +
               '</span>'
             );
-
           })
           .join('');
 
@@ -830,39 +820,6 @@
     }
   }
 
-  async function getReviews(orderIds) {
-
-    if (!orderIds.length) {
-      return {};
-    }
-
-    const result =
-      await supabaseClient
-        .from('service_reviews')
-        .select('*')
-        .in('order_id', orderIds);
-
-    if (result.error) {
-
-      console.error(
-        'Reviews error:',
-        result.error
-      );
-
-      return {};
-    }
-
-    return (result.data || [])
-      .reduce(function (map, review) {
-
-        map[review.order_id] =
-          review;
-
-        return map;
-
-      }, {});
-  }
-
   async function getServices(serviceIds) {
 
     if (!serviceIds.length) {
@@ -876,13 +833,7 @@
         .in('id', serviceIds);
 
     if (result.error) {
-
-      console.error(
-        'Services error:',
-        result.error
-      );
-
-      return {};
+      throw result.error;
     }
 
     return (result.data || [])
@@ -890,6 +841,65 @@
 
         map[service.id] =
           service;
+
+        return map;
+
+      }, {});
+  }
+
+  async function getProfiles(userIds) {
+
+    if (!userIds.length) {
+      return {};
+    }
+
+    const result =
+      await supabaseClient
+        .from('Profiles')
+        .select('*')
+        .in('id', userIds);
+
+    if (result.error) {
+      return {};
+    }
+
+    return (result.data || [])
+      .reduce(function (map, profile) {
+
+        map[profile.id] =
+          profile;
+
+        return map;
+
+      }, {});
+  }
+
+  async function getReviews(orderIds) {
+
+    if (!orderIds.length) {
+      return {};
+    }
+
+    const result =
+      await supabaseClient
+        .from('service_reviews')
+        .select('*')
+        .in('order_id', orderIds);
+
+    if (result.error) {
+      console.error(
+        'Reviews error:',
+        result.error
+      );
+
+      return {};
+    }
+
+    return (result.data || [])
+      .reduce(function (map, review) {
+
+        map[review.order_id] =
+          review;
 
         return map;
 
@@ -1017,415 +1027,242 @@
     `;
   }
 
-  function providerActions(order) {
-
-    if (order.status === 'pending') {
-
-      return `
-        <div class="order-actions">
-
-          <button
-            class="order-button"
-            data-order-action="accepted"
-            data-order-id="${escapeHtml(order.id)}"
-          >
-            Accept Request
-          </button>
-
-          <button
-            class="order-button decline-button"
-            data-order-action="declined"
-            data-order-id="${escapeHtml(order.id)}"
-          >
-            Decline Request
-          </button>
-
-        </div>
-      `;
-    }
-
-    if (order.status === 'accepted') {
-
-      return `
-        <div class="order-actions">
-
-          <button
-            class="order-button"
-            data-order-action="in_progress"
-            data-order-id="${escapeHtml(order.id)}"
-          >
-            Start Service
-          </button>
-
-        </div>
-      `;
-    }
-
-    if (order.status === 'in_progress') {
-
-      return `
-        <div class="order-actions">
-
-          <button
-            class="order-button"
-            data-order-action="completed"
-            data-order-id="${escapeHtml(order.id)}"
-          >
-            Complete Service
-          </button>
-
-        </div>
-      `;
-    }
-
-    return '';
-  }
-
-  function buildOrderCard(
-    order,
-    providerView,
-    review,
-    service
-  ) {
-
-    const card =
-      document.createElement('div');
-
-    card.className =
-      'order-card';
+  function renderOrder(order, service, profile, options) {
 
     const serviceTitle =
       service
+        ? service.title
+        : 'Service';
+
+    const requestMessage =
+      order.request_message &&
+      order.request_message.trim()
+        ? order.request_message
+        : 'No request details provided.';
+
+    const personLabel =
+      options.personLabel || 'Member';
+
+    const personName =
+      profile
         ? getField(
-            service,
+            profile,
             [
-              'title',
-              'Title',
-              'name',
-              'Name',
-              'service_name',
-              'Service_Name'
+              'display_name',
+              'full_name',
+              'name'
             ],
-            ''
+            personLabel
           )
+        : personLabel;
+
+    let actions = '';
+
+    if (options.provider) {
+
+      if (order.status === 'pending') {
+
+        actions = `
+          <div class="order-actions">
+
+            <button
+              class="order-button"
+              data-order-action="accepted"
+              data-order-id="${escapeHtml(order.id)}"
+            >
+              Accept Request
+            </button>
+
+            <button
+              class="order-button decline-button"
+              data-order-action="declined"
+              data-order-id="${escapeHtml(order.id)}"
+            >
+              Decline Request
+            </button>
+
+          </div>
+        `;
+      }
+
+      if (order.status === 'accepted') {
+
+        actions = `
+          <div class="order-actions">
+
+            <button
+              class="order-button"
+              data-order-action="in_progress"
+              data-order-id="${escapeHtml(order.id)}"
+            >
+              Start Service
+            </button>
+
+          </div>
+        `;
+      }
+
+      if (order.status === 'in_progress') {
+
+        actions = `
+          <div class="order-actions">
+
+            <button
+              class="order-button"
+              data-order-action="completed"
+              data-order-id="${escapeHtml(order.id)}"
+            >
+              Mark Completed
+            </button>
+
+          </div>
+        `;
+      }
+    }
+
+    const serviceLink =
+      service
+        ? `
+          <a
+            class="service-link"
+            href="service.html?id=${encodeURIComponent(service.id)}"
+          >
+            View Service
+          </a>
+        `
         : '';
 
-    const requestText =
-      getField(
-        order,
-        [
-          'request',
-          'Request',
-          'description',
-          'Description',
-          'details',
-          'Details'
-        ],
-        'No request details provided.'
-      );
+    return `
+      <div class="order-card">
 
-    const amount =
-      getField(
-        order,
-        [
-          'amount_cents',
-          'Amount_cents',
-          'price_cents',
-          'Price_cents',
-          'total_cents',
-          'Total_cents',
-          'amount',
-          'Amount'
-        ],
-        0
-      );
+        <div class="service-title">
+          ${escapeHtml(serviceTitle)}
+        </div>
 
-    const createdAt =
-      getField(
-        order,
-        [
-          'created_at',
-          'Created_at',
-          'createdAt'
-        ],
-        null
-      );
+        <div class="order-price">
+          ${escapeHtml(
+            formatMoney(order.amount_cents)
+          )}
+        </div>
 
-    const customerId =
-      getField(
-        order,
-        [
-          'customer_id',
-          'Customer_id',
-          'buyer_id',
-          'Buyer_id',
-          'user_id',
-          'User_id'
-        ],
-        ''
-      );
+        <div class="order-status">
+          ${escapeHtml(order.status)}
+        </div>
 
-    const providerId =
-      getField(
-        order,
-        [
-          'provider_id',
-          'Provider_id',
-          'seller_id',
-          'Seller_id'
-        ],
-        ''
-      );
+        <div class="order-request">
+          ${escapeHtml(requestMessage)}
+        </div>
 
-    const customerName =
-      getField(
-        order,
-        [
-          'customer_name',
-          'Customer_Name',
-          'buyer_name',
-          'Buyer_Name'
-        ],
-        'Customer'
-      );
+        <div class="order-meta">
+          ${escapeHtml(personLabel)}:
+          ${escapeHtml(personName)}
+        </div>
 
-    const providerName =
-      getField(
-        order,
-        [
-          'provider_name',
-          'Provider_Name',
-          'seller_name',
-          'Seller_Name'
-        ],
-        'Service Provider'
-      );
+        <div class="order-meta">
+          Requested:
+          ${escapeHtml(formatDate(order.created_at))}
+        </div>
 
-    card.innerHTML = `
+        ${serviceLink}
 
-      ${
-        serviceTitle
-          ? `
-            <div class="service-title">
-              ${escapeHtml(serviceTitle)}
-            </div>
-          `
-          : ''
-      }
+        ${actions}
 
-      <div class="order-price">
-        ${formatMoney(amount)}
       </div>
-
-      <span class="order-status">
-        ${escapeHtml(
-          String(order.status || 'unknown')
-            .replace(/_/g, ' ')
-        )}
-      </span>
-
-      <div class="order-request">
-        ${escapeHtml(requestText)}
-      </div>
-
-      <div class="order-meta">
-        ${
-          providerView
-            ? 'Customer: ' +
-              escapeHtml(customerName)
-            : 'Provider: ' +
-              escapeHtml(providerName)
-        }
-      </div>
-
-      <div class="order-meta">
-        Requested:
-        ${escapeHtml(formatDate(createdAt))}
-      </div>
-
-      ${
-        service && service.id
-          ? `
-            <a
-              class="service-link"
-              href="service.html?id=${encodeURIComponent(service.id)}"
-            >
-              View Service
-            </a>
-          `
-          : ''
-      }
-
-      ${
-        providerView
-          ? providerActions(order)
-          : ''
-      }
-
-      ${
-        !providerView &&
-        String(order.status).toLowerCase() === 'completed'
-          ? (
-              review
-                ? reviewDisplay(review)
-                : reviewForm(order, null)
-            )
-          : ''
-      }
-
     `;
-
-    return card;
-  }
-
-  async function fetchOrders(column, userId, statuses) {
-
-    let query =
-      supabaseClient
-        .from('service_orders')
-        .select('*')
-        .eq(column, userId)
-        .order('created_at', {
-          ascending: false
-        });
-
-    if (
-      statuses &&
-      statuses.length
-    ) {
-
-      query =
-        query.in(
-          'status',
-          statuses
-        );
-    }
-
-    const result =
-      await query;
-
-    if (result.error) {
-      throw result.error;
-    }
-
-    return result.data || [];
-  }
-
-  async function renderOrders(
-    container,
-    orders,
-    providerView
-  ) {
-
-    container.innerHTML = '';
-
-    if (!orders.length) {
-
-      container.innerHTML =
-        '<div class="empty">' +
-        (
-          providerView
-            ? 'No incoming service orders.'
-            : 'You have not placed any orders yet.'
-        ) +
-        '</div>';
-
-      return;
-    }
-
-    const orderIds =
-      orders.map(function (order) {
-        return order.id;
-      });
-
-    const serviceIds =
-      orders
-        .map(function (order) {
-
-          return getField(
-            order,
-            [
-              'service_id',
-              'Service_id'
-            ],
-            null
-          );
-
-        })
-        .filter(Boolean);
-
-    const reviews =
-      providerView
-        ? {}
-        : await getReviews(orderIds);
-
-    const services =
-      await getServices(serviceIds);
-
-    orders.forEach(function (order) {
-
-      const serviceId =
-        getField(
-          order,
-          [
-            'service_id',
-            'Service_id'
-          ],
-          null
-        );
-
-      const card =
-        buildOrderCard(
-          order,
-          providerView,
-          reviews[order.id] || null,
-          services[serviceId] || null
-        );
-
-      container.appendChild(card);
-
-    });
   }
 
   async function loadIncomingOrders(user) {
 
+    setStatus(
+      ordersStatus,
+      'Loading orders...'
+    );
+
+    ordersContainer.innerHTML = '';
+
     try {
 
-      setStatus(
-        ordersStatus,
-        'Loading incoming orders...'
-      );
+      const result =
+        await supabaseClient
+          .from('service_orders')
+          .select('*')
+          .eq('seller_id', user.id)
+          .in(
+            'status',
+            [
+              'pending',
+              'accepted',
+              'in_progress'
+            ]
+          )
+          .order(
+            'created_at',
+            { ascending: false }
+          );
+
+      if (result.error) {
+        throw result.error;
+      }
 
       const orders =
-        await fetchOrders(
-          'seller_id',
-          user.id,
-          [
-            'pending',
-            'accepted',
-            'in_progress'
-          ]
+        result.data || [];
+
+      if (!orders.length) {
+
+        setStatus(
+          ordersStatus,
+          'You have no active service requests.'
         );
 
-      await renderOrders(
-        ordersContainer,
-        orders,
-        true
-      );
+        ordersContainer.innerHTML =
+          '<div class="empty">' +
+          'No incoming service orders yet.' +
+          '</div>';
+
+        return;
+      }
+
+      const serviceIds =
+        orders.map(function (order) {
+          return order.service_id;
+        });
+
+      const buyerIds =
+        orders.map(function (order) {
+          return order.buyer_id;
+        });
+
+      const services =
+        await getServices(serviceIds);
+
+      const profiles =
+        await getProfiles(buyerIds);
 
       setStatus(
         ordersStatus,
-        orders.length
-          ? orders.length +
-            ' active service request' +
-            (
-              orders.length === 1
-                ? ''
-                : 's'
-            ) +
-            '.'
-          : 'No active service requests.'
+        orders.length === 1
+          ? '1 active service request.'
+          : orders.length +
+            ' active service requests.',
+        'success'
       );
+
+      ordersContainer.innerHTML =
+        orders
+          .map(function (order) {
+
+            return renderOrder(
+              order,
+              services[order.service_id],
+              profiles[order.buyer_id],
+              {
+                provider: true,
+                personLabel: 'Customer'
+              }
+            );
+
+          })
+          .join('');
 
     } catch (error) {
 
@@ -1445,43 +1282,94 @@
 
   async function loadCompletedOrders(user) {
 
+    setStatus(
+      completedOrdersStatus,
+      'Loading completed services...'
+    );
+
+    completedOrdersContainer.innerHTML = '';
+
     try {
 
-      setStatus(
-        completedOrdersStatus,
-        'Loading completed services...'
-      );
+      const result =
+        await supabaseClient
+          .from('service_orders')
+          .select('*')
+          .eq('seller_id', user.id)
+          .eq('status', 'completed')
+          .order(
+            'updated_at',
+            { ascending: false }
+          );
+
+      if (result.error) {
+        throw result.error;
+      }
 
       const orders =
-        await fetchOrders(
-          'provider_id',
-          user.id,
-          ['completed']
+        result.data || [];
+
+      if (!orders.length) {
+
+        setStatus(
+          completedOrdersStatus,
+          'No completed services yet.'
         );
 
-      await renderCompletedProviderOrders(
-        completedOrdersContainer,
-        orders
-      );
+        completedOrdersContainer.innerHTML =
+          '<div class="empty">' +
+          'You have not completed any services yet.' +
+          '</div>';
+
+        return;
+      }
+
+      const serviceIds =
+        orders.map(function (order) {
+          return order.service_id;
+        });
+
+      const buyerIds =
+        orders.map(function (order) {
+          return order.buyer_id;
+        });
+
+      const services =
+        await getServices(serviceIds);
+
+      const profiles =
+        await getProfiles(buyerIds);
 
       setStatus(
         completedOrdersStatus,
-        orders.length
-          ? orders.length +
-            ' completed service' +
-            (
-              orders.length === 1
-                ? ''
-                : 's'
-            ) +
-            '.'
-          : 'No completed services yet.'
+        orders.length === 1
+          ? '1 completed service.'
+          : orders.length +
+            ' completed services.',
+        'success'
       );
+
+      completedOrdersContainer.innerHTML =
+        orders
+          .map(function (order) {
+
+            return renderOrder(
+              order,
+              services[order.service_id],
+              profiles[order.buyer_id],
+              {
+                provider: false,
+                personLabel: 'Customer'
+              }
+            );
+
+          })
+          .join('');
 
     } catch (error) {
 
       console.error(
-        'Completed provider orders error:',
+        'Completed services error:',
         error
       );
 
@@ -1494,106 +1382,98 @@
     }
   }
 
-  async function renderCompletedProviderOrders(
-    container,
-    orders
-  ) {
-
-    container.innerHTML = '';
-
-    if (!orders.length) {
-
-      container.innerHTML =
-        '<div class="empty">' +
-        'No completed services yet.' +
-        '</div>';
-
-      return;
-    }
-
-    const serviceIds =
-      orders
-        .map(function (order) {
-
-          return getField(
-            order,
-            [
-              'service_id',
-              'Service_id'
-            ],
-            null
-          );
-
-        })
-        .filter(Boolean);
-
-    const services =
-      await getServices(serviceIds);
-
-    orders.forEach(function (order) {
-
-      const serviceId =
-        getField(
-          order,
-          [
-            'service_id',
-            'Service_id'
-          ],
-          null
-        );
-
-      const card =
-        buildOrderCard(
-          order,
-          true,
-          null,
-          services[serviceId] || null
-        );
-
-      container.appendChild(card);
-    });
-  }
-
   async function loadMyOrders(user) {
+
+    setStatus(
+      myOrdersStatus,
+      'Loading your orders...'
+    );
+
+    myOrdersContainer.innerHTML = '';
 
     try {
 
-      setStatus(
-        myOrdersStatus,
-        'Loading your orders...'
-      );
+      const result =
+        await supabaseClient
+          .from('service_orders')
+          .select('*')
+          .eq('buyer_id', user.id)
+          .in(
+            'status',
+            [
+              'pending',
+              'accepted',
+              'in_progress'
+            ]
+          )
+          .order(
+            'created_at',
+            { ascending: false }
+          );
+
+      if (result.error) {
+        throw result.error;
+      }
 
       const orders =
-        await fetchOrders(
-          'buyer_id',
-          user.id,
-          [
-            'pending',
-            'accepted',
-            'in_progress',
-            'declined'
-          ]
+        result.data || [];
+
+      if (!orders.length) {
+
+        setStatus(
+          myOrdersStatus,
+          'You have no active orders.'
         );
 
-      await renderOrders(
-        myOrdersContainer,
-        orders,
-        false
-      );
+        myOrdersContainer.innerHTML =
+          '<div class="empty">' +
+          'You have not placed any orders yet.' +
+          '</div>';
+
+        return;
+      }
+
+      const serviceIds =
+        orders.map(function (order) {
+          return order.service_id;
+        });
+
+      const sellerIds =
+        orders.map(function (order) {
+          return order.seller_id;
+        });
+
+      const services =
+        await getServices(serviceIds);
+
+      const profiles =
+        await getProfiles(sellerIds);
 
       setStatus(
         myOrdersStatus,
-        orders.length
-          ? orders.length +
-            ' order' +
-            (
-              orders.length === 1
-                ? ''
-                : 's'
-            ) +
-            '.'
-          : 'You have no active orders.'
+        orders.length === 1
+          ? '1 active order.'
+          : orders.length +
+            ' active orders.',
+        'success'
       );
+
+      myOrdersContainer.innerHTML =
+        orders
+          .map(function (order) {
+
+            return renderOrder(
+              order,
+              services[order.service_id],
+              profiles[order.seller_id],
+              {
+                provider: false,
+                personLabel: 'Seller'
+              }
+            );
+
+          })
+          .join('');
 
     } catch (error) {
 
@@ -1613,39 +1493,109 @@
 
   async function loadMyCompletedOrders(user) {
 
+    setStatus(
+      myCompletedStatus,
+      'Loading completed orders...'
+    );
+
+    myCompletedContainer.innerHTML = '';
+
     try {
 
-      setStatus(
-        myCompletedStatus,
-        'Loading completed orders...'
-      );
+      const result =
+        await supabaseClient
+          .from('service_orders')
+          .select('*')
+          .eq('buyer_id', user.id)
+          .eq('status', 'completed')
+          .order(
+            'updated_at',
+            { ascending: false }
+          );
+
+      if (result.error) {
+        throw result.error;
+      }
 
       const orders =
-        await fetchOrders(
-          'buyer_id',
-          user.id,
-          ['completed']
+        result.data || [];
+
+      if (!orders.length) {
+
+        setStatus(
+          myCompletedStatus,
+          'No completed services yet.'
         );
 
-      await renderOrders(
-        myCompletedContainer,
-        orders,
-        false
-      );
+        myCompletedContainer.innerHTML =
+          '<div class="empty">' +
+          'You have not placed any orders yet.' +
+          '</div>';
+
+        return;
+      }
+
+      const serviceIds =
+        orders.map(function (order) {
+          return order.service_id;
+        });
+
+      const sellerIds =
+        orders.map(function (order) {
+          return order.seller_id;
+        });
+
+      const services =
+        await getServices(serviceIds);
+
+      const profiles =
+        await getProfiles(sellerIds);
+
+      const reviews =
+        await getReviews(
+          orders.map(function (order) {
+            return order.id;
+          })
+        );
 
       setStatus(
         myCompletedStatus,
-        orders.length
-          ? orders.length +
-            ' completed order' +
-            (
-              orders.length === 1
-                ? ''
-                : 's'
-            ) +
-            '.'
-          : 'No completed services yet.'
+        orders.length === 1
+          ? '1 completed service.'
+          : orders.length +
+            ' completed services.',
+        'success'
       );
+
+      myCompletedContainer.innerHTML =
+        orders
+          .map(function (order) {
+
+            const review =
+              reviews[order.id];
+
+            return (
+              renderOrder(
+                order,
+                services[order.service_id],
+                profiles[order.seller_id],
+                {
+                  provider: false,
+                  personLabel: 'Seller'
+                }
+              ) +
+              (
+                review
+                  ? reviewDisplay(review)
+                  : reviewForm(
+                      order,
+                      review
+                    )
+              )
+            );
+
+          })
+          .join('');
 
     } catch (error) {
 
@@ -1669,23 +1619,8 @@
   ) {
 
     if (!currentUser) {
-      return;
-    }
-
-    const allowedStatuses = [
-      'accepted',
-      'declined',
-      'in_progress',
-      'completed'
-    ];
-
-    if (
-      !allowedStatuses.includes(
-        newStatus
-      )
-    ) {
       throw new Error(
-        'Invalid order status.'
+        'You must be signed in.'
       );
     }
 
@@ -1693,7 +1628,8 @@
       await supabaseClient
         .from('service_orders')
         .update({
-          status: newStatus
+          status: newStatus,
+          updated_at: new Date().toISOString()
         })
         .eq('id', orderId)
         .eq('seller_id', currentUser.id);
@@ -1751,6 +1687,27 @@
       );
     }
 
+    const orderResult =
+      await supabaseClient
+        .from('service_orders')
+        .select(
+          'id, seller_id, buyer_id, status'
+        )
+        .eq('id', orderId)
+        .eq('buyer_id', currentUser.id)
+        .eq('status', 'completed')
+        .maybeSingle();
+
+    if (orderResult.error) {
+      throw orderResult.error;
+    }
+
+    if (!orderResult.data) {
+      throw new Error(
+        'Completed order not found.'
+      );
+    }
+
     const existing =
       await supabaseClient
         .from('service_reviews')
@@ -1772,7 +1729,11 @@
           .from('service_reviews')
           .update({
             rating: rating,
-            review: reviewText
+            review: reviewText,
+            seller_id:
+              orderResult.data.seller_id,
+            updated_at:
+              new Date().toISOString()
           })
           .eq(
             'id',
@@ -1791,6 +1752,8 @@
           .insert({
             order_id: orderId,
             reviewer_id: currentUser.id,
+            seller_id:
+              orderResult.data.seller_id,
             rating: rating,
             review: reviewText
           });
@@ -1842,7 +1805,6 @@
                 'selected',
                 buttonRating <= rating
               );
-
             });
         }
 
@@ -1862,21 +1824,23 @@
         const newStatus =
           actionButton.dataset.orderAction;
 
-        const buttons =
-          actionButton
-            .closest('.order-card')
-            ?.querySelectorAll(
-              '[data-order-action]'
-            );
-
-        if (buttons) {
-
-          buttons.forEach(
-            function (button) {
-              button.disabled = true;
-            }
+        const card =
+          actionButton.closest(
+            '.order-card'
           );
-        }
+
+        const buttons =
+          card
+            ? card.querySelectorAll(
+                '[data-order-action]'
+              )
+            : [];
+
+        buttons.forEach(
+          function (button) {
+            button.disabled = true;
+          }
+        );
 
         try {
 
@@ -1913,14 +1877,11 @@
             error.message
           );
 
-          if (buttons) {
-
-            buttons.forEach(
-              function (button) {
-                button.disabled = false;
-              }
-            );
-          }
+          buttons.forEach(
+            function (button) {
+              button.disabled = false;
+            }
+          );
         }
 
         return;
@@ -1942,12 +1903,13 @@
             orderId
           );
 
-        reviewButton.disabled =
-          true;
+        reviewButton.disabled = true;
 
         if (message) {
           message.textContent =
             'Saving review...';
+          message.className =
+            'muted';
         }
 
         try {
@@ -1960,8 +1922,10 @@
 
             message.textContent =
               'Review saved successfully.';
+
             message.className =
               'success';
+
             message.style.marginTop =
               '10px';
           }
@@ -2046,8 +2010,6 @@
         }
       }
     );
-
-  supabaseClient = null;
 
   initialize();
 
