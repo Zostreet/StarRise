@@ -6,9 +6,7 @@
   <title>StarRise Dashboard</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -35,7 +33,7 @@
     }
 
     button {
-      font-family: inherit;
+      font: inherit;
     }
 
     #signout {
@@ -76,6 +74,7 @@
       background: #ffffff08;
       color: #aaa;
       margin-bottom: 15px;
+      word-break: break-word;
     }
 
     .error {
@@ -275,6 +274,12 @@
       margin-top: 8px;
     }
 
+    .service-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 4px 0 10px;
+    }
+
     @media (max-width: 650px) {
       header {
         flex-direction: column;
@@ -305,7 +310,7 @@
 
 <header>
   <a href="index.html">⭐ StarRise</a>
-  <button id="signout">Sign Out</button>
+  <button id="signout" type="button">Sign Out</button>
 </header>
 
 <main>
@@ -325,10 +330,11 @@
   </section>
 
   <section class="panel">
+
     <h2>Your Profile</h2>
 
     <div id="status" class="status-box">
-      Connecting to StarRise...
+      Starting StarRise...
     </div>
 
     <div class="profile-grid">
@@ -376,6 +382,7 @@
       </div>
 
     </div>
+
   </section>
 
   <section class="panel">
@@ -389,10 +396,11 @@
   </section>
 
   <section class="panel">
+
     <h2>Incoming Service Orders</h2>
 
     <p class="muted">
-      Active service requests from customers appear here.
+      Service requests from customers appear here.
     </p>
 
     <div id="orders-status" class="status-box">
@@ -400,9 +408,11 @@
     </div>
 
     <div id="orders"></div>
+
   </section>
 
   <section class="panel">
+
     <h2>Completed Services</h2>
 
     <p class="muted">
@@ -414,9 +424,11 @@
     </div>
 
     <div id="completed-orders"></div>
+
   </section>
 
   <section class="panel">
+
     <h2>My Orders</h2>
 
     <p class="muted">
@@ -428,9 +440,11 @@
     </div>
 
     <div id="my-orders"></div>
+
   </section>
 
   <section class="panel">
+
     <h2>My Completed Services</h2>
 
     <p class="muted">
@@ -442,6 +456,7 @@
     </div>
 
     <div id="my-completed"></div>
+
   </section>
 
 </main>
@@ -459,35 +474,12 @@
   const SUPABASE_KEY =
     'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
-  const statusBox =
-    document.getElementById('status');
-
-  const ordersStatus =
-    document.getElementById('orders-status');
-
-  const ordersContainer =
-    document.getElementById('orders');
-
-  const completedOrdersStatus =
-    document.getElementById('completed-orders-status');
-
-  const completedOrdersContainer =
-    document.getElementById('completed-orders');
-
-  const myOrdersStatus =
-    document.getElementById('my-orders-status');
-
-  const myOrdersContainer =
-    document.getElementById('my-orders');
-
-  const myCompletedStatus =
-    document.getElementById('my-completed-status');
-
-  const myCompletedContainer =
-    document.getElementById('my-completed');
-
   let supabaseClient = null;
   let currentUser = null;
+  let reviewRatings = {};
+
+  const $ = id =>
+    document.getElementById(id);
 
   function escapeHtml(value) {
     return String(value ?? '')
@@ -499,6 +491,9 @@
   }
 
   function setStatus(element, message, type) {
+
+    if (!element) return;
+
     element.textContent = message;
 
     element.classList.remove(
@@ -511,9 +506,31 @@
     }
   }
 
-  function starsHtml(rating) {
+  function formatDate(value) {
 
-    const value =
+    if (!value) {
+      return 'Not available';
+    }
+
+    const date =
+      new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return 'Not available';
+    }
+
+    return date.toLocaleDateString();
+  }
+
+  function money(cents) {
+    return '$' +
+      (Number(cents || 0) / 100)
+        .toFixed(2);
+  }
+
+  function stars(rating) {
+
+    const number =
       Math.max(
         0,
         Math.min(
@@ -523,71 +540,97 @@
       );
 
     return [1, 2, 3, 4, 5]
-      .map(n =>
-        n <= value ? '★' : '☆'
+      .map(number2 =>
+        number2 <= number
+          ? '★'
+          : '☆'
       )
       .join('');
   }
 
-  async function initializeSupabase() {
+  async function init() {
 
-    if (!window.supabase) {
-      throw new Error(
-        'Supabase JavaScript library failed to load.'
+    try {
+
+      if (!window.supabase) {
+        throw new Error(
+          'Supabase library did not load.'
+        );
+      }
+
+      supabaseClient =
+        window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY
+        );
+
+      setStatus(
+        $('status'),
+        'Supabase connected. Checking your account...',
+        'success'
+      );
+
+      const auth =
+        await supabaseClient.auth.getUser();
+
+      if (auth.error) {
+        throw auth.error;
+      }
+
+      if (!auth.data?.user) {
+
+        window.location.href =
+          'login.html';
+
+        return;
+      }
+
+      currentUser =
+        auth.data.user;
+
+      $('email').textContent =
+        currentUser.email ||
+        'Not available';
+
+      await loadProfile();
+
+      await loadRoles();
+
+      await loadAllOrders();
+
+      setStatus(
+        $('status'),
+        'StarRise dashboard connected and loaded.',
+        'success'
+      );
+
+    } catch (error) {
+
+      console.error(
+        'StarRise dashboard error:',
+        error
+      );
+
+      setStatus(
+        $('status'),
+        'Dashboard error: ' +
+        (error.message || String(error)),
+        'error'
       );
     }
-
-    supabaseClient =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
   }
 
-  async function getUser() {
-
-    const result =
-      await supabaseClient.auth.getSession();
-
-    if (result.error) {
-      throw result.error;
-    }
-
-    const session =
-      result.data?.session;
-
-    if (!session?.user) {
-
-      window.location.href =
-        'login.html';
-
-      return null;
-    }
-
-    return session.user;
-  }
-
-  async function loadProfile(user) {
-
-    document.getElementById('email').textContent =
-      user.email || 'Not available';
-
-    /*
-      IMPORTANT:
-      Profiles are keyed by the authenticated
-      user's UUID in the "id" column.
-
-      Do NOT use User_id here.
-    */
+  async function loadProfile() {
 
     const result =
       await supabaseClient
         .from('Profiles')
         .select('*')
-        .eq('id', user.id)
+        .eq('id', currentUser.id)
         .maybeSingle();
 
     if (result.error) {
+
       throw new Error(
         'Profile: ' +
         result.error.message
@@ -595,9 +638,33 @@
     }
 
     if (!result.data) {
-      throw new Error(
-        'Profile: no profile record exists for this account.'
-      );
+
+      $('name').textContent =
+        currentUser.email
+          ?.split('@')[0] ||
+        'Member';
+
+      $('profile-name').textContent =
+        'Profile not created yet';
+
+      $('display-name').textContent =
+        'Profile not created yet';
+
+      $('location').textContent =
+        'Not provided';
+
+      $('website').textContent =
+        'Not provided';
+
+      $('bio').textContent =
+        'Complete your profile to add your StarRise information.';
+
+      $('member-since').textContent =
+        formatDate(
+          currentUser.created_at
+        );
+
+      return;
     }
 
     const profile =
@@ -611,91 +678,175 @@
       profile.display_name ||
       fullName;
 
-    document.getElementById('name').textContent =
+    $('name').textContent =
       displayName;
 
-    document.getElementById('profile-name').textContent =
+    $('profile-name').textContent =
       fullName;
 
-    document.getElementById('display-name').textContent =
+    $('display-name').textContent =
       displayName;
 
-    document.getElementById('location').textContent =
+    $('location').textContent =
       profile.location ||
       'Not provided';
 
-    document.getElementById('bio').textContent =
-      profile.bio ||
-      'No bio added yet.';
-
-    document.getElementById('website').textContent =
+    $('website').textContent =
       profile.website ||
       'Not provided';
 
-    document.getElementById('member-since').textContent =
-      profile.created_at
-        ? new Date(
-            profile.created_at
-          ).toLocaleDateString()
-        : 'StarRise Member';
+    $('bio').textContent =
+      profile.bio ||
+      'No bio added yet.';
 
-    return profile;
+    $('member-since').textContent =
+      formatDate(
+        profile.created_at ||
+        currentUser.created_at
+      );
   }
 
-  async function loadRoles(user) {
+  async function loadRoles() {
 
     const element =
-      document.getElementById('roles');
+      $('roles');
 
-    try {
+    const result =
+      await supabaseClient
+        .from('member_roles')
+        .select('role')
+        .eq(
+          'user_id',
+          currentUser.id
+        );
 
-      const result =
-        await supabaseClient
-          .from('member_roles')
-          .select('role')
-          .eq('user_id', user.id);
-
-      if (result.error) {
-        throw result.error;
-      }
-
-      if (!result.data?.length) {
-
-        element.innerHTML =
-          '<span class="muted">' +
-          'No roles assigned yet.' +
-          '</span>';
-
-        return;
-      }
-
-      element.innerHTML =
-        result.data
-          .map(item =>
-            '<span class="role">' +
-            escapeHtml(item.role) +
-            '</span>'
-          )
-          .join('');
-
-    } catch (error) {
-
-      console.error(
-        'Roles error:',
-        error
-      );
+    if (result.error) {
 
       element.innerHTML =
         '<span class="muted">' +
         'Unable to load roles: ' +
-        escapeHtml(error.message) +
+        escapeHtml(
+          result.error.message
+        ) +
         '</span>';
+
+      return;
     }
+
+    if (!result.data?.length) {
+
+      element.innerHTML =
+        '<span class="muted">' +
+        'No roles assigned yet.' +
+        '</span>';
+
+      return;
+    }
+
+    element.innerHTML =
+      result.data
+        .map(item =>
+          '<span class="role">' +
+          escapeHtml(item.role) +
+          '</span>'
+        )
+        .join('');
   }
 
-  async function getReviews(orderIds) {
+  async function loadAllOrders() {
 
-    if (!orderIds.length) {
+    await Promise.all([
+      loadIncoming(),
+      loadCompletedIncoming(),
+      loadMyOrders(),
+      loadMyCompleted()
+    ]);
+  }
+
+  async function getOrders(filter) {
+
+    let query =
+      supabaseClient
+        .from('service_orders')
+        .select('*')
+        .order(
+          'created_at',
+          { ascending: false }
+        );
+
+    Object.entries(filter)
+      .forEach(
+        ([column, value]) => {
+          query =
+            query.eq(
+              column,
+              value
+            );
+        }
+      );
+
+    const result =
+      await query;
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    return result.data || [];
+  }
+
+  async function getServiceMap(orders) {
+
+    const ids =
+      [
+        ...new Set(
+          orders
+            .map(order =>
+              order.service_id
+            )
+            .filter(Boolean)
+        )
+      ];
+
+    if (!ids.length) {
+      return {};
+    }
+
+    const result =
+      await supabaseClient
+        .from('star_rise_services')
+        .select(
+          'id,title,category,user_id'
+        )
+        .in('id', ids);
+
+    if (result.error) {
+
+      console.error(
+        'Services lookup:',
+        result.error
+      );
+
+      return {};
+    }
+
+    return Object.fromEntries(
+      (result.data || [])
+        .map(service => [
+          service.id,
+          service
+        ])
+    );
+  }
+
+  async function getReviews(orders) {
+
+    const ids =
+      orders.map(order =>
+        order.id
+      );
+
+    if (!ids.length) {
       return {};
     }
 
@@ -705,362 +856,271 @@
         .select('*')
         .in(
           'order_id',
-          orderIds
+          ids
         );
 
     if (result.error) {
 
       console.error(
-        'Reviews error:',
+        'Reviews lookup:',
         result.error
       );
 
       return {};
     }
 
-    return (
-      result.data || []
-    ).reduce(
-      (map, review) => {
-
-        map[review.order_id] =
-          review;
-
-        return map;
-
-      },
-      {}
+    return Object.fromEntries(
+      (result.data || [])
+        .map(review => [
+          review.order_id,
+          review
+        ])
     );
   }
 
-  function reviewDisplay(review) {
+  async function renderOrders(
+    container,
+    statusElement,
+    orders,
+    providerView,
+    allowReview
+  ) {
 
-    if (!review) {
-      return '';
+    if (!orders.length) {
+
+      setStatus(
+        statusElement,
+        'No orders in this section.'
+      );
+
+      container.innerHTML =
+        '<div class="empty">' +
+        'Nothing here yet.' +
+        '</div>';
+
+      return;
     }
 
-    return `
-      <div class="review-display">
+    const [
+      services,
+      reviews
+    ] =
+      await Promise.all([
+        getServiceMap(orders),
+        getReviews(orders)
+      ]);
+
+    container.innerHTML = '';
+
+    orders.forEach(order => {
+
+      const service =
+        services[order.service_id] ||
+        {};
+
+      const review =
+        reviews[order.id];
+
+      if (
+        reviewRatings[order.id] ===
+        undefined
+      ) {
+        reviewRatings[order.id] =
+          Number(
+            review?.rating || 0
+          );
+      }
+
+      const card =
+        document.createElement('div');
+
+      card.className =
+        'order-card';
+
+      card.innerHTML = `
 
         <span class="label">
-          Review
+          ${
+            providerView
+              ? 'Customer Request'
+              : 'Your Order'
+          }
         </span>
 
-        <div class="review-stars">
+        <div class="service-title">
+          ${
+            escapeHtml(
+              service.title ||
+              'StarRise Service'
+            )
+          }
+        </div>
+
+        <div class="order-price">
+          ${money(order.amount_cents)}
+        </div>
+
+        <div class="order-status">
+          ${
+            escapeHtml(
+              order.status ||
+              'pending'
+            )
+          }
+        </div>
+
+        <div class="order-request">
+          ${
+            escapeHtml(
+              order.request_message ||
+              'No request details provided.'
+            )
+          }
+        </div>
+
+        <div class="order-meta">
+          Submitted
           ${escapeHtml(
-            starsHtml(review.rating)
+            formatDate(
+              order.created_at
+            )
           )}
         </div>
 
-        ${
-          review.review
-            ? `
-              <div class="review-content">
-                ${escapeHtml(
-                  review.review
-                )}
-              </div>
-            `
-            : ''
-        }
-
-        ${
-          review.created_at
-            ? `
-              <div class="review-date">
-                Reviewed ${escapeHtml(
-                  new Date(
-                    review.created_at
-                  ).toLocaleDateString()
-                )}
-              </div>
-            `
-            : ''
-        }
-
-      </div>
-    `;
-  }
-
-  function reviewForm(
-    order,
-    review
-  ) {
-
-    const currentRating =
-      Number(
-        review?.rating || 0
-      );
-
-    return `
-      <div class="review-box">
-
-        <span class="label">
-          ${
-            review
-              ? 'Update Your Review'
-              : 'Rate This Service'
-          }
-        </span>
-
-        <div class="stars">
-
-          ${[1,2,3,4,5]
-            .map(n => `
-              <button
-                type="button"
-                class="star ${
-                  n <= currentRating
-                    ? 'selected'
-                    : ''
-                }"
-                data-rating="${n}"
-                data-order="${escapeHtml(
-                  order.id
-                )}"
-              >★</button>
-            `)
-            .join('')}
-
+        <div class="order-meta">
+          Updated
+          ${escapeHtml(
+            formatDate(
+              order.updated_at
+            )
+          )}
         </div>
 
-        <textarea
-          class="review-text"
-          id="review-text-${escapeHtml(
-            order.id
-          )}"
-          maxlength="1000"
-          placeholder="Tell us about your StarRise experience..."
-        >${escapeHtml(
-          review?.review || ''
-        )}</textarea>
-
-        <button
-          type="button"
-          class="order-button"
-          data-submit-review="${escapeHtml(
-            order.id
-          )}"
+        <a
+          class="service-link"
+          href="service.html?id=${
+            encodeURIComponent(
+              order.service_id || ''
+            )
+          }"
         >
-          ${
-            review
-              ? 'Update Review'
-              : 'Submit Review'
-          }
-        </button>
+          View Service
+        </a>
 
-        <div
-          id="review-message-${escapeHtml(
-            order.id
-          )}"
-          class="muted"
-          style="margin-top:10px;"
-        ></div>
+        ${
+          providerView
+            ? providerActions(order)
+            : ''
+        }
 
-      </div>
-    `;
+        ${
+          allowReview &&
+          order.status === 'completed'
+            ? reviewArea(
+                order,
+                review
+              )
+            : ''
+        }
+
+        ${
+          providerView &&
+          order.status === 'completed' &&
+          review
+            ? reviewDisplay(review)
+            : ''
+        }
+      `;
+
+      container.appendChild(card);
+    });
+
+    setStatus(
+      statusElement,
+      orders.length +
+      ' order' +
+      (
+        orders.length === 1
+          ? ''
+          : 's'
+      ) +
+      ' loaded.',
+      'success'
+    );
   }
 
   function providerActions(order) {
 
-    if (order.status === 'pending') {
+    let buttons = '';
 
-      return `
-        <div class="order-actions">
+    if (
+      order.status ===
+      'pending'
+    ) {
 
-          <button
-            class="order-button"
-            data-order-action="accepted"
-            data-order-id="${escapeHtml(
-              order.id
-            )}"
-          >
-            Accept Request
-          </button>
+      buttons = `
 
-          <button
-            class="order-button decline-button"
-            data-order-action="declined"
-            data-order-id="${escapeHtml(
-              order.id
-            )}"
-          >
-            Decline Request
-          </button>
+        <button
+          class="order-button"
+          data-action="accepted"
+          data-id="${escapeHtml(order.id)}"
+        >
+          Accept Request
+        </button>
 
-        </div>
+        <button
+          class="order-button decline-button"
+          data-action="declined"
+          data-id="${escapeHtml(order.id)}"
+        >
+          Decline Request
+        </button>
+      `;
+
+    } else if (
+      order.status ===
+      'accepted'
+    ) {
+
+      buttons = `
+
+        <button
+          class="order-button"
+          data-action="in_progress"
+          data-id="${escapeHtml(order.id)}"
+        >
+          Start Service
+        </button>
+      `;
+
+    } else if (
+      order.status ===
+      'in_progress'
+    ) {
+
+      buttons = `
+
+        <button
+          class="order-button"
+          data-action="completed"
+          data-id="${escapeHtml(order.id)}"
+        >
+          Complete Service
+        </button>
       `;
     }
 
-    if (order.status === 'accepted') {
-
-      return `
-        <div class="order-actions">
-
-          <button
-            class="order-button"
-            data-order-action="in_progress"
-            data-order-id="${escapeHtml(
-              order.id
-            )}"
-          >
-            Start Service
-          </button>
-
-        </div>
-      `;
+    if (!buttons) {
+      return '';
     }
 
-    if (order.status === 'in_progress') {
-
-      return `
-        <div class="order-actions">
-
-          <button
-            class="order-button"
-            data-order-action="completed"
-            data-order-id="${escapeHtml(
-              order.id
-            )}"
-          >
-            Complete Service
-          </button>
-
-        </div>
-      `;
-    }
-
-    return '';
-  }
-
-  function buildOrderCard(
-    order,
-    providerView,
-    review
-  ) {
-
-    const amount =
-      Number(
-        order.amount_cents || 0
-      ) / 100;
-
-    const created =
-      order.created_at
-        ? new Date(
-            order.created_at
-          ).toLocaleDateString()
-        : 'Unknown';
-
-    const updated =
-      order.updated_at
-        ? new Date(
-            order.updated_at
-          ).toLocaleDateString()
-        : created;
-
-    const card =
-      document.createElement('div');
-
-    card.className =
-      'order-card';
-
-    card.innerHTML = `
-
-      <span class="label">
-        ${
-          providerView
-            ? 'Customer Service'
-            : 'Your Service'
-        }
-      </span>
-
-      <div class="order-price">
-        $${amount.toFixed(2)}
+    return `
+      <div class="order-actions">
+        ${buttons}
       </div>
-
-      <div class="order-status">
-        ${escapeHtml(
-          order.status ||
-          'pending'
-        )}
-      </div>
-
-      <div class="order-request">
-        ${escapeHtml(
-          order.request_message ||
-          'No request details provided.'
-        )}
-      </div>
-
-      <div class="order-meta">
-        Submitted ${escapeHtml(
-          created
-        )}
-      </div>
-
-      <div class="order-meta">
-        Updated ${escapeHtml(
-          updated
-        )}
-      </div>
-
-      ${
-        order.service_id
-          ? `
-            <a
-              class="service-link"
-              href="service.html?id=${encodeURIComponent(
-                order.service_id
-              )}"
-            >
-              View Service
-            </a>
-          `
-          : ''
-      }
-
-      ${
-        providerView &&
-        order.status === 'completed'
-          ? reviewDisplay(review)
-          : ''
-      }
-
-      ${
-        !providerView &&
-        order.status === 'completed'
-          ? reviewDisplay(review) +
-            reviewForm(
-              order,
-              review
-            )
-          : ''
-      }
-
-      ${
-        providerView
-          ? providerActions(order)
-          : ''
-      }
-
     `;
-
-    return card;
   }
 
-  async function loadIncomingOrders(user) {
+  function reviewDisplay(review) {
 
-    try {
-
-      setStatus(
-        ordersStatus,
-        'Loading incoming orders...'
-      );
-
-      const result =
-        await supabaseClient
-          .from('service_orders')
-          .select('*')
-          .eq(
-            'seller_id',
-            
+   
