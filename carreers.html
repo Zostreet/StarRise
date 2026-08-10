@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>StarRise Careers</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: #fff;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #ffffff18;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    nav a {
+      color: #bbb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    nav a:hover,
+    nav a.active {
+      color: #fff;
+    }
+
+    main {
+      width: min(950px, calc(100% - 30px));
+      margin: 45px auto 70px;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 55px 25px;
+      border: 1px solid #ffffff18;
+      border-radius: 24px;
+      background: #ffffff08;
+      margin-bottom: 25px;
+    }
+
+    .hero-icon {
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    .eyebrow {
+      color: #aaa;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: clamp(36px, 7vw, 58px);
+      margin: 10px 0 15px;
+    }
+
+    .hero p {
+      max-width: 650px;
+      margin: 0 auto;
+      color: #bbb;
+      font-size: 18px;
+    }
+
+    .panel {
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+      background: #ffffff08;
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 27px;
+    }
+
+    .muted {
+      color: #aaa;
+    }
+
+    .career-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .career-card {
+      padding: 22px;
+      border-radius: 16px;
+      background: #ffffff08;
+      border: 1px solid #ffffff12;
+    }
+
+    .career-card h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .career-card p {
+      margin: 0;
+      color: #999;
+      font-size: 14px;
+    }
+
+    .coming-soon {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 7px 12px;
+      border-radius: 20px;
+      background: #ffffff12;
+      color: #bbb;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .cta {
+      text-align: center;
+    }
+
+    .cta p {
+      color: #aaa;
+      max-width: 650px;
+      margin: 0 auto 20px;
+    }
+
+    .back-button {
+      display: inline-block;
+      padding: 12px 22px;
+      border-radius: 25px;
+      background: #fff;
+      color: #080812;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .back-button:hover {
+      opacity: .9;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 20px;
+      color: #666;
+      font-size: 13px;
+      border-top: 1px solid #ffffff12;
+    }
+
+    @media (max-width: 650px) {
+      header {
+        flex-direction: column;
+      }
+
+      nav {
+        justify-content: center;
+      }
+
+      main {
+        width: calc(100% - 20px);
+        margin-top: 25px;
+      }
+
+      .hero {
+        padding: 40px 20px;
+      }
+
+      .panel {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+
+  <a class="logo" href="index.html">
+    ⭐ StarRise
+  </a>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="services.html">Services</a>
+    <a href="members.html">Members</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="careers.html" class="active">Careers</a>
+  </nav>
+
+</header>
+
+<main>
+
+  <section class="hero">
+
+    <div class="hero-icon">⭐</div>
+
+    <div class="eyebrow">
+      StarRise Careers
+    </div>
+
+    <h1>
+      Build StarRise With Us
+    </h1>
+
+    <p>
+      StarRise is growing. As our community and marketplace grow,
+      we'll build a team of people who believe in helping talented
+      people share their skills, services, creativity, and passion.
+    </p>
+
+  </section>
+
+  <section class="panel">
+
+    <h2>Careers Coming Soon</h2>
+
+    <p class="muted">
+      We are not currently hiring, but these are some of the
+      areas where future StarRise team members may help us grow.
+    </p>
+
+    <div class="career-grid">
+
+      <div class="career-card">
+        <h3>Customer Support</h3>
+        <p>
+          Help StarRise members and customers have a great experience.
+        </p>
+        <span class="coming-soon">Coming Soon</span>
+      </div>
+
+      <div class="career-card">
+        <h3>Community & Member Success</h3>
+        <p>
+          Help members connect, succeed, and get the most from StarRise.
+        </p>
+        <span class="coming-soon">Coming Soon</span>
+      </div>
+
+      <div class="career-card">
+        <h3>Marketing & Social Media</h3>
+        <p>
+          Help introduce StarRise and its talented members to more people.
+        </p>
+        <span class="coming-soon">Coming Soon</span>
+      </div>
+
+      <div class="career-card">
+        <h3>Operations</h3>
+        <p>
+          Help keep the StarRise marketplace organized and running smoothly.
+        </p>
+        <span class="coming-soon">Coming Soon</span>
+      </div>
+
+      <div class="career-card">
+        <h3>Service Quality</h3>
+        <p>
+          Help maintain a trustworthy, professional experience for everyone.
+        </p>
+        <span class="coming-soon">Coming Soon</span>
+      </div>
+
+      <div class="career-card">
+        <h3>Technology</h3>
+        <p>
+          Help build and improve the technology behind the StarRise platform.
+        </p>
+        <span class="coming-soon">Coming Soon</span>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section class="panel cta">
+
+    <h2>Growing With StarRise</h2>
+
+    <p>
+      As StarRise grows, new opportunities will become available.
+      Check back here for future positions and ways to become part
+      of the StarRise team.
+    </p>
+
+    <a class="back-button" href="index.html">
+      Back to StarRise
+    </a>
+
+  </section>
+
+</main>
+
+<footer>
+  © 2026 StarRise. All rights reserved.
+</footer>
+
+</body>
+</html>
