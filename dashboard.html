@@ -428,32 +428,15 @@
   const SUPABASE_KEY =
     'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
-  const statusBox =
-    document.getElementById('status');
-
-  const ordersStatus =
-    document.getElementById('orders-status');
-
-  const ordersContainer =
-    document.getElementById('orders');
-
-  const completedOrdersStatus =
-    document.getElementById('completed-orders-status');
-
-  const completedOrdersContainer =
-    document.getElementById('completed-orders');
-
-  const myOrdersStatus =
-    document.getElementById('my-orders-status');
-
-  const myOrdersContainer =
-    document.getElementById('my-orders');
-
-  const myCompletedStatus =
-    document.getElementById('my-completed-status');
-
-  const myCompletedContainer =
-    document.getElementById('my-completed');
+  const statusBox = document.getElementById('status');
+  const ordersStatus = document.getElementById('orders-status');
+  const ordersContainer = document.getElementById('orders');
+  const completedOrdersStatus = document.getElementById('completed-orders-status');
+  const completedOrdersContainer = document.getElementById('completed-orders');
+  const myOrdersStatus = document.getElementById('my-orders-status');
+  const myOrdersContainer = document.getElementById('my-orders');
+  const myCompletedStatus = document.getElementById('my-completed-status');
+  const myCompletedContainer = document.getElementById('my-completed');
 
   let supabaseClient = null;
   let currentUser = null;
@@ -645,9 +628,7 @@
       if (!result.data?.length) {
 
         element.innerHTML =
-          '<span class="muted">' +
-          'No roles assigned yet.' +
-          '</span>';
+          '<span class="muted">No roles assigned yet.</span>';
 
         return;
       }
@@ -688,21 +669,14 @@
         .in('order_id', orderIds);
 
     if (result.error) {
-      console.error(
-        'Reviews error:',
-        result.error
-      );
-
+      console.error('Reviews error:', result.error);
       return {};
     }
 
     return (result.data || []).reduce(
       function (map, review) {
-
         map[review.order_id] = review;
-
         return map;
-
       },
       {}
     );
@@ -716,7 +690,6 @@
 
     return `
       <div class="review-display">
-
         <span class="label">Review</span>
 
         <div class="review-stars">
@@ -725,23 +698,18 @@
 
         ${
           review.review
-            ? `
-              <div class="review-content">
+            ? `<div class="review-content">
                 ${escapeHtml(review.review)}
-              </div>
-            `
+               </div>`
             : ''
         }
 
         <div class="review-date">
-          Reviewed ${
-            escapeHtml(
-              new Date(review.created_at)
-                .toLocaleDateString()
-            )
-          }
+          Reviewed ${escapeHtml(
+            new Date(review.created_at)
+              .toLocaleDateString()
+          )}
         </div>
-
       </div>
     `;
   }
@@ -755,33 +723,21 @@
       <div class="review-box">
 
         <span class="label">
-          ${
-            review
-              ? 'Update Your Review'
-              : 'Rate This Service'
-          }
+          ${review ? 'Update Your Review' : 'Rate This Service'}
         </span>
 
         <div class="stars">
 
-          ${
-            [1,2,3,4,5]
-              .map(function (n) {
-                return `
-                  <button
-                    type="button"
-                    class="star ${
-                      n <= currentRating
-                        ? 'selected'
-                        : ''
-                    }"
-                    data-rating="${n}"
-                    data-order="${escapeHtml(order.id)}"
-                  >★</button>
-                `;
-              })
-              .join('')
-          }
+          ${[1,2,3,4,5].map(function (n) {
+            return `
+              <button
+                type="button"
+                class="star ${n <= currentRating ? 'selected' : ''}"
+                data-rating="${n}"
+                data-order="${escapeHtml(order.id)}"
+              >★</button>
+            `;
+          }).join('')}
 
         </div>
 
@@ -797,11 +753,7 @@
           class="order-button"
           data-submit-review="${escapeHtml(order.id)}"
         >
-          ${
-            review
-              ? 'Update Review'
-              : 'Submit Review'
-          }
+          ${review ? 'Update Review' : 'Submit Review'}
         </button>
 
         <div
@@ -878,25 +830,19 @@
     return '';
   }
 
-  function buildOrderCard(
-    order,
-    providerView,
-    review
-  ) {
+  function buildOrderCard(order, providerView, review) {
 
     const amount =
       Number(order.amount_cents || 0) / 100;
 
     const created =
       order.created_at
-        ? new Date(order.created_at)
-            .toLocaleDateString()
+        ? new Date(order.created_at).toLocaleDateString()
         : 'Unknown';
 
     const updated =
       order.updated_at
-        ? new Date(order.updated_at)
-            .toLocaleDateString()
+        ? new Date(order.updated_at).toLocaleDateString()
         : created;
 
     const card =
@@ -907,11 +853,7 @@
     card.innerHTML = `
 
       <span class="label">
-        ${
-          providerView
-            ? 'Customer Service'
-            : 'Your Service'
-        }
+        ${providerView ? 'Customer Service' : 'Your Service'}
       </span>
 
       <div class="order-price">
@@ -1001,4 +943,30 @@
 
         setStatus(
           ordersStatus,
-          'No incomi
+          'No incoming service orders yet.'
+        );
+
+        ordersContainer.innerHTML =
+          '<div class="empty">No customer requests yet.</div>';
+
+        return;
+      }
+
+      const reviews =
+        await getReviews(
+          orders.map(function (order) {
+            return order.id;
+          })
+        );
+
+      ordersContainer.innerHTML = '';
+
+      orders.forEach(function (order) {
+
+        ordersContainer.appendChild(
+          buildOrderCard(
+            order,
+            true,
+            reviews[order.id]
+          )
+       
