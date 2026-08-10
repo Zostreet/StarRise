@@ -6,7 +6,9 @@
   <title>StarRise Dashboard</title>
 
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -32,7 +34,9 @@
       font-weight: bold;
     }
 
-    button { font-family: inherit; }
+    button {
+      font-family: inherit;
+    }
 
     #signout {
       border: 1px solid #ffffff33;
@@ -57,9 +61,14 @@
       margin-bottom: 20px;
     }
 
-    h1, h2 { margin-top: 0; }
+    h1,
+    h2 {
+      margin-top: 0;
+    }
 
-    .muted { color: #aaa; }
+    .muted {
+      color: #aaa;
+    }
 
     .status-box {
       padding: 14px;
@@ -476,6 +485,7 @@
   }
 
   function setStatus(element, message, type) {
+
     if (!element) return;
 
     element.textContent = message;
@@ -488,18 +498,6 @@
     if (type) {
       element.classList.add(type);
     }
-  }
-
-  function starsHtml(rating) {
-
-    const value =
-      Number(rating || 0);
-
-    return [1, 2, 3, 4, 5]
-      .map(function (n) {
-        return n <= value ? '★' : '☆';
-      })
-      .join('');
   }
 
   function formatDate(value) {
@@ -515,6 +513,17 @@
     }
 
     return date.toLocaleDateString();
+  }
+
+  function starsHtml(rating) {
+
+    const value = Number(rating || 0);
+
+    return [1, 2, 3, 4, 5]
+      .map(function (number) {
+        return number <= value ? '★' : '☆';
+      })
+      .join('');
   }
 
   async function initialize() {
@@ -564,8 +573,10 @@
         return;
       }
 
-      currentUser =
-        session.user;
+      currentUser = session.user;
+
+      document.getElementById('email').textContent =
+        currentUser.email || 'Not available';
 
       setStatus(
         statusBox,
@@ -573,18 +584,12 @@
         'success'
       );
 
-      document.getElementById('email').textContent =
-        currentUser.email ||
-        'Not available';
-
-      await Promise.all([
-        loadProfile(currentUser),
-        loadRoles(currentUser),
-        loadIncomingOrders(currentUser),
-        loadCompletedOrders(currentUser),
-        loadMyOrders(currentUser),
-        loadMyCompletedOrders(currentUser)
-      ]);
+      await loadProfile(currentUser);
+      await loadRoles(currentUser);
+      await loadIncomingOrders(currentUser);
+      await loadCompletedOrders(currentUser);
+      await loadMyOrders(currentUser);
+      await loadMyCompletedOrders(currentUser);
 
     } catch (error) {
 
@@ -624,8 +629,7 @@
       );
     }
 
-    const profile =
-      result.data;
+    const profile = result.data;
 
     const fullName =
       profile.full_name ||
@@ -677,8 +681,7 @@
         throw result.error;
       }
 
-      if (!result.data ||
-          !result.data.length) {
+      if (!result.data || !result.data.length) {
 
         element.innerHTML =
           '<span class="muted">' +
@@ -691,13 +694,11 @@
       element.innerHTML =
         result.data
           .map(function (item) {
-
             return (
               '<span class="role">' +
               escapeHtml(item.role) +
               '</span>'
             );
-
           })
           .join('');
 
@@ -718,8 +719,7 @@
 
   async function getReviews(orderIds) {
 
-    if (!orderIds ||
-        !orderIds.length) {
+    if (!orderIds.length) {
       return {};
     }
 
@@ -740,17 +740,13 @@
     }
 
     return (result.data || [])
-      .reduce(
-        function (map, review) {
+      .reduce(function (map, review) {
 
-          map[review.order_id] =
-            review;
+        map[review.order_id] = review;
 
-          return map;
+        return map;
 
-        },
-        {}
-      );
+      }, {});
   }
 
   function reviewDisplay(review) {
@@ -796,8 +792,7 @@
 
     const currentRating =
       Number(
-        review &&
-        review.rating
+        review && review.rating
           ? review.rating
           : 0
       );
@@ -815,18 +810,18 @@
 
         <div class="stars">
 
-          ${[1,2,3,4,5]
-            .map(function (n) {
+          ${[1, 2, 3, 4, 5]
+            .map(function (number) {
 
               return `
                 <button
                   type="button"
                   class="star ${
-                    n <= currentRating
+                    number <= currentRating
                       ? 'selected'
                       : ''
                   }"
-                  data-rating="${n}"
+                  data-rating="${number}"
                   data-order="${escapeHtml(order.id)}"
                 >★</button>
               `;
@@ -843,8 +838,7 @@
           placeholder="Tell us about your StarRise experience..."
         >${
           escapeHtml(
-            review &&
-            review.review
+            review && review.review
               ? review.review
               : ''
           )
@@ -945,17 +939,10 @@
     const amount =
       Number(order.amount_cents || 0) / 100;
 
-    const created =
-      formatDate(order.created_at);
-
-    const updated =
-      formatDate(order.updated_at);
-
     const card =
       document.createElement('div');
 
-    card.className =
-      'order-card';
+    card.className = 'order-card';
 
     card.innerHTML = `
 
@@ -985,11 +972,15 @@
       </div>
 
       <div class="order-meta">
-        Submitted ${escapeHtml(created)}
+        Submitted ${escapeHtml(
+          formatDate(order.created_at)
+        )}
       </div>
 
       <div class="order-meta">
-        Updated ${escapeHtml(updated)}
+        Updated ${escapeHtml(
+          formatDate(order.updated_at)
+        )}
       </div>
 
       <a
@@ -1011,10 +1002,8 @@
       ${
         !providerView &&
         order.status === 'completed'
-          ? (
-              reviewDisplay(review) +
-              reviewForm(order, review)
-            )
+          ? reviewDisplay(review) +
+            reviewForm(order, review)
           : ''
       }
 
@@ -1029,10 +1018,15 @@
     return card;
   }
 
-  async function loadIncomingOrders(user) {
+  async function fetchOrders(
+    column,
+    userId
+  ) {
 
-    try {
-
-      setStatus(
-        ordersStatus,
-      
+    const result =
+      await supabaseClient
+        .from('service_orders')
+        .select('*')
+        .eq(column, userId)
+        .order('created_at', {
+          asc
