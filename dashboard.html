@@ -1040,7 +1040,876 @@
         }
       </span>
 
-      ${
+            ${
         serviceTitle
           ? `
-            <div class="service-titl
+            <div class="service-title">
+              ${escapeHtml(serviceTitle)}
+            </div>
+          `
+          : ''
+      }
+
+      <div class="order-price">
+        ${formatMoney(order.amount_cents)}
+      </div>
+
+      <div class="order-status">
+        ${escapeHtml(order.status || 'pending')}
+      </div>
+
+      <div class="order-request">
+        ${escapeHtml(
+          order.request_message ||
+          'No request details provided.'
+        )}
+      </div>
+
+      <div class="order-meta">
+        Submitted ${escapeHtml(
+          formatDate(order.created_at)
+        )}
+      </div>
+
+      <div class="order-meta">
+        Updated ${escapeHtml(
+          formatDate(order.updated_at)
+        )}
+      </div>
+
+      <a
+        class="service-link"
+        href="service.html?id=${encodeURIComponent(
+          order.service_id || ''
+        )}"
+      >
+        View Service
+      </a>
+
+      ${
+        providerView &&
+        order.status === 'completed'
+          ? reviewDisplay(review)
+          : ''
+      }
+
+      ${
+        !providerView &&
+        order.status === 'completed'
+          ? (
+              reviewDisplay(review) +
+              reviewForm(order, review)
+            )
+          : ''
+      }
+
+      ${
+        providerView
+          ? providerActions(order)
+          : ''
+      }
+
+    `;
+
+    return card;
+  }
+
+  /*
+   * Fetch orders where the current user is either
+   * the provider or the customer.
+   */
+  async function fetchOrders(
+    column,
+    userId
+  ) {
+
+    const result =
+      await supabaseClient
+        .from('service_orders')
+        .select('*')
+        .eq(column, userId)
+        .order('created_at', {
+          ascending: false
+        });
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    return result.data || [];
+  }
+
+  /*
+   * Load services so the order cards can display
+   * the service title when available.
+   */
+  async function getServices(serviceIds) {
+
+    if (!serviceIds.length) {
+      return {};
+    }
+
+    const result =
+      await supabaseClient
+        .from('services')
+        .select('*')
+        .in('id', serviceIds);
+
+    if (result.error) {
+
+      console.error(
+        'Services error:',
+        result.error
+      );
+
+      return {};
+    }
+
+    return (result.data || [])
+      .reduce(function (map, service) {
+
+        map[service.id] =
+          service;
+
+        return map;
+
+      }, {});
+  }
+
+  /*
+   * Render a collection of orders.
+   */
+  async function renderOrders(
+    orders,
+    container,
+    providerView
+  ) {
+
+    container.innerHTML = '';
+
+    if (!orders.length) {
+
+      container.innerHTML =
+        '<div class="empty">' +
+        (
+          providerView
+            ? 'No service orders yet.'
+            : 'You have not placed any orders yet.'
+        ) +
+        '</div>';
+
+      return;
+    }
+
+    const orderIds =
+      orders.map(function (order) {
+        return order.id;
+      });
+
+    const serviceIds =
+      orders
+        .map(function (order) {
+          return order.service_id;
+        })
+        .filter(Boolean);
+
+    const reviews =
+      await getReviews(orderIds);
+
+    const services =
+      await getServices(serviceIds);
+
+    orders.forEach(function (order) {
+
+      const card =
+        buildOrderCard(
+          order,
+          providerView,
+          reviews[order.id] || null,
+          services[order.service_id] || null
+        );
+
+      container.appendChild(card);
+    });
+  }
+
+  /*
+   * Incoming orders for services provided
+   * by the current member.
+   */
+  async function loadIncomingOrders(user) {
+
+    try {
+
+      setStatus(
+        ordersStatus,
+        'Loading incoming service orders...'
+      );
+
+      const orders =
+        await fetchOrders(
+          'provider_id',
+          user.id
+        );
+
+      const activeOrders =
+        orders.filter(function (order) {
+
+          return [
+            'pending',
+            'accepted',
+            'in_progress'
+          ].includes(order.status);
+
+        });
+
+      await renderOrders(
+        activeOrders,
+        ordersContainer,
+        true
+      );
+
+      setStatus(
+        ordersStatus,
+        activeOrders.length
+          ? activeOrders.length +
+            ' active service order' +
+            (
+              activeOrders.length === 1
+                ? ''
+                : 's'
+            ) +
+            '.'
+          : 'No active service orders.',
+        'success'
+      );
+
+    } catch (error) {
+
+      console.error(
+        'Incoming orders error:',
+        error
+      );
+
+      setStatus(
+        ordersStatus,
+        'Unable to load incoming orders: ' +
+        (error.message || 'Unknown error'),
+        'error'
+      );
+    }
+  }
+
+  /*
+   * Completed services provided by the
+   * current member.
+   */
+  async function loadCompletedOrders(user) {
+
+    try {
+
+      setStatus(
+        completedOrdersStatus,
+        'Loading completed services...'
+      );
+
+      const orders =
+        await fetchOrders(
+          'provider_id',
+          user.id
+        );
+
+      const completed =
+        orders.filter(function (order) {
+
+          return order.status === 'completed';
+
+        });
+
+      await renderOrders(
+        completed,
+        completedOrdersContainer,
+        true
+      );
+
+      setStatus(
+        completedOrdersStatus,
+        completed.length
+          ? completed.length +
+            ' completed service' +
+            (
+              completed.length === 1
+                ? ''
+                : 's'
+            ) +
+            '.'
+          : 'No completed services yet.',
+        'success'
+      );
+
+    } catch (error) {
+
+      console.error(
+        'Completed provider orders error:',
+        error
+      );
+
+      setStatus(
+        completedOrdersStatus,
+        'Unable to load completed services: ' +
+        (error.message || 'Unknown error'),
+        'error'
+      );
+    }
+  }
+
+  /*
+   * Orders placed by the current member.
+   */
+  async function loadMyOrders(user) {
+
+    try {
+
+      setStatus(
+        myOrdersStatus,
+        'Loading your orders...'
+      );
+
+      const orders =
+        await fetchOrders(
+          'customer_id',
+          user.id
+        );
+
+      const activeOrders =
+        orders.filter(function (order) {
+
+          return order.status !== 'completed';
+
+        });
+
+      await renderOrders(
+        activeOrders,
+        myOrdersContainer,
+        false
+      );
+
+      setStatus(
+        myOrdersStatus,
+        activeOrders.length
+          ? activeOrders.length +
+            ' active order' +
+            (
+              activeOrders.length === 1
+                ? ''
+                : 's'
+            ) +
+            '.'
+          : 'No active orders.',
+        'success'
+      );
+
+    } catch (error) {
+
+      console.error(
+        'My orders error:',
+        error
+      );
+
+      setStatus(
+        myOrdersStatus,
+        'Unable to load your orders: ' +
+        (error.message || 'Unknown error'),
+        'error'
+      );
+    }
+  }
+
+  /*
+   * Completed orders received by the current member.
+   */
+  async function loadMyCompletedOrders(user) {
+
+    try {
+
+      setStatus(
+        myCompletedStatus,
+        'Loading completed orders...'
+      );
+
+      const orders =
+        await fetchOrders(
+          'customer_id',
+          user.id
+        );
+
+      const completed =
+        orders.filter(function (order) {
+
+          return order.status === 'completed';
+
+        });
+
+      await renderOrders(
+        completed,
+        myCompletedContainer,
+        false
+      );
+
+      setStatus(
+        myCompletedStatus,
+        completed.length
+          ? completed.length +
+            ' completed order' +
+            (
+              completed.length === 1
+                ? ''
+                : 's'
+            ) +
+            '.'
+          : 'No completed orders yet.',
+        'success'
+      );
+
+    } catch (error) {
+
+      console.error(
+        'My completed orders error:',
+        error
+      );
+
+      setStatus(
+        myCompletedStatus,
+        'Unable to load completed orders: ' +
+        (error.message || 'Unknown error'),
+        'error'
+      );
+    }
+  }
+
+  /*
+   * Change the status of a service order.
+   */
+  async function updateOrderStatus(
+    orderId,
+    newStatus,
+    button
+  ) {
+
+    if (!orderId || !newStatus) {
+      return;
+    }
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Updating...';
+    }
+
+    try {
+
+      /*
+       * Only the provider of the order is allowed
+       * to change its service status.
+       */
+      const result =
+        await supabaseClient
+          .from('service_orders')
+          .update({
+            status: newStatus,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', orderId)
+          .eq('provider_id', currentUser.id);
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      /*
+       * Reload all order sections because a status
+       * change can move an order between sections.
+       */
+      await loadIncomingOrders(
+        currentUser
+      );
+
+      await loadCompletedOrders(
+        currentUser
+      );
+
+      await loadMyOrders(
+        currentUser
+      );
+
+      await loadMyCompletedOrders(
+        currentUser
+      );
+
+    } catch (error) {
+
+      console.error(
+        'Order status update error:',
+        error
+      );
+
+      alert(
+        'Unable to update order: ' +
+        (error.message || 'Unknown error')
+      );
+
+      if (button) {
+        button.disabled = false;
+      }
+    }
+  }
+
+  /*
+   * Save or update a buyer review.
+   */
+  async function submitReview(orderId) {
+
+    const message =
+      document.getElementById(
+        'review-message-' + orderId
+      );
+
+    const textarea =
+      document.getElementById(
+        'review-text-' + orderId
+      );
+
+    const stars =
+      document.querySelector(
+        '[data-stars-for="' +
+        CSS.escape(orderId) +
+        '"]'
+      );
+
+    if (!message || !textarea || !stars) {
+      return;
+    }
+
+    const selectedStar =
+      stars.querySelector(
+        '.star.selected'
+      );
+
+    const rating =
+      selectedStar
+        ? Number(
+            selectedStar.dataset.rating
+          )
+        : 0;
+
+    const reviewText =
+      textarea.value.trim();
+
+    if (!rating) {
+
+      setStatus(
+        message,
+        'Please select a rating.',
+        'error'
+      );
+
+      return;
+    }
+
+    try {
+
+      setStatus(
+        message,
+        'Saving review...'
+      );
+
+      /*
+       * Verify that this order belongs to
+       * the currently logged-in customer.
+       */
+      const orderResult =
+        await supabaseClient
+          .from('service_orders')
+          .select(
+            'id, customer_id, status'
+          )
+          .eq('id', orderId)
+          .eq('customer_id', currentUser.id)
+          .maybeSingle();
+
+      if (orderResult.error) {
+        throw orderResult.error;
+      }
+
+      if (!orderResult.data) {
+        throw new Error(
+          'Order not found or you are not the customer.'
+        );
+      }
+
+      if (
+        orderResult.data.status !==
+        'completed'
+      ) {
+        throw new Error(
+          'A review can only be submitted after the service is completed.'
+        );
+      }
+
+      /*
+       * Check whether the customer already reviewed
+       * this order.
+       */
+      const existingResult =
+        await supabaseClient
+          .from('service_reviews')
+          .select('id')
+          .eq('order_id', orderId)
+          .eq('reviewer_id', currentUser.id)
+          .maybeSingle();
+
+      if (existingResult.error) {
+        throw existingResult.error;
+      }
+
+      let result;
+
+      const reviewData = {
+        order_id: orderId,
+        reviewer_id: currentUser.id,
+        rating: rating,
+        review: reviewText
+      };
+
+      if (existingResult.data) {
+
+        result =
+          await supabaseClient
+            .from('service_reviews')
+            .update(reviewData)
+            .eq(
+              'id',
+              existingResult.data.id
+            );
+
+      } else {
+
+        result =
+          await supabaseClient
+            .from('service_reviews')
+            .insert(reviewData);
+      }
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      setStatus(
+        message,
+        'Review saved successfully.',
+        'success'
+      );
+
+      await loadMyCompletedOrders(
+        currentUser
+      );
+
+    } catch (error) {
+
+      console.error(
+        'Review submission error:',
+        error
+      );
+
+      setStatus(
+        message,
+        'Unable to save review: ' +
+        (error.message || 'Unknown error'),
+        'error'
+      );
+    }
+  }
+
+  /*
+   * Star selection.
+   */
+  document.addEventListener(
+    'click',
+    function (event) {
+
+      const star =
+        event.target.closest(
+          '.star[data-rating]'
+        );
+
+      if (star) {
+
+        const rating =
+          Number(
+            star.dataset.rating
+          );
+
+        const orderId =
+          star.dataset.order;
+
+        const stars =
+          document.querySelector(
+            '[data-stars-for="' +
+            CSS.escape(orderId) +
+            '"]'
+          );
+
+        if (!stars) {
+          return;
+        }
+
+        stars
+          .querySelectorAll(
+            '.star[data-rating]'
+          )
+          .forEach(function (item) {
+
+            const itemRating =
+              Number(
+                item.dataset.rating
+              );
+
+            item.classList.toggle(
+              'selected',
+              itemRating <= rating
+            );
+          });
+
+        return;
+      }
+
+      /*
+       * Provider order status buttons.
+       */
+      const actionButton =
+        event.target.closest(
+          '[data-order-action]'
+        );
+
+      if (actionButton) {
+
+        const action =
+          actionButton.dataset.orderAction;
+
+        const orderId =
+          actionButton.dataset.orderId;
+
+        updateOrderStatus(
+          orderId,
+          action,
+          actionButton
+        );
+
+        return;
+      }
+
+      /*
+       * Review submission.
+       */
+      const reviewButton =
+        event.target.closest(
+          '[data-submit-review]'
+        );
+
+      if (reviewButton) {
+
+        const orderId =
+          reviewButton.dataset.submitReview;
+
+        reviewButton.disabled = true;
+        reviewButton.textContent =
+          'Saving...';
+
+        submitReview(
+          orderId
+        ).finally(function () {
+
+          reviewButton.disabled = false;
+
+          /*
+           * Reloading replaces the button after a
+           * successful submission, so only restore
+           * its label if it still exists.
+           */
+          if (
+            document.body.contains(
+              reviewButton
+            )
+          ) {
+
+            reviewButton.textContent =
+              'Update Review';
+          }
+
+        });
+      }
+    }
+  );
+
+  /*
+   * Sign out.
+   */
+  document
+    .getElementById('signout')
+    .addEventListener(
+      'click',
+      async function () {
+
+        const button =
+          document.getElementById(
+            'signout'
+          );
+
+        button.disabled = true;
+        button.textContent =
+          'Signing Out...';
+
+        try {
+
+          const result =
+            await supabaseClient.auth.signOut();
+
+          if (result.error) {
+            throw result.error;
+          }
+
+          window.location.href =
+            'login.html';
+
+        } catch (error) {
+
+          console.error(
+            'Sign out error:',
+            error
+          );
+
+          alert(
+            'Unable to sign out: ' +
+            (error.message ||
+              'Unknown error')
+          );
+
+          button.disabled = false;
+          button.textContent =
+            'Sign Out';
+        }
+      }
+    );
+
+  /*
+   * Keep the dashboard synced if the auth
+   * session changes.
+   */
+  supabaseReady = false;
+
+  initialize();
+
+})();
+</script>
+
+</body>
+</html>
