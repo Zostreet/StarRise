@@ -1167,10 +1167,672 @@
           ? providerActions(order)
           : ''
       }
+      <script>
+(function () {
+
+  'use strict';
+
+  const SUPABASE_URL =
+    'https://rcnikxotdalxtuvpmlvm.supabase.co';
+
+  const SUPABASE_KEY =
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
+
+  const statusBox =
+    document.getElementById('status');
+
+  const ordersStatus =
+    document.getElementById('orders-status');
+
+  const ordersContainer =
+    document.getElementById('orders');
+
+  const completedOrdersStatus =
+    document.getElementById('completed-orders-status');
+
+  const completedOrdersContainer =
+    document.getElementById('completed-orders');
+
+  const myOrdersStatus =
+    document.getElementById('my-orders-status');
+
+  const myOrdersContainer =
+    document.getElementById('my-orders');
+
+  const myCompletedStatus =
+    document.getElementById('my-completed-status');
+
+  const myCompletedContainer =
+    document.getElementById('my-completed');
+
+  let supabaseClient = null;
+  let currentUser = null;
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function setStatus(element, message, type) {
+
+    if (!element) return;
+
+    element.textContent = message;
+
+    element.classList.remove(
+      'error',
+      'success'
+    );
+
+    if (type) {
+      element.classList.add(type);
+    }
+  }
+
+  function formatDate(value) {
+
+    if (!value) {
+      return 'Unknown';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return 'Unknown';
+    }
+
+    return date.toLocaleDateString();
+  }
+
+  function formatMoney(cents) {
+
+    return (
+      '$' +
+      (Number(cents || 0) / 100).toFixed(2)
+    );
+  }
+
+  function starsHtml(rating) {
+
+    const value =
+      Number(rating || 0);
+
+    return [1, 2, 3, 4, 5]
+      .map(function (number) {
+        return number <= value
+          ? '★'
+          : '☆';
+      })
+      .join('');
+  }
+
+  async function initialize() {
+
+    try {
+
+      setStatus(
+        statusBox,
+        'Connecting to StarRise...'
+      );
+
+      if (!window.supabase) {
+        throw new Error(
+          'Supabase JavaScript library failed to load.'
+        );
+      }
+
+      supabaseClient =
+        window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY
+        );
+
+      const sessionResult =
+        await supabaseClient.auth.getSession();
+
+      if (sessionResult.error) {
+        throw sessionResult.error;
+      }
+
+      const session =
+        sessionResult.data &&
+        sessionResult.data.session;
+
+      if (!session || !session.user) {
+
+        setStatus(
+          statusBox,
+          'No active session. Redirecting to login...',
+          'error'
+        );
+
+        setTimeout(function () {
+          window.location.href = 'login.html';
+        }, 1000);
+
+        return;
+      }
+
+      currentUser = session.user;
+
+      document.getElementById('email').textContent =
+        currentUser.email || 'Not available';
+
+      setStatus(
+        statusBox,
+        'Connected to StarRise.',
+        'success'
+      );
+
+      await loadProfile(currentUser);
+      await loadRoles(currentUser);
+      await loadIncomingOrders(currentUser);
+      await loadCompletedOrders(currentUser);
+      await loadMyOrders(currentUser);
+      await loadMyCompletedOrders(currentUser);
+
+    } catch (error) {
+
+      console.error(
+        'Dashboard initialization error:',
+        error
+      );
+
+      setStatus(
+        statusBox,
+        'Dashboard error: ' +
+        (error.message || 'Unknown error'),
+        'error'
+      );
+    }
+  }
+
+  async function loadProfile(user) {
+
+    let result =
+      await supabaseClient
+        .from('Profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+
+    if (result.error) {
+      throw new Error(
+        'Profile: ' +
+        result.error.message
+      );
+    }
+
+    if (!result.data) {
+
+      result =
+        await supabaseClient
+          .from('Profiles')
+          .select('*')
+          .eq('User_id', user.id)
+          .maybeSingle();
+
+      if (result.error) {
+        throw new Error(
+          'Profile: ' +
+          result.error.message
+        );
+      }
+    }
+
+    if (!result.data) {
+      throw new Error(
+        'Profile: no profile record exists for this account.'
+      );
+    }
+
+    const profile = result.data;
+
+    const fullName =
+      profile.full_name ||
+      profile.Full_Name ||
+      'StarRise Member';
+
+    const displayName =
+      profile.display_name ||
+      profile.Display_Name ||
+      fullName;
+
+    document.getElementById('name').textContent =
+      displayName;
+
+    document.getElementById('profile-name').textContent =
+      fullName;
+
+    document.getElementById('display-name').textContent =
+      displayName;
+
+    document.getElementById('email').textContent =
+      user.email || 'Not available';
+
+    document.getElementById('location').textContent =
+      profile.location ||
+      profile.Location ||
+      'Not provided';
+
+    document.getElementById('bio').textContent =
+      profile.bio ||
+      profile.Bio ||
+      'No bio added yet.';
+
+    document.getElementById('website').textContent =
+      profile.website ||
+      profile.Website ||
+      'Not provided';
+
+    document.getElementById('member-since').textContent =
+      formatDate(
+        profile.created_at ||
+        profile.Created_at
+      );
+  }
+
+  async function loadRoles(user) {
+
+    const element =
+      document.getElementById('roles');
+
+    try {
+
+      const result =
+        await supabaseClient
+          .from('member_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .order('role');
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      if (
+        !result.data ||
+        !result.data.length
+      ) {
+
+        element.innerHTML =
+          '<span class="muted">' +
+          'No roles assigned yet.' +
+          '</span>';
+
+        return;
+      }
+
+      element.innerHTML =
+        result.data
+          .map(function (item) {
+
+            return (
+              '<span class="role">' +
+              escapeHtml(item.role) +
+              '</span>'
+            );
+
+          })
+          .join('');
+
+    } catch (error) {
+
+      console.error(
+        'Roles error:',
+        error
+      );
+
+      element.innerHTML =
+        '<span class="muted">' +
+        'Unable to load roles: ' +
+        escapeHtml(error.message) +
+        '</span>';
+    }
+  }
+
+  async function getReviews(orderIds) {
+
+    if (!orderIds.length) {
+      return {};
+    }
+
+    const result =
+      await supabaseClient
+        .from('service_reviews')
+        .select('*')
+        .in('order_id', orderIds);
+
+    if (result.error) {
+
+      console.error(
+        'Reviews error:',
+        result.error
+      );
+
+      return {};
+    }
+
+    return (result.data || [])
+      .reduce(function (map, review) {
+
+        map[review.order_id] =
+          review;
+
+        return map;
+
+      }, {});
+  }
+
+  function reviewDisplay(review) {
+
+    if (!review) {
+      return '';
+    }
+
+    return `
+      <div class="review-display">
+
+        <span class="label">
+          Review
+        </span>
+
+        <div class="review-stars">
+          ${escapeHtml(
+            starsHtml(review.rating)
+          )}
+        </div>
+
+        ${
+          review.review
+            ? `
+              <div class="review-content">
+                ${escapeHtml(review.review)}
+              </div>
+            `
+            : ''
+        }
+
+        <div class="review-date">
+          Reviewed
+          ${escapeHtml(
+            formatDate(review.created_at)
+          )}
+        </div>
+
+      </div>
+    `;
+  }
+
+  function reviewForm(order, review) {
+
+    const currentRating =
+      Number(
+        review && review.rating
+          ? review.rating
+          : 0
+      );
+
+    return `
+      <div class="review-box">
+
+        <span class="label">
+          ${
+            review
+              ? 'Update Your Review'
+              : 'Rate This Service'
+          }
+        </span>
+
+        <div
+          class="stars"
+          data-stars-for="${escapeHtml(order.id)}"
+        >
+
+          ${[1, 2, 3, 4, 5]
+            .map(function (number) {
+
+              return `
+                <button
+                  type="button"
+                  class="star ${
+                    number <= currentRating
+                      ? 'selected'
+                      : ''
+                  }"
+                  data-rating="${number}"
+                  data-order="${escapeHtml(order.id)}"
+                >★</button>
+              `;
+
+            })
+            .join('')}
+
+        </div>
+
+        <textarea
+          class="review-text"
+          id="review-text-${escapeHtml(order.id)}"
+          maxlength="1000"
+          placeholder="Tell us about your StarRise experience..."
+        >${
+          escapeHtml(
+            review && review.review
+              ? review.review
+              : ''
+          )
+        }</textarea>
+
+        <button
+          type="button"
+          class="order-button"
+          data-submit-review="${escapeHtml(order.id)}"
+        >
+          ${
+            review
+              ? 'Update Review'
+              : 'Submit Review'
+          }
+        </button>
+
+        <div
+          id="review-message-${escapeHtml(order.id)}"
+          class="muted"
+          style="margin-top:10px;"
+        ></div>
+
+      </div>
+    `;
+  }
+
+  function providerActions(order) {
+
+    if (order.status === 'pending') {
+
+      return `
+        <div class="order-actions">
+
+          <button
+            class="order-button"
+            data-order-action="accepted"
+            data-order-id="${escapeHtml(order.id)}"
+          >
+            Accept Request
+          </button>
+
+          <button
+            class="order-button decline-button"
+            data-order-action="declined"
+            data-order-id="${escapeHtml(order.id)}"
+          >
+            Decline Request
+          </button>
+
+        </div>
+      `;
+    }
+
+    if (order.status === 'accepted') {
+
+      return `
+        <div class="order-actions">
+
+          <button
+            class="order-button"
+            data-order-action="in_progress"
+            data-order-id="${escapeHtml(order.id)}"
+          >
+            Start Service
+          </button>
+
+        </div>
+      `;
+    }
+
+    if (order.status === 'in_progress') {
+
+      return `
+        <div class="order-actions">
+
+          <button
+            class="order-button"
+            data-order-action="completed"
+            data-order-id="${escapeHtml(order.id)}"
+          >
+            Complete Service
+          </button>
+
+        </div>
+      `;
+    }
+
+    return '';
+  }
+
+  function buildOrderCard(
+    order,
+    providerView,
+    review,
+    service
+  ) {
+
+    const card =
+      document.createElement('div');
+
+    card.className =
+      'order-card';
+
+    const serviceTitle =
+      service &&
+      (
+        service.title ||
+        service.name ||
+        service.service_name
+      );
+
+    const customerName =
+      order.customer_name ||
+      order.customer_display_name ||
+      order.buyer_name ||
+      'Customer';
+
+    const providerName =
+      order.provider_name ||
+      order.provider_display_name ||
+      order.seller_name ||
+      'Service Provider';
+
+    const requestText =
+      order.request ||
+      order.message ||
+      order.description ||
+      'No request details provided.';
+
+    const price =
+      order.price_cents ??
+      order.amount_cents ??
+      order.price ??
+      0;
+
+    const createdAt =
+      order.created_at ||
+      order.createdAt;
+
+    card.innerHTML = `
+
+      <span class="label">
+        ${
+          providerView
+            ? 'Customer Service'
+            : 'Your Service'
+        }
+      </span>
 
       ${
-        !providerView &&
-        order.status === 'completed'
+        serviceTitle
+          ? `
+            <div class="service-title">
+              ${escapeHtml(serviceTitle)}
+            </div>
+          `
+          : ''
+      }
+
+      <div class="order-price">
+        ${escapeHtml(formatMoney(price))}
+      </div>
+
+      <div class="order-status">
+        ${escapeHtml(order.status || 'unknown')}
+      </div>
+
+      ${
+        providerView
+          ? `
+            <div class="order-meta">
+              From: ${escapeHtml(customerName)}
+            </div>
+          `
+          : `
+            <div class="order-meta">
+              Provider: ${escapeHtml(providerName)}
+            </div>
+          `
+      }
+
+      <div class="order-request">
+        ${escapeHtml(requestText)}
+      </div>
+
+      <div class="order-meta">
+        Requested ${escapeHtml(formatDate(createdAt))}
+      </div>
+
+      ${
+        service && service.id
+          ? `
+            <a
+              class="service-link"
+              href="service.html?id=${encodeURIComponent(service.id)}"
+            >
+              View Service
+            </a>
+          `
+          : ''
+      }
+
+      ${
+        providerView
+          ? providerActions(order)
+          : ''
+      }
+
+      ${
+        !providerView && order.status === 'completed'
           ? (
               review
                 ? reviewDisplay(review)
@@ -1184,125 +1846,180 @@
     return card;
   }
 
-  async function getService(serviceId) {
+  async function getOrdersForProvider(user, statuses) {
 
-    if (!serviceId) {
-      return null;
+    let query =
+      supabaseClient
+        .from('service_orders')
+        .select('*')
+        .eq('provider_id', user.id);
+
+    if (statuses && statuses.length) {
+      query =
+        query.in('status', statuses);
     }
 
-    try {
-
-      const result =
-        await supabaseClient
-          .from('services')
-          .select('*')
-          .eq('id', serviceId)
-          .maybeSingle();
-
-      if (result.error) {
-
-        console.error(
-          'Service lookup error:',
-          result.error
-        );
-
-        return null;
-      }
-
-      return result.data || null;
-
-    } catch (error) {
-
-      console.error(
-        'Service lookup error:',
-        error
+    const result =
+      await query.order(
+        'created_at',
+        { ascending: false }
       );
 
-      return null;
+    if (result.error) {
+      throw result.error;
     }
+
+    return result.data || [];
+  }
+
+  async function getOrdersForCustomer(user, statuses) {
+
+    let query =
+      supabaseClient
+        .from('service_orders')
+        .select('*')
+        .eq('customer_id', user.id);
+
+    if (statuses && statuses.length) {
+      query =
+        query.in('status', statuses);
+    }
+
+    const result =
+      await query.order(
+        'created_at',
+        { ascending: false }
+      );
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    return result.data || [];
+  }
+
+  async function getServices(serviceIds) {
+
+    if (!serviceIds.length) {
+      return {};
+    }
+
+    const result =
+      await supabaseClient
+        .from('services')
+        .select('*')
+        .in('id', serviceIds);
+
+    if (result.error) {
+
+      console.error(
+        'Services error:',
+        result.error
+      );
+
+      return {};
+    }
+
+    return (result.data || [])
+      .reduce(function (map, service) {
+
+        map[service.id] =
+          service;
+
+        return map;
+
+      }, {});
+  }
+
+  async function renderOrders(
+    container,
+    orders,
+    providerView
+  ) {
+
+    container.innerHTML = '';
+
+    if (!orders.length) {
+
+      container.innerHTML =
+        '<div class="empty">' +
+        'No orders found.' +
+        '</div>';
+
+      return;
+    }
+
+    const orderIds =
+      orders.map(function (order) {
+        return order.id;
+      });
+
+    const serviceIds =
+      orders
+        .map(function (order) {
+          return (
+            order.service_id ||
+            order.serviceId
+          );
+        })
+        .filter(Boolean);
+
+    const reviews =
+      await getReviews(orderIds);
+
+    const services =
+      await getServices(serviceIds);
+
+    orders.forEach(function (order) {
+
+      const serviceId =
+        order.service_id ||
+        order.serviceId;
+
+      const card =
+        buildOrderCard(
+          order,
+          providerView,
+          reviews[order.id],
+          services[serviceId]
+        );
+
+      container.appendChild(card);
+    });
   }
 
   async function loadIncomingOrders(user) {
 
-    setStatus(
-      ordersStatus,
-      'Loading incoming orders...'
-    );
-
-    ordersContainer.innerHTML = '';
-
     try {
-
-      const result =
-        await supabaseClient
-          .from('service_orders')
-          .select('*')
-          .eq('provider_id', user.id)
-          .in(
-            'status',
-            [
-              'pending',
-              'accepted',
-              'in_progress'
-            ]
-          )
-          .order(
-            'created_at',
-            {
-              ascending: false
-            }
-          );
-
-      if (result.error) {
-        throw result.error;
-      }
-
-      const orders =
-        result.data || [];
-
-      if (!orders.length) {
-
-        setStatus(
-          ordersStatus,
-          'No active incoming service orders.'
-        );
-
-        ordersContainer.innerHTML =
-          '<div class="empty">' +
-          'You have no active service requests right now.' +
-          '</div>';
-
-        return;
-      }
 
       setStatus(
         ordersStatus,
-        orders.length +
-        ' active service request' +
-        (orders.length === 1 ? '' : 's') +
-        '.',
-        'success'
+        'Loading incoming orders...'
       );
 
-      for (const order of orders) {
+      const orders =
+        await getOrdersForProvider(
+          user,
+          [
+            'pending',
+            'accepted',
+            'in_progress'
+          ]
+        );
 
-        const serviceId =
-          order.service_id ||
-          order.Service_id;
+      await renderOrders(
+        ordersContainer,
+        orders,
+        true
+      );
 
-        const service =
-          await getService(serviceId);
-
-        const card =
-          buildOrderCard(
-            order,
-            true,
-            null,
-            service
-          );
-
-        ordersContainer.appendChild(card);
-      }
+      setStatus(
+        ordersStatus,
+        orders.length
+          ? 'Incoming orders loaded.'
+          : 'No active incoming orders.',
+        'success'
+      );
 
     } catch (error) {
 
@@ -1314,7 +2031,7 @@
       setStatus(
         ordersStatus,
         'Unable to load incoming orders: ' +
-        (error.message || 'Unknown error'),
+        error.message,
         'error'
       );
     }
@@ -1322,86 +2039,32 @@
 
   async function loadCompletedOrders(user) {
 
-    setStatus(
-      completedOrdersStatus,
-      'Loading completed services...'
-    );
-
-    completedOrdersContainer.innerHTML = '';
-
     try {
-
-      const result =
-        await supabaseClient
-          .from('service_orders')
-          .select('*')
-          .eq('provider_id', user.id)
-          .eq('status', 'completed')
-          .order(
-            'completed_at',
-            {
-              ascending: false
-            }
-          );
-
-      if (result.error) {
-        throw result.error;
-      }
-
-      const orders =
-        result.data || [];
-
-      if (!orders.length) {
-
-        setStatus(
-          completedOrdersStatus,
-          'No completed services yet.'
-        );
-
-        completedOrdersContainer.innerHTML =
-          '<div class="empty">' +
-          'You have not completed any services yet.' +
-          '</div>';
-
-        return;
-      }
 
       setStatus(
         completedOrdersStatus,
-        orders.length +
-        ' completed service' +
-        (orders.length === 1 ? '' : 's') +
-        '.',
-        'success'
+        'Loading completed services...'
       );
 
-      const orderIds =
-        orders.map(function (order) {
-          return order.id;
-        });
+      const orders =
+        await getOrdersForProvider(
+          user,
+          ['completed']
+        );
 
-      const reviews =
-        await getReviews(orderIds);
+      await renderOrders(
+        completedOrdersContainer,
+        orders,
+        true
+      );
 
-      for (const order of orders) {
-
-        const serviceId =
-          order.service_id ||
-          order.Service_id;
-
-        const service =
-          await getService(serviceId);
-
-        const card =
-          buildOrderCard(
-            order,
-            true,
-            reviews[order.id],
-            service
-          );
-
-        completedOrdersContainer.appendChild(card);
-      }
+      setStatus(
+        completedOrdersStatus,
+        orders.length
+          ? 'Completed services loaded.'
+          : 'No completed services yet.',
+        'success'
+      );
 
     } catch (error) {
 
@@ -1413,7 +2076,7 @@
       setStatus(
         completedOrdersStatus,
         'Unable to load completed services: ' +
-        (error.message || 'Unknown error'),
+        error.message,
         'error'
       );
     }
@@ -1421,86 +2084,37 @@
 
   async function loadMyOrders(user) {
 
-    setStatus(
-      myOrdersStatus,
-      'Loading your orders...'
-    );
-
-    myOrdersContainer.innerHTML = '';
-
     try {
-
-      const result =
-        await supabaseClient
-          .from('service_orders')
-          .select('*')
-          .eq('customer_id', user.id)
-          .in(
-            'status',
-            [
-              'pending',
-              'accepted',
-              'in_progress',
-              'declined'
-            ]
-          )
-          .order(
-            'created_at',
-            {
-              ascending: false
-            }
-          );
-
-      if (result.error) {
-        throw result.error;
-      }
-
-      const orders =
-        result.data || [];
-
-      if (!orders.length) {
-
-        setStatus(
-          myOrdersStatus,
-          'You have no active orders.'
-        );
-
-        myOrdersContainer.innerHTML =
-          '<div class="empty">' +
-          'You have not requested any services yet.' +
-          '</div>';
-
-        return;
-      }
 
       setStatus(
         myOrdersStatus,
-        orders.length +
-        ' order' +
-        (orders.length === 1 ? '' : 's') +
-        '.',
-        'success'
+        'Loading your orders...'
       );
 
-      for (const order of orders) {
+      const orders =
+        await getOrdersForCustomer(
+          user,
+          [
+            'pending',
+            'accepted',
+            'in_progress',
+            'declined'
+          ]
+        );
 
-        const serviceId =
-          order.service_id ||
-          order.Service_id;
+      await renderOrders(
+        myOrdersContainer,
+        orders,
+        false
+      );
 
-        const service =
-          await getService(serviceId);
-
-        const card =
-          buildOrderCard(
-            order,
-            false,
-            null,
-            service
-          );
-
-        myOrdersContainer.appendChild(card);
-      }
+      setStatus(
+        myOrdersStatus,
+        orders.length
+          ? 'Your orders loaded.'
+          : 'You have no active orders.',
+        'success'
+      );
 
     } catch (error) {
 
@@ -1512,7 +2126,7 @@
       setStatus(
         myOrdersStatus,
         'Unable to load your orders: ' +
-        (error.message || 'Unknown error'),
+        error.message,
         'error'
       );
     }
@@ -1520,86 +2134,32 @@
 
   async function loadMyCompletedOrders(user) {
 
-    setStatus(
-      myCompletedStatus,
-      'Loading completed orders...'
-    );
-
-    myCompletedContainer.innerHTML = '';
-
     try {
-
-      const result =
-        await supabaseClient
-          .from('service_orders')
-          .select('*')
-          .eq('customer_id', user.id)
-          .eq('status', 'completed')
-          .order(
-            'completed_at',
-            {
-              ascending: false
-            }
-          );
-
-      if (result.error) {
-        throw result.error;
-      }
-
-      const orders =
-        result.data || [];
-
-      if (!orders.length) {
-
-        setStatus(
-          myCompletedStatus,
-          'No completed services yet.'
-        );
-
-        myCompletedContainer.innerHTML =
-          '<div class="empty">' +
-          'You have not received any completed services yet.' +
-          '</div>';
-
-        return;
-      }
 
       setStatus(
         myCompletedStatus,
-        orders.length +
-        ' completed order' +
-        (orders.length === 1 ? '' : 's') +
-        '.',
-        'success'
+        'Loading completed orders...'
       );
 
-      const orderIds =
-        orders.map(function (order) {
-          return order.id;
-        });
+      const orders =
+        await getOrdersForCustomer(
+          user,
+          ['completed']
+        );
 
-      const reviews =
-        await getReviews(orderIds);
+      await renderOrders(
+        myCompletedContainer,
+        orders,
+        false
+      );
 
-      for (const order of orders) {
-
-        const serviceId =
-          order.service_id ||
-          order.Service_id;
-
-        const service =
-          await getService(serviceId);
-
-        const card =
-          buildOrderCard(
-            order,
-            false,
-            reviews[order.id],
-            service
-          );
-
-        myCompletedContainer.appendChild(card);
-      }
+      setStatus(
+        myCompletedStatus,
+        orders.length
+          ? 'Completed orders loaded.'
+          : 'No completed orders yet.',
+        'success'
+      );
 
     } catch (error) {
 
@@ -1611,7 +2171,7 @@
       setStatus(
         myCompletedStatus,
         'Unable to load completed orders: ' +
-        (error.message || 'Unknown error'),
+        error.message,
         'error'
       );
     }
@@ -1619,41 +2179,26 @@
 
   async function updateOrderStatus(
     orderId,
-    newStatus
+    newStatus,
+    button
   ) {
 
     if (!currentUser) {
       return;
     }
 
+    if (button) {
+      button.disabled = true;
+    }
+
     try {
-
-      const button =
-        document.querySelector(
-          '[data-order-id="' +
-          CSS.escape(orderId) +
-          '"][data-order-action="' +
-          CSS.escape(newStatus) +
-          '"]'
-        );
-
-      if (button) {
-        button.disabled = true;
-      }
-
-      const updateData = {
-        status: newStatus
-      };
-
-      if (newStatus === 'completed') {
-        updateData.completed_at =
-          new Date().toISOString();
-      }
 
       const result =
         await supabaseClient
           .from('service_orders')
-          .update(updateData)
+          .update({
+            status: newStatus
+          })
           .eq('id', orderId)
           .eq('provider_id', currentUser.id);
 
@@ -1666,294 +2211,40 @@
       await loadMyOrders(currentUser);
       await loadMyCompletedOrders(currentUser);
 
-      setStatus(
-        statusBox,
-        'Order updated successfully.',
-        'success'
-      );
-
     } catch (error) {
 
       console.error(
-        'Order update error:',
+        'Order status update error:',
         error
       );
 
-      setStatus(
-        statusBox,
-        'Unable to update order: ' +
-        (error.message || 'Unknown error'),
-        'error'
+      alert(
+        'Unable to update this order: ' +
+        error.message
       );
 
+      if (button) {
+        button.disabled = false;
+      }
     }
   }
 
-  async function submitReview(orderId) {
+  async function submitReview(
+    orderId,
+    button
+  ) {
 
     if (!currentUser) {
       return;
     }
 
-    const message =
-      document.getElementById(
-        'review-message-' + orderId
-      );
-
-    const textElement =
-      document.getElementById(
-        'review-text-' + orderId
-      );
-
-    const starsElement =
-      document.querySelector(
-        '[data-stars-for="' +
-        CSS.escape(orderId) +
-        '"]'
-      );
-
-    const selectedStar =
-      starsElement &&
-      starsElement.querySelector(
-        '.star.selected'
-      );
-
-    const rating =
-      selectedStar
-        ? Number(
-            selectedStar.dataset.rating
-          )
-        : 0;
-
-    const reviewText =
-      textElement
-        ? textElement.value.trim()
-        : '';
-
-    if (!rating) {
-
-      if (message) {
-        message.textContent =
-          'Please select a star rating.';
-        message.className =
-          'error';
-      }
-
-      return;
-    }
-
-    try {
-
-      if (message) {
-        message.textContent =
-          'Saving review...';
-        message.className =
-          'muted';
-      }
-
-      const existing =
-        await supabaseClient
-          .from('service_reviews')
-          .select('id')
-          .eq('order_id', orderId)
-          .eq('reviewer_id', currentUser.id)
-          .maybeSingle();
-
-      if (existing.error) {
-        throw existing.error;
-      }
-
-      let result;
-
-      if (existing.data) {
-
-        result =
-          await supabaseClient
-            .from('service_reviews')
-            .update({
-              rating: rating,
-              review: reviewText,
-              updated_at:
-                new Date().toISOString()
-            })
-            .eq(
-              'id',
-              existing.data.id
-            );
-
-      } else {
-
-        result =
-          await supabaseClient
-            .from('service_reviews')
-            .insert({
-              order_id: orderId,
-              reviewer_id: currentUser.id,
-              rating: rating,
-              review: reviewText
-            });
-      }
-
-      if (result.error) {
-        throw result.error;
-      }
-
-      if (message) {
-
-        message.textContent =
-          'Review saved successfully.';
-
-        message.className =
-          'success';
-      }
-
-      await loadMyCompletedOrders(currentUser);
-
-    } catch (error) {
-
-      console.error(
-        'Review error:',
-        error
-      );
-
-      if (message) {
-
-        message.textContent =
-          'Unable to save review: ' +
-          (error.message || 'Unknown error');
-
-        message.className =
-          'error';
-      }
-    }
-  }
-
-  document.addEventListener(
-    'click',
-    async function (event) {
-
-      const star =
-        event.target.closest('.star');
-
-      if (star) {
-
-        const orderId =
-          star.dataset.order;
-
-        const rating =
-          Number(star.dataset.rating);
-
-        const starsContainer =
-          document.querySelector(
-            '[data-stars-for="' +
-            CSS.escape(orderId) +
-            '"]'
-          );
-
-        if (starsContainer) {
-
-          starsContainer
-            .querySelectorAll('.star')
-            .forEach(function (button) {
-
-              const buttonRating =
-                Number(
-                  button.dataset.rating
-                );
-
-              button.classList.toggle(
-                'selected',
-                buttonRating <= rating
-              );
-
-            });
-        }
-
-        return;
-      }
-
-      const reviewButton =
-        event.target.closest(
-          '[data-submit-review]'
-        );
-
-      if (reviewButton) {
-
-        await submitReview(
-          reviewButton.dataset.submitReview
-        );
-
-        return;
-      }
-
-      const orderButton =
-        event.target.closest(
-          '[data-order-action]'
-        );
-
-      if (orderButton) {
-
-        const orderId =
-          orderButton.dataset.orderId;
-
-        const action =
-          orderButton.dataset.orderAction;
-
-        await updateOrderStatus(
-          orderId,
-          action
-        );
-      }
-    }
-  );
-
-  document
-    .getElementById('signout')
-    .addEventListener(
-      'click',
-      async function () {
-
-        try {
-
-          const result =
-            await supabaseClient.auth.signOut();
-
-          if (result.error) {
-            throw result.error;
-          }
-
-          window.location.href =
-            'login.html';
-
-        } catch (error) {
-
-          console.error(
-            'Sign out error:',
-            error
-          );
-
-          setStatus(
-            statusBox,
-            'Unable to sign out: ' +
-            (error.message || 'Unknown error'),
-            'error'
-          );
-        }
-      }
-    );
-
-  initialize();
-
-})();
-</script>
-
-</body>
-</html>
+    co
       
-    
+   
+
+      
+
         
-              
 
       
-        
-      
+  
