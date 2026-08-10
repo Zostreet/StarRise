@@ -871,7 +871,7 @@
 
     const result =
       await supabaseClient
-        .from('services')
+        .from('star_rise_services')
         .select('*')
         .in('id', serviceIds);
 
@@ -1696,7 +1696,7 @@
           status: newStatus
         })
         .eq('id', orderId)
-        .eq('provider_id', currentUser.id);
+        .eq('seller_id', currentUser.id);
 
     if (result.error) {
       throw result.error;
