@@ -1565,7 +1565,7 @@
 
       const orders =
         await fetchOrders(
-          'customer_id',
+          'buyer_id',
           user.id,
           [
             'pending',
@@ -1622,7 +1622,7 @@
 
       const orders =
         await fetchOrders(
-          'customer_id',
+          'buyer_id',
           user.id,
           ['completed']
         );
