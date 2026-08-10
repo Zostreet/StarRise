@@ -1,22 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>StarRise | Where Talent Rises</title>
-
-  <meta
-    name="description"
-    content="StarRise is a groundbreaking entertainment company built around talent, creativity, opportunity, individuality, fairness, and community."
-  >
+  <title>StarRise</title>
 
   <style>
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     html {
@@ -24,455 +16,466 @@
     }
 
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
       background: #080812;
-      color: white;
+      color: #fff;
       line-height: 1.6;
     }
 
     header {
-      padding: 24px 8%;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 18px 24px;
+      border-bottom: 1px solid #ffffff18;
+      background: rgba(8, 8, 18, .94);
+      backdrop-filter: blur(12px);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      gap: 20px;
     }
 
     .logo {
-      font-size: 27px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 21px;
       font-weight: bold;
+      white-space: nowrap;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 18px;
     }
 
     nav a {
-      color: white;
+      color: #bbb;
       text-decoration: none;
-      margin-left: 20px;
+      font-weight: 600;
     }
 
     nav a:hover {
-      text-decoration: underline;
+      color: #fff;
+    }
+
+    main {
+      width: min(1050px, calc(100% - 30px));
+      margin: 0 auto;
     }
 
     .hero {
-      min-height: 75vh;
+      min-height: 72vh;
       display: flex;
-      align-items: center;
+      flex-direction: column;
       justify-content: center;
+      align-items: center;
       text-align: center;
-      padding: 80px 8%;
+      padding: 70px 20px;
     }
 
-    .hero-content {
-      max-width: 850px;
-    }
-
-    .hero h1 {
-      font-size: clamp(52px, 11vw, 96px);
+    .star {
+      font-size: 48px;
       margin-bottom: 10px;
     }
 
-    .hero h2 {
-      font-size: clamp(24px, 5vw, 40px);
-      margin-bottom: 20px;
+    .eyebrow {
+      color: #aaa;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: clamp(42px, 8vw, 72px);
+      line-height: 1.05;
+      margin: 12px 0 20px;
     }
 
     .hero p {
-      max-width: 720px;
-      margin: 0 auto 30px;
-      color: #ccccd8;
-      font-size: 18px;
+      max-width: 700px;
+      color: #bbb;
+      font-size: 19px;
+      margin: 0 auto 28px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
     }
 
     .button {
       display: inline-block;
-      margin: 8px;
-      padding: 14px 28px;
-      border-radius: 30px;
-      background: white;
-      color: #080812;
+      padding: 12px 22px;
+      border-radius: 25px;
       text-decoration: none;
       font-weight: bold;
+      background: #fff;
+      color: #080812;
     }
 
-    .button:hover {
-      opacity: 0.85;
+    .button.secondary {
+      background: transparent;
+      color: #fff;
+      border: 1px solid #ffffff35;
     }
 
-    section {
-      padding: 80px 8%;
+    .section {
+      padding: 70px 0;
+    }
+
+    .section-title {
       text-align: center;
+      margin-bottom: 35px;
     }
 
-    section h2 {
-      font-size: 38px;
-      margin-bottom: 20px;
+    .section-title h2 {
+      font-size: 34px;
+      margin: 8px 0;
     }
 
-    .intro {
-      max-width: 800px;
+    .section-title p {
+      color: #999;
+      max-width: 650px;
       margin: 0 auto;
-      color: #cccccc;
-      font-size: 18px;
     }
 
     .grid {
-      max-width: 1100px;
-      margin: 40px auto 0;
-
       display: grid;
-      grid-template-columns:
-        repeat(auto-fit, minmax(220px, 1fr));
-
-      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
     }
 
     .card {
-      padding: 28px;
-      border: 1px solid rgba(255,255,255,0.12);
+      padding: 24px;
       border-radius: 18px;
-      background: rgba(255,255,255,0.04);
+      background: #ffffff08;
+      border: 1px solid #ffffff15;
     }
 
     .card h3 {
-      font-size: 23px;
+      margin-top: 0;
       margin-bottom: 8px;
     }
 
     .card p {
-      color: #bbbbbb;
+      color: #aaa;
+      margin-bottom: 0;
     }
 
-    .icon {
-      font-size: 30px;
-      margin-bottom: 10px;
+    .career-card {
+      padding: 24px;
+      border-radius: 18px;
+      background: #ffffff08;
+      border: 1px solid #ffffff15;
     }
 
-    #ecosystem {
-      border-top: 1px solid rgba(255,255,255,0.1);
+    .career-card h3 {
+      margin: 0 0 8px;
     }
 
-    #values {
-      border-top: 1px solid rgba(255,255,255,0.1);
+    .career-card p {
+      color: #999;
+      margin: 0 0 15px;
+    }
+
+    .coming-soon {
+      display: inline-block;
+      padding: 6px 11px;
+      border-radius: 20px;
+      background: #ffffff12;
+      color: #bbb;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .careers-intro {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 30px;
+      color: #aaa;
+    }
+
+    .cta {
+      text-align: center;
+      padding: 65px 25px;
+      border-radius: 22px;
+      background: #ffffff08;
+      border: 1px solid #ffffff15;
+      margin-bottom: 70px;
+    }
+
+    .cta h2 {
+      font-size: 32px;
+      margin-top: 0;
+    }
+
+    .cta p {
+      color: #aaa;
+      max-width: 650px;
+      margin: 0 auto 25px;
     }
 
     footer {
-      padding: 35px;
+      border-top: 1px solid #ffffff12;
+      padding: 30px 20px;
       text-align: center;
-      color: #999999;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      color: #666;
+      font-size: 13px;
     }
 
-    @media (max-width: 650px) {
-
+    @media (max-width: 700px) {
       header {
         flex-direction: column;
-        gap: 15px;
       }
 
-      nav a {
-        margin: 0 7px;
+      nav {
+        justify-content: center;
+        gap: 12px;
+      }
+
+      main {
+        width: calc(100% - 20px);
       }
 
       .hero {
         min-height: 65vh;
+        padding: 55px 15px;
       }
 
-      section {
-        padding: 60px 6%;
+      .section {
+        padding: 50px 0;
       }
     }
   </style>
 </head>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const starRiseSupabase = window.supabase.createClient(
-    'https://rcnikxotdalxtuvpmlvm.supabase.co',
-    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
-  );
-
-  starRiseSupabase.auth.getSession().then(({ data: { session } }) => {
-    if (session) {
-      window.history.replaceState(
-        {},
-        document.title,
-        window.location.pathname + window.location.search
-      );
-
-      window.location.replace('dashboard.html');
-    }
-  });
-</script>
 <body>
 
-  <header>
+<header>
 
-    <div class="logo">
-      ⭐ StarRise
+  <a class="logo" href="index.html">
+    ⭐ StarRise
+  </a>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="services.html">Services</a>
+    <a href="members.html">Members</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="careers.html">Careers</a>
+  </nav>
+
+</header>
+
+<main>
+
+  <section class="hero">
+
+    <div class="star">⭐</div>
+
+    <div class="eyebrow">
+      Welcome to StarRise
     </div>
 
-    <nav>
-  <a href="#vision">Vision</a>
-  <a href="#ecosystem">Ecosystem</a>
-  <a href="#values">Values</a>
-  <a href="login.html">Sign In</a>
-  <a href="register.html">Join StarRise</a>
-    </nav>
-
-  </header>
-
-
-  <main>
-
-    <!-- HERO -->
-
-    <section class="hero">
-
-      <div class="hero-content">
-
-        <h1>
-          StarRise
-        </h1>
-
-        <h2>
-          Where Talent Rises.
-        </h2>
-
-        <p>
-          A groundbreaking entertainment company built to
-          discover, support, develop, and celebrate talent,
-          creativity, individuality, and community.
-        </p>
-
-        <a class="button" href="#vision">
-          Discover StarRise
-        </a>
-
-        <a class="button" href="ecosystem.html">
-          Explore the Ecosystem
-        </a>
-
-      </div>
-
-    </section>
-
-
-    <!-- VISION -->
-
-    <section id="vision">
-
-      <h2>
-        Our Vision
-      </h2>
-
-      <p class="intro">
-        StarRise exists to create an entertainment community
-        where talented people have room to be themselves,
-        develop their craft, find opportunities, and build
-        meaningful connections.
-      </p>
-
-      <p class="intro" style="margin-top:20px;">
-        We believe individuality should be celebrated,
-        opportunity should be accessible, and everyone who
-        contributes to the StarRise community deserves to be
-        treated with fairness and respect.
-      </p>
-
-    </section>
-
-
-    <!-- ECOSYSTEM -->
-
-    <section id="ecosystem">
-
-      <h2>
-        The StarRise Ecosystem
-      </h2>
-
-      <p class="intro">
-        One community. Many ways to rise.
-        StarRise brings talent, creators, supporters,
-        clients, vendors, partners, and opportunities together.
-      </p>
-
-
-      <div class="grid">
-
-        <div class="card">
-
-          <div class="icon">🔎</div>
-
-          <h3>
-            Discover
-          </h3>
-
-          <p>
-            Find artists, creators, projects, and emerging talent.
-          </p>
-
-        </div>
-
-
-        <div class="card">
-
-          <div class="icon">✨</div>
-
-          <h3>
-            Create
-          </h3>
-
-          <p>
-            Build your profile, showcase your work,
-            and bring creative ideas to life.
-          </p>
-
-        </div>
-
-
-        <div class="card">
-
-          <div class="icon">💫</div>
-
-          <h3>
-            TalentFund
-          </h3>
-
-          <p>
-            Help promising talent access resources,
-            support, and opportunities.
-          </p>
-
-        </div>
-
-
-        <div class="card">
-
-          <div class="icon">🎤</div>
-
-          <h3>
-            Opportunities
-          </h3>
-
-          <p>
-            Discover auditions, gigs, jobs,
-            collaborations, and projects.
-          </p>
-
-        </div>
-
-
-        <div class="card">
-
-          <div class="icon">🤝</div>
-
-          <h3>
-            Community
-          </h3>
-
-          <p>
-            Connect, collaborate, network,
-            share knowledge, and support others.
-          </p>
-
-        </div>
-
-
-        <div class="card">
-
-          <div class="icon">🌟</div>
-
-          <h3>
-            Partners
-          </h3>
-
-          <p>
-            Connect clients, vendors, sponsors,
-            and industry partners with StarRise.
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <a class="button" href="ecosystem.html" style="margin-top:35px;">
-        Enter the Full Ecosystem
+    <h1>
+      Share Your Talent.<br>
+      Support Someone's Dream.
+    </h1>
+
+    <p>
+      StarRise connects talented people with customers who
+      want to support their skills, creativity, services,
+      and passion.
+    </p>
+
+    <div class="buttons">
+
+      <a class="button" href="services.html">
+        Browse Services
       </a>
 
-    </section>
+      <a class="button secondary" href="members.html">
+        Meet Members
+      </a>
 
+    </div>
 
-    <!-- VALUES -->
+  </section>
 
-    <section id="values">
+  <section class="section">
 
-      <h2>
-        Our Values
-      </h2>
+    <div class="section-title">
 
-      <p class="intro">
-        The principles that guide how StarRise treats its
-        members, staff, clients, supporters, vendors,
-        partners, and community.
-      </p>
-
-
-      <div class="grid">
-
-        <div class="card">
-          <h3>Individuality</h3>
-          <p>Be yourself. Your uniqueness is part of your value.</p>
-        </div>
-
-        <div class="card">
-          <h3>Fairness</h3>
-          <p>People deserve a fair opportunity to rise.</p>
-        </div>
-
-        <div class="card">
-          <h3>Respect</h3>
-          <p>Everyone who contributes deserves dignity and respect.</p>
-        </div>
-
-        <div class="card">
-          <h3>Opportunity</h3>
-          <p>We work to create pathways instead of unnecessary barriers.</p>
-        </div>
-
-        <div class="card">
-          <h3>Creativity</h3>
-          <p>Original ideas and authentic expression matter.</p>
-        </div>
-
-        <div class="card">
-          <h3>Community</h3>
-          <p>We rise higher when we support one another.</p>
-        </div>
-
-        <div class="card">
-          <h3>Transparency</h3>
-          <p>Trust is built through honesty and accountability.</p>
-        </div>
-
-        <div class="card">
-          <h3>Excellence</h3>
-          <p>We strive to make StarRise something worth belonging to.</p>
-        </div>
-
+      <div class="eyebrow">
+        The StarRise Community
       </div>
 
-    </section>
+      <h2>
+        Built Around People
+      </h2>
 
-  </main>
+      <p>
+        Discover services from StarRise members and support
+        people who are passionate about what they do.
+      </p>
 
+    </div>
 
-  <footer>
+    <div class="grid">
 
-    ⭐ StarRise — Where Talent Rises.
+      <div class="card">
+        <h3>Services</h3>
+        <p>
+          Find talented StarRise members offering services
+          across music, creativity, entertainment, and more.
+        </p>
+      </div>
 
-  </footer>
+      <div class="card">
+        <h3>Members</h3>
+        <p>
+          Discover the people behind the services and explore
+          what they bring to the StarRise community.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Support</h3>
+        <p>
+          Every service purchased helps talented people turn
+          their skills and passion into opportunities.
+        </p>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section id="careers" class="section">
+
+    <div class="section-title">
+
+      <div class="eyebrow">
+        StarRise Careers
+      </div>
+
+      <h2>
+        Build StarRise With Us
+      </h2>
+
+    </div>
+
+    <p class="careers-intro">
+      StarRise is growing. As our community and marketplace
+      grow, we'll eventually build a team of people who want
+      to help us create something meaningful.
+    </p>
+
+    <div class="grid">
+
+      <div class="career-card">
+        <h3>Customer Support</h3>
+        <p>
+          Help StarRise members and customers have a great experience.
+        </p>
+        <span class="coming-soon">
+          Coming Soon
+        </span>
+      </div>
+
+      <div class="career-card">
+        <h3>Community & Member Success</h3>
+        <p>
+          Help members connect, succeed, and get the most from StarRise.
+        </p>
+        <span class="coming-soon">
+          Coming Soon
+        </span>
+      </div>
+
+      <div class="career-card">
+        <h3>Marketing & Social Media</h3>
+        <p>
+          Help introduce StarRise and its talented members to more people.
+        </p>
+        <span class="coming-soon">
+          Coming Soon
+        </span>
+      </div>
+
+      <div class="career-card">
+        <h3>Operations</h3>
+        <p>
+          Help keep the StarRise marketplace organized and running smoothly.
+        </p>
+        <span class="coming-soon">
+          Coming Soon
+        </span>
+      </div>
+
+      <div class="career-card">
+        <h3>Service Quality</h3>
+        <p>
+          Help maintain a trustworthy and professional experience.
+        </p>
+        <span class="coming-soon">
+          Coming Soon
+        </span>
+      </div>
+
+      <div class="career-card">
+        <h3>Technology</h3>
+        <p>
+          Help build and improve the technology behind StarRise.
+        </p>
+        <span class="coming-soon">
+          Coming Soon
+        </span>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section class="cta">
+
+    <h2>
+      Ready to Rise?
+    </h2>
+
+    <p>
+      Explore StarRise services, discover talented members,
+      and become part of a growing community.
+    </p>
+
+    <div class="buttons">
+
+      <a class="button" href="services.html">
+        Explore Services
+      </a>
+
+      <a class="button secondary" href="careers.html">
+        Careers
+      </a>
+
+    </div>
+
+  </section>
+
+</main>
+
+<footer>
+  © 2026 StarRise. All rights reserved.
+</footer>
 
 </body>
-
 </html>
