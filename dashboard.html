@@ -501,9 +501,6 @@
   let supabaseClient = null;
   let currentUser = null;
 
-  /*
-   * Keeps HTML inserted from database fields safe.
-   */
   function escapeHtml(value) {
     return String(value ?? '')
       .replace(/&/g, '&amp;')
@@ -546,10 +543,10 @@
 
   function formatMoney(cents) {
 
-    const amount =
-      Number(cents || 0) / 100;
-
-    return '$' + amount.toFixed(2);
+    return (
+      '$' +
+      (Number(cents || 0) / 100).toFixed(2)
+    );
   }
 
   function starsHtml(rating) {
@@ -566,9 +563,6 @@
       .join('');
   }
 
-  /*
-   * Initialize Supabase and load dashboard.
-   */
   async function initialize() {
 
     try {
@@ -616,14 +610,10 @@
         return;
       }
 
-      currentUser =
-        session.user;
+      currentUser = session.user;
 
-      document.getElementById(
-        'email'
-      ).textContent =
-        currentUser.email ||
-        'Not available';
+      document.getElementById('email').textContent =
+        currentUser.email || 'Not available';
 
       setStatus(
         statusBox,
@@ -633,22 +623,10 @@
 
       await loadProfile(currentUser);
       await loadRoles(currentUser);
-
-      await loadIncomingOrders(
-        currentUser
-      );
-
-      await loadCompletedOrders(
-        currentUser
-      );
-
-      await loadMyOrders(
-        currentUser
-      );
-
-      await loadMyCompletedOrders(
-        currentUser
-      );
+      await loadIncomingOrders(currentUser);
+      await loadCompletedOrders(currentUser);
+      await loadMyOrders(currentUser);
+      await loadMyCompletedOrders(currentUser);
 
     } catch (error) {
 
@@ -660,19 +638,15 @@
       setStatus(
         statusBox,
         'Dashboard error: ' +
-        (error.message ||
-          'Unknown error'),
+        (error.message || 'Unknown error'),
         'error'
       );
     }
   }
 
-  /*
-   * Load member profile.
-   */
   async function loadProfile(user) {
 
-    const result =
+    let result =
       await supabaseClient
         .from('Profiles')
         .select('*')
@@ -686,109 +660,78 @@
       );
     }
 
+    /*
+     * Fallback for older profiles using User_id.
+     */
     if (!result.data) {
 
-      /*
-       * Some older StarRise accounts may have
-       * User_id populated instead of id.
-       */
-      const fallback =
+      result =
         await supabaseClient
           .from('Profiles')
           .select('*')
           .eq('User_id', user.id)
           .maybeSingle();
 
-      if (fallback.error) {
+      if (result.error) {
         throw new Error(
           'Profile: ' +
-          fallback.error.message
+          result.error.message
         );
       }
-
-      if (!fallback.data) {
-        throw new Error(
-          'Profile: no profile record exists for this account.'
-        );
-      }
-
-      renderProfile(
-        fallback.data,
-        user
-      );
-
-      return;
     }
 
-    renderProfile(
-      result.data,
-      user
-    );
-  }
+    if (!result.data) {
+      throw new Error(
+        'Profile: no profile record exists for this account.'
+      );
+    }
 
-  function renderProfile(
-    profile,
-    user
-  ) {
+    const profile = result.data;
 
     const fullName =
       profile.full_name ||
+      profile.Full_Name ||
       'StarRise Member';
 
     const displayName =
       profile.display_name ||
+      profile.Display_Name ||
       fullName;
 
-    document.getElementById(
-      'name'
-    ).textContent =
+    document.getElementById('name').textContent =
       displayName;
 
-    document.getElementById(
-      'profile-name'
-    ).textContent =
+    document.getElementById('profile-name').textContent =
       fullName;
 
-    document.getElementById(
-      'display-name'
-    ).textContent =
+    document.getElementById('display-name').textContent =
       displayName;
 
-    document.getElementById(
-      'email'
-    ).textContent =
-      user.email ||
-      'Not available';
+    document.getElementById('email').textContent =
+      user.email || 'Not available';
 
-    document.getElementById(
-      'location'
-    ).textContent =
+    document.getElementById('location').textContent =
       profile.location ||
+      profile.Location ||
       'Not provided';
 
-    document.getElementById(
-      'bio'
-    ).textContent =
+    document.getElementById('bio').textContent =
       profile.bio ||
+      profile.Bio ||
       'No bio added yet.';
 
-    document.getElementById(
-      'website'
-    ).textContent =
+    document.getElementById('website').textContent =
       profile.website ||
+      profile.Website ||
       'Not provided';
 
-    document.getElementById(
-      'member-since'
-    ).textContent =
+    document.getElementById('member-since').textContent =
       formatDate(
-        profile.created_at
+        profile.created_at ||
+        profile.Created_at
       );
   }
 
-  /*
-   * Load StarRise roles.
-   */
   async function loadRoles(user) {
 
     const element =
@@ -848,9 +791,6 @@
     }
   }
 
-  /*
-   * Get reviews for a group of orders.
-   */
   async function getReviews(orderIds) {
 
     if (!orderIds.length) {
@@ -861,10 +801,7 @@
       await supabaseClient
         .from('service_reviews')
         .select('*')
-        .in(
-          'order_id',
-          orderIds
-        );
+        .in('order_id', orderIds);
 
     if (result.error) {
 
@@ -877,22 +814,16 @@
     }
 
     return (result.data || [])
-      .reduce(
-        function (map, review) {
+      .reduce(function (map, review) {
 
-          map[review.order_id] =
-            review;
+        map[review.order_id] =
+          review;
 
-          return map;
+        return map;
 
-        },
-        {}
-      );
+      }, {});
   }
 
-  /*
-   * Display an existing review.
-   */
   function reviewDisplay(review) {
 
     if (!review) {
@@ -916,9 +847,7 @@
           review.review
             ? `
               <div class="review-content">
-                ${escapeHtml(
-                  review.review
-                )}
+                ${escapeHtml(review.review)}
               </div>
             `
             : ''
@@ -927,9 +856,7 @@
         <div class="review-date">
           Reviewed
           ${escapeHtml(
-            formatDate(
-              review.created_at
-            )
+            formatDate(review.created_at)
           )}
         </div>
 
@@ -937,18 +864,11 @@
     `;
   }
 
-  /*
-   * Review form for the buyer.
-   */
-  function reviewForm(
-    order,
-    review
-  ) {
+  function reviewForm(order, review) {
 
     const currentRating =
       Number(
-        review &&
-        review.rating
+        review && review.rating
           ? review.rating
           : 0
       );
@@ -966,9 +886,7 @@
 
         <div
           class="stars"
-          data-stars-for="${escapeHtml(
-            order.id
-          )}"
+          data-stars-for="${escapeHtml(order.id)}"
         >
 
           ${[1, 2, 3, 4, 5]
@@ -983,9 +901,7 @@
                       : ''
                   }"
                   data-rating="${number}"
-                  data-order="${escapeHtml(
-                    order.id
-                  )}"
+                  data-order="${escapeHtml(order.id)}"
                 >★</button>
               `;
 
@@ -996,15 +912,12 @@
 
         <textarea
           class="review-text"
-          id="review-text-${escapeHtml(
-            order.id
-          )}"
+          id="review-text-${escapeHtml(order.id)}"
           maxlength="1000"
           placeholder="Tell us about your StarRise experience..."
         >${
           escapeHtml(
-            review &&
-            review.review
+            review && review.review
               ? review.review
               : ''
           )
@@ -1013,9 +926,7 @@
         <button
           type="button"
           class="order-button"
-          data-submit-review="${escapeHtml(
-            order.id
-          )}"
+          data-submit-review="${escapeHtml(order.id)}"
         >
           ${
             review
@@ -1025,9 +936,7 @@
         </button>
 
         <div
-          id="review-message-${escapeHtml(
-            order.id
-          )}"
+          id="review-message-${escapeHtml(order.id)}"
           class="muted"
           style="margin-top:10px;"
         ></div>
@@ -1036,9 +945,6 @@
     `;
   }
 
-  /*
-   * Seller/provider actions.
-   */
   function providerActions(order) {
 
     if (order.status === 'pending') {
@@ -1049,9 +955,7 @@
           <button
             class="order-button"
             data-order-action="accepted"
-            data-order-id="${escapeHtml(
-              order.id
-            )}"
+            data-order-id="${escapeHtml(order.id)}"
           >
             Accept Request
           </button>
@@ -1059,9 +963,7 @@
           <button
             class="order-button decline-button"
             data-order-action="declined"
-            data-order-id="${escapeHtml(
-              order.id
-            )}"
+            data-order-id="${escapeHtml(order.id)}"
           >
             Decline Request
           </button>
@@ -1078,5 +980,67 @@
           <button
             class="order-button"
             data-order-action="in_progress"
-            data-order-id="${escapeHtml(
-        
+            data-order-id="${escapeHtml(order.id)}"
+          >
+            Start Service
+          </button>
+
+        </div>
+      `;
+    }
+
+    if (order.status === 'in_progress') {
+
+      return `
+        <div class="order-actions">
+
+          <button
+            class="order-button"
+            data-order-action="completed"
+            data-order-id="${escapeHtml(order.id)}"
+          >
+            Complete Service
+          </button>
+
+        </div>
+      `;
+    }
+
+    return '';
+  }
+
+  function buildOrderCard(
+    order,
+    providerView,
+    review,
+    service
+  ) {
+
+    const card =
+      document.createElement('div');
+
+    card.className =
+      'order-card';
+
+    const serviceTitle =
+      service &&
+      (
+        service.title ||
+        service.name ||
+        service.service_name
+      );
+
+    card.innerHTML = `
+
+      <span class="label">
+        ${
+          providerView
+            ? 'Customer Service'
+            : 'Your Service'
+        }
+      </span>
+
+      ${
+        serviceTitle
+          ? `
+            <div class="service-titl
