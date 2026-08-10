@@ -1,11 +1,9 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title>Service | StarRise</title>
+  <title>StarRise Service</title>
 
   <style>
     * {
@@ -17,16 +15,17 @@
       font-family: Arial, sans-serif;
       background: #080812;
       color: #fff;
+      min-height: 100vh;
       line-height: 1.6;
     }
 
     header {
-      padding: 20px 8%;
+      padding: 18px 24px;
       border-bottom: 1px solid #ffffff18;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 15px;
+      gap: 20px;
     }
 
     header a {
@@ -42,883 +41,793 @@
     }
 
     nav a {
-      color: #fff;
+      color: #bbb;
       text-decoration: none;
+      font-weight: normal;
+    }
+
+    nav a:hover {
+      color: #fff;
     }
 
     main {
-      width: min(850px, calc(100% - 40px));
-      margin: 50px auto;
+      width: min(850px, calc(100% - 30px));
+      margin: 40px auto 70px;
     }
 
-    .panel {
-      padding: 30px;
-      border-radius: 20px;
+    .card {
       border: 1px solid #ffffff18;
+      border-radius: 22px;
       background: #ffffff08;
-      margin-bottom: 20px;
+      padding: 28px;
     }
 
-    .category {
-      color: #aaa;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      font-size: 13px;
-    }
-
-    h1 {
-      font-size: clamp(34px, 7vw, 60px);
-      margin: 8px 0 12px;
-      line-height: 1.1;
-    }
-
-    h2 {
-      margin-top: 0;
-    }
-
-    .description {
-      color: #ccc;
-      font-size: 18px;
-      white-space: pre-wrap;
-    }
-
-    .price {
-      font-size: 34px;
-      font-weight: bold;
-      margin-top: 25px;
-    }
-
-    .provider {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid #ffffff18;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: bold;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 150px;
-      padding: 14px;
-      border-radius: 10px;
-      border: 1px solid #ffffff25;
-      background: #11111d;
-      color: #fff;
-      font-size: 16px;
-      resize: vertical;
-    }
-
-    button {
-      width: 100%;
-      margin-top: 18px;
-      padding: 15px;
-      border: 0;
-      border-radius: 30px;
-      background: #fff;
-      color: #080812;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: .6;
-      cursor: wait;
-    }
-
-    #message {
-      display: none;
-      padding: 14px;
-      margin-bottom: 20px;
-      border-radius: 10px;
-    }
-
-    #message.show {
-      display: block;
-    }
-
-    #message.error {
-      display: block;
-      background: rgba(220,70,70,.15);
-      color: #ffb0b0;
-    }
-
-    #message.success {
-      display: block;
-      background: rgba(50,180,100,.15);
-      color: #a8ffc8;
-    }
-
-    .loading,
     .muted {
       color: #aaa;
     }
 
-    .back {
-      margin-top: 20px;
+    .service-title {
+      font-size: 32px;
+      margin: 0 0 8px;
     }
 
-    .back a {
+    .service-description {
+      color: #ccc;
+      white-space: pre-wrap;
+      margin: 18px 0;
+    }
+
+    .price {
+      font-size: 30px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    .provider {
+      padding: 16px;
+      border-radius: 14px;
+      background: #ffffff08;
+      margin: 20px 0;
+    }
+
+    .provider strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .request-box {
+      margin-top: 25px;
+      padding-top: 25px;
+      border-top: 1px solid #ffffff12;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 130px;
+      resize: vertical;
+      padding: 14px;
+      border-radius: 13px;
+      border: 1px solid #ffffff20;
+      background: #080812;
+      color: #fff;
+      font: inherit;
+      margin-top: 10px;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #ffffff55;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .checkout-button {
+      width: 100%;
+      border: 0;
+      border-radius: 28px;
+      padding: 14px 22px;
+      background: #fff;
+      color: #080812;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    .checkout-button:hover {
+      opacity: .9;
+    }
+
+    .checkout-button:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
       color: #fff;
     }
 
-    .success-box {
-      text-align: center;
-      padding: 20px;
+    .status {
+      padding: 14px;
+      border-radius: 12px;
+      margin-top: 15px;
+      display: none;
+    }
+
+    .status.error {
+      display: block;
+      color: #ffb5b5;
+      background: rgba(200, 50, 50, .12);
+    }
+
+    .status.success {
+      display: block;
+      color: #baffca;
+      background: rgba(50, 200, 100, .10);
+    }
+
+    .status.info {
+      display: block;
+      color: #ccc;
+      background: #ffffff08;
     }
 
     @media (max-width: 650px) {
       header {
         flex-direction: column;
+        align-items: flex-start;
+      }
+
+      nav {
+        gap: 12px;
       }
 
       main {
-        width: min(100% - 24px, 850px);
-        margin-top: 30px;
+        width: calc(100% - 20px);
+        margin-top: 20px;
       }
 
-      .panel {
-        padding: 22px;
+      .card {
+        padding: 20px;
+      }
+
+      .service-title {
+        font-size: 27px;
       }
     }
   </style>
-
 </head>
 
 <body>
 
 <header>
-
-  <a href="index.html">
-    ⭐ StarRise
-  </a>
+  <a href="index.html">⭐ StarRise</a>
 
   <nav>
-
-    <a href="services.html">
-      Services
-    </a>
-
-    <a href="members.html">
-      Members
-    </a>
-
-    <a href="dashboard.html">
-      Dashboard
-    </a>
-
+    <a href="services.html">Services</a>
+    <a href="members.html">Members</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="music.html">Music</a>
   </nav>
-
 </header>
 
 <main>
 
-  <section
-    id="servicePanel"
-    class="panel"
-  >
+  <div class="card">
 
-    <div class="loading">
+    <div id="loading" class="status info">
       Loading service...
     </div>
 
-  </section>
+    <div id="service-content" style="display:none;">
 
+      <p class="muted">StarRise Service</p>
 
-  <section
-    id="requestPanel"
-    class="panel"
-    style="display:none;"
-  >
+      <h1 id="service-title" class="service-title">
+        Service
+      </h1>
 
-    <h2>
-      Request This Service
-    </h2>
+      <div id="service-description"
+           class="service-description"></div>
 
-    <p class="muted">
-      Tell the provider what you need.
-      You'll continue to secure checkout after
-      submitting your request.
-    </p>
+      <div id="service-price" class="price">
+        $0.00
+      </div>
 
-    <div id="message"></div>
+      <div class="provider">
 
-    <form id="orderForm">
+        <span class="muted">
+          Provided by
+        </span>
 
-      <label for="request">
-        What do you need?
-      </label>
+        <strong id="provider-name">
+          Provider
+        </strong>
 
-      <textarea
-        id="request"
-        maxlength="2000"
-        placeholder="Describe your project, deadline, requirements, or other important details..."
-        required
-      ></textarea>
+        <span id="provider-location"
+              class="muted">
+        </span>
 
-      <button
-        id="orderButton"
-        type="submit"
+      </div>
+
+      <div class="request-box">
+
+        <h2>Request This Service</h2>
+
+        <p class="muted">
+          Tell the provider what you need.
+          You'll continue to secure checkout
+          after submitting your request.
+        </p>
+
+        <label for="request-message">
+          What do you need?
+        </label>
+
+        <textarea
+          id="request-message"
+          maxlength="2000"
+          placeholder="Tell the provider what you need..."
+        ></textarea>
+
+        <button
+          id="checkout-button"
+          class="checkout-button"
+          type="button"
+        >
+          Continue to Checkout
+        </button>
+
+        <div
+          id="checkout-status"
+          class="status"
+        ></div>
+
+      </div>
+
+      <a
+        href="services.html"
+        class="back-link"
       >
-        Continue to Checkout
-      </button>
+        ← Back to Services
+      </a>
 
-    </form>
-
-  </section>
-
-
-  <div class="back">
-
-    <a href="services.html">
-      ← Back to Services
-    </a>
+    </div>
 
   </div>
 
 </main>
 
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-
 <script>
+(function () {
 
-const starRiseSupabase =
-  window.supabase.createClient(
-    'https://rcnikxotdalxtuvpmlvm.supabase.co',
-    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
-  );
+  'use strict';
 
+  const SUPABASE_URL =
+    'https://rcnikxotdalxtuvpmlvm.supabase.co';
 
-const servicePanel =
-  document.getElementById(
-    'servicePanel'
-  );
+  const SUPABASE_KEY =
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
-
-const requestPanel =
-  document.getElementById(
-    'requestPanel'
-  );
-
-
-const orderForm =
-  document.getElementById(
-    'orderForm'
-  );
-
-
-const orderButton =
-  document.getElementById(
-    'orderButton'
-  );
-
-
-const message =
-  document.getElementById(
-    'message'
-  );
-
-
-let service = null;
-
-
-function escapeHtml(value) {
-
-  return String(value ?? '')
-
-    .replaceAll(
-      '&',
-      '&amp;'
-    )
-
-    .replaceAll(
-      '<',
-      '&lt;'
-    )
-
-    .replaceAll(
-      '>',
-      '&gt;'
-    )
-
-    .replaceAll(
-      '"',
-      '&quot;'
-    )
-
-    .replaceAll(
-      "'",
-      '&#039;'
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
     );
 
-}
+  const loading =
+    document.getElementById('loading');
 
+  const content =
+    document.getElementById('service-content');
 
-function showMessage(
-  text,
-  type
-) {
+  const checkoutButton =
+    document.getElementById('checkout-button');
 
-  message.textContent =
-    text;
+  const checkoutStatus =
+    document.getElementById('checkout-status');
 
-  message.className =
-    'show ' + (type || '');
+  let currentUser = null;
+  let service = null;
 
-}
+  function escapeHtml(value) {
 
-
-function getServiceId() {
-
-  const params =
-    new URLSearchParams(
-      window.location.search
-    );
-
-  return params.get('id');
-
-}
-
-
-async function getCurrentSession() {
-
-  const {
-    data,
-    error
-  } =
-    await starRiseSupabase
-      .auth
-      .getSession();
-
-
-  if (error) {
-
-    console.error(
-      'Session error:',
-      error
-    );
-
-    return null;
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
 
   }
 
+  function getField(object, fields, fallback) {
 
-  return data?.session || null;
+    for (const field of fields) {
 
-}
-
-
-async function loadService() {
-
-  const serviceId =
-    getServiceId();
-
-
-  if (!serviceId) {
-
-    servicePanel.innerHTML = `
-      <h1>Service Not Found</h1>
-      <p class="muted">
-        No service ID was provided.
-      </p>
-    `;
-
-    return;
-
-  }
-
-
-  const {
-    data,
-    error
-  } =
-    await starRiseSupabase
-
-      .from(
-        'star_rise_services'
-      )
-
-      .select(`
-        id,
-        user_id,
-        title,
-        description,
-        category,
-        price_cents,
-        is_active,
-        created_at
-      `)
-
-      .eq(
-        'id',
-        serviceId
-      )
-
-      .eq(
-        'is_active',
-        true
-      )
-
-      .single();
-
-
-  if (error) {
-
-    console.error(
-      'Service error:',
-      error
-    );
-
-
-    servicePanel.innerHTML = `
-      <h1>Service Not Found</h1>
-
-      <p class="muted">
-        This service may no longer be available.
-      </p>
-    `;
-
-    return;
-
-  }
-
-
-  service = data;
-
-
-  const {
-    data: profile
-  } =
-    await starRiseSupabase
-
-      .from(
-        'public_profiles'
-      )
-
-      .select(`
-        id,
-        display_name,
-        role,
-        location,
-        avatar_url
-      `)
-
-      .eq(
-        'id',
-        service.user_id
-      )
-
-      .maybeSingle();
-
-
-  const providerName =
-    profile?.display_name ||
-    'StarRise Member';
-
-
-  const price =
-    (
-      Number(
-        service.price_cents || 0
-      ) / 100
-    ).toLocaleString(
-      'en-US',
-      {
-        style: 'currency',
-        currency: 'USD'
-      }
-    );
-
-
-  servicePanel.innerHTML = `
-
-    <div class="category">
-      ${escapeHtml(
-        service.category ||
-        'Service'
-      )}
-    </div>
-
-    <h1>
-      ${escapeHtml(
-        service.title ||
-        'StarRise Service'
-      )}
-    </h1>
-
-    <div class="description">
-      ${escapeHtml(
-        service.description ||
-        'No description provided.'
-      )}
-    </div>
-
-    <div class="price">
-      ${price}
-    </div>
-
-    <div class="provider">
-
-      <strong>
-        Provided by
-      </strong>
-
-      <div>
-        ${escapeHtml(
-          providerName
-        )}
-      </div>
-
-      ${
-        profile?.location
-          ? `
-            <div class="muted">
-              ${escapeHtml(
-                profile.location
-              )}
-            </div>
-          `
-          : ''
+      if (
+        object &&
+        object[field] !== undefined &&
+        object[field] !== null &&
+        object[field] !== ''
+      ) {
+        return object[field];
       }
 
-    </div>
+    }
 
-  `;
+    return fallback;
+  }
 
+  function getServiceId() {
 
-  const session =
-    await getCurrentSession();
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
 
-
-  if (
-    session &&
-    session.user.id === service.user_id
-  ) {
-
-    requestPanel.innerHTML = `
-
-      <div class="success-box">
-
-        <h2>
-          Your Service
-        </h2>
-
-        <p class="muted">
-          You cannot purchase your own service.
-        </p>
-
-      </div>
-
-    `;
-
-  } else {
-
-    requestPanel.style.display =
-      'block';
+    return (
+      params.get('id') ||
+      params.get('service_id') ||
+      params.get('service')
+    );
 
   }
 
-}
+  function formatMoney(value) {
 
+    const number =
+      Number(value || 0);
 
-orderForm.addEventListener(
-  'submit',
-  async event => {
+    /*
+      Supports both cents and normal
+      dollar values.
+    */
 
-    event.preventDefault();
+    if (number >= 1000) {
 
-
-    if (!service) {
-
-      showMessage(
-        'Service information is not loaded yet.',
-        'error'
-      );
-
-      return;
+      return '$' +
+        (number / 100).toFixed(2);
 
     }
 
+    return '$' +
+      number.toFixed(2);
 
-    const session =
-      await getCurrentSession();
+  }
 
+  function showStatus(message, type) {
 
-    if (!session) {
+    checkoutStatus.textContent =
+      message;
 
-      window.location.href =
-        'login.html';
+    checkoutStatus.className =
+      'status ' + type;
 
-      return;
+  }
 
-    }
-
-
-    const buyerId =
-      session.user.id;
-
-
-    if (
-      buyerId === service.user_id
-    ) {
-
-      showMessage(
-        'You cannot order your own service.',
-        'error'
-      );
-
-      return;
-
-    }
-
-
-    const request =
-      document
-        .getElementById(
-          'request'
-        )
-        .value
-        .trim();
-
-
-    if (!request) {
-
-      showMessage(
-        'Please describe what you need.',
-        'error'
-      );
-
-      return;
-
-    }
-
-
-    orderButton.disabled =
-      true;
-
-    orderButton.textContent =
-      'Creating Order...';
-
+  async function loadPage() {
 
     try {
 
-      /*
-       * STEP 1
-       * Create the StarRise order.
-       */
+      const sessionResult =
+        await supabaseClient.auth.getSession();
 
-      const {
-        data: order,
-        error: orderError
-      } =
-      await starRiseSupabase
+      if (sessionResult.error) {
+        throw sessionResult.error;
+      }
 
-        .from(
-          'service_orders'
-        )
+      const session =
+        sessionResult.data &&
+        sessionResult.data.session;
 
-        .insert({
+      if (!session || !session.user) {
 
-          buyer_id:
-            buyerId,
+        window.location.href =
+          'login.html';
 
-          seller_id:
-            service.user_id,
+        return;
 
-          service_id:
-            service.id,
+      }
 
-          amount_cents:
-            Number(
-              service.price_cents
-            ),
+      currentUser =
+        session.user;
 
-          request_message: request,
+      const serviceId =
+        getServiceId();
 
-          status:
-            'pending'
-
-        })
-
-        .select(
-          'id'
-        )
-
-        .single();
-
-
-      if (orderError) {
+      if (!serviceId) {
 
         throw new Error(
-          'Order could not be created: ' +
-          orderError.message
+          'No service was specified.'
         );
 
       }
 
+      const result =
+        await supabaseClient
+          .from('star_rise_services')
+          .select('*')
+          .eq('id', serviceId)
+          .maybeSingle();
 
-      /*
-       * STEP 2
-       * Ask the Supabase Edge Function
-       * to create the Stripe Checkout Session.
-       */
+      if (result.error) {
+        throw result.error;
+      }
 
-      orderButton.textContent =
-        'Opening Checkout...';
-
-
-      const {
-        data: checkoutData,
-        error: checkoutError
-      } =
-      await starRiseSupabase
-        .functions
-        .invoke(
-          'create-checkout',
-          {
-            body: {
-
-              service_id:
-                String(
-                  service.id
-                ),
-
-              amount_cents:
-                Number(
-                  service.price_cents
-                ),
-
-              service_name:
-                String(
-                  service.title
-                ),
-
-              order_id:
-                String(
-                  order.id
-                )
-
-            }
-          }
-        );
-
-
-      if (checkoutError) {
-
-        let details =
-          checkoutError.message ||
-          'Checkout function failed.';
-
-
-        try {
-
-          if (
-            checkoutError.context
-          ) {
-
-            const response =
-              checkoutError.context;
-
-            const text =
-              await response.text();
-
-            if (text) {
-              details =
-                text;
-            }
-
-          }
-
-        } catch (
-          ignored
-        ) {}
-
+      if (!result.data) {
 
         throw new Error(
-          'Checkout error: ' +
-          details
+          'Service not found.'
         );
 
       }
 
+      service =
+        result.data;
 
-      if (
-        !checkoutData
-      ) {
-
-        throw new Error(
-          'The checkout function returned no data.'
-        );
-
-      }
-
-
-      if (
-        checkoutData.error
-      ) {
-
-        throw new Error(
-          'Stripe: ' +
-          checkoutData.error
-        );
-
-      }
-
-
-      if (
-        !checkoutData.url
-      ) {
-
-        throw new Error(
-          'Stripe Checkout did not return a payment URL.'
-        );
-
-      }
-
-
-      /*
-       * STEP 3
-       * Send the customer to Stripe.
-       */
-
-      window.location.href =
-        checkoutData.url;
+      renderService();
 
     } catch (error) {
 
       console.error(
-        'Checkout process failed:',
+        'Service page error:',
         error
       );
 
+      loading.className =
+        'status error';
 
-      showMessage(
-        error.message ||
-        'We could not start checkout.',
-        'error'
-      );
+      loading.style.display =
+        'block';
 
-
-      orderButton.disabled =
-        false;
-
-      orderButton.textContent =
-        'Continue to Checkout';
+      loading.textContent =
+        'Unable to load service: ' +
+        error.message;
 
     }
 
   }
-);
 
+  async function loadProvider(providerId) {
 
-loadService();
+    if (!providerId) {
+      return null;
+    }
 
+    const result =
+      await supabaseClient
+        .from('Profiles')
+        .select('*')
+        .eq('id', providerId)
+        .maybeSingle();
+
+    if (result.error) {
+
+      console.error(
+        'Provider profile error:',
+        result.error
+      );
+
+      return null;
+
+    }
+
+    return result.data;
+
+  }
+
+  async function renderService() {
+
+    loading.style.display =
+      'none';
+
+    content.style.display =
+      'block';
+
+    const title =
+      getField(
+        service,
+        ['title', 'name', 'service_name'],
+        'Service'
+      );
+
+    const description =
+      getField(
+        service,
+        ['description', 'details', 'bio'],
+        ''
+      );
+
+    const price =
+      getField(
+        service,
+        ['price', 'price_cents', 'amount'],
+        0
+      );
+
+    /*
+      Seller/provider ID is now the
+      correct field for StarRise.
+    */
+
+    const sellerId =
+      getField(
+        service,
+        [
+          'seller_id',
+          'Seller_id',
+          'provider_id',
+          'Provider_id'
+        ],
+        null
+      );
+
+    document.getElementById(
+      'service-title'
+    ).textContent =
+      title;
+
+    document.getElementById(
+      'service-description'
+    ).textContent =
+      description;
+
+    document.getElementById(
+      'service-price'
+    ).textContent =
+      formatMoney(price);
+
+    const provider =
+      await loadProvider(sellerId);
+
+    if (provider) {
+
+      const providerName =
+        getField(
+          provider,
+          [
+            'display_name',
+            'Display_Name',
+            'stage_name',
+            'Stage_Name',
+            'full_name',
+            'Full_Name',
+            'name',
+            'Name'
+          ],
+          'StarRise Member'
+        );
+
+      const location =
+        getField(
+          provider,
+          [
+            'location',
+            'Location'
+          ],
+          ''
+        );
+
+      document.getElementById(
+        'provider-name'
+      ).textContent =
+        providerName;
+
+      document.getElementById(
+        'provider-location'
+      ).textContent =
+        location;
+
+    }
+
+  }
+
+  async function createCheckout() {
+
+    if (!currentUser) {
+
+      throw new Error(
+        'You must be signed in.'
+      );
+
+    }
+
+    if (!service) {
+
+      throw new Error(
+        'Service information is missing.'
+      );
+
+    }
+
+    const requestMessage =
+      document
+        .getElementById(
+          'request-message'
+        )
+        .value
+        .trim();
+
+    if (!requestMessage) {
+
+      throw new Error(
+        'Please tell the provider what you need.'
+      );
+
+    }
+
+    /*
+      StarRise now uses buyer_id and seller_id.
+    */
+
+    const buyerId =
+      currentUser.id;
+
+    const sellerId =
+      getField(
+        service,
+        [
+          'seller_id',
+          'Seller_id',
+          'provider_id',
+          'Provider_id'
+        ],
+        null
+      );
+
+    if (!sellerId) {
+
+      throw new Error(
+        'This service does not have a seller assigned.'
+      );
+
+    }
+
+    if (sellerId === buyerId) {
+
+      throw new Error(
+        'You cannot purchase your own service.'
+      );
+
+    }
+
+    showStatus(
+      'Preparing secure checkout...',
+      'info'
+    );
+
+    checkoutButton.disabled =
+      true;
+
+    checkoutButton.textContent =
+      'Preparing Checkout...';
+
+    /*
+      IMPORTANT:
+      Send buyer_id and seller_id
+      to the Edge Function.
+    */
+
+    const result =
+      await supabaseClient.functions.invoke(
+        'create-checkout',
+        {
+          body: {
+            service_id: service.id,
+            buyer_id: buyerId,
+            seller_id: sellerId,
+            request_message: requestMessage
+          }
+        }
+      );
+
+    if (result.error) {
+
+      console.error(
+        'create-checkout error:',
+        result.error
+      );
+
+      let message =
+        result.error.message ||
+        'Unable to start checkout.';
+
+      if (
+        result.data &&
+        typeof result.data === 'object'
+      ) {
+
+        message =
+          result.data.error ||
+          result.data.message ||
+          message;
+
+      }
+
+      throw new Error(message);
+
+    }
+
+    const data =
+      result.data;
+
+    /*
+      The Edge Function may return
+      checkout_url, url, or session_url.
+    */
+
+    const checkoutUrl =
+      data &&
+      (
+        data.checkout_url ||
+        data.url ||
+        data.session_url
+      );
+
+    if (!checkoutUrl) {
+
+      console.error(
+        'Checkout response:',
+        data
+      );
+
+      throw new Error(
+        'Checkout was created, but no checkout URL was returned.'
+      );
+
+    }
+
+    showStatus(
+      'Redirecting to secure checkout...',
+      'success'
+    );
+
+    window.location.href =
+      checkoutUrl;
+
+  }
+
+  checkoutButton.addEventListener(
+    'click',
+    async function () {
+
+      try {
+
+        await createCheckout();
+
+      } catch (error) {
+
+        console.error(
+          'Checkout failed:',
+          error
+        );
+
+        showStatus(
+          'Checkout error: ' +
+          error.message,
+          'error'
+        );
+
+        checkoutButton.disabled =
+          false;
+
+        checkoutButton.textContent =
+          'Continue to Checkout';
+
+      }
+
+    }
+  );
+
+  loadPage();
+
+})();
 </script>
 
 </body>
