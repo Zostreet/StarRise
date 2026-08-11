@@ -3,439 +3,678 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>StarRise Service</title>
+
+  <title>StarRise Profile</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: #fff;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #ffffff18;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header a,
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    main {
+      width: min(850px, calc(100% - 40px));
+      margin: 50px auto;
+    }
+
+    .panel {
+      border: 1px solid #ffffff18;
+      border-radius: 22px;
+      background: #ffffff08;
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+
+    .profile-header {
+      text-align: center;
+    }
+
+    .avatar {
+      width: 130px;
+      height: 130px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #ffffff12;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 52px;
+      font-weight: bold;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .role {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 7px 14px;
+      border-radius: 20px;
+      background: #ffffff12;
+      color: #ddd;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 7vw, 58px);
+      line-height: 1.1;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .location {
+      margin-top: 12px;
+      color: #bbb;
+    }
+
+    .bio {
+      color: #ccc;
+      white-space: pre-wrap;
+    }
+
+    .website {
+      color: #fff;
+      word-break: break-word;
+    }
+
+    .website a {
+      color: #fff;
+    }
+
+    .status {
+      padding: 16px;
+      border-radius: 12px;
+      background: #ffffff0d;
+      color: #aaa;
+      text-align: center;
+    }
+
+    .error {
+      color: #ffb0b0;
+      background: rgba(220, 70, 70, .12);
+    }
+
+    .back {
+      display: inline-block;
+      margin-top: 5px;
+      padding: 11px 20px;
+      border-radius: 25px;
+      background: #fff;
+      color: #080812;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    /* SERVICES */
+
+    .service-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .service-card {
+      border: 1px solid #ffffff18;
+      border-radius: 16px;
+      padding: 20px;
+      background: #ffffff06;
+    }
+
+    .service-card h3 {
+      margin: 0 0 6px;
+      font-size: 22px;
+    }
+
+    .service-category {
+      color: #aaa;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .service-description {
+      color: #ccc;
+      white-space: pre-wrap;
+    }
+
+    .service-price {
+      margin-top: 14px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    @media (max-width: 650px) {
+      header {
+        flex-direction: column;
+      }
+
+      main {
+        width: min(100% - 24px, 850px);
+        margin-top: 30px;
+      }
+
+      .panel {
+        padding: 22px;
+      }
+    }
+  </style>
 </head>
 
 <body>
+
+<header>
+
+  <a href="index.html">
+    ⭐ StarRise
+  </a>
+
+  <nav>
+    <a href="services.html">
+      Services
+    </a>
+
+    <a href="members.html">
+      Members
+    </a>
+
+    <a href="dashboard.html">
+      Dashboard
+    </a>
+  </nav>
+
+</header>
+
+<main>
+
+  <section
+    id="profile"
+    class="panel"
+  >
+
+    <div class="status">
+      Loading profile...
+    </div>
+
+  </section>
+
+  <a
+    class="back"
+    href="members.html"
+  >
+    ← Back to Members
+  </a>
+
+</main>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-(function () {
-  'use strict';
 
-  const SUPABASE_URL =
-    'https://rcnikxotdalxtuvpmlvm.supabase.co';
+const starRiseSupabase =
+  window.supabase.createClient(
+    'https://rcnikxotdalxtuvpmlvm.supabase.co',
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+  );
 
-  const SUPABASE_KEY =
-    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
-  const supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
+const profileContainer =
+  document.getElementById('profile');
+
+
+function escapeHtml(value) {
+
+  return String(value ?? '')
+
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+
+}
+
+
+function getProfileId() {
 
   const params =
-    new URLSearchParams(window.location.search);
+    new URLSearchParams(
+      window.location.search
+    );
 
-  const serviceId =
-    params.get('id') ||
-    params.get('service_id') ||
-    params.get('service');
+  return params.get('id');
 
-  async function run() {
+}
 
-    const {
-      data: { session },
-      error: sessionError
-    } = await supabaseClient.auth.getSession();
 
-    if (sessionError) {
-      document.body.textContent =
-        'Unable to verify your session.';
-      return;
-    }
+async function loadProfile() {
 
-    if (!session) {
-      document.body.textContent =
-        'You must be signed in.';
-      return;
-    }
+  const profileId =
+    getProfileId();
 
-    if (!serviceId) {
-      document.body.textContent =
-        'No service was selected.';
-      return;
-    }
 
-    const {
-      data: service,
-      error: serviceError
-    } = await supabaseClient
-      .from('star_rise_services')
-      .select('*')
-      .eq('id', serviceId)
-      .maybeSingle();
+  if (!profileId) {
 
-    if (serviceError) {
-      console.error(
-        'Service lookup error:',
-        serviceError
-      );
-
-      document.body.textContent =
-        'Unable to load this service.';
-      return;
-    }
-
-    if (!service) {
-      document.body.textContent =
-        'Service not found.';
-      return;
-    }
-
-    const price =
-      Number(service.price_cents || 0) / 100;
-
-    document.body.innerHTML = `
-      <main
-        style="
-          max-width:800px;
-          margin:40px auto;
-          padding:20px;
-          font-family:Arial,sans-serif;
-        "
-      >
-
-        <h1>
-          ${escapeHtml(
-            service.title || 'StarRise Service'
-          )}
-        </h1>
-
-        <p>
-          ${escapeHtml(
-            service.description || ''
-          )}
-        </p>
-
-        <h2>
-          $${price.toFixed(2)}
-        </h2>
-
-        <p>
-          Provided by StarRise member
-        </p>
-
-        <label
-          for="message"
-          style="
-            display:block;
-            margin-bottom:8px;
-            font-weight:bold;
-          "
-        >
-          What do you need?
-        </label>
-
-        <textarea
-          id="message"
-          style="
-            width:100%;
-            min-height:120px;
-            padding:12px;
-            box-sizing:border-box;
-          "
-          placeholder="Tell the provider what you need..."
-        ></textarea>
-
-        <button
-          id="checkout"
-          style="
-            margin-top:15px;
-            padding:14px 22px;
-            cursor:pointer;
-          "
-        >
-          Continue to Checkout
-        </button>
-
-        <p
-          id="status"
-          style="
-            margin-top:15px;
-            white-space:pre-wrap;
-          "
-        ></p>
-
-        <a href="services.html">
-          ← Back to Services
-        </a>
-
-      </main>
+    profileContainer.innerHTML = `
+      <div class="status error">
+        Profile not found.
+      </div>
     `;
 
-    document
-      .getElementById('checkout')
-      .addEventListener(
-        'click',
-        startCheckout
-      );
+    return;
 
-    async function startCheckout() {
+  }
 
-      const button =
-        document.getElementById(
-          'checkout'
-        );
 
-      const status =
-        document.getElementById(
-          'status'
-        );
+  /*
+    LOAD PROFILE
+  */
 
-      const message =
-        document
-          .getElementById('message')
-          .value
-          .trim();
+  const {
+    data: profile,
+    error
+  } =
+    await starRiseSupabase
 
-      if (!message) {
-        status.textContent =
-          'Please tell the provider what you need.';
-        return;
+      .from('public_profiles')
+
+      .select(`
+        id,
+        display_name,
+        role,
+        location,
+        bio,
+        website,
+        avatar_url
+      `)
+
+      .eq(
+        'id',
+        profileId
+      )
+
+      .maybeSingle();
+
+
+  if (error) {
+
+    console.error(
+      'Profile error:',
+      error
+    );
+
+    profileContainer.innerHTML = `
+      <div class="status error">
+        We could not load this profile.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  if (!profile) {
+
+    profileContainer.innerHTML = `
+      <div class="status">
+        This profile is not publicly available.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  /*
+    PROFILE HEADER
+  */
+
+  const displayName =
+    profile.display_name ||
+    'StarRise Member';
+
+
+  const initial =
+    displayName
+      .charAt(0)
+      .toUpperCase();
+
+
+  const avatarHtml =
+    profile.avatar_url
+
+      ? `
+        <img
+          src="${escapeHtml(profile.avatar_url)}"
+          alt="${escapeHtml(displayName)}"
+        >
+      `
+
+      : escapeHtml(initial);
+
+
+  profileContainer.innerHTML = `
+
+    <div class="profile-header">
+
+      <div class="avatar">
+        ${avatarHtml}
+      </div>
+
+      <h1>
+        ${escapeHtml(displayName)}
+      </h1>
+
+      <div class="role">
+        ${escapeHtml(
+          profile.role ||
+          'StarRise Member'
+        )}
+      </div>
+
+      ${
+        profile.location
+
+          ? `
+            <div class="location">
+              📍 ${escapeHtml(profile.location)}
+            </div>
+          `
+
+          : ''
       }
 
-      button.disabled = true;
+    </div>
 
-      status.textContent =
-        'Preparing secure checkout...';
+  `;
 
-      try {
 
-        /*
-         * Use direct fetch instead of
-         * supabase.functions.invoke().
-         *
-         * This lets us read the complete
-         * response from the Edge Function.
-         */
+  /*
+    ABOUT SECTION
+  */
 
-        const {
-          data: {
-            session: currentSession
-          }
-        } =
-          await supabaseClient.auth.getSession();
+  const details =
+    document.createElement('section');
 
-        if (!currentSession) {
-          throw new Error(
-            'Your sign-in session has expired. Please sign in again.'
-          );
-        }
+  details.className =
+    'panel';
 
-        const response =
-          await fetch(
-            SUPABASE_URL +
-              '/functions/v1/create-checkout-v2',
-            {
-              method: 'POST',
 
-              headers: {
-                'Content-Type':
-                  'application/json',
+  details.innerHTML = `
 
-                'apikey':
-                  SUPABASE_KEY,
+    <h2>
+      About
+    </h2>
 
-                'Authorization':
-                  'Bearer ' +
-                  currentSession.access_token
-              },
+    <p class="bio">
+      ${escapeHtml(
+        profile.bio ||
+        'This member has not added a bio yet.'
+      )}
+    </p>
 
-              body: JSON.stringify({
-                service_id:
-                  service.id,
+    ${
+      profile.website
 
-                buyer_id:
-                  currentSession.user.id,
+        ? `
+          <div class="website">
 
-                seller_id:
-                  service.user_id,
+            <strong>
+              Website:
+            </strong>
 
-                request_message:
-                  message
-              })
-            }
-          );
+            <a
+              href="${escapeHtml(profile.website)}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ${escapeHtml(profile.website)}
+            </a>
 
-        const rawText =
-          await response.text();
+          </div>
+        `
 
-        let data = {};
-
-        try {
-          data =
-            rawText
-              ? JSON.parse(rawText)
-              : {};
-        } catch (parseError) {
-
-          console.error(
-            'Checkout response was not JSON:',
-            rawText
-          );
-
-          throw new Error(
-            'The checkout server returned an invalid response.'
-          );
-        }
-
-        console.log(
-          'Checkout response:',
-          data
-        );
-
-        /*
-         * IMPORTANT:
-         *
-         * The Edge Function now returns Stripe
-         * errors inside data.error even when the
-         * HTTP response is 200.
-         */
-
-        if (data.error) {
-
-          const details = [
-            data.stripe_code
-              ? 'Code: ' +
-                data.stripe_code
-              : '',
-
-            data.stripe_type
-              ? 'Type: ' +
-                data.stripe_type
-              : '',
-
-            data.stripe_status
-              ? 'Status: ' +
-                data.stripe_status
-              : '',
-
-            data.stripe_request_id
-              ? 'Request ID: ' +
-                data.stripe_request_id
-              : ''
-          ]
-            .filter(Boolean)
-            .join('\n');
-
-          throw new Error(
-            data.error +
-            (
-              details
-                ? '\n\n' + details
-                : ''
-            )
-          );
-        }
-
-        /*
-         * If the server returned a real HTTP
-         * failure, show the server response.
-         */
-
-        if (!response.ok) {
-
-          throw new Error(
-            data.message ||
-            'Checkout server error: HTTP ' +
-            response.status
-          );
-        }
-
-        /*
-         * Find the Stripe hosted Checkout URL.
-         */
-
-        const checkoutUrl =
-          data.checkout_url ||
-          data.url ||
-          data.session_url;
-
-        if (!checkoutUrl) {
-
-          console.error(
-            'No Checkout URL returned:',
-            data
-          );
-
-          throw new Error(
-            'Stripe created a response, but no Checkout URL was returned.'
-          );
-        }
-
-        status.textContent =
-          'Redirecting to secure checkout...';
-
-        window.location.href =
-          checkoutUrl;
-
-      } catch (error) {
-
-        console.error(
-          'Checkout error:',
-          error
-        );
-
-        status.textContent =
-          'Checkout error:\n\n' +
-          (
-            error &&
-            error.message
-              ? error.message
-              : String(error)
-          );
-
-        button.disabled = false;
-      }
+        : ''
     }
+
+  `;
+
+
+  profileContainer.after(details);
+
+
+  /*
+    SERVICES SECTION
+  */
+
+  const servicesSection =
+    document.createElement('section');
+
+  servicesSection.className =
+    'panel';
+
+
+  servicesSection.innerHTML = `
+
+    <h2>
+      Services
+    </h2>
+
+    <div
+      id="serviceList"
+      class="service-list"
+    >
+
+      <div class="status">
+        Loading services...
+      </div>
+
+    </div>
+
+  `;
+
+
+  details.after(servicesSection);
+
+
+  const serviceList =
+    servicesSection.querySelector(
+      '#serviceList'
+    );
+
+
+  /*
+    LOAD MEMBER SERVICES
+  */
+
+  const {
+    data: services,
+    error: serviceError
+  } =
+
+    await starRiseSupabase
+
+      .from('star_rise_services')
+
+      .select(`
+        id,
+        title,
+        category,
+        description,
+        price_cents,
+        is_active
+      `)
+
+      .eq(
+        'user_id',
+        profileId
+      )
+
+      .eq(
+        'is_active',
+        true
+      )
+
+      .order(
+        'created_at',
+        {
+          ascending: false
+        }
+      );
+
+
+  if (serviceError) {
+
+    console.error(
+      'Services error:',
+      serviceError
+    );
+
+    serviceList.innerHTML = `
+
+      <div class="status error">
+
+        We could not load this member's
+        services.
+
+      </div>
+
+    `;
+
+    return;
+
   }
 
-  function escapeHtml(value) {
 
-    return String(value)
-      .replace(
-        /&/g,
-        '&amp;'
-      )
-      .replace(
-        /</g,
-        '&lt;'
-      )
-      .replace(
-        />/g,
-        '&gt;'
-      )
-      .replace(
-        /"/g,
-        '&quot;'
-      )
-      .replace(
-        /'/g,
-        '&#039;'
-      );
+  if (
+    !services ||
+    services.length === 0
+  ) {
+
+    serviceList.innerHTML = `
+
+      <div class="status">
+
+        This member has not published
+        any services yet.
+
+      </div>
+
+    `;
+
+    return;
+
   }
 
-  run()
-    .catch(function (error) {
 
-      console.error(
-        'Service page error:',
-        error
-      );
+  /*
+    DISPLAY SERVICES + PRICES
+  */
 
-      document.body.textContent =
-        'Error: ' +
-        (
-          error &&
-          error.message
-            ? error.message
-            : String(error)
-        );
-    });
+  serviceList.innerHTML =
 
-})();
+    services
+
+      .map(service => {
+
+        const price =
+          Number(
+            service.price_cents || 0
+          ) / 100;
+
+
+        return `
+
+          <article
+            class="service-card"
+          >
+
+            <h3>
+              ${escapeHtml(
+                service.title
+              )}
+            </h3>
+
+            ${
+              service.category
+
+                ? `
+                  <div
+                    class="service-category"
+                  >
+                    ${escapeHtml(
+                      service.category
+                    )}
+                  </div>
+                `
+
+                : ''
+            }
+
+            <div
+              class="service-description"
+            >
+              ${escapeHtml(
+                service.description || ''
+              )}
+            </div>
+
+            <div
+              class="service-price"
+            >
+              $${price.toFixed(2)}
+            </div>
+
+          </article>
+
+        `;
+
+      })
+
+      .join('');
+
+}
+
+
+loadProfile();
+
 </script>
+
 </body>
 </html>
