@@ -1,12 +1,18 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>StarRise Profile</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <title>StarRise Service</title>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -23,9 +29,11 @@
     header {
       padding: 20px 24px;
       border-bottom: 1px solid #ffffff18;
+
       display: flex;
       justify-content: space-between;
       align-items: center;
+
       gap: 16px;
     }
 
@@ -50,48 +58,40 @@
     .panel {
       border: 1px solid #ffffff18;
       border-radius: 22px;
+
       background: #ffffff08;
+
       padding: 30px;
+
       margin-bottom: 20px;
     }
 
-    .profile-header {
+    .service-header {
       text-align: center;
     }
 
-    .avatar {
-      width: 130px;
-      height: 130px;
-      margin: 0 auto 20px;
-      border-radius: 50%;
-      overflow: hidden;
-      background: #ffffff12;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 52px;
-      font-weight: bold;
-    }
-
-    .avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .role {
+    .service-category {
       display: inline-block;
-      margin-top: 8px;
+
+      margin-bottom: 14px;
+
       padding: 7px 14px;
+
       border-radius: 20px;
+
       background: #ffffff12;
-      color: #ddd;
+
+      color: #ccc;
+
+      font-size: 14px;
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(34px, 7vw, 58px);
+
+      font-size:
+        clamp(34px, 7vw, 58px);
+
       line-height: 1.1;
     }
 
@@ -99,103 +99,227 @@
       margin-top: 0;
     }
 
-    .location {
-      margin-top: 12px;
-      color: #bbb;
-    }
-
-    .bio {
+    .description {
       color: #ccc;
+
       white-space: pre-wrap;
+
+      font-size: 18px;
     }
 
-    .website {
-      color: #fff;
-      word-break: break-word;
+    .price {
+      margin-top: 20px;
+
+      font-size: 38px;
+
+      font-weight: bold;
+
+      text-align: center;
     }
 
-    .website a {
+    .provider {
+      display: flex;
+
+      align-items: center;
+
+      gap: 16px;
+
+      margin-top: 25px;
+
+      padding-top: 20px;
+
+      border-top:
+        1px solid #ffffff18;
+    }
+
+    .avatar {
+      width: 65px;
+      height: 65px;
+
+      border-radius: 50%;
+
+      overflow: hidden;
+
+      background: #ffffff12;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      font-size: 27px;
+
+      font-weight: bold;
+
+      flex-shrink: 0;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+
+      display: block;
+    }
+
+    .provider-name {
+      font-size: 20px;
+
+      font-weight: bold;
+    }
+
+    .provider-role,
+    .provider-location {
+      color: #aaa;
+
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+
+      margin-bottom: 8px;
+
+      font-weight: bold;
+    }
+
+    textarea {
+      width: 100%;
+
+      min-height: 130px;
+
+      padding: 14px;
+
+      border-radius: 12px;
+
+      border:
+        1px solid #ffffff20;
+
+      background: #11111d;
+
       color: #fff;
+
+      font-family: inherit;
+
+      font-size: 16px;
+
+      resize: vertical;
+    }
+
+    textarea:focus {
+      outline: none;
+
+      border-color: #ffffff50;
+    }
+
+    .checkout-button {
+      width: 100%;
+
+      margin-top: 18px;
+
+      padding: 15px 22px;
+
+      border: none;
+
+      border-radius: 30px;
+
+      background: #fff;
+
+      color: #080812;
+
+      font-size: 17px;
+
+      font-weight: bold;
+
+      cursor: pointer;
+    }
+
+    .checkout-button:hover {
+      opacity: .88;
+    }
+
+    .checkout-button:disabled {
+      opacity: .5;
+
+      cursor: not-allowed;
+    }
+
+    .back {
+      display: inline-block;
+
+      padding: 11px 20px;
+
+      border-radius: 25px;
+
+      background: #fff;
+
+      color: #080812;
+
+      text-decoration: none;
+
+      font-weight: bold;
     }
 
     .status {
       padding: 16px;
+
       border-radius: 12px;
+
       background: #ffffff0d;
+
       color: #aaa;
+
       text-align: center;
     }
 
     .error {
       color: #ffb0b0;
-      background: rgba(220, 70, 70, .12);
+
+      background:
+        rgba(220, 70, 70, .12);
     }
 
-    .back {
-      display: inline-block;
-      margin-top: 5px;
-      padding: 11px 20px;
-      border-radius: 25px;
-      background: #fff;
-      color: #080812;
-      text-decoration: none;
-      font-weight: bold;
+    .success {
+      color: #b9ffc7;
+
+      background:
+        rgba(50, 180, 80, .12);
     }
 
-    /* SERVICES */
+    .provider-link {
+      color: #fff;
 
-    .service-list {
-      display: grid;
-      gap: 16px;
-    }
-
-    .service-card {
-      border: 1px solid #ffffff18;
-      border-radius: 16px;
-      padding: 20px;
-      background: #ffffff06;
-    }
-
-    .service-card h3 {
-      margin: 0 0 6px;
-      font-size: 22px;
-    }
-
-    .service-category {
-      color: #aaa;
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
-
-    .service-description {
-      color: #ccc;
-      white-space: pre-wrap;
-    }
-
-    .service-price {
-      margin-top: 14px;
-      font-size: 24px;
-      font-weight: bold;
+      text-decoration: underline;
     }
 
     @media (max-width: 650px) {
+
       header {
         flex-direction: column;
       }
 
       main {
-        width: min(100% - 24px, 850px);
+        width:
+          min(100% - 24px, 850px);
+
         margin-top: 30px;
       }
 
       .panel {
         padding: 22px;
       }
+
     }
+
   </style>
+
 </head>
 
+
 <body>
+
 
 <header>
 
@@ -204,6 +328,7 @@
   </a>
 
   <nav>
+
     <a href="services.html">
       Services
     </a>
@@ -215,45 +340,55 @@
     <a href="dashboard.html">
       Dashboard
     </a>
+
   </nav>
 
 </header>
 
+
 <main>
 
   <section
-    id="profile"
+    id="serviceContainer"
     class="panel"
   >
 
     <div class="status">
-      Loading profile...
+      Loading service...
     </div>
 
   </section>
 
+
   <a
     class="back"
-    href="members.html"
+    href="services.html"
   >
-    ← Back to Members
+    ← Back to Services
   </a>
 
 </main>
 
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
 <script>
 
 const starRiseSupabase =
   window.supabase.createClient(
+
     'https://rcnikxotdalxtuvpmlvm.supabase.co',
+
     'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+
   );
 
 
-const profileContainer =
-  document.getElementById('profile');
+const serviceContainer =
+  document.getElementById(
+    'serviceContainer'
+  );
 
 
 function escapeHtml(value) {
@@ -261,15 +396,19 @@ function escapeHtml(value) {
   return String(value ?? '')
 
     .replaceAll('&', '&amp;')
+
     .replaceAll('<', '&lt;')
+
     .replaceAll('>', '&gt;')
+
     .replaceAll('"', '&quot;')
+
     .replaceAll("'", '&#039;');
 
 }
 
 
-function getProfileId() {
+function getServiceId() {
 
   const params =
     new URLSearchParams(
@@ -281,18 +420,22 @@ function getProfileId() {
 }
 
 
-async function loadProfile() {
+async function loadService() {
 
-  const profileId =
-    getProfileId();
+  const serviceId =
+    getServiceId();
 
 
-  if (!profileId) {
+  if (!serviceId) {
 
-    profileContainer.innerHTML = `
+    serviceContainer.innerHTML = `
+
       <div class="status error">
-        Profile not found.
+
+        Service not found.
+
       </div>
+
     `;
 
     return;
@@ -301,249 +444,44 @@ async function loadProfile() {
 
 
   /*
-    LOAD PROFILE
+    LOAD SERVICE
   */
 
   const {
-    data: profile,
-    error
+
+    data: service,
+
+    error: serviceError
+
   } =
+
     await starRiseSupabase
 
-      .from('public_profiles')
+      .from(
+        'star_rise_services'
+      )
 
       .select(`
+
         id,
-        display_name,
-        role,
-        location,
-        bio,
-        website,
-        avatar_url
+
+        user_id,
+
+        title,
+
+        category,
+
+        description,
+
+        price_cents,
+
+        is_active
+
       `)
 
       .eq(
         'id',
-        profileId
-      )
-
-      .maybeSingle();
-
-
-  if (error) {
-
-    console.error(
-      'Profile error:',
-      error
-    );
-
-    profileContainer.innerHTML = `
-      <div class="status error">
-        We could not load this profile.
-      </div>
-    `;
-
-    return;
-
-  }
-
-
-  if (!profile) {
-
-    profileContainer.innerHTML = `
-      <div class="status">
-        This profile is not publicly available.
-      </div>
-    `;
-
-    return;
-
-  }
-
-
-  /*
-    PROFILE HEADER
-  */
-
-  const displayName =
-    profile.display_name ||
-    'StarRise Member';
-
-
-  const initial =
-    displayName
-      .charAt(0)
-      .toUpperCase();
-
-
-  const avatarHtml =
-    profile.avatar_url
-
-      ? `
-        <img
-          src="${escapeHtml(profile.avatar_url)}"
-          alt="${escapeHtml(displayName)}"
-        >
-      `
-
-      : escapeHtml(initial);
-
-
-  profileContainer.innerHTML = `
-
-    <div class="profile-header">
-
-      <div class="avatar">
-        ${avatarHtml}
-      </div>
-
-      <h1>
-        ${escapeHtml(displayName)}
-      </h1>
-
-      <div class="role">
-        ${escapeHtml(
-          profile.role ||
-          'StarRise Member'
-        )}
-      </div>
-
-      ${
-        profile.location
-
-          ? `
-            <div class="location">
-              📍 ${escapeHtml(profile.location)}
-            </div>
-          `
-
-          : ''
-      }
-
-    </div>
-
-  `;
-
-
-  /*
-    ABOUT SECTION
-  */
-
-  const details =
-    document.createElement('section');
-
-  details.className =
-    'panel';
-
-
-  details.innerHTML = `
-
-    <h2>
-      About
-    </h2>
-
-    <p class="bio">
-      ${escapeHtml(
-        profile.bio ||
-        'This member has not added a bio yet.'
-      )}
-    </p>
-
-    ${
-      profile.website
-
-        ? `
-          <div class="website">
-
-            <strong>
-              Website:
-            </strong>
-
-            <a
-              href="${escapeHtml(profile.website)}"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              ${escapeHtml(profile.website)}
-            </a>
-
-          </div>
-        `
-
-        : ''
-    }
-
-  `;
-
-
-  profileContainer.after(details);
-
-
-  /*
-    SERVICES SECTION
-  */
-
-  const servicesSection =
-    document.createElement('section');
-
-  servicesSection.className =
-    'panel';
-
-
-  servicesSection.innerHTML = `
-
-    <h2>
-      Services
-    </h2>
-
-    <div
-      id="serviceList"
-      class="service-list"
-    >
-
-      <div class="status">
-        Loading services...
-      </div>
-
-    </div>
-
-  `;
-
-
-  details.after(servicesSection);
-
-
-  const serviceList =
-    servicesSection.querySelector(
-      '#serviceList'
-    );
-
-
-  /*
-    LOAD MEMBER SERVICES
-  */
-
-  const {
-    data: services,
-    error: serviceError
-  } =
-
-    await starRiseSupabase
-
-      .from('star_rise_services')
-
-      .select(`
-        id,
-        title,
-        category,
-        description,
-        price_cents,
-        is_active
-      `)
-
-      .eq(
-        'user_id',
-        profileId
+        serviceId
       )
 
       .eq(
@@ -551,27 +489,21 @@ async function loadProfile() {
         true
       )
 
-      .order(
-        'created_at',
-        {
-          ascending: false
-        }
-      );
+      .maybeSingle();
 
 
   if (serviceError) {
 
     console.error(
-      'Services error:',
+      'Service error:',
       serviceError
     );
 
-    serviceList.innerHTML = `
+    serviceContainer.innerHTML = `
 
       <div class="status error">
 
-        We could not load this member's
-        services.
+        We could not load this service.
 
       </div>
 
@@ -582,17 +514,13 @@ async function loadProfile() {
   }
 
 
-  if (
-    !services ||
-    services.length === 0
-  ) {
+  if (!service) {
 
-    serviceList.innerHTML = `
+    serviceContainer.innerHTML = `
 
-      <div class="status">
+      <div class="status error">
 
-        This member has not published
-        any services yet.
+        This service is no longer available.
 
       </div>
 
@@ -604,77 +532,579 @@ async function loadProfile() {
 
 
   /*
-    DISPLAY SERVICES + PRICES
+    PRICE
   */
 
-  serviceList.innerHTML =
-
-    services
-
-      .map(service => {
-
-        const price =
-          Number(
-            service.price_cents || 0
-          ) / 100;
+  const amountCents =
+    Number(
+      service.price_cents
+    );
 
 
-        return `
+  const price =
+    amountCents / 100;
 
-          <article
-            class="service-card"
-          >
 
-            <h3>
+  /*
+    LOAD PUBLIC MEMBERS
+  */
+
+  const {
+
+    data: members,
+
+    error: memberError
+
+  } =
+
+    await starRiseSupabase
+
+      .rpc(
+        'get_public_members'
+      );
+
+
+  if (memberError) {
+
+    console.error(
+      'Public member error:',
+      memberError
+    );
+
+    serviceContainer.innerHTML = `
+
+      <div class="status error">
+
+        The service loaded, but we could not
+        load the provider information.
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  /*
+    FIND SERVICE PROVIDER
+  */
+
+  const provider =
+    (members || []).find(
+      member =>
+        String(member.id) ===
+        String(service.user_id)
+    );
+
+
+  if (!provider) {
+
+    serviceContainer.innerHTML = `
+
+      <div class="status error">
+
+        This service is available, but its
+        provider profile could not be found.
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  const providerName =
+    provider.display_name ||
+    'StarRise Member';
+
+
+  const initial =
+    providerName
+      .charAt(0)
+      .toUpperCase();
+
+
+  const avatarHtml =
+
+    provider.avatar_url
+
+      ?
+
+      `
+
+        <img
+
+          src="${escapeHtml(
+            provider.avatar_url
+          )}"
+
+          alt="${escapeHtml(
+            providerName
+          )}"
+
+        >
+
+      `
+
+      :
+
+      escapeHtml(initial);
+
+
+  /*
+    RENDER SERVICE
+  */
+
+  serviceContainer.innerHTML = `
+
+    <div class="service-header">
+
+      ${
+        service.category
+
+          ?
+
+          `
+
+            <div class="service-category">
+
               ${escapeHtml(
-                service.title
+                service.category
               )}
-            </h3>
 
-            ${
-              service.category
-
-                ? `
-                  <div
-                    class="service-category"
-                  >
-                    ${escapeHtml(
-                      service.category
-                    )}
-                  </div>
-                `
-
-                : ''
-            }
-
-            <div
-              class="service-description"
-            >
-              ${escapeHtml(
-                service.description || ''
-              )}
             </div>
 
-            <div
-              class="service-price"
-            >
-              $${price.toFixed(2)}
-            </div>
+          `
 
-          </article>
+          :
+
+          ''
+
+      }
+
+
+      <h1>
+
+        ${escapeHtml(
+          service.title
+        )}
+
+      </h1>
+
+
+      <div class="price">
+
+        $${price.toFixed(2)}
+
+      </div>
+
+    </div>
+
+
+    <section
+      class="panel"
+      style="margin-top:30px;margin-bottom:0"
+    >
+
+      <h2>
+        About This Service
+      </h2>
+
+      <div class="description">
+
+        ${escapeHtml(
+          service.description || ''
+        )}
+
+      </div>
+
+
+      <div class="provider">
+
+        <div class="avatar">
+
+          ${avatarHtml}
+
+        </div>
+
+
+        <div>
+
+          <div class="provider-name">
+
+            ${escapeHtml(
+              providerName
+            )}
+
+          </div>
+
+
+          <div class="provider-role">
+
+            ${escapeHtml(
+              provider.role ||
+              'StarRise Member'
+            )}
+
+          </div>
+
+
+          ${
+            provider.location
+
+              ?
+
+              `
+
+                <div
+                  class="provider-location"
+                >
+
+                  📍 ${escapeHtml(
+                    provider.location
+                  )}
+
+                </div>
+
+              `
+
+              :
+
+              ''
+
+          }
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <section
+      class="panel"
+      style="margin-top:20px;margin-bottom:0"
+    >
+
+      <h2>
+        Request This Service
+      </h2>
+
+
+      <p
+        style="color:#aaa;margin-bottom:18px"
+      >
+
+        Tell the provider what you need.
+        You'll continue to secure checkout
+        after submitting your request.
+
+      </p>
+
+
+      <form id="checkoutForm">
+
+        <label for="requestMessage">
+
+          What do you need?
+
+        </label>
+
+
+        <textarea
+
+          id="requestMessage"
+
+          required
+
+          maxlength="2000"
+
+          placeholder="Tell the provider what you need..."
+
+        ></textarea>
+
+
+        <button
+
+          id="checkoutButton"
+
+          class="checkout-button"
+
+          type="submit"
+
+        >
+
+          Continue to Checkout
+
+        </button>
+
+
+        <div
+          id="checkoutStatus"
+          style="margin-top:15px"
+        ></div>
+
+      </form>
+
+    </section>
+
+  `;
+
+
+  /*
+    CHECKOUT
+  */
+
+  const checkoutForm =
+    document.getElementById(
+      'checkoutForm'
+    );
+
+
+  const checkoutButton =
+    document.getElementById(
+      'checkoutButton'
+    );
+
+
+  const checkoutStatus =
+    document.getElementById(
+      'checkoutStatus'
+    );
+
+
+  checkoutForm.addEventListener(
+    'submit',
+    async event => {
+
+      event.preventDefault();
+
+
+      checkoutStatus.innerHTML =
+        '';
+
+
+      const requestMessage =
+        document
+          .getElementById(
+            'requestMessage'
+          )
+          .value
+          .trim();
+
+
+      if (!requestMessage) {
+
+        checkoutStatus.innerHTML = `
+
+          <div class="status error">
+
+            Please tell the provider what
+            you need.
+
+          </div>
 
         `;
 
-      })
+        return;
 
-      .join('');
+      }
+
+
+      checkoutButton.disabled =
+        true;
+
+
+      checkoutButton.textContent =
+        'Creating Checkout...';
+
+
+      try {
+
+        /*
+          VERIFY LOGIN
+        */
+
+        const {
+
+          data: {
+            user
+          }
+
+        } =
+
+          await starRiseSupabase
+            .auth
+            .getUser();
+
+
+        if (!user) {
+
+          throw new Error(
+            'Please sign in before requesting a service.'
+          );
+
+        }
+
+
+        /*
+          CALL CREATE-CHECKOUT
+        */
+
+        const {
+
+          data,
+
+          error
+
+        } =
+
+          await starRiseSupabase
+            .functions
+            .invoke(
+              'create-checkout',
+              {
+
+                body: {
+
+                  service_id:
+                    service.id,
+
+                  seller_id:
+                    service.user_id,
+
+                  buyer_id:
+                    user.id,
+
+                  request_message:
+                    requestMessage
+
+                }
+
+              }
+            );
+
+
+        if (error) {
+
+          let message =
+            error.message ||
+            'Unable to create checkout.';
+
+
+          /*
+            TRY TO READ FUNCTION ERROR
+          */
+
+          try {
+
+            if (
+              error.context &&
+              typeof error.context.json ===
+                'function'
+            ) {
+
+              const body =
+                await error.context.json();
+
+              if (
+                body &&
+                body.error
+              ) {
+
+                message =
+                  body.error;
+
+              }
+
+            }
+
+          } catch (_) {}
+
+
+          throw new Error(
+            message
+          );
+
+        }
+
+
+        const checkoutUrl =
+          data?.checkout_url ||
+          data?.url;
+
+
+        if (!checkoutUrl) {
+
+          throw new Error(
+            'Checkout was created, but no Stripe Checkout URL was returned.'
+          );
+
+        }
+
+
+        checkoutStatus.innerHTML = `
+
+          <div class="status success">
+
+            Checkout created.
+            Redirecting to secure payment...
+
+          </div>
+
+        `;
+
+
+        window.location.href =
+          checkoutUrl;
+
+      }
+
+      catch (error) {
+
+        console.error(
+          'Checkout error:',
+          error
+        );
+
+
+        checkoutStatus.innerHTML = `
+
+          <div class="status error">
+
+            Checkout error:
+            ${escapeHtml(
+              error.message
+            )}
+
+          </div>
+
+        `;
+
+
+        checkoutButton.disabled =
+          false;
+
+
+        checkoutButton.textContent =
+          'Continue to Checkout';
+
+      }
+
+    }
+  );
 
 }
 
 
-loadProfile();
+loadService();
 
 </script>
 
 </body>
+
 </html>
