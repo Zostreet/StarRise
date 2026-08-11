@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -35,6 +34,7 @@
     params.get('service');
 
   async function run() {
+
     const {
       data: { session },
       error: sessionError
@@ -52,6 +52,12 @@
       return;
     }
 
+    if (!serviceId) {
+      document.body.textContent =
+        'No service was selected.';
+      return;
+    }
+
     const {
       data: service,
       error: serviceError
@@ -62,7 +68,10 @@
       .maybeSingle();
 
     if (serviceError) {
-      console.error('Service lookup error:', serviceError);
+      console.error(
+        'Service lookup error:',
+        serviceError
+      );
 
       document.body.textContent =
         'Unable to load this service.';
@@ -88,10 +97,16 @@
         "
       >
 
-        <h1>${escapeHtml(service.title || 'StarRise Service')}</h1>
+        <h1>
+          ${escapeHtml(
+            service.title || 'StarRise Service'
+          )}
+        </h1>
 
         <p>
-          ${escapeHtml(service.description || '')}
+          ${escapeHtml(
+            service.description || ''
+          )}
         </p>
 
         <h2>
@@ -137,315 +152,10 @@
 
         <p
           id="status"
-          style="margin-top:15px;"
-        ></p>
-
-        <a href="services.html">
-          ← Back to Services
-        </a>
-
-      </main>
-    `;
-
-    document
-      .getElementById('checkout')
-      .addEventListener('click', startCheckout);
-    
-    async function startCheckout() {
-      const button =
-        document.getElementById('checkout');
-
-      const status =
-        document.getElementById('status');
-
-      const message =
-        document
-          .getElementById('message')
-          .value
-          .trim();
-
-      if (!message) {
-        status.textContent =
-          'Please tell the provider what you need.';
-        return;
-      }
-
-      button.disabled = true;
-
-      status.textContent =
-        'Preparing secure checkout...';
-
-      try {
-        /*
-         * IMPORTANT:
-         * This is the new production checkout
-         * Edge Function.
-         */
-        const result =
-          await supabaseClient.functions.invoke(
-            'create-checkout-v2',
-            {
-              body: {
-                service_id: service.id,
-                buyer_id: session.user.id,
-                seller_id: service.user_id,
-                request_message: message
-              }
-            }
-          );
-
-        console.log(
-          'Checkout function result:',
-          result
-        );
-
-        if (result.error) {
-          let detail =
-            result.error.message ||
-            'Unable to start checkout.';
-
-          /*
-           * Supabase may return the Edge Function
-           * response body separately. Try to extract
-           * the actual Stripe error from it.
-           */
-          if (result.data) {
-            try {
-              const body =
-                typeof result.data === 'string'
-                  ? JSON.parse(result.data)
-                  : result.data;
-
-              detail =
-                body.error ||
-                body.message ||
-                body.details ||
-                detail;
-
-            } catch (parseError) {
-              console.warn(
-                'Could not parse checkout error body:',
-                parseError
-              );
-            }
-          }
-
-          throw new Error(detail);
-        }
-
-        const data =
-          result.data || {};
-
-        const checkoutUrl =
-          data.checkout_url ||
-          data.url ||
-          data.session_url;
-
-        if (!checkoutUrl) {
-          console.error(
-            'Checkout response:',
-            data
-          );
-
-          throw new Error(
-            'Checkout was created, but no Stripe Checkout URL was returned.'
-          );
-        }
-
-        status.textContent =
-          'Redirecting to secure checkout...';
-
-        window.location.href =
-          checkoutUrl;
-
-      } catch (error) {
-        console.error(
-          'Checkout error:',
-          error
-        );
-
-        status.textContent =
-          'Checkout error: ' +
-          (
-            error &&
-            error.message
-              ? error.message
-              : 'Unable to start checkout.'
-          );
-
-        button.disabled = false;
-      }
-    }
-  }
-
-  function escapeHtml(value) {
-    return String(value)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  run().catch(function (error) {
-    console.error(
-      'Service page error:',
-      error
-    );
-
-    document.body.textContent =
-      'Error: ' +
-      (
-        error && error.message
-          ? error.message
-          : error
-      );
-  });
-
-})();
-</script>
-</body>
-</html>
-
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>StarRise Service</title>
-</head>
-
-<body>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-(function () {
-  'use strict';
-
-  const SUPABASE_URL =
-    'https://rcnikxotdalxtuvpmlvm.supabase.co';
-
-  const SUPABASE_KEY =
-    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
-
-  const supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
-  const params =
-    new URLSearchParams(window.location.search);
-
-  const serviceId =
-    params.get('id') ||
-    params.get('service_id') ||
-    params.get('service');
-
-  async function run() {
-    const {
-      data: { session },
-      error: sessionError
-    } = await supabaseClient.auth.getSession();
-
-    if (sessionError) {
-      document.body.textContent =
-        'Unable to verify your session.';
-      return;
-    }
-
-    if (!session) {
-      document.body.textContent =
-        'You must be signed in.';
-      return;
-    }
-
-    const {
-      data: service,
-      error: serviceError
-    } = await supabaseClient
-      .from('star_rise_services')
-      .select('*')
-      .eq('id', serviceId)
-      .maybeSingle();
-
-    if (serviceError) {
-      console.error('Service lookup error:', serviceError);
-
-      document.body.textContent =
-        'Unable to load this service.';
-      return;
-    }
-
-    if (!service) {
-      document.body.textContent =
-        'Service not found.';
-      return;
-    }
-
-    const price =
-      Number(service.price_cents || 0) / 100;
-
-    document.body.innerHTML = `
-      <main
-        style="
-          max-width:800px;
-          margin:40px auto;
-          padding:20px;
-          font-family:Arial,sans-serif;
-        "
-      >
-
-        <h1>${escapeHtml(service.title || 'StarRise Service')}</h1>
-
-        <p>
-          ${escapeHtml(service.description || '')}
-        </p>
-
-        <h2>
-          $${price.toFixed(2)}
-        </h2>
-
-        <p>
-          Provided by StarRise member
-        </p>
-
-        <label
-          for="message"
-          style="
-            display:block;
-            margin-bottom:8px;
-            font-weight:bold;
-          "
-        >
-          What do you need?
-        </label>
-
-        <textarea
-          id="message"
-          style="
-            width:100%;
-            min-height:120px;
-            padding:12px;
-            box-sizing:border-box;
-          "
-          placeholder="Tell the provider what you need..."
-        ></textarea>
-
-        <button
-          id="checkout"
           style="
             margin-top:15px;
-            padding:14px 22px;
-            cursor:pointer;
+            white-space:pre-wrap;
           "
-        >
-          Continue to Checkout
-        </button>
-
-        <p
-          id="status"
-          style="margin-top:15px;"
         ></p>
 
         <a href="services.html">
@@ -457,14 +167,22 @@
 
     document
       .getElementById('checkout')
-      .addEventListener('click', startCheckout);
-    
+      .addEventListener(
+        'click',
+        startCheckout
+      );
+
     async function startCheckout() {
+
       const button =
-        document.getElementById('checkout');
+        document.getElementById(
+          'checkout'
+        );
 
       const status =
-        document.getElementById('status');
+        document.getElementById(
+          'status'
+        );
 
       const message =
         document
@@ -484,65 +202,151 @@
         'Preparing secure checkout...';
 
       try {
+
         /*
-         * IMPORTANT:
-         * This is the new production checkout
-         * Edge Function.
+         * Use direct fetch instead of
+         * supabase.functions.invoke().
+         *
+         * This lets us read the complete
+         * response from the Edge Function.
          */
-        const result =
-          await supabaseClient.functions.invoke(
-            'create-checkout-v2',
+
+        const {
+          data: {
+            session: currentSession
+          }
+        } =
+          await supabaseClient.auth.getSession();
+
+        if (!currentSession) {
+          throw new Error(
+            'Your sign-in session has expired. Please sign in again.'
+          );
+        }
+
+        const response =
+          await fetch(
+            SUPABASE_URL +
+              '/functions/v1/create-checkout-v2',
             {
-              body: {
-                service_id: service.id,
-                buyer_id: session.user.id,
-                seller_id: service.user_id,
-                request_message: message
-              }
+              method: 'POST',
+
+              headers: {
+                'Content-Type':
+                  'application/json',
+
+                'apikey':
+                  SUPABASE_KEY,
+
+                'Authorization':
+                  'Bearer ' +
+                  currentSession.access_token
+              },
+
+              body: JSON.stringify({
+                service_id:
+                  service.id,
+
+                buyer_id:
+                  currentSession.user.id,
+
+                seller_id:
+                  service.user_id,
+
+                request_message:
+                  message
+              })
             }
           );
 
-        console.log(
-          'Checkout function result:',
-          result
-        );
+        const rawText =
+          await response.text();
 
-        if (result.error) {
-          let detail =
-            result.error.message ||
-            'Unable to start checkout.';
+        let data = {};
 
-          /*
-           * Supabase may return the Edge Function
-           * response body separately. Try to extract
-           * the actual Stripe error from it.
-           */
-          if (result.data) {
-            try {
-              const body =
-                typeof result.data === 'string'
-                  ? JSON.parse(result.data)
-                  : result.data;
+        try {
+          data =
+            rawText
+              ? JSON.parse(rawText)
+              : {};
+        } catch (parseError) {
 
-              detail =
-                body.error ||
-                body.message ||
-                body.details ||
-                detail;
+          console.error(
+            'Checkout response was not JSON:',
+            rawText
+          );
 
-            } catch (parseError) {
-              console.warn(
-                'Could not parse checkout error body:',
-                parseError
-              );
-            }
-          }
-
-          throw new Error(detail);
+          throw new Error(
+            'The checkout server returned an invalid response.'
+          );
         }
 
-        const data =
-          result.data || {};
+        console.log(
+          'Checkout response:',
+          data
+        );
+
+        /*
+         * IMPORTANT:
+         *
+         * The Edge Function now returns Stripe
+         * errors inside data.error even when the
+         * HTTP response is 200.
+         */
+
+        if (data.error) {
+
+          const details = [
+            data.stripe_code
+              ? 'Code: ' +
+                data.stripe_code
+              : '',
+
+            data.stripe_type
+              ? 'Type: ' +
+                data.stripe_type
+              : '',
+
+            data.stripe_status
+              ? 'Status: ' +
+                data.stripe_status
+              : '',
+
+            data.stripe_request_id
+              ? 'Request ID: ' +
+                data.stripe_request_id
+              : ''
+          ]
+            .filter(Boolean)
+            .join('\n');
+
+          throw new Error(
+            data.error +
+            (
+              details
+                ? '\n\n' + details
+                : ''
+            )
+          );
+        }
+
+        /*
+         * If the server returned a real HTTP
+         * failure, show the server response.
+         */
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            'Checkout server error: HTTP ' +
+            response.status
+          );
+        }
+
+        /*
+         * Find the Stripe hosted Checkout URL.
+         */
 
         const checkoutUrl =
           data.checkout_url ||
@@ -550,13 +354,14 @@
           data.session_url;
 
         if (!checkoutUrl) {
+
           console.error(
-            'Checkout response:',
+            'No Checkout URL returned:',
             data
           );
 
           throw new Error(
-            'Checkout was created, but no Stripe Checkout URL was returned.'
+            'Stripe created a response, but no Checkout URL was returned.'
           );
         }
 
@@ -567,18 +372,19 @@
           checkoutUrl;
 
       } catch (error) {
+
         console.error(
           'Checkout error:',
           error
         );
 
         status.textContent =
-          'Checkout error: ' +
+          'Checkout error:\n\n' +
           (
             error &&
             error.message
               ? error.message
-              : 'Unable to start checkout.'
+              : String(error)
           );
 
         button.disabled = false;
@@ -587,28 +393,47 @@
   }
 
   function escapeHtml(value) {
+
     return String(value)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+      .replace(
+        /&/g,
+        '&amp;'
+      )
+      .replace(
+        /</g,
+        '&lt;'
+      )
+      .replace(
+        />/g,
+        '&gt;'
+      )
+      .replace(
+        /"/g,
+        '&quot;'
+      )
+      .replace(
+        /'/g,
+        '&#039;'
+      );
   }
 
-  run().catch(function (error) {
-    console.error(
-      'Service page error:',
-      error
-    );
+  run()
+    .catch(function (error) {
 
-    document.body.textContent =
-      'Error: ' +
-      (
-        error && error.message
-          ? error.message
-          : error
+      console.error(
+        'Service page error:',
+        error
       );
-  });
+
+      document.body.textContent =
+        'Error: ' +
+        (
+          error &&
+          error.message
+            ? error.message
+            : String(error)
+        );
+    });
 
 })();
 </script>
