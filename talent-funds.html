@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Talent Funds | StarRise</title>
+
+  <meta
+    name="description"
+    content="Support StarRise talent and help fund music, performances, creative projects, equipment and more."
+  >
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: #fff;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #ffffff18;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    nav a {
+      color: #aaa;
+      font-weight: normal;
+    }
+
+    nav a:hover {
+      color: #fff;
+    }
+
+    main {
+      width: min(1100px, calc(100% - 30px));
+      margin: 45px auto 70px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .hero h1 {
+      font-size: clamp(40px, 8vw, 68px);
+      margin: 0 0 12px;
+    }
+
+    .hero p {
+      max-width: 720px;
+      margin: auto;
+      color: #aaa;
+      font-size: 18px;
+    }
+
+    .status {
+      padding: 15px;
+      border-radius: 12px;
+      background: #ffffff08;
+      color: #aaa;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .error {
+      color: #ffb5b5;
+      background: rgba(200, 50, 50, .12);
+    }
+
+    .success {
+      color: #baffca;
+      background: rgba(50, 200, 100, .10);
+    }
+
+    .fund-grid {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(290px, 1fr));
+      gap: 20px;
+    }
+
+    .fund-card {
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+      background: #ffffff08;
+      padding: 24px;
+    }
+
+    .fund-card:hover {
+      border-color: #ffffff30;
+    }
+
+    .fund-title {
+      font-size: 25px;
+      margin: 0 0 5px;
+    }
+
+    .creator {
+      color: #aaa;
+      margin-bottom: 18px;
+    }
+
+    .description {
+      color: #ccc;
+      white-space: pre-wrap;
+      margin-bottom: 20px;
+    }
+
+    .money-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 8px;
+    }
+
+    .raised {
+      font-size: 25px;
+      font-weight: bold;
+    }
+
+    .goal {
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .progress {
+      height: 10px;
+      border-radius: 20px;
+      background: #ffffff12;
+      overflow: hidden;
+      margin: 12px 0 20px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #fff;
+      border-radius: 20px;
+      transition: width .3s ease;
+    }
+
+    .percent {
+      color: #aaa;
+      font-size: 13px;
+      margin-bottom: 15px;
+    }
+
+    .support-button {
+      width: 100%;
+      border: 0;
+      border-radius: 25px;
+      padding: 13px 20px;
+      background: #fff;
+      color: #080812;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .support-button:hover {
+      opacity: .9;
+    }
+
+    .support-button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    .empty {
+      padding: 35px;
+      text-align: center;
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+      background: #ffffff08;
+      color: #aaa;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal {
+      width: min(430px, 100%);
+      background: #10101d;
+      border: 1px solid #ffffff20;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 20px 70px rgba(0, 0, 0, .5);
+    }
+
+    .modal h2 {
+      margin-top: 0;
+    }
+
+    .modal p {
+      color: #aaa;
+    }
+
+    .amount-label {
+      display: block;
+      margin-top: 20px;
+      margin-bottom: 7px;
+      font-weight: bold;
+    }
+
+    .amount-input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid #ffffff25;
+      background: #080812;
+      color: #fff;
+      font-size: 18px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .cancel-button {
+      background: transparent;
+      color: #fff;
+      border: 1px solid #ffffff30;
+    }
+
+    .continue-button {
+      background: #fff;
+      color: #080812;
+      border: 0;
+    }
+
+    .modal-message {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .modal-message.show {
+      display: block;
+    }
+
+    footer {
+      border-top: 1px solid #ffffff18;
+      padding: 30px;
+      text-align: center;
+      color: #888;
+    }
+
+    @media (max-width: 650px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      main {
+        margin-top: 30px;
+      }
+
+      .fund-card {
+        padding: 20px;
+      }
+
+      .modal-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+
+  <a href="index.html">
+    ⭐ StarRise
+  </a>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="members.html">Talent</a>
+    <a href="talent-funds.html">Talent Funds</a>
+    <a href="dashboard.html">Dashboard</a>
+  </nav>
+
+</header>
+
+
+<main>
+
+  <section class="hero">
+
+    <h1>
+      Talent Funds
+    </h1>
+
+    <p>
+      Help StarRise talent turn creative goals into real projects.
+      Support music, studio time, performances, equipment,
+      artwork, videos and other creative goals.
+    </p>
+
+  </section>
+
+
+  <div
+    id="status"
+    class="status"
+  >
+    Loading Talent Funds...
+  </div>
+
+
+  <section
+    id="funds"
+    class="fund-grid"
+  ></section>
+
+</main>
+
+
+<footer>
+  ⭐ StarRise — Where Talent Rises.
+</footer>
+
+
+<!-- SUPPORT MODAL -->
+
+<div
+  id="modalBackdrop"
+  class="modal-backdrop"
+>
+
+  <div
+    class="modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalTitle"
+  >
+
+    <h2 id="modalTitle">
+      Support Talent
+    </h2>
+
+    <p id="modalDescription">
+      Choose how much you would like to contribute.
+    </p>
+
+    <label
+      class="amount-label"
+      for="supportAmount"
+    >
+      Support Amount
+    </label>
+
+    <input
+      id="supportAmount"
+      class="amount-input"
+      type="number"
+      min="1"
+      max="10000"
+      step="0.01"
+      placeholder="25.00"
+    >
+
+    <div
+      id="modalMessage"
+      class="modal-message"
+    ></div>
+
+    <div class="modal-actions">
+
+      <button
+        id="cancelButton"
+        class="cancel-button"
+        type="button"
+      >
+        Cancel
+      </button>
+
+      <button
+        id="continueButton"
+        class="continue-button"
+        type="button"
+      >
+        Continue to Stripe
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script>
+
+const starRiseSupabase =
+  window.supabase.createClient(
+    'https://rcnikxotdalxtuvpmlvm.supabase.co',
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+  );
+
+
+const status =
+  document.getElementById('status');
+
+const fundsContainer =
+  document.getElementById('funds');
+
+const modalBackdrop =
+  document.getElementById('modalBackdrop');
+
+const modalTitle =
+  document.getElementById('modalTitle');
+
+const modalDescription =
+  document.getElementById('modalDescription');
+
+const supportAmount =
+  document.getElementById('supportAmount');
+
+const modalMessage =
+  document.getElementById('modalMessage');
+
+const cancelButton =
+  document.getElementById('cancelButton');
+
+const continueButton =
+  document.getElementById('continueButton');
+
+
+let selectedFund = null;
+
+
+/*
+  ESCAPE HTML
+*/
+
+function escapeHtml(value) {
+
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+
+}
+
+
+/*
+  MONEY
+*/
+
+function dollars(cents) {
+
+  return (
+    Number(cents || 0) / 100
+  ).toLocaleString(
+    'en-US',
+    {
+      style: 'currency',
+      currency: 'USD'
+    }
+  );
+
+}
+
+
+/*
+  LOAD TALENT FUNDS
+*/
+
+async function loadFunds() {
+
+  status.textContent =
+    'Loading Talent Funds...';
+
+  status.className =
+    'status';
+
+
+  const {
+    data,
+    error
+  } =
+    await starRiseSupabase
+      .rpc('get_public_talent_funds');
+
+
+  if (error) {
+
+    console.error(
+      'Talent Funds error:',
+      error
+    );
+
+    status.textContent =
+      'We could not load Talent Funds right now.';
+
+    status.className =
+      'status error';
+
+    return;
+
+  }
+
+
+  renderFunds(data || []);
+
+}
+
+
+/*
+  RENDER FUNDS
+*/
+
+function renderFunds(funds) {
+
+  fundsContainer.innerHTML = '';
+
+
+  if (!funds.length) {
+
+    status.textContent =
+      'No active Talent Funds yet.';
+
+    status.className =
+      'status';
+
+    fundsContainer.innerHTML = `
+      <div class="empty">
+        <h2>No Talent Funds Yet</h2>
+        <p>
+          StarRise talent will appear here when
+          they create active Talent Funds.
+        </p>
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  status.textContent =
+    `${funds.length} active Talent Fund` +
+    (
+      funds.length === 1
+        ? ''
+        : 's'
+    );
+
+  status.className =
+    'status';
+
+
+  funds.forEach(fund => {
+
+    const goal =
+      Number(fund.goal_cents || 0);
+
+    const raised =
+      Number(fund.raised_cents || 0);
+
+    const percentage =
+      goal > 0
+        ? Math.min(
+            100,
+            Math.round(
+              (raised / goal) * 100
+            )
+          )
+        : 0;
+
+
+    const creator =
+      fund.display_name ||
+      fund.stage_name ||
+      'StarRise Talent';
+
+
+    const card =
+      document.createElement('article');
+
+    card.className =
+      'fund-card';
+
+
+    card.innerHTML = `
+
+      <h2 class="fund-title">
+        ${escapeHtml(
+          fund.title ||
+          'Talent Fund'
+        )}
+      </h2>
+
+      <div class="creator">
+        By ${escapeHtml(creator)}
+      </div>
+
+      <div class="description">
+        ${escapeHtml(
+          fund.description ||
+          'Support this StarRise talent project.'
+        )}
+      </div>
+
+      <div class="money-row">
+
+        <div class="raised">
+          ${dollars(raised)}
+        </div>
+
+        <div class="goal">
+          of ${dollars(goal)}
+        </div>
+
+      </div>
+
+      <div class="progress">
+
+        <div
+          class="progress-bar"
+          style="width:${percentage}%"
+        ></div>
+
+      </div>
+
+      <div class="percent">
+        ${percentage}% funded
+      </div>
+
+      <button
+        class="support-button"
+        type="button"
+      >
+        Support This Fund
+      </button>
+
+    `;
+
+
+    const button =
+      card.querySelector(
+        '.support-button'
+      );
+
+
+    button.addEventListener(
+      'click',
+      () => openSupportModal(fund)
+    );
+
+
+    fundsContainer.appendChild(card);
+
+  });
+
+}
+
+
+/*
+  OPEN SUPPORT MODAL
+*/
+
+function openSupportModal(fund) {
+
+  selectedFund = fund;
+
+  modalTitle.textContent =
+    `Support ${fund.display_name || fund.stage_name || 'StarRise Talent'}`;
+
+  modalDescription.textContent =
+    `Support "${fund.title || 'this Talent Fund'}" through secure Stripe checkout.`;
+
+  supportAmount.value =
+    '';
+
+  modalMessage.textContent =
+    '';
+
+  modalMessage.className =
+    'modal-message';
+
+  continueButton.disabled =
+    false;
+
+  continueButton.textContent =
+    'Continue to Stripe';
+
+  modalBackdrop.classList.add('show');
+
+  setTimeout(
+    () => supportAmount.focus(),
+    100
+  );
+
+}
+
+
+/*
+  CLOSE MODAL
+*/
+
+function closeModal() {
+
+  selectedFund = null;
+
+  modalBackdrop.classList.remove('show');
+
+}
+
+
+/*
+  START CHECKOUT
+*/
+
+async function startCheckout() {
+
+  if (!selectedFund) {
+    return;
+  }
+
+
+  const amount =
+    Number(
+      supportAmount.value
+    );
+
+
+  if (
+    !Number.isFinite(amount) ||
+    amount < 1 ||
+    amount > 10000
+  ) {
+
+    modalMessage.textContent =
+      'Enter a support amount between $1 and $10,000.';
+
+    modalMessage.className =
+      'modal-message show';
+
+    return;
+
+  }
+
+
+  continueButton.disabled =
+    true;
+
+  continueButton.textContent =
+    'Opening Stripe...';
+
+
+  modalMessage.textContent =
+    'Preparing secure checkout...';
+
+  modalMessage.className =
+    'modal-message show';
+
+
+  try {
+
+    /*
+      CHECK LOGIN
+    */
+
+    const {
+      data: sessionData
+    } =
+      await starRiseSupabase
+        .auth
+        .getSession();
+
+
+    if (!sessionData.session) {
+
+      const returnUrl =
+        window.location.href;
+
+
+      window.location.href =
+        `login.html?redirect=${encodeURIComponent(returnUrl)}`;
+
+      return;
+
+    }
+
+
+    const amountCents =
+      Math.round(
+        amount * 100
+      );
+
+
+    /*
+      CALL EXISTING EDGE FUNCTION
+    */
+
+    const {
+      data,
+      error
+    } =
+      await starRiseSupabase.functions.invoke(
+        'create-talent-fund-checkout',
+        {
+          body: {
+            fund_id:
+              selectedFund.id,
+
+            amount_cents:
+              amountCents
+          }
+        }
+      );
+
+
+    if (error) {
+
+      console.error(
+        'Checkout error:',
+        error
+      );
+
+      throw new Error(
+        error.message ||
+        'Unable to start checkout.'
+      );
+
+    }
+
+
+    if (
+      !data ||
+      !data.url
+    ) {
+
+      throw new Error(
+        data?.error ||
+        'Stripe did not return a checkout URL.'
+      );
+
+    }
+
+
+    /*
+      SEND USER TO STRIPE
+    */
+
+    window.location.href =
+      data.url;
+
+
+  } catch (error) {
+
+    console.error(
+      'Talent Fund checkout error:',
+      error
+    );
+
+
+    modalMessage.textContent =
+      error.message ||
+      'Something went wrong. Please try again.';
+
+    modalMessage.className =
+      'modal-message show';
+
+
+    continueButton.disabled =
+      false;
+
+    continueButton.textContent =
+      'Continue to Stripe';
+
+  }
+
+}
+
+
+/*
+  BUTTON EVENTS
+*/
+
+cancelButton.addEventListener(
+  'click',
+  closeModal
+);
+
+
+continueButton.addEventListener(
+  'click',
+  startCheckout
+);
+
+
+/*
+  ESCAPE KEY
+*/
+
+document.addEventListener(
+  'keydown',
+  event => {
+
+    if (
+      event.key === 'Escape' &&
+      modalBackdrop.classList.contains('show')
+    ) {
+
+      closeModal();
+
+    }
+
+  }
+);
+
+
+/*
+  CLICK OUTSIDE MODAL
+*/
+
+modalBackdrop.addEventListener(
+  'click',
+  event => {
+
+    if (
+      event.target === modalBackdrop
+    ) {
+
+      closeModal();
+
+    }
+
+  }
+);
+
+
+/*
+  SUCCESS MESSAGE
+*/
+
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
+
+
+if (
+  params.get('supported') === '1'
+) {
+
+  status.textContent =
+    'Your support was submitted successfully. Thank you for helping StarRise talent rise.';
+
+  status.className =
+    'status success';
+
+}
+
+
+/*
+  LOAD
+*/
+
+loadFunds();
+
+</script>
+
+</body>
+</html>
