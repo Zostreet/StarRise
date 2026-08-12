@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <title>Opportunities | StarRise</title>
 
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -80,10 +81,10 @@
     .hero p {
       color: #aaa;
       font-size: 18px;
+      line-height: 1.6;
     }
 
     .create-button {
-      display: inline-block;
       margin-top: 15px;
       padding: 13px 24px;
       border-radius: 30px;
@@ -182,6 +183,7 @@
     .description {
       color: #ccc;
       margin: 15px 0;
+      line-height: 1.6;
     }
 
     .details {
@@ -193,17 +195,24 @@
       font-size: 14px;
     }
 
-    .card-button {
+    .card-button,
+    .submit {
       display: block;
       width: 100%;
       margin-top: 20px;
-      padding: 12px;
+      padding: 13px;
       border-radius: 25px;
       border: 0;
       background: #fff;
       color: #080812;
       font-weight: 800;
       cursor: pointer;
+    }
+
+    .card-button:disabled,
+    .submit:disabled {
+      opacity: .6;
+      cursor: not-allowed;
     }
 
     .empty {
@@ -284,23 +293,12 @@
       resize: vertical;
     }
 
-    .submit {
-      width: 100%;
-      margin-top: 22px;
-      padding: 14px;
-      border: 0;
-      border-radius: 25px;
-      background: #fff;
-      color: #080812;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
     .message {
       display: none;
       margin-top: 15px;
       padding: 12px;
       border-radius: 10px;
+      line-height: 1.5;
     }
 
     .message.show {
@@ -324,10 +322,6 @@
 
     .opportunity-detail strong {
       color: #fff;
-    }
-
-    .apply-text {
-      margin-top: 18px;
     }
 
     footer {
@@ -383,6 +377,7 @@
     <button
       id="openCreate"
       class="create-button"
+      type="button"
     >
       + Create Opportunity
     </button>
@@ -436,6 +431,7 @@
     <button
       class="filter active"
       data-filter="all"
+      type="button"
     >
       All Opportunities
     </button>
@@ -443,6 +439,7 @@
     <button
       class="filter"
       data-filter="audition"
+      type="button"
     >
       🎭 Auditions
     </button>
@@ -450,6 +447,7 @@
     <button
       class="filter"
       data-filter="gig"
+      type="button"
     >
       🎵 Gigs
     </button>
@@ -457,6 +455,7 @@
     <button
       class="filter"
       data-filter="collaboration"
+      type="button"
     >
       🤝 Collaborations
     </button>
@@ -485,7 +484,7 @@
 </footer>
 
 
-<!-- CREATE OPPORTUNITY -->
+<!-- CREATE OPPORTUNITY MODAL -->
 
 <div
   id="createModal"
@@ -501,6 +500,7 @@
       <button
         id="closeCreate"
         class="close"
+        type="button"
       >
         ×
       </button>
@@ -585,20 +585,17 @@
       <input
         id="compensation"
         type="text"
-        placeholder="Example: $100 paid gig"
+        placeholder="Example: $100, paid gig, exposure, etc."
       >
 
 
       <label>
-
         <input
           id="remote"
           type="checkbox"
           style="width:auto;margin-right:8px;"
         >
-
         Remote opportunity available
-
       </label>
 
 
@@ -623,7 +620,7 @@
 </div>
 
 
-<!-- OPPORTUNITY DETAILS -->
+<!-- OPPORTUNITY DETAILS MODAL -->
 
 <div
   id="detailModal"
@@ -641,6 +638,7 @@
       <button
         id="closeDetail"
         class="close"
+        type="button"
       >
         ×
       </button>
@@ -657,6 +655,7 @@
     <button
       id="applyButton"
       class="submit"
+      type="button"
     >
       Apply / Respond
     </button>
@@ -672,7 +671,7 @@
 </div>
 
 
-<!-- APPLICATION FORM -->
+<!-- APPLICATION MODAL -->
 
 <div
   id="applicationModal"
@@ -683,11 +682,14 @@
 
     <div class="modal-header">
 
-      <h2>Respond to Opportunity</h2>
+      <h2>
+        Respond to Opportunity
+      </h2>
 
       <button
         id="closeApplication"
         class="close"
+        type="button"
       >
         ×
       </button>
@@ -706,17 +708,6 @@
         placeholder="Tell the opportunity owner why you're a good fit..."
         required
       ></textarea>
-
-
-      <label for="applicationPortfolio">
-        Portfolio / Website
-      </label>
-
-      <input
-        id="applicationPortfolio"
-        type="url"
-        placeholder="https://..."
-      >
 
 
       <button
@@ -854,7 +845,11 @@ function showMessage(
 
   element.className =
     "message show " +
-    (success ? "success" : "error");
+    (
+      success
+        ? "success"
+        : "error"
+    );
 
 }
 
@@ -866,7 +861,8 @@ function render() {
       ? opportunities
       : opportunities.filter(
           opportunity =>
-            opportunity.type === currentFilter
+            opportunity.type ===
+            currentFilter
         );
 
 
@@ -886,91 +882,95 @@ function render() {
     `;
 
     return;
+
   }
 
 
   grid.innerHTML =
-    visible.map(opportunity => {
+    visible
+      .map(
+        opportunity => `
 
-      return `
-        <article class="card">
+          <article class="card">
 
-          <div class="badge">
-            ${escapeHtml(
-              formatType(
-                opportunity.type
-              )
-            )}
-          </div>
-
-          <h2>
-            ${escapeHtml(
-              opportunity.title
-            )}
-          </h2>
-
-          <div class="description">
-            ${escapeHtml(
-              opportunity.description
-            )}
-          </div>
-
-          <div class="details">
-
-            <div>
-              📍 ${
-                escapeHtml(
-                  opportunity.location ||
-                  "Location to be announced"
+            <div class="badge">
+              ${escapeHtml(
+                formatType(
+                  opportunity.type
                 )
-              }
+              )}
             </div>
 
-            <div>
-              ${
-                opportunity.is_remote
-                  ? "🌎 Remote available"
-                  : "🏢 In-person"
-              }
+            <h2>
+              ${escapeHtml(
+                opportunity.title
+              )}
+            </h2>
+
+            <div class="description">
+              ${escapeHtml(
+                opportunity.description
+              )}
             </div>
 
-            <div>
-              📅 ${
-                escapeHtml(
-                  formatDate(
-                    opportunity.event_date
+            <div class="details">
+
+              <div>
+                📍 ${
+                  escapeHtml(
+                    opportunity.location ||
+                    "Location to be announced"
                   )
-                )
+                }
+              </div>
+
+              <div>
+                ${
+                  opportunity.is_remote
+                    ? "🌎 Remote available"
+                    : "🏢 In-person"
+                }
+              </div>
+
+              <div>
+                📅 ${
+                  escapeHtml(
+                    formatDate(
+                      opportunity.event_date
+                    )
+                  )
+                }
+              </div>
+
+              ${
+                opportunity.compensation
+                  ? `
+                    <div>
+                      💰 ${
+                        escapeHtml(
+                          opportunity.compensation
+                        )
+                      }
+                    </div>
+                  `
+                  : ""
               }
+
             </div>
 
-            ${
-              opportunity.compensation
-                ? `
-                  <div>
-                    💰 ${
-                      escapeHtml(
-                        opportunity.compensation
-                      )
-                    }
-                  </div>
-                `
-                : ""
-            }
+            <button
+              class="card-button"
+              type="button"
+              onclick="viewOpportunity('${opportunity.id}')"
+            >
+              View & Apply
+            </button>
 
-          </div>
+          </article>
 
-          <button
-            class="card-button"
-            onclick="viewOpportunity('${opportunity.id}')"
-          >
-            View & Apply
-          </button>
-
-        </article>
-      `;
-
-    }).join("");
+        `
+      )
+      .join("");
 
 }
 
@@ -1000,7 +1000,7 @@ async function loadOpportunities() {
         event_date,
         compensation,
         status,
-        created_by,
+        creator_id,
         created_at
       `)
       .eq(
@@ -1017,7 +1017,10 @@ async function loadOpportunities() {
 
   if (error) {
 
-    console.error(error);
+    console.error(
+      "StarRise opportunities error:",
+      error
+    );
 
     status.textContent =
       "We could not load opportunities right now.";
@@ -1059,13 +1062,17 @@ async function viewOpportunity(id) {
 
 
   document
-    .getElementById("detailTitle")
+    .getElementById(
+      "detailTitle"
+    )
     .textContent =
       opportunity.title;
 
 
   document
-    .getElementById("detailContent")
+    .getElementById(
+      "detailContent"
+    )
     .innerHTML = `
 
       <p>
@@ -1118,7 +1125,9 @@ async function viewOpportunity(id) {
         opportunity.compensation
           ? `
             <p>
-              <strong>Compensation:</strong>
+              <strong>
+                Compensation:
+              </strong>
               ${
                 escapeHtml(
                   opportunity.compensation
@@ -1148,7 +1157,9 @@ async function viewOpportunity(id) {
 
 
 document
-  .getElementById("applyButton")
+  .getElementById(
+    "applyButton"
+  )
   .addEventListener(
     "click",
     async () => {
@@ -1185,7 +1196,7 @@ document
 
 
       if (
-        selectedOpportunity.created_by ===
+        selectedOpportunity.creator_id ===
         data.session.user.id
       ) {
 
@@ -1225,180 +1236,186 @@ document
   );
 
 
-applicationForm.addEventListener(
-  "submit",
-  async event => {
+applicationForm
+  .addEventListener(
+    "submit",
+    async event => {
 
-    event.preventDefault();
-
-
-    const submit =
-      document.getElementById(
-        "applicationSubmit"
-      );
+      event.preventDefault();
 
 
-    submit.disabled =
-      true;
-
-    submit.textContent =
-      "Submitting...";
-
-
-    try {
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .auth
-          .getSession();
-
-
-      if (
-        error ||
-        !data.session
-      ) {
-
-        throw new Error(
-          "Please sign in before applying."
+      const submit =
+        document.getElementById(
+          "applicationSubmit"
         );
 
-      }
+
+      submit.disabled =
+        true;
+
+      submit.textContent =
+        "Submitting...";
 
 
-      if (!selectedOpportunity) {
+      try {
 
-        throw new Error(
-          "Opportunity could not be found."
-        );
+        const {
+          data,
+          error
+        } =
+          await supabaseClient
+            .auth
+            .getSession();
 
-      }
-
-
-      if (
-        selectedOpportunity.created_by ===
-        data.session.user.id
-      ) {
-
-        throw new Error(
-          "You cannot apply to your own opportunity."
-        );
-
-      }
-
-
-      const applicationMessage =
-        document
-          .getElementById(
-            "applicationMessageInput"
-          )
-          .value
-          .trim();
-
-
-      const portfolio =
-        document
-          .getElementById(
-            "applicationPortfolio"
-          )
-          .value
-          .trim();
-
-const { error: insertError } =
-  await supabaseClient
-    .from("opportunities")
-    .insert({
-      title,
-      type,
-      description,
-      location: location || null,
-      event_date: eventDate || null,
-      compensation: compensation || null,
-      is_remote: isRemote,
-      status: "active",
-      creator_id: data.session.user.id
-    });
-
-
-      if (insertError) {
 
         if (
-          insertError.code ===
-          "23505"
+          error ||
+          !data.session
         ) {
 
           throw new Error(
-            "You have already applied to this opportunity."
+            "Please sign in before applying."
           );
 
         }
 
-        throw insertError;
+
+        if (!selectedOpportunity) {
+
+          throw new Error(
+            "Opportunity could not be found."
+          );
+
+        }
+
+
+        if (
+          selectedOpportunity.creator_id ===
+          data.session.user.id
+        ) {
+
+          throw new Error(
+            "You cannot apply to your own opportunity."
+          );
+
+        }
+
+
+        const applicationMessage =
+          document
+            .getElementById(
+              "applicationMessageInput"
+            )
+            .value
+            .trim();
+
+
+        const {
+          error: insertError
+        } =
+          await supabaseClient
+            .from(
+              "opportunity_applications"
+            )
+            .insert({
+
+              opportunity_id:
+                selectedOpportunity.id,
+
+              applicant_id:
+                data.session.user.id,
+
+              message:
+                applicationMessage,
+
+              status:
+                "pending"
+
+            });
+
+
+        if (insertError) {
+
+          if (
+            insertError.code ===
+            "23505"
+          ) {
+
+            throw new Error(
+              "You have already applied to this opportunity."
+            );
+
+          }
+
+          throw insertError;
+
+        }
+
+
+        showMessage(
+          document.getElementById(
+            "applicationFormMessage"
+          ),
+          "Application submitted successfully!",
+          true
+        );
+
+
+        submit.textContent =
+          "Application Sent";
+
+
+        setTimeout(
+          () => {
+
+            applicationModal.classList.remove(
+              "show"
+            );
+
+            submit.disabled =
+              false;
+
+            submit.textContent =
+              "Submit Application";
+
+          },
+          1200
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "StarRise application error:",
+          error
+        );
+
+
+        showMessage(
+          document.getElementById(
+            "applicationFormMessage"
+          ),
+          error.message ||
+          "We could not submit your application."
+        );
+
+
+        submit.disabled =
+          false;
+
+        submit.textContent =
+          "Submit Application";
 
       }
 
-
-      showMessage(
-        document.getElementById(
-          "applicationFormMessage"
-        ),
-        "Application submitted successfully!",
-        true
-      );
-
-
-      submit.textContent =
-        "Application Sent";
-
-
-      setTimeout(
-        () => {
-
-          applicationModal.classList.remove(
-            "show"
-          );
-
-          submit.disabled =
-            false;
-
-          submit.textContent =
-            "Submit Application";
-
-        },
-        1200
-      );
-
-
-    } catch (error) {
-
-      console.error(error);
-
-
-      showMessage(
-        document.getElementById(
-          "applicationFormMessage"
-        ),
-        error.message ||
-        "We could not submit your application."
-      );
-
-
-      submit.disabled =
-        false;
-
-      submit.textContent =
-        "Submit Application";
-
     }
-
-  }
-);
+  );
 
 
 document
-  .getElementById("openCreate")
+  .getElementById(
+    "openCreate"
+  )
   .addEventListener(
     "click",
     async () => {
@@ -1445,7 +1462,9 @@ document
 
 
 document
-  .getElementById("closeCreate")
+  .getElementById(
+    "closeCreate"
+  )
   .addEventListener(
     "click",
     () => {
@@ -1459,7 +1478,9 @@ document
 
 
 document
-  .getElementById("closeDetail")
+  .getElementById(
+    "closeDetail"
+  )
   .addEventListener(
     "click",
     () => {
@@ -1473,7 +1494,9 @@ document
 
 
 document
-  .getElementById("closeApplication")
+  .getElementById(
+    "closeApplication"
+  )
   .addEventListener(
     "click",
     () => {
@@ -1490,242 +1513,278 @@ document
   createModal,
   detailModal,
   applicationModal
-].forEach(modal => {
+].forEach(
+  modal => {
 
-  modal.addEventListener(
-    "click",
-    event => {
+    modal.addEventListener(
+      "click",
+      event => {
 
-      if (
-        event.target === modal
-      ) {
+        if (
+          event.target ===
+          modal
+        ) {
 
-        modal.classList.remove(
-          "show"
+          modal.classList.remove(
+            "show"
+          );
+
+        }
+
+      }
+    );
+
+  }
+);
+
+
+createForm
+  .addEventListener(
+    "submit",
+    async event => {
+
+      event.preventDefault();
+
+
+      const button =
+        document.getElementById(
+          "submitButton"
         );
+
+
+      button.disabled =
+        true;
+
+      button.textContent =
+        "Publishing...";
+
+
+      try {
+
+        const {
+          data,
+          error
+        } =
+          await supabaseClient
+            .auth
+            .getSession();
+
+
+        if (
+          error ||
+          !data.session
+        ) {
+
+          throw new Error(
+            "Please sign in before creating an opportunity."
+          );
+
+        }
+
+
+        const title =
+          document
+            .getElementById(
+              "title"
+            )
+            .value
+            .trim();
+
+
+        const type =
+          document
+            .getElementById(
+              "type"
+            )
+            .value;
+
+
+        const description =
+          document
+            .getElementById(
+              "description"
+            )
+            .value
+            .trim();
+
+
+        const location =
+          document
+            .getElementById(
+              "location"
+            )
+            .value
+            .trim();
+
+
+        const eventDate =
+          document
+            .getElementById(
+              "eventDate"
+            )
+            .value;
+
+
+        const compensation =
+          document
+            .getElementById(
+              "compensation"
+            )
+            .value
+            .trim();
+
+
+        const isRemote =
+          document
+            .getElementById(
+              "remote"
+            )
+            .checked;
+
+
+        const {
+          error: insertError
+        } =
+          await supabaseClient
+            .from(
+              "opportunities"
+            )
+            .insert({
+
+              title,
+
+              type,
+
+              description,
+
+              location:
+                location || null,
+
+              event_date:
+                eventDate || null,
+
+              compensation:
+                compensation || null,
+
+              is_remote:
+                isRemote,
+
+              status:
+                "active",
+
+              creator_id:
+                data.session.user.id
+
+            });
+
+
+        if (insertError) {
+          throw insertError;
+        }
+
+
+        showMessage(
+          document.getElementById(
+            "formMessage"
+          ),
+          "Opportunity published successfully!",
+          true
+        );
+
+
+        button.textContent =
+          "Published!";
+
+
+        await loadOpportunities();
+
+
+        setTimeout(
+          () => {
+
+            createModal.classList.remove(
+              "show"
+            );
+
+            button.disabled =
+              false;
+
+            button.textContent =
+              "Publish Opportunity";
+
+          },
+          1000
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "StarRise create opportunity error:",
+          error
+        );
+
+
+        showMessage(
+          document.getElementById(
+            "formMessage"
+          ),
+          error.message ||
+          "We could not publish the opportunity."
+        );
+
+
+        button.disabled =
+          false;
+
+        button.textContent =
+          "Publish Opportunity";
 
       }
 
     }
   );
 
-});
-
-
-createForm.addEventListener(
-  "submit",
-  async event => {
-
-    event.preventDefault();
-
-
-    const button =
-      document.getElementById(
-        "submitButton"
-      );
-
-
-    button.disabled =
-      true;
-
-    button.textContent =
-      "Publishing...";
-
-
-    try {
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .auth
-          .getSession();
-
-
-      if (
-        error ||
-        !data.session
-      ) {
-
-        throw new Error(
-          "Please sign in before creating an opportunity."
-        );
-
-      }
-
-
-      const title =
-        document
-          .getElementById("title")
-          .value
-          .trim();
-
-      const type =
-        document
-          .getElementById("type")
-          .value;
-
-      const description =
-        document
-          .getElementById("description")
-          .value
-          .trim();
-
-      const location =
-        document
-          .getElementById("location")
-          .value
-          .trim();
-
-      const eventDate =
-        document
-          .getElementById("eventDate")
-          .value;
-
-      const compensation =
-        document
-          .getElementById("compensation")
-          .value
-          .trim();
-
-      const isRemote =
-        document
-          .getElementById("remote")
-          .checked;
-
-
-      const {
-        error: insertError
-      } =
-        await supabaseClient
-          .from("opportunities")
-          .insert({
-
-            title,
-
-            type,
-
-            description,
-
-            location:
-              location || null,
-
-            event_date:
-              eventDate || null,
-
-            compensation:
-              compensation || null,
-
-            is_remote:
-              isRemote,
-
-            status:
-              "active",
-
-            created_by:
-              data.session.user.id
-
-          });
-
-
-      if (insertError) {
-        throw insertError;
-      }
-
-
-      showMessage(
-        document.getElementById(
-          "formMessage"
-        ),
-        "Opportunity published successfully!",
-        true
-      );
-
-
-      button.textContent =
-        "Published!";
-
-
-      await loadOpportunities();
-
-
-      setTimeout(
-        () => {
-
-          createModal.classList.remove(
-            "show"
-          );
-
-          button.disabled =
-            false;
-
-          button.textContent =
-            "Publish Opportunity";
-
-        },
-        1000
-      );
-
-
-    } catch (error) {
-
-      console.error(error);
-
-
-      showMessage(
-        document.getElementById(
-          "formMessage"
-        ),
-        error.message ||
-        "We could not publish the opportunity."
-      );
-
-
-      button.disabled =
-        false;
-
-      button.textContent =
-        "Publish Opportunity";
-
-    }
-
-  }
-);
-
 
 document
-  .querySelectorAll(".filter")
-  .forEach(button => {
+  .querySelectorAll(
+    ".filter"
+  )
+  .forEach(
+    button => {
 
-    button.addEventListener(
-      "click",
-      () => {
+      button.addEventListener(
+        "click",
+        () => {
 
-        document
-          .querySelectorAll(".filter")
-          .forEach(item =>
-            item.classList.remove(
-              "active"
+          document
+            .querySelectorAll(
+              ".filter"
             )
+            .forEach(
+              item =>
+                item.classList.remove(
+                  "active"
+                )
+            );
+
+
+          button.classList.add(
+            "active"
           );
 
 
-        button.classList.add(
-          "active"
-        );
+          currentFilter =
+            button.dataset.filter;
 
 
-        currentFilter =
-          button.dataset.filter;
+          render();
 
+        }
+      );
 
-        render();
-
-      }
-    );
-
-  });
+    }
+  );
 
 
 loadOpportunities();
