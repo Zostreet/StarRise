@@ -32,9 +32,7 @@
       font-weight: bold;
     }
 
-    button {
-      font-family: inherit;
-    }
+    button { font-family: inherit; }
 
     #signout {
       border: 1px solid #ffffff33;
@@ -45,9 +43,7 @@
       cursor: pointer;
     }
 
-    #signout:hover {
-      background: #ffffff10;
-    }
+    #signout:hover { background: #ffffff10; }
 
     main {
       width: min(950px, calc(100% - 30px));
@@ -63,15 +59,9 @@
       margin-bottom: 20px;
     }
 
-    h1,
-    h2,
-    h3 {
-      margin-top: 0;
-    }
+    h1,h2,h3 { margin-top: 0; }
 
-    .muted {
-      color: #aaa;
-    }
+    .muted { color: #aaa; }
 
     .status-box {
       padding: 14px;
@@ -83,24 +73,24 @@
 
     .error {
       color: #ffb5b5 !important;
-      background: rgba(200, 50, 50, .12) !important;
+      background: rgba(200,50,50,.12) !important;
     }
 
     .success {
       color: #baffca !important;
-      background: rgba(50, 200, 100, .10) !important;
+      background: rgba(50,200,100,.10) !important;
     }
 
     .warning {
       color: #ffe3a3 !important;
-      background: rgba(200, 150, 50, .12) !important;
+      background: rgba(200,150,50,.12) !important;
     }
 
     .profile-grid,
     .stripe-grid,
     .fund-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      grid-template-columns: repeat(auto-fit,minmax(210px,1fr));
       gap: 14px;
     }
 
@@ -119,9 +109,7 @@
       letter-spacing: .08em;
     }
 
-    .profile-value {
-      word-break: break-word;
-    }
+    .profile-value { word-break: break-word; }
 
     .role {
       display: inline-block;
@@ -189,9 +177,7 @@
     }
 
     .order-button:hover,
-    .fund-button:hover {
-      opacity: .9;
-    }
+    .fund-button:hover { opacity: .9; }
 
     .order-button:disabled,
     .fund-button:disabled,
@@ -218,11 +204,6 @@
       font-weight: bold;
       border: 0;
       cursor: pointer;
-    }
-
-    .connect-button:disabled {
-      opacity: .6;
-      cursor: wait;
     }
 
     .service-link {
@@ -265,9 +246,7 @@
       cursor: pointer;
     }
 
-    .star.selected {
-      color: #ffd84d;
-    }
+    .star.selected { color: #ffd84d; }
 
     .review-text,
     .fund-input,
@@ -316,9 +295,7 @@
       margin-bottom: 4px;
     }
 
-    .stripe-grid {
-      margin-top: 15px;
-    }
+    .stripe-grid { margin-top: 15px; }
 
     .stripe-stat {
       padding: 15px;
@@ -332,9 +309,7 @@
       margin-top: 3px;
     }
 
-    .small {
-      font-size: 13px;
-    }
+    .small { font-size: 13px; }
 
     .fund-header {
       display: flex;
@@ -398,9 +373,7 @@
       gap: 12px;
     }
 
-    .fund-card .fund-button {
-      margin-top: 10px;
-    }
+    .fund-card .fund-button { margin-top: 10px; }
 
     .fund-status {
       display: inline-block;
@@ -413,18 +386,11 @@
 
     .talent-fund-highlight {
       border-color: #ffffff30;
-      background:
-        linear-gradient(
-          135deg,
-          #ffffff0d,
-          #ffffff03
-        );
+      background: linear-gradient(135deg,#ffffff0d,#ffffff03);
     }
 
-    @media (max-width: 650px) {
-      header {
-        flex-direction: column;
-      }
+    @media (max-width:650px) {
+      header { flex-direction: column; }
 
       main {
         width: calc(100% - 20px);
@@ -432,27 +398,17 @@
       }
 
       .hero,
-      .panel {
-        padding: 20px;
-      }
+      .panel { padding: 20px; }
 
-      .order-actions {
-        flex-direction: column;
-      }
+      .order-actions { flex-direction: column; }
 
       .order-button,
       .connect-button,
-      .fund-button {
-        width: 100%;
-      }
+      .fund-button { width: 100%; }
 
-      .fund-form-grid {
-        grid-template-columns: 1fr;
-      }
+      .fund-form-grid { grid-template-columns: 1fr; }
 
-      .fund-header {
-        flex-direction: column;
-      }
+      .fund-header { flex-direction: column; }
     }
   </style>
 </head>
@@ -466,287 +422,255 @@
 
 <main>
 
-  <section class="hero">
-    <p class="muted">MEMBER DASHBOARD</p>
+<section class="hero">
+  <p class="muted">MEMBER DASHBOARD</p>
 
-    <h1>
-      Welcome, <span id="name">Member</span>
-    </h1>
+  <h1>
+    Welcome, <span id="name">Member</span>
+  </h1>
 
-    <p>Your StarRise member account is active.</p>
+  <p>Your StarRise member account is active.</p>
 
-    <a class="edit-link" href="edit-profile.html">
-      Edit Profile
-    </a>
-  </section>
+  <a class="edit-link" href="edit-profile.html">
+    Edit Profile
+  </a>
+</section>
 
-  <!-- TALENT FUNDS -->
-  <section class="panel talent-fund-highlight">
-    <h2>⭐ Talent Funds</h2>
+<section class="panel talent-fund-highlight">
+  <h2>⭐ Talent Funds</h2>
 
-    <p class="muted">
-      Help StarRise talent fund music, performances, equipment,
-      creative projects and other goals. You can also create your
-      own Talent Fund and let supporters back your vision.
+  <p class="muted">
+    Help StarRise talent fund music, performances, equipment,
+    creative projects and other goals. You can also create your
+    own Talent Fund and let supporters back your vision.
+  </p>
+
+  <div id="talent-fund-status" class="status-box">
+    Loading Talent Funds...
+  </div>
+
+  <div class="fund-form">
+    <h3>Create Your Talent Fund</h3>
+
+    <p class="muted small">
+      Set a funding goal and tell supporters what you are building.
+      StarRise will handle the payment flow through Stripe.
     </p>
 
-    <div id="talent-fund-status" class="status-box">
-      Loading Talent Funds...
-    </div>
-
-    <div class="fund-form">
-      <h3>Create Your Talent Fund</h3>
-
-      <p class="muted small">
-        Set a funding goal and tell supporters what you are building.
-        StarRise will handle the payment flow through Stripe.
-      </p>
-
-      <div class="fund-form-grid">
-
-        <div>
-          <label class="label" for="fund-title">
-            Fund Title
-          </label>
-
-          <input
-            id="fund-title"
-            class="fund-input"
-            type="text"
-            maxlength="120"
-            placeholder="Example: New Music Project"
-          >
-        </div>
-
-        <div>
-          <label class="label" for="fund-goal">
-            Funding Goal ($)
-          </label>
-
-          <input
-            id="fund-goal"
-            class="fund-input"
-            type="number"
-            min="1"
-            max="100000"
-            step="0.01"
-            placeholder="5000.00"
-          >
-        </div>
-
+    <div class="fund-form-grid">
+      <div>
+        <label class="label" for="fund-title">Fund Title</label>
+        <input
+          id="fund-title"
+          class="fund-input"
+          type="text"
+          maxlength="120"
+          placeholder="Example: New Music Project"
+        >
       </div>
 
-      <label class="label" for="fund-description">
-        What are you raising money for?
-      </label>
-
-      <textarea
-        id="fund-description"
-        class="fund-textarea"
-        maxlength="2000"
-        placeholder="Tell your StarRise supporters what this fund will help you accomplish..."
-      ></textarea>
-
-      <button
-        id="create-fund"
-        class="fund-button"
-        type="button"
-      >
-        Create Talent Fund
-      </button>
-
-      <div
-        id="create-fund-message"
-        class="small"
-        style="margin-top:12px;"
-      ></div>
+      <div>
+        <label class="label" for="fund-goal">Funding Goal ($)</label>
+        <input
+          id="fund-goal"
+          class="fund-input"
+          type="number"
+          min="1"
+          max="100000"
+          step="0.01"
+          placeholder="5000.00"
+        >
+      </div>
     </div>
 
-    <h3 style="margin-top:28px;">
-      Talent Funds You Can Support
-    </h3>
+    <label class="label" for="fund-description">
+      What are you raising money for?
+    </label>
 
-    <div id="talent-funds"></div>
-
-    <h3 style="margin-top:30px;">
-      My Talent Funds
-    </h3>
-
-    <div id="my-talent-funds"></div>
-  </section>
-
-  <!-- STRIPE PAYOUTS -->
-  <section class="panel">
-    <h2>Get Paid Through StarRise</h2>
-
-    <p class="muted">
-      Connect your Stripe account to receive payouts for services
-      and Talent Fund support.
-    </p>
-
-    <div id="stripe-status" class="status-box">
-      Checking Stripe payout status...
-    </div>
-
-    <div class="stripe-grid">
-
-      <div class="stripe-stat">
-        <span class="label">Account</span>
-        <strong id="stripe-account-status">
-          Checking...
-        </strong>
-      </div>
-
-      <div class="stripe-stat">
-        <span class="label">Charges</span>
-        <strong id="stripe-charges">
-          Checking...
-        </strong>
-      </div>
-
-      <div class="stripe-stat">
-        <span class="label">Payouts</span>
-        <strong id="stripe-payouts">
-          Checking...
-        </strong>
-      </div>
-
-    </div>
+    <textarea
+      id="fund-description"
+      class="fund-textarea"
+      maxlength="2000"
+      placeholder="Tell your StarRise supporters what this fund will help you accomplish..."
+    ></textarea>
 
     <button
-      id="connect-stripe"
-      class="connect-button"
+      id="create-fund"
+      class="fund-button"
       type="button"
     >
-      Set Up Stripe Payouts
+      Create Talent Fund
     </button>
 
-    <p
-      id="stripe-message"
-      class="muted small"
+    <div
+      id="create-fund-message"
+      class="small"
       style="margin-top:12px;"
-    ></p>
-  </section>
+    ></div>
+  </div>
 
-  <section class="panel">
-    <h2>Your Profile</h2>
+  <h3 style="margin-top:28px;">
+    Talent Funds You Can Support
+  </h3>
 
-    <div id="status" class="status-box">
-      Connecting to StarRise...
+  <div id="talent-funds"></div>
+
+  <h3 style="margin-top:30px;">
+    My Talent Funds
+  </h3>
+
+  <div id="my-talent-funds"></div>
+</section>
+
+<section class="panel">
+  <h2>Get Paid Through StarRise</h2>
+
+  <p class="muted">
+    Connect your Stripe account to receive payouts for services
+    and Talent Fund support.
+  </p>
+
+  <div id="stripe-status" class="status-box">
+    Checking Stripe payout status...
+  </div>
+
+  <div class="stripe-grid">
+    <div class="stripe-stat">
+      <span class="label">Account</span>
+      <strong id="stripe-account-status">Checking...</strong>
     </div>
 
-    <div class="profile-grid">
-
-      <div class="item">
-        <span class="label">Full Name</span>
-        <span id="profile-name" class="profile-value">
-          Loading...
-        </span>
-      </div>
-
-      <div class="item">
-        <span class="label">Display / Stage Name</span>
-        <span id="display-name" class="profile-value">
-          Loading...
-        </span>
-      </div>
-
-      <div class="item">
-        <span class="label">Email</span>
-        <span id="email" class="profile-value">
-          Loading...
-        </span>
-      </div>
-
-      <div class="item">
-        <span class="label">Location</span>
-        <span id="location" class="profile-value">
-          Loading...
-        </span>
-      </div>
-
-      <div class="item">
-        <span class="label">Website</span>
-        <span id="website" class="profile-value">
-          Loading...
-        </span>
-      </div>
-
-      <div class="item">
-        <span class="label">Member Since</span>
-        <span id="member-since" class="profile-value">
-          Loading...
-        </span>
-      </div>
-
-    </div>
-  </section>
-
-  <section class="panel">
-    <h2>About You</h2>
-    <p id="bio" class="muted">Loading...</p>
-  </section>
-
-  <section class="panel">
-    <h2>Your StarRise Roles</h2>
-    <div id="roles">Loading roles...</div>
-  </section>
-
-  <section class="panel">
-    <h2>Incoming Service Orders</h2>
-
-    <p class="muted">
-      Active service requests from customers appear here.
-    </p>
-
-    <div id="orders-status" class="status-box">
-      Loading orders...
+    <div class="stripe-stat">
+      <span class="label">Charges</span>
+      <strong id="stripe-charges">Checking...</strong>
     </div>
 
-    <div id="orders"></div>
-  </section>
+    <div class="stripe-stat">
+      <span class="label">Payouts</span>
+      <strong id="stripe-payouts">Checking...</strong>
+    </div>
+  </div>
 
-  <section class="panel">
-    <h2>Completed Services</h2>
+  <button
+    id="connect-stripe"
+    class="connect-button"
+    type="button"
+  >
+    Set Up Stripe Payouts
+  </button>
 
-    <p class="muted">
-      Services you completed appear here.
-    </p>
+  <p
+    id="stripe-message"
+    class="muted small"
+    style="margin-top:12px;"
+  ></p>
+</section>
 
-    <div id="completed-orders-status" class="status-box">
-      Loading completed services...
+<section class="panel">
+  <h2>Your Profile</h2>
+
+  <div id="status" class="status-box">
+    Connecting to StarRise...
+  </div>
+
+  <div class="profile-grid">
+    <div class="item">
+      <span class="label">Full Name</span>
+      <span id="profile-name" class="profile-value">Loading...</span>
     </div>
 
-    <div id="completed-orders"></div>
-  </section>
-
-  <section class="panel">
-    <h2>My Orders</h2>
-
-    <p class="muted">
-      Services you requested from other StarRise members.
-    </p>
-
-    <div id="my-orders-status" class="status-box">
-      Loading your orders...
+    <div class="item">
+      <span class="label">Display / Stage Name</span>
+      <span id="display-name" class="profile-value">Loading...</span>
     </div>
 
-    <div id="my-orders"></div>
-  </section>
-
-  <section class="panel">
-    <h2>My Completed Services</h2>
-
-    <p class="muted">
-      Completed services you received.
-    </p>
-
-    <div id="my-completed-status" class="status-box">
-      Loading completed orders...
+    <div class="item">
+      <span class="label">Email</span>
+      <span id="email" class="profile-value">Loading...</span>
     </div>
 
-    <div id="my-completed"></div>
-  </section>
+    <div class="item">
+      <span class="label">Location</span>
+      <span id="location" class="profile-value">Loading...</span>
+    </div>
+
+    <div class="item">
+      <span class="label">Website</span>
+      <span id="website" class="profile-value">Loading...</span>
+    </div>
+
+    <div class="item">
+      <span class="label">Member Since</span>
+      <span id="member-since" class="profile-value">Loading...</span>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>About You</h2>
+  <p id="bio" class="muted">Loading...</p>
+</section>
+
+<section class="panel">
+  <h2>Your StarRise Roles</h2>
+  <div id="roles">Loading roles...</div>
+</section>
+
+<section class="panel">
+  <h2>Incoming Service Orders</h2>
+
+  <p class="muted">
+    Active service requests from customers appear here.
+  </p>
+
+  <div id="orders-status" class="status-box">
+    Loading orders...
+  </div>
+
+  <div id="orders"></div>
+</section>
+
+<section class="panel">
+  <h2>Completed Services</h2>
+
+  <p class="muted">
+    Services you completed appear here.
+  </p>
+
+  <div id="completed-orders-status" class="status-box">
+    Loading completed services...
+  </div>
+
+  <div id="completed-orders"></div>
+</section>
+
+<section class="panel">
+  <h2>My Orders</h2>
+
+  <p class="muted">
+    Services you requested from other StarRise members.
+  </p>
+
+  <div id="my-orders-status" class="status-box">
+    Loading your orders...
+  </div>
+
+  <div id="my-orders"></div>
+</section>
+
+<section class="panel">
+  <h2>My Completed Services</h2>
+
+  <p class="muted">
+    Completed services you received.
+  </p>
+
+  <div id="my-completed-status" class="status-box">
+    Loading completed orders...
+  </div>
+
+  <div id="my-completed"></div>
+</section>
 
 </main>
 
@@ -754,7 +678,6 @@
 
 <script>
 (function () {
-
   'use strict';
 
   const SUPABASE_URL =
@@ -830,7 +753,6 @@
     document.getElementById('create-fund-message');
 
   function escapeHtml(value) {
-
     return String(value ?? '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -840,7 +762,6 @@
   }
 
   function setStatus(element, message, type) {
-
     if (!element) return;
 
     element.textContent = message;
@@ -857,10 +778,7 @@
   }
 
   function formatDate(value) {
-
-    if (!value) {
-      return 'Unknown';
-    }
+    if (!value) return 'Unknown';
 
     const date = new Date(value);
 
@@ -872,31 +790,22 @@
   }
 
   function formatMoney(cents) {
-
-    return (
-      '$' +
-      (Number(cents || 0) / 100).toFixed(2)
-    );
+    return '$' +
+      (Number(cents || 0) / 100).toFixed(2);
   }
 
   function starsHtml(rating) {
+    const value = Number(rating || 0);
 
-    const value =
-      Number(rating || 0);
-
-    return [1, 2, 3, 4, 5]
+    return [1,2,3,4,5]
       .map(function (number) {
-        return number <= value
-          ? '★'
-          : '☆';
+        return number <= value ? '★' : '☆';
       })
       .join('');
   }
 
   function getField(object, fields, fallback) {
-
     for (const field of fields) {
-
       if (
         object &&
         object[field] !== undefined &&
@@ -915,9 +824,7 @@
   }
 
   async function initialize() {
-
     try {
-
       setStatus(
         statusBox,
         'Connecting to StarRise...'
@@ -947,7 +854,6 @@
         sessionResult.data.session;
 
       if (!session || !session.user) {
-
         setStatus(
           statusBox,
           'No active session. Redirecting to login...',
@@ -961,8 +867,7 @@
         return;
       }
 
-      currentUser =
-        session.user;
+      currentUser = session.user;
 
       document.getElementById('email').textContent =
         currentUser.email || 'Not available';
@@ -984,7 +889,6 @@
       await loadMyCompletedOrders(currentUser);
 
     } catch (error) {
-
       console.error(
         'Dashboard initialization error:',
         error
@@ -1000,7 +904,6 @@
   }
 
   async function loadProfile(user) {
-
     let result =
       await supabaseClient
         .from('Profiles')
@@ -1016,7 +919,6 @@
     }
 
     if (!result.data) {
-
       result =
         await supabaseClient
           .from('Profiles')
@@ -1038,8 +940,7 @@
       );
     }
 
-    const profile =
-      result.data;
+    const profile = result.data;
 
     const fullName =
       getField(
@@ -1080,21 +981,21 @@
     document.getElementById('location').textContent =
       getField(
         profile,
-        ['location', 'Location'],
+        ['location','Location'],
         'Not provided'
       );
 
     document.getElementById('bio').textContent =
       getField(
         profile,
-        ['bio', 'Bio'],
+        ['bio','Bio'],
         'No bio added yet.'
       );
 
     document.getElementById('website').textContent =
       getField(
         profile,
-        ['website', 'Website'],
+        ['website','Website'],
         'Not provided'
       );
 
@@ -1102,19 +1003,17 @@
       formatDate(
         getField(
           profile,
-          ['created_at', 'Created_at'],
+          ['created_at','Created_at'],
           null
         )
       );
   }
 
   async function loadRoles(user) {
-
     const element =
       document.getElementById('roles');
 
     try {
-
       const result =
         await supabaseClient
           .from('member_roles')
@@ -1127,30 +1026,25 @@
       }
 
       if (!result.data || !result.data.length) {
-
         element.innerHTML =
           '<span class="muted">' +
           'No roles assigned yet.' +
           '</span>';
-
         return;
       }
 
       element.innerHTML =
         result.data
           .map(function (item) {
-
             return (
               '<span class="role">' +
               escapeHtml(item.role) +
               '</span>'
             );
-
           })
           .join('');
 
     } catch (error) {
-
       console.error(
         'Roles error:',
         error
@@ -1165,7 +1059,6 @@
   }
 
   async function loadStripeStatus(user) {
-
     setStatus(
       stripeStatus,
       'Checking Stripe payout status...'
@@ -1176,7 +1069,6 @@
       'Checking Stripe...';
 
     try {
-
       const result =
         await supabaseClient
           .from('stripe_connected_accounts')
@@ -1190,11 +1082,9 @@
         throw result.error;
       }
 
-      const account =
-        result.data;
+      const account = result.data;
 
       if (!account) {
-
         stripeAccountStatus.textContent =
           'Not connected';
 
@@ -1224,7 +1114,6 @@
         yesNo(account.payouts_enabled);
 
       if (account.payouts_enabled) {
-
         stripeAccountStatus.textContent =
           'Ready';
 
@@ -1239,7 +1128,6 @@
           'Manage Stripe Setup';
 
       } else if (account.details_submitted) {
-
         stripeAccountStatus.textContent =
           'Under review';
 
@@ -1254,7 +1142,6 @@
           'Continue Stripe Setup';
 
       } else {
-
         stripeAccountStatus.textContent =
           'Setup required';
 
@@ -1270,7 +1157,6 @@
       }
 
     } catch (error) {
-
       console.error(
         'Stripe status error:',
         error
@@ -1299,7 +1185,6 @@
   }
 
   async function startStripeOnboarding() {
-
     if (!currentUser) {
       throw new Error(
         'You must be signed in.'
@@ -1314,7 +1199,6 @@
       'Preparing your secure Stripe onboarding page...';
 
     try {
-
       const sessionResult =
         await supabaseClient.auth.getSession();
 
@@ -1353,7 +1237,6 @@
         await response.json();
 
       if (!response.ok || !data.url) {
-
         throw new Error(
           data.error ||
           'Stripe onboarding could not be started.'
@@ -1364,7 +1247,6 @@
         data.url;
 
     } catch (error) {
-
       console.error(
         'Stripe onboarding error:',
         error
@@ -1387,7 +1269,6 @@
   }
 
   async function loadTalentFunds(user) {
-
     setStatus(
       talentFundStatus,
       'Loading Talent Funds...'
@@ -1396,14 +1277,13 @@
     talentFundsContainer.innerHTML = '';
 
     try {
-
       const result =
         await supabaseClient
           .from('talent_funds')
           .select('*')
           .in(
             'status',
-            ['active', 'funded']
+            ['active','funded']
           )
           .order(
             'created_at',
@@ -1418,7 +1298,6 @@
         result.data || [];
 
       if (!funds.length) {
-
         setStatus(
           talentFundStatus,
           'No Talent Funds are active yet.'
@@ -1454,18 +1333,15 @@
       talentFundsContainer.innerHTML =
         funds
           .map(function (fund) {
-
             return renderTalentFund(
               fund,
               profiles[fund.talent_id],
               fund.talent_id === user.id
             );
-
           })
           .join('');
 
     } catch (error) {
-
       console.error(
         'Talent Funds error:',
         error
@@ -1481,11 +1357,9 @@
   }
 
   async function loadMyTalentFunds(user) {
-
     myTalentFundsContainer.innerHTML = '';
 
     try {
-
       const result =
         await supabaseClient
           .from('talent_funds')
@@ -1504,7 +1378,6 @@
         result.data || [];
 
       if (!funds.length) {
-
         myTalentFundsContainer.innerHTML =
           '<div class="empty">' +
           'You have not created a Talent Fund yet.' +
@@ -1517,7 +1390,6 @@
         await Promise.all(
           funds.map(
             async function (fund) {
-
               const contributionResult =
                 await supabaseClient
                   .from('talent_fund_contributions')
@@ -1567,7 +1439,6 @@
         fundCards.join('');
 
     } catch (error) {
-
       console.error(
         'My Talent Funds error:',
         error
@@ -1586,7 +1457,6 @@
     profile,
     isOwner
   ) {
-
     const goal =
       Number(fund.goal_cents || 0);
 
@@ -1619,21 +1489,18 @@
     let button = '';
 
     if (fund.status === 'funded') {
-
       button =
         '<button class="fund-button" disabled>' +
         'Funded' +
         '</button>';
 
     } else if (isOwner) {
-
       button =
         '<button class="fund-button" disabled>' +
         'Your Talent Fund' +
         '</button>';
 
     } else {
-
       button =
         '<button ' +
         'class="fund-button" ' +
@@ -1697,7 +1564,6 @@
     raised,
     contributionCount
   ) {
-
     const goal =
       Number(fund.goal_cents || 0);
 
@@ -1722,9 +1588,7 @@
             </div>
 
             <div class="fund-owner">
-              ${escapeHtml(
-                contributionCount
-              )}
+              ${escapeHtml(contributionCount)}
               paid contribution${
                 contributionCount === 1
                   ? ''
@@ -1765,10 +1629,7 @@
   }
 
   async function createTalentFund() {
-
-    if (!currentUser) {
-      return;
-    }
+    if (!currentUser) return;
 
     const title =
       document.getElementById(
@@ -1788,7 +1649,6 @@
       );
 
     if (!title) {
-
       createFundMessage.textContent =
         'Please enter a Talent Fund title.';
 
@@ -1799,7 +1659,6 @@
     }
 
     if (!description) {
-
       createFundMessage.textContent =
         'Please explain what the Talent Fund is for.';
 
@@ -1814,7 +1673,6 @@
       goalValue < 1 ||
       goalValue > 100000
     ) {
-
       createFundMessage.textContent =
         'Funding goal must be between $1 and $100,000.';
 
@@ -1835,7 +1693,6 @@
       'muted small';
 
     try {
-
       const goalCents =
         Math.round(
           goalValue * 100
@@ -1892,7 +1749,6 @@
       );
 
     } catch (error) {
-
       console.error(
         'Create Talent Fund error:',
         error
@@ -1906,7 +1762,6 @@
         'error small';
 
     } finally {
-
       createFundButton.disabled = false;
       createFundButton.textContent =
         'Create Talent Fund';
@@ -1914,7 +1769,6 @@
   }
 
   async function supportTalentFund(fundId) {
-
     if (!currentUser) {
       throw new Error(
         'You must be signed in.'
@@ -1926,14 +1780,12 @@
         'How much would you like to contribute? Enter a dollar amount.'
       );
 
-    if (amount === null) {
-      return;
-    }
+    if (amount === null) return;
 
     const amountValue =
       Number(
         String(amount)
-          .replace('$', '')
+          .replace('$','')
           .trim()
       );
 
@@ -1942,7 +1794,6 @@
       amountValue < 1 ||
       amountValue > 10000
     ) {
-
       alert(
         'Support amount must be between $1 and $10,000.'
       );
@@ -1969,7 +1820,6 @@
     }
 
     try {
-
       const sessionResult =
         await supabaseClient.auth.getSession();
 
@@ -1997,14 +1847,18 @@
               'Authorization':
                 'Bearer ' +
                 session.access_token,
+
               'apikey':
                 SUPABASE_KEY,
+
               'Content-Type':
                 'application/json'
             },
+
             body: JSON.stringify({
               fund_id:
                 fundId,
+
               amount_cents:
                 amountCents
             })
@@ -2015,7 +1869,6 @@
         await response.json();
 
       if (!response.ok || !data.url) {
-
         throw new Error(
           data.error ||
           'Unable to start Talent Fund checkout.'
@@ -2026,7 +1879,6 @@
         data.url;
 
     } catch (error) {
-
       console.error(
         'Talent Fund checkout error:',
         error
@@ -2046,13 +1898,10 @@
   }
 
   async function getServices(serviceIds) {
-
     const ids =
       serviceIds.filter(Boolean);
 
-    if (!ids.length) {
-      return {};
-    }
+    if (!ids.length) return {};
 
     const result =
       await supabaseClient
@@ -2066,23 +1915,18 @@
 
     return (result.data || [])
       .reduce(function (map, service) {
-
         map[service.id] =
           service;
 
         return map;
-
       }, {});
   }
 
   async function getProfiles(userIds) {
-
     const ids =
       userIds.filter(Boolean);
 
-    if (!ids.length) {
-      return {};
-    }
+    if (!ids.length) return {};
 
     const result =
       await supabaseClient
@@ -2096,20 +1940,15 @@
 
     return (result.data || [])
       .reduce(function (map, profile) {
-
         map[profile.id] =
           profile;
 
         return map;
-
       }, {});
   }
 
   async function getReviews(orderIds) {
-
-    if (!orderIds.length) {
-      return {};
-    }
+    if (!orderIds.length) return {};
 
     const result =
       await supabaseClient
@@ -2118,7 +1957,6 @@
         .in('order_id', orderIds);
 
     if (result.error) {
-
       console.error(
         'Reviews error:',
         result.error
@@ -2129,20 +1967,15 @@
 
     return (result.data || [])
       .reduce(function (map, review) {
-
         map[review.order_id] =
           review;
 
         return map;
-
       }, {});
   }
 
   function reviewDisplay(review) {
-
-    if (!review) {
-      return '';
-    }
+    if (!review) return '';
 
     return `
       <div class="review-display">
@@ -2179,7 +2012,6 @@
   }
 
   function reviewForm(order, review) {
-
     const currentRating =
       Number(
         review && review.rating
@@ -2203,9 +2035,8 @@
           data-stars-for="${escapeHtml(order.id)}"
         >
 
-          ${[1, 2, 3, 4, 5]
+          ${[1,2,3,4,5]
             .map(function (number) {
-
               return `
                 <button
                   type="button"
@@ -2218,7 +2049,6 @@
                   data-order="${escapeHtml(order.id)}"
                 >★</button>
               `;
-
             })
             .join('')}
 
@@ -2265,7 +2095,6 @@
     profile,
     options
   ) {
-
     const serviceTitle =
       service
         ? service.title
@@ -2299,7 +2128,6 @@
     if (options.provider) {
 
       if (order.status === 'pending') {
-
         actions = `
           <div class="order-actions">
 
@@ -2324,7 +2152,6 @@
       }
 
       if (order.status === 'accepted') {
-
         actions = `
           <div class="order-actions">
 
@@ -2341,7 +2168,6 @@
       }
 
       if (order.status === 'in_progress') {
-
         actions = `
           <div class="order-actions">
 
@@ -2412,7 +2238,6 @@
   }
 
   async function loadIncomingOrders(user) {
-
     setStatus(
       ordersStatus,
       'Loading orders...'
@@ -2421,7 +2246,6 @@
     ordersContainer.innerHTML = '';
 
     try {
-
       const result =
         await supabaseClient
           .from('service_orders')
@@ -2448,7 +2272,6 @@
         result.data || [];
 
       if (!orders.length) {
-
         setStatus(
           ordersStatus,
           'You have no active service requests.'
@@ -2490,7 +2313,6 @@
       ordersContainer.innerHTML =
         orders
           .map(function (order) {
-
             return renderOrder(
               order,
               services[order.service_id],
@@ -2500,12 +2322,10 @@
                 personLabel: 'Customer'
               }
             );
-
           })
           .join('');
 
     } catch (error) {
-
       console.error(
         'Incoming orders error:',
         error
@@ -2521,7 +2341,6 @@
   }
 
   async function loadCompletedOrders(user) {
-
     setStatus(
       completedOrdersStatus,
       'Loading completed services...'
@@ -2530,7 +2349,6 @@
     completedOrdersContainer.innerHTML = '';
 
     try {
-
       const result =
         await supabaseClient
           .from('service_orders')
@@ -2550,7 +2368,6 @@
         result.data || [];
 
       if (!orders.length) {
-
         setStatus(
           completedOrdersStatus,
           'No completed services yet.'
@@ -2592,7 +2409,6 @@
       completedOrdersContainer.innerHTML =
         orders
           .map(function (order) {
-
             return renderOrder(
               order,
               services[order.service_id],
@@ -2602,12 +2418,10 @@
                 personLabel: 'Customer'
               }
             );
-
           })
           .join('');
 
     } catch (error) {
-
       console.error(
         'Completed services error:',
         error
@@ -2623,7 +2437,6 @@
   }
 
   async function loadMyOrders(user) {
-
     setStatus(
       myOrdersStatus,
       'Loading your orders...'
@@ -2632,7 +2445,6 @@
     myOrdersContainer.innerHTML = '';
 
     try {
-
       const result =
         await supabaseClient
           .from('service_orders')
@@ -2659,7 +2471,6 @@
         result.data || [];
 
       if (!orders.length) {
-
         setStatus(
           myOrdersStatus,
           'You have no active orders.'
@@ -2701,7 +2512,6 @@
       myOrdersContainer.innerHTML =
         orders
           .map(function (order) {
-
             return renderOrder(
               order,
               services[order.service_id],
@@ -2711,12 +2521,10 @@
                 personLabel: 'Seller'
               }
             );
-
           })
           .join('');
 
     } catch (error) {
-
       console.error(
         'My orders error:',
         error
@@ -2732,7 +2540,6 @@
   }
 
   async function loadMyCompletedOrders(user) {
-
     setStatus(
       myCompletedStatus,
       'Loading completed orders...'
@@ -2741,7 +2548,6 @@
     myCompletedContainer.innerHTML = '';
 
     try {
-
       const result =
         await supabaseClient
           .from('service_orders')
@@ -2761,7 +2567,6 @@
         result.data || [];
 
       if (!orders.length) {
-
         setStatus(
           myCompletedStatus,
           'No completed services yet.'
@@ -2810,7 +2615,6 @@
       myCompletedContainer.innerHTML =
         orders
           .map(function (order) {
-
             const review =
               reviews[order.id];
 
@@ -2833,12 +2637,10 @@
                     )
               )
             );
-
           })
           .join('');
 
     } catch (error) {
-
       console.error(
         'My completed orders error:',
         error
@@ -2857,7 +2659,6 @@
     orderId,
     newStatus
   ) {
-
     if (!currentUser) {
       throw new Error(
         'You must be signed in.'
@@ -2882,7 +2683,6 @@
   }
 
   async function submitReview(orderId) {
-
     if (!currentUser) {
       throw new Error(
         'You must be signed in.'
@@ -2971,7 +2771,6 @@
     let result;
 
     if (existing.data) {
-
       result =
         await supabaseClient
           .from('service_reviews')
@@ -2995,7 +2794,6 @@
           );
 
     } else {
-
       result =
         await supabaseClient
           .from('service_reviews')
@@ -3028,7 +2826,6 @@
         );
 
       if (supportButton) {
-
         await supportTalentFund(
           supportButton.dataset.supportFund
         );
@@ -3042,7 +2839,6 @@
         );
 
       if (star) {
-
         const orderId =
           star.dataset.order;
 
@@ -3059,7 +2855,6 @@
           );
 
         if (container) {
-
           container
             .querySelectorAll('.star')
             .forEach(function (button) {
@@ -3085,7 +2880,6 @@
         );
 
       if (actionButton) {
-
         const orderId =
           actionButton.dataset.orderId;
 
@@ -3111,7 +2905,6 @@
         );
 
         try {
-
           await updateOrderStatus(
             orderId,
             newStatus
@@ -3134,7 +2927,6 @@
           );
 
         } catch (error) {
-
           console.error(
             'Order update error:',
             error
@@ -3161,7 +2953,6 @@
         );
 
       if (reviewButton) {
-
         const orderId =
           reviewButton.dataset.submitReview;
 
@@ -3174,7 +2965,6 @@
         reviewButton.disabled = true;
 
         if (message) {
-
           message.textContent =
             'Saving review...';
 
@@ -3186,13 +2976,11 @@
         }
 
         try {
-
           await submitReview(
             orderId
           );
 
           if (message) {
-
             message.textContent =
               'Review saved successfully.';
 
@@ -3208,14 +2996,12 @@
           );
 
         } catch (error) {
-
           console.error(
             'Review error:',
             error
           );
 
           if (message) {
-
             message.textContent =
               'Unable to save review: ' +
               error.message;
@@ -3261,7 +3047,6 @@
           'Signing Out...';
 
         try {
-
           if (!supabaseClient) {
             window.location.href =
               'login.html';
@@ -3280,7 +3065,6 @@
             'login.html';
 
         } catch (error) {
-
           console.error(
             'Sign out error:',
             error
