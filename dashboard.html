@@ -115,12 +115,21 @@
       background:#ffffff12
     }
 
-    .order-card,.fund-card{
+    .order-card,.fund-card,.active-service-card,.opportunity-card{
       padding:20px;
       border-radius:16px;
       background:#ffffff08;
       border:1px solid #ffffff12;
       margin-top:15px
+    }
+
+    .active-service-card{
+      border-color:#ffffff28;
+      background:linear-gradient(135deg,#ffffff0d,#ffffff03)
+    }
+
+    .opportunity-card{
+      border-color:#ffffff20
     }
 
     .order-price{
@@ -129,7 +138,7 @@
       margin-bottom:5px
     }
 
-    .order-status,.fund-status{
+    .order-status,.fund-status,.service-status{
       display:inline-block;
       padding:6px 12px;
       border-radius:20px;
@@ -141,6 +150,10 @@
     .fund-status{
       padding:5px 10px;
       font-size:13px
+    }
+
+    .service-status{
+      margin-top:8px
     }
 
     .order-request{
@@ -381,6 +394,31 @@
       background:linear-gradient(135deg,#ffffff0d,#ffffff03)
     }
 
+    .active-service-panel{
+      border-color:#ffffff30;
+      background:linear-gradient(135deg,#ffffff0d,#ffffff03)
+    }
+
+    .service-details{
+      color:#ccc;
+      margin:10px 0
+    }
+
+    .service-price{
+      font-size:24px;
+      font-weight:bold;
+      margin:8px 0
+    }
+
+    .opportunity-type{
+      display:inline-block;
+      padding:5px 10px;
+      border-radius:20px;
+      background:#ffffff12;
+      font-size:13px;
+      margin-bottom:10px
+    }
+
     @media(max-width:650px){
       header{flex-direction:column}
 
@@ -468,6 +506,45 @@
   >
     + Create Opportunity
   </a>
+</section>
+
+
+<!-- MY OPPORTUNITIES -->
+
+<section class="panel opportunity-panel">
+
+  <h2>⭐ My Opportunities</h2>
+
+  <p class="muted">
+    Opportunities you created for StarRise talent appear here.
+  </p>
+
+  <div id="my-opportunities-status" class="status-box">
+    Loading your opportunities...
+  </div>
+
+  <div id="my-opportunities"></div>
+
+</section>
+
+
+<!-- CONFIRMED / ACTIVE SERVICES -->
+
+<section class="panel active-service-panel">
+
+  <h2>🎤 My Active Services</h2>
+
+  <p class="muted">
+    Services you have accepted appear here so StarRise talent
+    can see what you currently have available.
+  </p>
+
+  <div id="active-services-status" class="status-box">
+    Loading your active services...
+  </div>
+
+  <div id="active-services"></div>
+
 </section>
 
 
@@ -807,7 +884,6 @@ const FUNCTIONS_URL =
 let supabaseClient = null;
 let currentUser = null;
 
-
 const statusBox =
   document.getElementById('status');
 
@@ -834,6 +910,18 @@ const myCompletedStatus =
 
 const myCompletedContainer =
   document.getElementById('my-completed');
+
+const activeServicesStatus =
+  document.getElementById('active-services-status');
+
+const activeServicesContainer =
+  document.getElementById('active-services');
+
+const myOpportunitiesStatus =
+  document.getElementById('my-opportunities-status');
+
+const myOpportunitiesContainer =
+  document.getElementById('my-opportunities');
 
 const stripeStatus =
   document.getElementById('stripe-status');
@@ -1012,6 +1100,8 @@ async function initialize(){
     await loadStripeStatus(currentUser);
     await loadTalentFunds(currentUser);
     await loadMyTalentFunds(currentUser);
+    await loadMyOpportunities(currentUser);
+    await loadActiveServices(currentUser);
     await loadIncomingOrders(currentUser);
     await loadCompletedOrders(currentUser);
     await loadMyOrders(currentUser);
@@ -1197,6 +1287,409 @@ async function loadRoles(user){
 
 }
 
+
+/* =========================
+   MY OPPORTUNITIES
+========================= */
+
+async function loadMyOpportunities(user){
+
+  setStatus(
+    myOpportunitiesStatus,
+    'Loading your opportunities...'
+  );
+
+  myOpportunitiesContainer.innerHTML = '';
+
+  try{
+
+    const result =
+      await supabaseClient
+        .from('opportunities')
+        .select('*')
+        .eq('creator_id',user.id)
+        .order(
+          'created_at',
+          {ascending:false}
+        );
+
+    if(result.error){
+      throw result.error;
+    }
+
+    const opportunities =
+      result.data || [];
+
+    if(!opportunities.length){
+
+      setStatus(
+        myOpportunitiesStatus,
+        'You have not created any opportunities yet.'
+      );
+
+      myOpportunitiesContainer.innerHTML =
+        '<div class="empty">' +
+        'Create an opportunity to connect with StarRise talent.' +
+        '</div>';
+
+      return;
+    }
+
+    setStatus(
+      myOpportunitiesStatus,
+      opportunities.length === 1
+        ? '1 opportunity created by you.'
+        : opportunities.length +
+          ' opportunities created by you.',
+      'success'
+    );
+
+    myOpportunitiesContainer.innerHTML =
+      opportunities
+        .map(renderMyOpportunity)
+        .join('');
+
+  }catch(error){
+
+    console.error(
+      'My opportunities error:',
+      error
+    );
+
+    setStatus(
+      myOpportunitiesStatus,
+      'Unable to load your opportunities: ' +
+      error.message,
+      'error'
+    );
+  }
+
+}
+
+
+function renderMyOpportunity(opportunity){
+
+  const type =
+    getField(
+      opportunity,
+      ['type','opportunity_type','category'],
+      'Opportunity'
+    );
+
+  const title =
+    getField(
+      opportunity,
+      ['title','name'],
+      'Untitled Opportunity'
+    );
+
+  const description =
+    getField(
+      opportunity,
+      ['description','details'],
+      'No description provided.'
+    );
+
+  const location =
+    getField(
+      opportunity,
+      ['location'],
+      'Location to be announced'
+    );
+
+  const format =
+    getField(
+      opportunity,
+      ['format','event_format','location_type'],
+      ''
+    );
+
+  const date =
+    getField(
+      opportunity,
+      ['event_date','date','opportunity_date'],
+      null
+    );
+
+  const compensation =
+    getField(
+      opportunity,
+      ['compensation','pay','amount'],
+      'Not specified'
+    );
+
+  const status =
+    getField(
+      opportunity,
+      ['status'],
+      'active'
+    );
+
+  return `
+    <div class="opportunity-card">
+
+      <div class="opportunity-type">
+        ${escapeHtml(type)}
+      </div>
+
+      <div class="service-title">
+        ${escapeHtml(title)}
+      </div>
+
+      <div class="service-details">
+        ${escapeHtml(description)}
+      </div>
+
+      <div class="order-meta">
+        📍 ${escapeHtml(location)}
+      </div>
+
+      ${
+        format
+          ? `
+            <div class="order-meta">
+              ${escapeHtml(format)}
+            </div>
+          `
+          : ''
+      }
+
+      <div class="order-meta">
+        📅 ${
+          date
+            ? escapeHtml(formatDate(date))
+            : 'Date to be announced'
+        }
+      </div>
+
+      <div class="order-meta">
+        💰 ${escapeHtml(compensation)}
+      </div>
+
+      <div class="service-status">
+        ${escapeHtml(status)}
+      </div>
+
+      <div>
+        <a
+          class="service-link"
+          href="opportunity.html?id=${encodeURIComponent(opportunity.id)}"
+        >
+          View Opportunity
+        </a>
+      </div>
+
+    </div>
+  `;
+}
+
+
+/* =========================
+   ACTIVE / CONFIRMED SERVICES
+========================= */
+
+async function loadActiveServices(user){
+
+  setStatus(
+    activeServicesStatus,
+    'Loading your active services...'
+  );
+
+  activeServicesContainer.innerHTML = '';
+
+  try{
+
+    const result =
+      await supabaseClient
+        .from('service_orders')
+        .select('*')
+        .eq('seller_id',user.id)
+        .in(
+          'status',
+          [
+            'accepted',
+            'in_progress'
+          ]
+        )
+        .order(
+          'updated_at',
+          {ascending:false}
+        );
+
+    if(result.error){
+      throw result.error;
+    }
+
+    const orders =
+      result.data || [];
+
+    if(!orders.length){
+
+      setStatus(
+        activeServicesStatus,
+        'No confirmed services yet.'
+      );
+
+      activeServicesContainer.innerHTML =
+        '<div class="empty">' +
+        'When you accept a service request, it will appear here on your profile.' +
+        '</div>';
+
+      return;
+    }
+
+    const services =
+      await getServices(
+        orders.map(
+          order => order.service_id
+        )
+      );
+
+    const profiles =
+      await getProfiles(
+        orders.map(
+          order => order.buyer_id
+        )
+      );
+
+    setStatus(
+      activeServicesStatus,
+      orders.length === 1
+        ? '1 confirmed service.'
+        : orders.length +
+          ' confirmed services.',
+      'success'
+    );
+
+    activeServicesContainer.innerHTML =
+      orders
+        .map(order =>
+          renderActiveService(
+            order,
+            services[order.service_id],
+            profiles[order.buyer_id]
+          )
+        )
+        .join('');
+
+  }catch(error){
+
+    console.error(
+      'Active services error:',
+      error
+    );
+
+    setStatus(
+      activeServicesStatus,
+      'Unable to load confirmed services: ' +
+      error.message,
+      'error'
+    );
+  }
+
+}
+
+
+function renderActiveService(
+  order,
+  service,
+  buyerProfile
+){
+
+  const serviceTitle =
+    service
+      ? service.title
+      : 'StarRise Service';
+
+  const serviceDescription =
+    service
+      ? getField(
+          service,
+          ['description','details'],
+          ''
+        )
+      : '';
+
+  const buyerName =
+    buyerProfile
+      ? getField(
+          buyerProfile,
+          [
+            'display_name',
+            'full_name',
+            'name'
+          ],
+          'StarRise Member'
+        )
+      : 'StarRise Member';
+
+  return `
+    <div class="active-service-card">
+
+      <div class="service-title">
+        ${escapeHtml(serviceTitle)}
+      </div>
+
+      <div class="service-price">
+        ${formatMoney(order.amount_cents)}
+      </div>
+
+      <div class="service-status">
+        ${escapeHtml(order.status)}
+      </div>
+
+      ${
+        serviceDescription
+          ? `
+            <div class="service-details">
+              ${escapeHtml(serviceDescription)}
+            </div>
+          `
+          : ''
+      }
+
+      <div class="order-meta">
+        Customer: ${escapeHtml(buyerName)}
+      </div>
+
+      <div class="order-meta">
+        Confirmed:
+        ${escapeHtml(
+          formatDate(order.updated_at || order.created_at)
+        )}
+      </div>
+
+      ${
+        order.request_message
+          ? `
+            <div class="order-request">
+              ${escapeHtml(order.request_message)}
+            </div>
+          `
+          : ''
+      }
+
+      ${
+        service
+          ? `
+            <a
+              class="service-link"
+              href="service.html?id=${encodeURIComponent(service.id)}"
+            >
+              View Service
+            </a>
+          `
+          : ''
+      }
+
+    </div>
+  `;
+}
+
+
+/* =========================
+   STRIPE
+========================= */
 
 async function loadStripeStatus(user){
 
@@ -1431,6 +1924,10 @@ async function startStripeOnboarding(){
 }
 
 
+/* =========================
+   PROFILES / SERVICES
+========================= */
+
 async function getProfiles(userIds){
 
   const ids =
@@ -1457,6 +1954,37 @@ async function getProfiles(userIds){
     },{});
 }
 
+
+async function getServices(serviceIds){
+
+  const ids =
+    serviceIds.filter(Boolean);
+
+  if(!ids.length){
+    return {};
+  }
+
+  const result =
+    await supabaseClient
+      .from('star_rise_services')
+      .select('*')
+      .in('id',ids);
+
+  if(result.error){
+    throw result.error;
+  }
+
+  return (result.data || [])
+    .reduce((map,service)=>{
+      map[service.id] = service;
+      return map;
+    },{});
+}
+
+
+/* =========================
+   TALENT FUNDS
+========================= */
 
 async function loadTalentFunds(user){
 
@@ -2092,32 +2620,9 @@ async function supportTalentFund(fundId){
 }
 
 
-async function getServices(serviceIds){
-
-  const ids =
-    serviceIds.filter(Boolean);
-
-  if(!ids.length){
-    return {};
-  }
-
-  const result =
-    await supabaseClient
-      .from('star_rise_services')
-      .select('*')
-      .in('id',ids);
-
-  if(result.error){
-    throw result.error;
-  }
-
-  return (result.data || [])
-    .reduce((map,service)=>{
-      map[service.id] = service;
-      return map;
-    },{});
-}
-
+/* =========================
+   ORDERS / REVIEWS
+========================= */
 
 async function getReviews(orderIds){
 
@@ -2830,6 +3335,10 @@ async function loadMyCompletedOrders(user){
 }
 
 
+/* =========================
+   ORDER STATUS / REVIEWS
+========================= */
+
 async function updateOrderStatus(
   orderId,
   newStatus
@@ -2977,6 +3486,10 @@ async function submitReview(orderId){
 }
 
 
+/* =========================
+   EVENTS
+========================= */
+
 document.addEventListener(
   'click',
   async function(event){
@@ -2994,7 +3507,6 @@ document.addEventListener(
 
       return;
     }
-
 
     const star =
       event.target.closest(
@@ -3032,7 +3544,6 @@ document.addEventListener(
 
       return;
     }
-
 
     const actionButton =
       event.target.closest(
@@ -3072,6 +3583,10 @@ document.addEventListener(
           newStatus
         );
 
+        await loadActiveServices(
+          currentUser
+        );
+
         await loadIncomingOrders(
           currentUser
         );
@@ -3109,7 +3624,6 @@ document.addEventListener(
 
       return;
     }
-
 
     const reviewButton =
       event.target.closest(
@@ -3266,4 +3780,3 @@ initialize();
 
 </body>
 </html>
-```0
