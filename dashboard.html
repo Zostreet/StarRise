@@ -115,7 +115,10 @@
       background:#ffffff12
     }
 
-    .order-card,.fund-card,.active-service-card,.opportunity-card{
+    .order-card,
+    .fund-card,
+    .active-service-card,
+    .opportunity-card{
       padding:20px;
       border-radius:16px;
       background:#ffffff08;
@@ -138,7 +141,9 @@
       margin-bottom:5px
     }
 
-    .order-status,.fund-status,.service-status{
+    .order-status,
+    .fund-status,
+    .service-status{
       display:inline-block;
       padding:6px 12px;
       border-radius:20px;
@@ -178,7 +183,9 @@
       margin-top:15px
     }
 
-    .order-button,.fund-button,.action-button{
+    .order-button,
+    .fund-button,
+    .action-button{
       border:0;
       padding:11px 20px;
       border-radius:25px;
@@ -190,7 +197,9 @@
       display:inline-block
     }
 
-    .order-button:hover,.fund-button:hover,.action-button:hover{
+    .order-button:hover,
+    .fund-button:hover,
+    .action-button:hover{
       opacity:.9
     }
 
@@ -207,7 +216,8 @@
       border:1px solid #ffffff35
     }
 
-    .edit-link,.connect-button{
+    .edit-link,
+    .connect-button{
       display:inline-block;
       margin-top:18px;
       padding:11px 20px;
@@ -239,7 +249,8 @@
       margin-top:12px
     }
 
-    .review-box,.review-display{
+    .review-box,
+    .review-display{
       margin-top:18px;
       padding:18px;
       border-radius:14px;
@@ -265,7 +276,9 @@
 
     .star.selected{color:#ffd84d}
 
-    .review-text,.fund-input,.fund-textarea{
+    .review-text,
+    .fund-input,
+    .fund-textarea{
       width:100%;
       border:1px solid #ffffff20;
       border-radius:12px;
@@ -420,16 +433,23 @@
     }
 
     @media(max-width:650px){
-      header{flex-direction:column}
+
+      header{
+        flex-direction:column
+      }
 
       main{
         width:calc(100% - 20px);
         margin-top:20px
       }
 
-      .hero,.panel{padding:20px}
+      .hero,.panel{
+        padding:20px
+      }
 
-      .order-actions{flex-direction:column}
+      .order-actions{
+        flex-direction:column
+      }
 
       .order-button,
       .connect-button,
@@ -439,9 +459,13 @@
         text-align:center
       }
 
-      .fund-form-grid{grid-template-columns:1fr}
+      .fund-form-grid{
+        grid-template-columns:1fr
+      }
 
-      .fund-header{flex-direction:column}
+      .fund-header{
+        flex-direction:column
+      }
 
       .opportunity-button{
         margin-left:0;
@@ -461,15 +485,21 @@
 <main>
 
 <section class="hero">
+
   <p class="muted">MEMBER DASHBOARD</p>
 
   <h1>
     Welcome, <span id="name">Member</span>
   </h1>
 
-  <p>Your StarRise member account is active.</p>
+  <p>
+    Your StarRise member account is active.
+  </p>
 
-  <a class="edit-link" href="edit-profile.html">
+  <a
+    class="edit-link"
+    href="edit-profile.html"
+  >
     Edit Profile
   </a>
 
@@ -479,12 +509,14 @@
   >
     + Create Opportunity
   </a>
+
 </section>
 
 
 <!-- OPPORTUNITIES -->
 
 <section class="panel opportunity-panel">
+
   <h2>🚀 Opportunities</h2>
 
   <p class="muted">
@@ -506,6 +538,7 @@
   >
     + Create Opportunity
   </a>
+
 </section>
 
 
@@ -516,10 +549,13 @@
   <h2>⭐ My Opportunities</h2>
 
   <p class="muted">
-    Opportunities you created for StarRise talent appear here.
+    Opportunities you created or have been accepted into appear here.
   </p>
 
-  <div id="my-opportunities-status" class="status-box">
+  <div
+    id="my-opportunities-status"
+    class="status-box"
+  >
     Loading your opportunities...
   </div>
 
@@ -528,7 +564,7 @@
 </section>
 
 
-<!-- CONFIRMED / ACTIVE SERVICES -->
+<!-- ACTIVE SERVICES -->
 
 <section class="panel active-service-panel">
 
@@ -539,7 +575,10 @@
     can see what you currently have available.
   </p>
 
-  <div id="active-services-status" class="status-box">
+  <div
+    id="active-services-status"
+    class="status-box"
+  >
     Loading your active services...
   </div>
 
@@ -560,7 +599,10 @@
     own Talent Fund and let supporters back your vision.
   </p>
 
-  <div id="talent-fund-status" class="status-box">
+  <div
+    id="talent-fund-status"
+    class="status-box"
+  >
     Loading Talent Funds...
   </div>
 
@@ -576,7 +618,11 @@
     <div class="fund-form-grid">
 
       <div>
-        <label class="label" for="fund-title">
+
+        <label
+          class="label"
+          for="fund-title"
+        >
           Fund Title
         </label>
 
@@ -587,10 +633,15 @@
           maxlength="120"
           placeholder="Example: New Music Project"
         >
+
       </div>
 
       <div>
-        <label class="label" for="fund-goal">
+
+        <label
+          class="label"
+          for="fund-goal"
+        >
           Funding Goal ($)
         </label>
 
@@ -603,11 +654,15 @@
           step="0.01"
           placeholder="5000.00"
         >
+
       </div>
 
     </div>
 
-    <label class="label" for="fund-description">
+    <label
+      class="label"
+      for="fund-description"
+    >
       What are you raising money for?
     </label>
 
@@ -660,31 +715,49 @@
     and Talent Fund support.
   </p>
 
-  <div id="stripe-status" class="status-box">
+  <div
+    id="stripe-status"
+    class="status-box"
+  >
     Checking Stripe payout status...
   </div>
 
   <div class="stripe-grid">
 
     <div class="stripe-stat">
-      <span class="label">Account</span>
+
+      <span class="label">
+        Account
+      </span>
+
       <strong id="stripe-account-status">
         Checking...
       </strong>
+
     </div>
 
     <div class="stripe-stat">
-      <span class="label">Charges</span>
+
+      <span class="label">
+        Charges
+      </span>
+
       <strong id="stripe-charges">
         Checking...
       </strong>
+
     </div>
 
     <div class="stripe-stat">
-      <span class="label">Payouts</span>
+
+      <span class="label">
+        Payouts
+      </span>
+
       <strong id="stripe-payouts">
         Checking...
       </strong>
+
     </div>
 
   </div>
@@ -712,52 +785,103 @@
 
   <h2>Your Profile</h2>
 
-  <div id="status" class="status-box">
+  <div
+    id="status"
+    class="status-box"
+  >
     Connecting to StarRise...
   </div>
 
   <div class="profile-grid">
 
     <div class="item">
-      <span class="label">Full Name</span>
-      <span id="profile-name" class="profile-value">
+
+      <span class="label">
+        Full Name
+      </span>
+
+      <span
+        id="profile-name"
+        class="profile-value"
+      >
         Loading...
       </span>
+
     </div>
 
     <div class="item">
-      <span class="label">Display / Stage Name</span>
-      <span id="display-name" class="profile-value">
+
+      <span class="label">
+        Display / Stage Name
+      </span>
+
+      <span
+        id="display-name"
+        class="profile-value"
+      >
         Loading...
       </span>
+
     </div>
 
     <div class="item">
-      <span class="label">Email</span>
-      <span id="email" class="profile-value">
+
+      <span class="label">
+        Email
+      </span>
+
+      <span
+        id="email"
+        class="profile-value"
+      >
         Loading...
       </span>
+
     </div>
 
     <div class="item">
-      <span class="label">Location</span>
-      <span id="location" class="profile-value">
+
+      <span class="label">
+        Location
+      </span>
+
+      <span
+        id="location"
+        class="profile-value"
+      >
         Loading...
       </span>
+
     </div>
 
     <div class="item">
-      <span class="label">Website</span>
-      <span id="website" class="profile-value">
+
+      <span class="label">
+        Website
+      </span>
+
+      <span
+        id="website"
+        class="profile-value"
+      >
         Loading...
       </span>
+
     </div>
 
     <div class="item">
-      <span class="label">Member Since</span>
-      <span id="member-since" class="profile-value">
+
+      <span class="label">
+        Member Since
+      </span>
+
+      <span
+        id="member-since"
+        class="profile-value"
+      >
         Loading...
       </span>
+
     </div>
 
   </div>
@@ -769,7 +893,10 @@
 
   <h2>About You</h2>
 
-  <p id="bio" class="muted">
+  <p
+    id="bio"
+    class="muted"
+  >
     Loading...
   </p>
 
@@ -797,7 +924,10 @@
     Active service requests from customers appear here.
   </p>
 
-  <div id="orders-status" class="status-box">
+  <div
+    id="orders-status"
+    class="status-box"
+  >
     Loading orders...
   </div>
 
@@ -816,7 +946,10 @@
     Services you completed appear here.
   </p>
 
-  <div id="completed-orders-status" class="status-box">
+  <div
+    id="completed-orders-status"
+    class="status-box"
+  >
     Loading completed services...
   </div>
 
@@ -835,7 +968,10 @@
     Services you requested from other StarRise members.
   </p>
 
-  <div id="my-orders-status" class="status-box">
+  <div
+    id="my-orders-status"
+    class="status-box"
+  >
     Loading your orders...
   </div>
 
@@ -854,7 +990,10 @@
     Completed services you received.
   </p>
 
-  <div id="my-completed-status" class="status-box">
+  <div
+    id="my-completed-status"
+    class="status-box"
+  >
     Loading completed orders...
   </div>
 
@@ -868,9 +1007,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 (function(){
 
 'use strict';
+
 
 const SUPABASE_URL =
   'https://rcnikxotdalxtuvpmlvm.supabase.co';
@@ -881,8 +1022,10 @@ const SUPABASE_KEY =
 const FUNCTIONS_URL =
   SUPABASE_URL + '/functions/v1';
 
+
 let supabaseClient = null;
 let currentUser = null;
+
 
 const statusBox =
   document.getElementById('status');
@@ -894,83 +1037,137 @@ const ordersContainer =
   document.getElementById('orders');
 
 const completedOrdersStatus =
-  document.getElementById('completed-orders-status');
+  document.getElementById(
+    'completed-orders-status'
+  );
 
 const completedOrdersContainer =
-  document.getElementById('completed-orders');
+  document.getElementById(
+    'completed-orders'
+  );
 
 const myOrdersStatus =
-  document.getElementById('my-orders-status');
+  document.getElementById(
+    'my-orders-status'
+  );
 
 const myOrdersContainer =
-  document.getElementById('my-orders');
+  document.getElementById(
+    'my-orders'
+  );
 
 const myCompletedStatus =
-  document.getElementById('my-completed-status');
+  document.getElementById(
+    'my-completed-status'
+  );
 
 const myCompletedContainer =
-  document.getElementById('my-completed');
+  document.getElementById(
+    'my-completed'
+  );
 
-const activeServicesStatus =
-  document.getElementById('active-services-status');
-
-const activeServicesContainer =
-  document.getElementById('active-services');
-
-const myOpportunitiesStatus =
-  document.getElementById('my-opportunities-status');
-
-const myOpportunitiesContainer =
-  document.getElementById('my-opportunities');
 
 const stripeStatus =
-  document.getElementById('stripe-status');
+  document.getElementById(
+    'stripe-status'
+  );
 
 const stripeAccountStatus =
-  document.getElementById('stripe-account-status');
+  document.getElementById(
+    'stripe-account-status'
+  );
 
 const stripeCharges =
-  document.getElementById('stripe-charges');
+  document.getElementById(
+    'stripe-charges'
+  );
 
 const stripePayouts =
-  document.getElementById('stripe-payouts');
+  document.getElementById(
+    'stripe-payouts'
+  );
 
 const connectStripeButton =
-  document.getElementById('connect-stripe');
+  document.getElementById(
+    'connect-stripe'
+  );
 
 const stripeMessage =
-  document.getElementById('stripe-message');
+  document.getElementById(
+    'stripe-message'
+  );
+
 
 const talentFundStatus =
-  document.getElementById('talent-fund-status');
+  document.getElementById(
+    'talent-fund-status'
+  );
 
 const talentFundsContainer =
-  document.getElementById('talent-funds');
+  document.getElementById(
+    'talent-funds'
+  );
 
 const myTalentFundsContainer =
-  document.getElementById('my-talent-funds');
+  document.getElementById(
+    'my-talent-funds'
+  );
 
 const createFundButton =
-  document.getElementById('create-fund');
+  document.getElementById(
+    'create-fund'
+  );
 
 const createFundMessage =
-  document.getElementById('create-fund-message');
+  document.getElementById(
+    'create-fund-message'
+  );
+
+
+const myOpportunitiesStatus =
+  document.getElementById(
+    'my-opportunities-status'
+  );
+
+const myOpportunitiesContainer =
+  document.getElementById(
+    'my-opportunities'
+  );
+
+
+const activeServicesStatus =
+  document.getElementById(
+    'active-services-status'
+  );
+
+const activeServicesContainer =
+  document.getElementById(
+    'active-services'
+  );
 
 
 function escapeHtml(value){
+
   return String(value ?? '')
     .replace(/&/g,'&amp;')
     .replace(/</g,'&lt;')
     .replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#039;');
+
 }
 
 
-function setStatus(element,message,type){
+function setStatus(
+  element,
+  message,
+  type
+){
+
   if(!element)return;
 
-  element.textContent = message;
+  element.textContent =
+    message;
 
   element.classList.remove(
     'error',
@@ -981,41 +1178,69 @@ function setStatus(element,message,type){
   if(type){
     element.classList.add(type);
   }
+
 }
 
 
 function formatDate(value){
-  if(!value)return 'Unknown';
 
-  const date = new Date(value);
+  if(!value){
+    return 'Unknown';
+  }
 
-  if(Number.isNaN(date.getTime())){
+  const date =
+    new Date(value);
+
+  if(
+    Number.isNaN(
+      date.getTime()
+    )
+  ){
     return 'Unknown';
   }
 
   return date.toLocaleDateString();
+
 }
 
 
 function formatMoney(cents){
+
   return '$' +
-    (Number(cents || 0) / 100).toFixed(2);
+    (
+      Number(cents || 0) /
+      100
+    ).toFixed(2);
+
 }
 
 
 function starsHtml(rating){
-  const value = Number(rating || 0);
+
+  const value =
+    Number(rating || 0);
 
   return [1,2,3,4,5]
-    .map(number =>
-      number <= value ? '★' : '☆'
+    .map(
+      number =>
+        number <= value
+          ? '★'
+          : '☆'
     )
     .join('');
+
 }
 
 
-function getField(object,fields,fallback){
-  for(const field of fields){
+function getField(
+  object,
+  fields,
+  fallback
+){
+
+  for(
+    const field of fields
+  ){
 
     if(
       object &&
@@ -1023,19 +1248,32 @@ function getField(object,fields,fallback){
       object[field] !== null &&
       object[field] !== ''
     ){
+
       return object[field];
+
     }
 
   }
 
   return fallback;
+
 }
 
 
 function yesNo(value){
-  return value ? 'Enabled' : 'Not enabled';
+
+  return value
+    ? 'Enabled'
+    : 'Not enabled';
+
 }
 
+
+/*
+==================================================
+INITIALIZE
+==================================================
+*/
 
 async function initialize(){
 
@@ -1046,11 +1284,15 @@ async function initialize(){
       'Connecting to StarRise...'
     );
 
+
     if(!window.supabase){
+
       throw new Error(
         'Supabase JavaScript library failed to load.'
       );
+
     }
+
 
     supabaseClient =
       window.supabase.createClient(
@@ -1058,18 +1300,27 @@ async function initialize(){
         SUPABASE_KEY
       );
 
+
     const sessionResult =
       await supabaseClient.auth.getSession();
 
+
     if(sessionResult.error){
+
       throw sessionResult.error;
+
     }
+
 
     const session =
       sessionResult.data &&
       sessionResult.data.session;
 
-    if(!session || !session.user){
+
+    if(
+      !session ||
+      !session.user
+    ){
 
       setStatus(
         statusBox,
@@ -1077,17 +1328,31 @@ async function initialize(){
         'error'
       );
 
-      setTimeout(function(){
-        window.location.href = 'login.html';
-      },1000);
+      setTimeout(
+        function(){
+
+          window.location.href =
+            'login.html';
+
+        },
+        1000
+      );
 
       return;
+
     }
 
-    currentUser = session.user;
 
-    document.getElementById('email').textContent =
-      currentUser.email || 'Not available';
+    currentUser =
+      session.user;
+
+
+    document
+      .getElementById('email')
+      .textContent =
+        currentUser.email ||
+        'Not available';
+
 
     setStatus(
       statusBox,
@@ -1095,17 +1360,51 @@ async function initialize(){
       'success'
     );
 
-    await loadProfile(currentUser);
-    await loadRoles(currentUser);
-    await loadStripeStatus(currentUser);
-    await loadTalentFunds(currentUser);
-    await loadMyTalentFunds(currentUser);
-    await loadMyOpportunities(currentUser);
-    await loadActiveServices(currentUser);
-    await loadIncomingOrders(currentUser);
-    await loadCompletedOrders(currentUser);
-    await loadMyOrders(currentUser);
-    await loadMyCompletedOrders(currentUser);
+
+    await loadProfile(
+      currentUser
+    );
+
+    await loadRoles(
+      currentUser
+    );
+
+    await loadMyOpportunities(
+      currentUser
+    );
+
+    await loadActiveServices(
+      currentUser
+    );
+
+    await loadStripeStatus(
+      currentUser
+    );
+
+    await loadTalentFunds(
+      currentUser
+    );
+
+    await loadMyTalentFunds(
+      currentUser
+    );
+
+    await loadIncomingOrders(
+      currentUser
+    );
+
+    await loadCompletedOrders(
+      currentUser
+    );
+
+    await loadMyOrders(
+      currentUser
+    );
+
+    await loadMyCompletedOrders(
+      currentUser
+    );
+
 
   }catch(error){
 
@@ -1117,7 +1416,10 @@ async function initialize(){
     setStatus(
       statusBox,
       'Dashboard error: ' +
-      (error.message || 'Unknown error'),
+      (
+        error.message ||
+        'Unknown error'
+      ),
       'error'
     );
 
@@ -1125,6 +1427,12 @@ async function initialize(){
 
 }
 
+
+/*
+==================================================
+PROFILE
+==================================================
+*/
 
 async function loadProfile(user){
 
@@ -1135,12 +1443,16 @@ async function loadProfile(user){
       .eq('id',user.id)
       .maybeSingle();
 
+
   if(result.error){
+
     throw new Error(
       'Profile: ' +
       result.error.message
     );
+
   }
+
 
   if(!result.data){
 
@@ -1151,22 +1463,31 @@ async function loadProfile(user){
         .eq('User_id',user.id)
         .maybeSingle();
 
+
     if(result.error){
+
       throw new Error(
         'Profile: ' +
         result.error.message
       );
+
     }
 
   }
 
+
   if(!result.data){
+
     throw new Error(
       'Profile: no profile record exists for this account.'
     );
+
   }
 
-  const profile = result.data;
+
+  const profile =
+    result.data;
+
 
   const fullName =
     getField(
@@ -1180,6 +1501,7 @@ async function loadProfile(user){
       'StarRise Member'
     );
 
+
   const displayName =
     getField(
       profile,
@@ -1192,55 +1514,101 @@ async function loadProfile(user){
       fullName
     );
 
-  document.getElementById('name').textContent =
-    displayName;
 
-  document.getElementById('profile-name').textContent =
-    fullName;
+  document
+    .getElementById('name')
+    .textContent =
+      displayName;
 
-  document.getElementById('display-name').textContent =
-    displayName;
 
-  document.getElementById('email').textContent =
-    user.email || 'Not available';
+  document
+    .getElementById('profile-name')
+    .textContent =
+      fullName;
 
-  document.getElementById('location').textContent =
-    getField(
-      profile,
-      ['location','Location'],
-      'Not provided'
-    );
 
-  document.getElementById('bio').textContent =
-    getField(
-      profile,
-      ['bio','Bio'],
-      'No bio added yet.'
-    );
+  document
+    .getElementById('display-name')
+    .textContent =
+      displayName;
 
-  document.getElementById('website').textContent =
-    getField(
-      profile,
-      ['website','Website'],
-      'Not provided'
-    );
 
-  document.getElementById('member-since').textContent =
-    formatDate(
+  document
+    .getElementById('email')
+    .textContent =
+      user.email ||
+      'Not available';
+
+
+  document
+    .getElementById('location')
+    .textContent =
       getField(
         profile,
-        ['created_at','Created_at'],
-        null
-      )
-    );
+        [
+          'location',
+          'Location'
+        ],
+        'Not provided'
+      );
+
+
+  document
+    .getElementById('bio')
+    .textContent =
+      getField(
+        profile,
+        [
+          'bio',
+          'Bio'
+        ],
+        'No bio added yet.'
+      );
+
+
+  document
+    .getElementById('website')
+    .textContent =
+      getField(
+        profile,
+        [
+          'website',
+          'Website'
+        ],
+        'Not provided'
+      );
+
+
+  document
+    .getElementById('member-since')
+    .textContent =
+      formatDate(
+        getField(
+          profile,
+          [
+            'created_at',
+            'Created_at'
+          ],
+          null
+        )
+      );
 
 }
 
 
+/*
+==================================================
+ROLES
+==================================================
+*/
+
 async function loadRoles(user){
 
   const element =
-    document.getElementById('roles');
+    document.getElementById(
+      'roles'
+    );
+
 
   try{
 
@@ -1251,11 +1619,18 @@ async function loadRoles(user){
         .eq('user_id',user.id)
         .order('role');
 
+
     if(result.error){
+
       throw result.error;
+
     }
 
-    if(!result.data || !result.data.length){
+
+    if(
+      !result.data ||
+      !result.data.length
+    ){
 
       element.innerHTML =
         '<span class="muted">' +
@@ -1263,34 +1638,55 @@ async function loadRoles(user){
         '</span>';
 
       return;
+
     }
+
 
     element.innerHTML =
       result.data
-        .map(item =>
-          '<span class="role">' +
-          escapeHtml(item.role) +
-          '</span>'
+        .map(
+          item =>
+            '<span class="role">' +
+            escapeHtml(item.role) +
+            '</span>'
         )
         .join('');
 
+
   }catch(error){
 
-    console.error('Roles error:',error);
+    console.error(
+      'Roles error:',
+      error
+    );
 
     element.innerHTML =
       '<span class="muted">' +
       'Unable to load roles: ' +
       escapeHtml(error.message) +
       '</span>';
+
   }
 
 }
 
 
-/* =========================
-   MY OPPORTUNITIES
-========================= */
+/*
+==================================================
+MY OPPORTUNITIES
+==================================================
+
+IMPORTANT FIX:
+
+This now shows opportunities where the user:
+
+1. Created the opportunity
+OR
+2. Applied and was accepted
+
+That is the part that was missing.
+==================================================
+*/
 
 async function loadMyOpportunities(user){
 
@@ -1299,62 +1695,190 @@ async function loadMyOpportunities(user){
     'Loading your opportunities...'
   );
 
-  myOpportunitiesContainer.innerHTML = '';
+  myOpportunitiesContainer.innerHTML =
+    '';
+
 
   try{
 
-    const result =
+    /*
+    ----------------------------------------------
+    CREATED OPPORTUNITIES
+    ----------------------------------------------
+    */
+
+    const createdResult =
       await supabaseClient
         .from('opportunities')
         .select('*')
-        .eq('creator_id',user.id)
+        .eq(
+          'creator_id',
+          user.id
+        )
         .order(
           'created_at',
-          {ascending:false}
+          {
+            ascending:false
+          }
         );
 
-    if(result.error){
-      throw result.error;
+
+    if(createdResult.error){
+
+      throw createdResult.error;
+
     }
 
-    const opportunities =
-      result.data || [];
 
-    if(!opportunities.length){
+    const created =
+      (
+        createdResult.data ||
+        []
+      ).map(
+        opportunity => ({
+          ...opportunity,
+          member_status:'created'
+        })
+      );
+
+
+    /*
+    ----------------------------------------------
+    ACCEPTED OPPORTUNITIES
+    ----------------------------------------------
+    */
+
+    const acceptedResult =
+      await supabaseClient
+        .from('opportunity_applications')
+        .select(`
+          opportunity_id,
+          status,
+          created_at,
+          opportunities (*)
+        `)
+        .eq(
+          'applicant_id',
+          user.id
+        )
+        .eq(
+          'status',
+          'accepted'
+        );
+
+
+    if(acceptedResult.error){
+
+      throw acceptedResult.error;
+
+    }
+
+
+    const accepted =
+      (
+        acceptedResult.data ||
+        []
+      )
+      .filter(
+        item =>
+          item.opportunities
+      )
+      .map(
+        item => ({
+          ...item.opportunities,
+          member_status:'accepted'
+        })
+      );
+
+
+    /*
+    ----------------------------------------------
+    COMBINE WITHOUT DUPLICATES
+    ----------------------------------------------
+    */
+
+    const combined = [
+      ...created,
+      ...accepted
+    ];
+
+
+    const unique =
+      Array.from(
+        new Map(
+          combined.map(
+            opportunity => [
+              opportunity.id,
+              opportunity
+            ]
+          )
+        ).values()
+      );
+
+
+    /*
+    ----------------------------------------------
+    NEWEST FIRST
+    ----------------------------------------------
+    */
+
+    unique.sort(
+      (a,b) =>
+        new Date(
+          b.created_at || 0
+        ) -
+        new Date(
+          a.created_at || 0
+        )
+    );
+
+
+    if(!unique.length){
 
       setStatus(
         myOpportunitiesStatus,
-        'You have not created any opportunities yet.'
+        'You have not created or been accepted into any opportunities yet.'
       );
+
 
       myOpportunitiesContainer.innerHTML =
         '<div class="empty">' +
-        'Create an opportunity to connect with StarRise talent.' +
+        'Create an opportunity or apply to one to see it here.' +
         '</div>';
 
       return;
+
     }
+
 
     setStatus(
       myOpportunitiesStatus,
-      opportunities.length === 1
-        ? '1 opportunity created by you.'
-        : opportunities.length +
-          ' opportunities created by you.',
+      unique.length === 1
+        ? '1 opportunity connected to you.'
+        : unique.length +
+          ' opportunities connected to you.',
       'success'
     );
 
+
     myOpportunitiesContainer.innerHTML =
-      opportunities
-        .map(renderMyOpportunity)
+      unique
+        .map(
+          opportunity =>
+            renderMyOpportunity(
+              opportunity
+            )
+        )
         .join('');
+
 
   }catch(error){
 
     console.error(
-      'My opportunities error:',
+      'My Opportunities error:',
       error
     );
+
 
     setStatus(
       myOpportunitiesStatus,
@@ -1362,78 +1886,80 @@ async function loadMyOpportunities(user){
       error.message,
       'error'
     );
+
   }
 
 }
 
 
-function renderMyOpportunity(opportunity){
+function renderMyOpportunity(
+  opportunity
+){
 
   const type =
-    getField(
-      opportunity,
-      ['type','opportunity_type','category'],
-      'Opportunity'
-    );
+    String(
+      opportunity.type ||
+      'opportunity'
+    ).toLowerCase();
 
-  const title =
-    getField(
-      opportunity,
-      ['title','name'],
-      'Untitled Opportunity'
-    );
 
-  const description =
-    getField(
-      opportunity,
-      ['description','details'],
-      'No description provided.'
-    );
+  const memberStatus =
+    opportunity.member_status ===
+    'accepted'
+      ? 'accepted'
+      : opportunity.status ||
+        'active';
+
 
   const location =
-    getField(
-      opportunity,
-      ['location'],
-      'Location to be announced'
-    );
+    opportunity.location &&
+    String(
+      opportunity.location
+    ).trim()
+      ? opportunity.location
+      : opportunity.is_remote
+        ? 'Remote'
+        : 'Location to be announced';
 
-  const format =
-    getField(
-      opportunity,
-      ['format','event_format','location_type'],
-      ''
-    );
 
-  const date =
-    getField(
-      opportunity,
-      ['event_date','date','opportunity_date'],
-      null
-    );
+  const eventDate =
+    opportunity.event_date
+      ? formatDate(
+          opportunity.event_date
+        )
+      : 'Date to be announced';
+
 
   const compensation =
-    getField(
-      opportunity,
-      ['compensation','pay','amount'],
-      'Not specified'
-    );
+    opportunity.compensation !==
+      undefined &&
+    opportunity.compensation !==
+      null &&
+    String(
+      opportunity.compensation
+    ).trim()
+      ? opportunity.compensation
+      : 'Not specified';
 
-  const status =
-    getField(
-      opportunity,
-      ['status'],
-      'active'
-    );
+
+  const description =
+    opportunity.description ||
+    '';
+
 
   return `
+
     <div class="opportunity-card">
 
-      <div class="opportunity-type">
+      <span class="opportunity-type">
         ${escapeHtml(type)}
-      </div>
+      </span>
 
       <div class="service-title">
-        ${escapeHtml(title)}
+        ${escapeHtml(
+          opportunity.title ||
+          'Opportunity'
+        )}
       </div>
 
       <div class="service-details">
@@ -1444,49 +1970,44 @@ function renderMyOpportunity(opportunity){
         📍 ${escapeHtml(location)}
       </div>
 
-      ${
-        format
-          ? `
-            <div class="order-meta">
-              ${escapeHtml(format)}
-            </div>
-          `
-          : ''
-      }
-
       <div class="order-meta">
-        📅 ${
-          date
-            ? escapeHtml(formatDate(date))
-            : 'Date to be announced'
-        }
+        📅 ${escapeHtml(eventDate)}
       </div>
 
       <div class="order-meta">
         💰 ${escapeHtml(compensation)}
       </div>
 
-      <div class="service-status">
-        ${escapeHtml(status)}
+      <div
+        class="service-status"
+        style="margin-top:12px"
+      >
+        ${escapeHtml(memberStatus)}
       </div>
 
-      <div>
-        <a
-          class="service-link"
-          href="opportunity.html?id=${encodeURIComponent(opportunity.id)}"
-        >
-          View Opportunity
-        </a>
-      </div>
+      <br>
+
+      <a
+        class="service-link"
+        href="opportunity.html?id=${encodeURIComponent(
+          opportunity.id
+        )}"
+      >
+        View Opportunity
+      </a>
 
     </div>
+
   `;
+
 }
 
 
-/* =========================
-   ACTIVE / CONFIRMED SERVICES
-========================= */
+/*
+==================================================
+ACTIVE SERVICES
+==================================================
+*/
 
 async function loadActiveServices(user){
 
@@ -1495,7 +2016,9 @@ async function loadActiveServices(user){
     'Loading your active services...'
   );
 
-  activeServicesContainer.innerHTML = '';
+  activeServicesContainer.innerHTML =
+    '';
+
 
   try{
 
@@ -1503,25 +2026,33 @@ async function loadActiveServices(user){
       await supabaseClient
         .from('service_orders')
         .select('*')
-        .eq('seller_id',user.id)
-        .in(
+        .eq(
+          'seller_id',
+          user.id
+        )
+        .eq(
           'status',
-          [
-            'accepted',
-            'in_progress'
-          ]
+          'accepted'
         )
         .order(
           'updated_at',
-          {ascending:false}
+          {
+            ascending:false
+          }
         );
 
+
     if(result.error){
+
       throw result.error;
+
     }
 
+
     const orders =
-      result.data || [];
+      result.data ||
+      [];
+
 
     if(!orders.length){
 
@@ -1530,27 +2061,34 @@ async function loadActiveServices(user){
         'No confirmed services yet.'
       );
 
+
       activeServicesContainer.innerHTML =
         '<div class="empty">' +
         'When you accept a service request, it will appear here on your profile.' +
         '</div>';
 
       return;
+
     }
+
 
     const services =
       await getServices(
         orders.map(
-          order => order.service_id
+          order =>
+            order.service_id
         )
       );
+
 
     const profiles =
       await getProfiles(
         orders.map(
-          order => order.buyer_id
+          order =>
+            order.buyer_id
         )
       );
+
 
     setStatus(
       activeServicesStatus,
@@ -1561,16 +2099,131 @@ async function loadActiveServices(user){
       'success'
     );
 
+
     activeServicesContainer.innerHTML =
       orders
-        .map(order =>
-          renderActiveService(
-            order,
-            services[order.service_id],
-            profiles[order.buyer_id]
-          )
+        .map(
+          order => {
+
+            const service =
+              services[
+                order.service_id
+              ];
+
+            const customer =
+              profiles[
+                order.buyer_id
+              ];
+
+
+            const serviceTitle =
+              service
+                ? service.title
+                : 'Service';
+
+
+            const description =
+              service
+                ? getField(
+                    service,
+                    [
+                      'description',
+                      'details',
+                      'bio'
+                    ],
+                    ''
+                  )
+                : '';
+
+
+            const customerName =
+              customer
+                ? getField(
+                    customer,
+                    [
+                      'display_name',
+                      'full_name',
+                      'name'
+                    ],
+                    'StarRise Member'
+                  )
+                : 'StarRise Member';
+
+
+            return `
+
+              <div class="active-service-card">
+
+                <div class="service-title">
+                  ${escapeHtml(
+                    serviceTitle
+                  )}
+                </div>
+
+                <div class="service-price">
+                  ${formatMoney(
+                    order.amount_cents
+                  )}
+                </div>
+
+                <div class="service-status">
+                  ${escapeHtml(
+                    order.status
+                  )}
+                </div>
+
+                ${
+                  description
+                    ? `
+                      <div class="service-details">
+                        ${escapeHtml(
+                          description
+                        )}
+                      </div>
+                    `
+                    : ''
+                }
+
+                <div class="order-meta">
+                  Customer:
+                  ${escapeHtml(
+                    customerName
+                  )}
+                </div>
+
+                <div class="order-meta">
+                  Confirmed:
+                  ${escapeHtml(
+                    formatDate(
+                      order.updated_at ||
+                      order.created_at
+                    )
+                  )}
+                </div>
+
+                ${
+                  service
+                    ? `
+                      <a
+                        class="service-link"
+                        href="service.html?id=${encodeURIComponent(
+                          service.id
+                        )}"
+                      >
+                        View Service
+                      </a>
+                    `
+                    : ''
+                }
+
+              </div>
+
+            `;
+
+          }
         )
         .join('');
+
 
   }catch(error){
 
@@ -1579,117 +2232,24 @@ async function loadActiveServices(user){
       error
     );
 
+
     setStatus(
       activeServicesStatus,
-      'Unable to load confirmed services: ' +
+      'Unable to load active services: ' +
       error.message,
       'error'
     );
+
   }
 
 }
 
 
-function renderActiveService(
-  order,
-  service,
-  buyerProfile
-){
-
-  const serviceTitle =
-    service
-      ? service.title
-      : 'StarRise Service';
-
-  const serviceDescription =
-    service
-      ? getField(
-          service,
-          ['description','details'],
-          ''
-        )
-      : '';
-
-  const buyerName =
-    buyerProfile
-      ? getField(
-          buyerProfile,
-          [
-            'display_name',
-            'full_name',
-            'name'
-          ],
-          'StarRise Member'
-        )
-      : 'StarRise Member';
-
-  return `
-    <div class="active-service-card">
-
-      <div class="service-title">
-        ${escapeHtml(serviceTitle)}
-      </div>
-
-      <div class="service-price">
-        ${formatMoney(order.amount_cents)}
-      </div>
-
-      <div class="service-status">
-        ${escapeHtml(order.status)}
-      </div>
-
-      ${
-        serviceDescription
-          ? `
-            <div class="service-details">
-              ${escapeHtml(serviceDescription)}
-            </div>
-          `
-          : ''
-      }
-
-      <div class="order-meta">
-        Customer: ${escapeHtml(buyerName)}
-      </div>
-
-      <div class="order-meta">
-        Confirmed:
-        ${escapeHtml(
-          formatDate(order.updated_at || order.created_at)
-        )}
-      </div>
-
-      ${
-        order.request_message
-          ? `
-            <div class="order-request">
-              ${escapeHtml(order.request_message)}
-            </div>
-          `
-          : ''
-      }
-
-      ${
-        service
-          ? `
-            <a
-              class="service-link"
-              href="service.html?id=${encodeURIComponent(service.id)}"
-            >
-              View Service
-            </a>
-          `
-          : ''
-      }
-
-    </div>
-  `;
-}
-
-
-/* =========================
-   STRIPE
-========================= */
+/*
+==================================================
+STRIPE
+==================================================
+*/
 
 async function loadStripeStatus(user){
 
@@ -1698,27 +2258,42 @@ async function loadStripeStatus(user){
     'Checking Stripe payout status...'
   );
 
-  connectStripeButton.disabled = true;
+
+  connectStripeButton.disabled =
+    true;
+
 
   connectStripeButton.textContent =
     'Checking Stripe...';
+
 
   try{
 
     const result =
       await supabaseClient
-        .from('stripe_connected_accounts')
+        .from(
+          'stripe_connected_accounts'
+        )
         .select(
           'stripe_account_id,charges_enabled,payouts_enabled,details_submitted'
         )
-        .eq('user_id',user.id)
+        .eq(
+          'user_id',
+          user.id
+        )
         .maybeSingle();
 
+
     if(result.error){
+
       throw result.error;
+
     }
 
-    const account = result.data;
+
+    const account =
+      result.data;
+
 
     if(!account){
 
@@ -1731,30 +2306,42 @@ async function loadStripeStatus(user){
       stripePayouts.textContent =
         'Not enabled';
 
+
       setStatus(
         stripeStatus,
         'Stripe payouts have not been set up yet.',
         'warning'
       );
 
-      connectStripeButton.disabled = false;
+
+      connectStripeButton.disabled =
+        false;
 
       connectStripeButton.textContent =
         'Set Up Stripe Payouts';
 
       return;
+
     }
 
+
     stripeCharges.textContent =
-      yesNo(account.charges_enabled);
+      yesNo(
+        account.charges_enabled
+      );
+
 
     stripePayouts.textContent =
-      yesNo(account.payouts_enabled);
+      yesNo(
+        account.payouts_enabled
+      );
+
 
     if(account.payouts_enabled){
 
       stripeAccountStatus.textContent =
         'Ready';
+
 
       setStatus(
         stripeStatus,
@@ -1762,15 +2349,21 @@ async function loadStripeStatus(user){
         'success'
       );
 
-      connectStripeButton.disabled = false;
+
+      connectStripeButton.disabled =
+        false;
 
       connectStripeButton.textContent =
         'Manage Stripe Setup';
 
-    }else if(account.details_submitted){
+
+    }else if(
+      account.details_submitted
+    ){
 
       stripeAccountStatus.textContent =
         'Under review';
+
 
       setStatus(
         stripeStatus,
@@ -1778,15 +2371,19 @@ async function loadStripeStatus(user){
         'warning'
       );
 
-      connectStripeButton.disabled = false;
+
+      connectStripeButton.disabled =
+        false;
 
       connectStripeButton.textContent =
         'Continue Stripe Setup';
+
 
     }else{
 
       stripeAccountStatus.textContent =
         'Setup required';
+
 
       setStatus(
         stripeStatus,
@@ -1794,11 +2391,15 @@ async function loadStripeStatus(user){
         'warning'
       );
 
-      connectStripeButton.disabled = false;
+
+      connectStripeButton.disabled =
+        false;
 
       connectStripeButton.textContent =
         'Finish Stripe Setup';
+
     }
+
 
   }catch(error){
 
@@ -1806,6 +2407,7 @@ async function loadStripeStatus(user){
       'Stripe status error:',
       error
     );
+
 
     stripeAccountStatus.textContent =
       'Unavailable';
@@ -1816,6 +2418,7 @@ async function loadStripeStatus(user){
     stripePayouts.textContent =
       'Unavailable';
 
+
     setStatus(
       stripeStatus,
       'Stripe status could not be loaded: ' +
@@ -1823,10 +2426,13 @@ async function loadStripeStatus(user){
       'error'
     );
 
-    connectStripeButton.disabled = false;
+
+    connectStripeButton.disabled =
+      false;
 
     connectStripeButton.textContent =
       'Set Up Stripe Payouts';
+
   }
 
 }
@@ -1835,12 +2441,16 @@ async function loadStripeStatus(user){
 async function startStripeOnboarding(){
 
   if(!currentUser){
+
     throw new Error(
       'You must be signed in.'
     );
+
   }
 
-  connectStripeButton.disabled = true;
+
+  connectStripeButton.disabled =
+    true;
 
   connectStripeButton.textContent =
     'Opening Stripe...';
@@ -1848,55 +2458,79 @@ async function startStripeOnboarding(){
   stripeMessage.textContent =
     'Preparing your secure Stripe onboarding page...';
 
+
   try{
 
     const sessionResult =
       await supabaseClient.auth.getSession();
 
+
     if(sessionResult.error){
+
       throw sessionResult.error;
+
     }
+
 
     const session =
       sessionResult.data &&
       sessionResult.data.session;
 
+
     if(!session){
+
       throw new Error(
         'Your login session has expired.'
       );
+
     }
+
 
     const response =
       await fetch(
-        FUNCTIONS_URL + '/connect-payouts',
+        FUNCTIONS_URL +
+        '/connect-payouts',
         {
           method:'POST',
+
           headers:{
             Authorization:
               'Bearer ' +
               session.access_token,
-            apikey:SUPABASE_KEY,
+
+            apikey:
+              SUPABASE_KEY,
+
             'Content-Type':
               'application/json'
           },
-          body:JSON.stringify({})
+
+          body:
+            JSON.stringify({})
         }
       );
+
 
     const data =
       await response.json();
 
-    if(!response.ok || !data.url){
+
+    if(
+      !response.ok ||
+      !data.url
+    ){
 
       throw new Error(
         data.error ||
         'Stripe onboarding could not be started.'
       );
+
     }
+
 
     window.location.href =
       data.url;
+
 
   }catch(error){
 
@@ -1905,6 +2539,7 @@ async function startStripeOnboarding(){
       error
     );
 
+
     setStatus(
       stripeStatus,
       'Unable to start Stripe setup: ' +
@@ -1912,110 +2547,255 @@ async function startStripeOnboarding(){
       'error'
     );
 
+
     stripeMessage.textContent =
       'Please try again.';
 
-    connectStripeButton.disabled = false;
+
+    connectStripeButton.disabled =
+      false;
 
     connectStripeButton.textContent =
       'Set Up Stripe Payouts';
+
   }
 
 }
 
 
-/* =========================
-   PROFILES / SERVICES
-========================= */
+/*
+==================================================
+PROFILES / SERVICES / REVIEWS
+==================================================
+*/
 
-async function getProfiles(userIds){
+async function getProfiles(
+  userIds
+){
 
   const ids =
     userIds.filter(Boolean);
 
+
   if(!ids.length){
+
     return {};
+
   }
+
 
   const result =
     await supabaseClient
       .from('Profiles')
       .select('*')
-      .in('id',ids);
+      .in(
+        'id',
+        ids
+      );
+
 
   if(result.error){
+
     return {};
+
   }
 
-  return (result.data || [])
-    .reduce((map,profile)=>{
-      map[profile.id] = profile;
+
+  return (
+    result.data ||
+    []
+  )
+  .reduce(
+    (
+      map,
+      profile
+    ) => {
+
+      map[
+        profile.id
+      ] =
+        profile;
+
       return map;
-    },{});
+
+    },
+    {}
+  );
+
 }
 
 
-async function getServices(serviceIds){
+async function getServices(
+  serviceIds
+){
 
   const ids =
     serviceIds.filter(Boolean);
 
+
   if(!ids.length){
+
     return {};
+
   }
+
 
   const result =
     await supabaseClient
-      .from('star_rise_services')
+      .from(
+        'star_rise_services'
+      )
       .select('*')
-      .in('id',ids);
+      .in(
+        'id',
+        ids
+      );
+
 
   if(result.error){
+
     throw result.error;
+
   }
 
-  return (result.data || [])
-    .reduce((map,service)=>{
-      map[service.id] = service;
+
+  return (
+    result.data ||
+    []
+  )
+  .reduce(
+    (
+      map,
+      service
+    ) => {
+
+      map[
+        service.id
+      ] =
+        service;
+
       return map;
-    },{});
+
+    },
+    {}
+  );
+
 }
 
 
-/* =========================
-   TALENT FUNDS
-========================= */
+async function getReviews(
+  orderIds
+){
 
-async function loadTalentFunds(user){
+  if(!orderIds.length){
+
+    return {};
+
+  }
+
+
+  const result =
+    await supabaseClient
+      .from(
+        'service_reviews'
+      )
+      .select('*')
+      .in(
+        'order_id',
+        orderIds
+      );
+
+
+  if(result.error){
+
+    console.error(
+      'Reviews error:',
+      result.error
+    );
+
+    return {};
+
+  }
+
+
+  return (
+    result.data ||
+    []
+  )
+  .reduce(
+    (
+      map,
+      review
+    ) => {
+
+      map[
+        review.order_id
+      ] =
+        review;
+
+      return map;
+
+    },
+    {}
+  );
+
+}
+
+
+/*
+==================================================
+TALENT FUNDS
+==================================================
+*/
+
+async function loadTalentFunds(
+  user
+){
 
   setStatus(
     talentFundStatus,
     'Loading Talent Funds...'
   );
 
-  talentFundsContainer.innerHTML = '';
+
+  talentFundsContainer.innerHTML =
+    '';
+
 
   try{
 
     const result =
       await supabaseClient
-        .from('talent_funds')
+        .from(
+          'talent_funds'
+        )
         .select('*')
         .in(
           'status',
-          ['active','funded']
+          [
+            'active',
+            'funded'
+          ]
         )
         .order(
           'created_at',
-          {ascending:false}
+          {
+            ascending:false
+          }
         );
 
+
     if(result.error){
+
       throw result.error;
+
     }
 
+
     const funds =
-      result.data || [];
+      result.data ||
+      [];
+
 
     if(!funds.length){
 
@@ -2024,21 +2804,33 @@ async function loadTalentFunds(user){
         'No Talent Funds are active yet.'
       );
 
+
       talentFundsContainer.innerHTML =
         '<div class="empty">' +
         'Be the first StarRise member to create a Talent Fund.' +
         '</div>';
 
       return;
+
     }
 
+
     const talentIds =
-      [...new Set(
-        funds.map(fund => fund.talent_id)
-      )];
+      [
+        ...new Set(
+          funds.map(
+            fund =>
+              fund.talent_id
+          )
+        )
+      ];
+
 
     const profiles =
-      await getProfiles(talentIds);
+      await getProfiles(
+        talentIds
+      );
+
 
     setStatus(
       talentFundStatus,
@@ -2049,14 +2841,22 @@ async function loadTalentFunds(user){
       'success'
     );
 
+
     talentFundsContainer.innerHTML =
-      funds.map(fund =>
-        renderTalentFund(
-          fund,
-          profiles[fund.talent_id],
-          fund.talent_id === user.id
+      funds
+        .map(
+          fund =>
+            renderTalentFund(
+              fund,
+              profiles[
+                fund.talent_id
+              ],
+              fund.talent_id ===
+                user.id
+            )
         )
-      ).join('');
+        .join('');
+
 
   }catch(error){
 
@@ -2065,39 +2865,58 @@ async function loadTalentFunds(user){
       error
     );
 
+
     setStatus(
       talentFundStatus,
       'Unable to load Talent Funds: ' +
       error.message,
       'error'
     );
+
   }
 
 }
 
 
-async function loadMyTalentFunds(user){
+async function loadMyTalentFunds(
+  user
+){
 
-  myTalentFundsContainer.innerHTML = '';
+  myTalentFundsContainer.innerHTML =
+    '';
+
 
   try{
 
     const result =
       await supabaseClient
-        .from('talent_funds')
+        .from(
+          'talent_funds'
+        )
         .select('*')
-        .eq('talent_id',user.id)
+        .eq(
+          'talent_id',
+          user.id
+        )
         .order(
           'created_at',
-          {ascending:false}
+          {
+            ascending:false
+          }
         );
 
+
     if(result.error){
+
       throw result.error;
+
     }
 
+
     const funds =
-      result.data || [];
+      result.data ||
+      [];
+
 
     if(!funds.length){
 
@@ -2107,51 +2926,76 @@ async function loadMyTalentFunds(user){
         '</div>';
 
       return;
+
     }
+
 
     const cards =
       await Promise.all(
-        funds.map(async fund => {
+        funds.map(
+          async fund => {
 
-          const result =
-            await supabaseClient
-              .from('talent_fund_contributions')
-              .select(
-                'amount_cents,payment_status'
-              )
-              .eq('fund_id',fund.id)
-              .eq('payment_status','paid');
-
-          const contributions =
-            result.data || [];
-
-          const total =
-            contributions.reduce(
-              (sum,item) =>
-                sum +
-                Number(
-                  item.amount_cents || 0
-                ),
-              0
-            );
-
-          const raised =
-            total > 0
-              ? total
-              : Number(
-                  fund.raised_cents || 0
+            const result =
+              await supabaseClient
+                .from(
+                  'talent_fund_contributions'
+                )
+                .select(
+                  'amount_cents,payment_status'
+                )
+                .eq(
+                  'fund_id',
+                  fund.id
+                )
+                .eq(
+                  'payment_status',
+                  'paid'
                 );
 
-          return renderMyTalentFund(
-            fund,
-            raised,
-            contributions.length
-          );
-        })
+
+            const contributions =
+              result.data ||
+              [];
+
+
+            const total =
+              contributions.reduce(
+                (
+                  sum,
+                  item
+                ) =>
+                  sum +
+                  Number(
+                    item.amount_cents ||
+                    0
+                  ),
+                0
+              );
+
+
+            const raised =
+              total > 0
+                ? total
+                : Number(
+                    fund.raised_cents ||
+                    0
+                  );
+
+
+            return renderMyTalentFund(
+              fund,
+              raised,
+              contributions.length
+            );
+
+          }
+        )
       );
+
 
     myTalentFundsContainer.innerHTML =
       cards.join('');
+
 
   }catch(error){
 
@@ -2160,11 +3004,15 @@ async function loadMyTalentFunds(user){
       error
     );
 
+
     myTalentFundsContainer.innerHTML =
       '<div class="empty">' +
       'Unable to load your Talent Funds: ' +
-      escapeHtml(error.message) +
+      escapeHtml(
+        error.message
+      ) +
       '</div>';
+
   }
 
 }
@@ -2177,20 +3025,31 @@ function renderTalentFund(
 ){
 
   const goal =
-    Number(fund.goal_cents || 0);
+    Number(
+      fund.goal_cents ||
+      0
+    );
+
 
   const raised =
-    Number(fund.raised_cents || 0);
+    Number(
+      fund.raised_cents ||
+      0
+    );
+
 
   const percentage =
     goal > 0
       ? Math.min(
           100,
           Math.round(
-            raised / goal * 100
+            raised /
+            goal *
+            100
           )
         )
       : 0;
+
 
   const talentName =
     profile
@@ -2205,14 +3064,20 @@ function renderTalentFund(
         )
       : 'StarRise Talent';
 
+
   let button = '';
 
-  if(fund.status === 'funded'){
+
+  if(
+    fund.status ===
+    'funded'
+  ){
 
     button =
       '<button class="fund-button" disabled>' +
       'Funded' +
       '</button>';
+
 
   }else if(isOwner){
 
@@ -2221,19 +3086,25 @@ function renderTalentFund(
       'Your Talent Fund' +
       '</button>';
 
+
   }else{
 
     button =
       '<button ' +
       'class="fund-button" ' +
       'data-support-fund="' +
-      escapeHtml(fund.id) +
+      escapeHtml(
+        fund.id
+      ) +
       '">' +
       'Support This Talent' +
       '</button>';
+
   }
 
+
   return `
+
     <div class="fund-card">
 
       <div class="fund-header">
@@ -2241,40 +3112,54 @@ function renderTalentFund(
         <div>
 
           <div class="fund-title">
-            ${escapeHtml(fund.title)}
+            ${escapeHtml(
+              fund.title
+            )}
           </div>
 
           <div class="fund-owner">
-            By ${escapeHtml(talentName)}
+            By ${escapeHtml(
+              talentName
+            )}
           </div>
 
         </div>
 
         <span class="fund-status">
-          ${escapeHtml(fund.status)}
+          ${escapeHtml(
+            fund.status
+          )}
         </span>
 
       </div>
 
       <div class="fund-description">
-        ${escapeHtml(fund.description)}
+        ${escapeHtml(
+          fund.description
+        )}
       </div>
 
       <div class="fund-progress">
+
         <div
           class="fund-progress-bar"
           style="width:${percentage}%"
         ></div>
+
       </div>
 
       <div class="fund-numbers">
 
         <span>
-          ${formatMoney(raised)} raised
+          ${formatMoney(
+            raised
+          )} raised
         </span>
 
         <span>
-          ${formatMoney(goal)} goal
+          ${formatMoney(
+            goal
+          )} goal
         </span>
 
       </div>
@@ -2282,7 +3167,9 @@ function renderTalentFund(
       ${button}
 
     </div>
+
   `;
+
 }
 
 
@@ -2293,19 +3180,27 @@ function renderMyTalentFund(
 ){
 
   const goal =
-    Number(fund.goal_cents || 0);
+    Number(
+      fund.goal_cents ||
+      0
+    );
+
 
   const percentage =
     goal > 0
       ? Math.min(
           100,
           Math.round(
-            raised / goal * 100
+            raised /
+            goal *
+            100
           )
         )
       : 0;
 
+
   return `
+
     <div class="fund-card">
 
       <div class="fund-header">
@@ -2313,71 +3208,105 @@ function renderMyTalentFund(
         <div>
 
           <div class="fund-title">
-            ${escapeHtml(fund.title)}
+            ${escapeHtml(
+              fund.title
+            )}
           </div>
 
           <div class="fund-owner">
+
             ${contributionCount}
             paid contribution
-            ${contributionCount === 1 ? '' : 's'}
+            ${
+              contributionCount === 1
+                ? ''
+                : 's'
+            }
+
           </div>
 
         </div>
 
         <span class="fund-status">
-          ${escapeHtml(fund.status)}
+          ${escapeHtml(
+            fund.status
+          )}
         </span>
 
       </div>
 
       <div class="fund-description">
-        ${escapeHtml(fund.description)}
+        ${escapeHtml(
+          fund.description
+        )}
       </div>
 
       <div class="fund-progress">
+
         <div
           class="fund-progress-bar"
           style="width:${percentage}%"
         ></div>
+
       </div>
 
       <div class="fund-numbers">
 
         <span>
-          ${formatMoney(raised)} raised
+          ${formatMoney(
+            raised
+          )} raised
         </span>
 
         <span>
-          ${formatMoney(goal)} goal
+          ${formatMoney(
+            goal
+          )} goal
         </span>
 
       </div>
 
     </div>
+
   `;
+
 }
 
 
 async function createTalentFund(){
 
-  if(!currentUser)return;
+  if(!currentUser){
+    return;
+  }
+
 
   const title =
-    document.getElementById(
-      'fund-title'
-    ).value.trim();
+    document
+      .getElementById(
+        'fund-title'
+      )
+      .value
+      .trim();
+
 
   const description =
-    document.getElementById(
-      'fund-description'
-    ).value.trim();
+    document
+      .getElementById(
+        'fund-description'
+      )
+      .value
+      .trim();
+
 
   const goalValue =
     Number(
-      document.getElementById(
-        'fund-goal'
-      ).value
+      document
+        .getElementById(
+          'fund-goal'
+        )
+        .value
     );
+
 
   if(!title){
 
@@ -2388,7 +3317,9 @@ async function createTalentFund(){
       'error small';
 
     return;
+
   }
+
 
   if(!description){
 
@@ -2399,10 +3330,14 @@ async function createTalentFund(){
       'error small';
 
     return;
+
   }
 
+
   if(
-    !Number.isFinite(goalValue) ||
+    !Number.isFinite(
+      goalValue
+    ) ||
     goalValue < 1 ||
     goalValue > 100000
   ){
@@ -2414,49 +3349,83 @@ async function createTalentFund(){
       'error small';
 
     return;
+
   }
 
-  createFundButton.disabled = true;
+
+  createFundButton.disabled =
+    true;
 
   createFundButton.textContent =
     'Creating...';
+
 
   try{
 
     const goalCents =
       Math.round(
-        goalValue * 100
+        goalValue *
+        100
       );
+
 
     const result =
       await supabaseClient
-        .from('talent_funds')
+        .from(
+          'talent_funds'
+        )
         .insert({
-          talent_id:currentUser.id,
-          title:title,
-          description:description,
-          goal_cents:goalCents,
-          raised_cents:0,
-          status:'active'
+
+          talent_id:
+            currentUser.id,
+
+          title:
+            title,
+
+          description:
+            description,
+
+          goal_cents:
+            goalCents,
+
+          raised_cents:
+            0,
+
+          status:
+            'active'
+
         })
         .select()
         .single();
 
+
     if(result.error){
+
       throw result.error;
+
     }
 
-    document.getElementById(
-      'fund-title'
-    ).value = '';
 
-    document.getElementById(
-      'fund-goal'
-    ).value = '';
+    document
+      .getElementById(
+        'fund-title'
+      )
+      .value = '';
 
-    document.getElementById(
-      'fund-description'
-    ).value = '';
+
+    document
+      .getElementById(
+        'fund-goal'
+      )
+      .value = '';
+
+
+    document
+      .getElementById(
+        'fund-description'
+      )
+      .value = '';
+
 
     createFundMessage.textContent =
       'Talent Fund created successfully.';
@@ -2464,8 +3433,15 @@ async function createTalentFund(){
     createFundMessage.className =
       'success small';
 
-    await loadTalentFunds(currentUser);
-    await loadMyTalentFunds(currentUser);
+
+    await loadTalentFunds(
+      currentUser
+    );
+
+    await loadMyTalentFunds(
+      currentUser
+    );
+
 
   }catch(error){
 
@@ -2474,6 +3450,7 @@ async function createTalentFund(){
       error
     );
 
+
     createFundMessage.textContent =
       'Unable to create Talent Fund: ' +
       error.message;
@@ -2481,31 +3458,45 @@ async function createTalentFund(){
     createFundMessage.className =
       'error small';
 
+
   }finally{
 
-    createFundButton.disabled = false;
+    createFundButton.disabled =
+      false;
 
     createFundButton.textContent =
       'Create Talent Fund';
+
   }
 
 }
 
 
-async function supportTalentFund(fundId){
+async function supportTalentFund(
+  fundId
+){
 
   if(!currentUser){
+
     throw new Error(
       'You must be signed in.'
     );
+
   }
+
 
   const amount =
     prompt(
       'How much would you like to contribute? Enter a dollar amount.'
     );
 
-  if(amount === null)return;
+
+  if(amount === null){
+
+    return;
+
+  }
+
 
   const amountValue =
     Number(
@@ -2514,8 +3505,11 @@ async function supportTalentFund(fundId){
         .trim()
     );
 
+
   if(
-    !Number.isFinite(amountValue) ||
+    !Number.isFinite(
+      amountValue
+    ) ||
     amountValue < 1 ||
     amountValue > 10000
   ){
@@ -2525,43 +3519,66 @@ async function supportTalentFund(fundId){
     );
 
     return;
+
   }
+
 
   const amountCents =
     Math.round(
-      amountValue * 100
+      amountValue *
+      100
     );
+
 
   const button =
     document.querySelector(
       '[data-support-fund="' +
-      CSS.escape(fundId) +
+      CSS.escape(
+        fundId
+      ) +
       '"]'
     );
 
+
   if(button){
-    button.disabled = true;
-    button.textContent = 'Opening Stripe...';
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      'Opening Stripe...';
+
   }
+
 
   try{
 
     const sessionResult =
-      await supabaseClient.auth.getSession();
+      await supabaseClient
+        .auth
+        .getSession();
+
 
     if(sessionResult.error){
+
       throw sessionResult.error;
+
     }
+
 
     const session =
       sessionResult.data &&
       sessionResult.data.session;
 
+
     if(!session){
+
       throw new Error(
         'Your login session has expired.'
       );
+
     }
+
 
     const response =
       await fetch(
@@ -2569,34 +3586,51 @@ async function supportTalentFund(fundId){
         '/create-talent-fund-checkout',
         {
           method:'POST',
+
           headers:{
             Authorization:
               'Bearer ' +
               session.access_token,
-            apikey:SUPABASE_KEY,
+
+            apikey:
+              SUPABASE_KEY,
+
             'Content-Type':
               'application/json'
           },
-          body:JSON.stringify({
-            fund_id:fundId,
-            amount_cents:amountCents
-          })
+
+          body:
+            JSON.stringify({
+              fund_id:
+                fundId,
+
+              amount_cents:
+                amountCents
+            })
         }
       );
+
 
     const data =
       await response.json();
 
-    if(!response.ok || !data.url){
+
+    if(
+      !response.ok ||
+      !data.url
+    ){
 
       throw new Error(
         data.error ||
         'Unable to start Talent Fund checkout.'
       );
+
     }
+
 
     window.location.href =
       data.url;
+
 
   }catch(error){
 
@@ -2605,59 +3639,47 @@ async function supportTalentFund(fundId){
       error
     );
 
+
     alert(
       'Unable to start Talent Fund support: ' +
       error.message
     );
 
+
     if(button){
-      button.disabled = false;
+
+      button.disabled =
+        false;
+
       button.textContent =
         'Support This Talent';
+
     }
+
   }
 
 }
 
 
-/* =========================
-   ORDERS / REVIEWS
-========================= */
+/*
+==================================================
+ORDERS
+==================================================
+*/
 
-async function getReviews(orderIds){
+function reviewDisplay(
+  review
+){
 
-  if(!orderIds.length){
-    return {};
+  if(!review){
+
+    return '';
+
   }
 
-  const result =
-    await supabaseClient
-      .from('service_reviews')
-      .select('*')
-      .in('order_id',orderIds);
-
-  if(result.error){
-    console.error(
-      'Reviews error:',
-      result.error
-    );
-
-    return {};
-  }
-
-  return (result.data || [])
-    .reduce((map,review)=>{
-      map[review.order_id] = review;
-      return map;
-    },{});
-}
-
-
-function reviewDisplay(review){
-
-  if(!review)return '';
 
   return `
+
     <div class="review-display">
 
       <span class="label">
@@ -2666,7 +3688,9 @@ function reviewDisplay(review){
 
       <div class="review-stars">
         ${escapeHtml(
-          starsHtml(review.rating)
+          starsHtml(
+            review.rating
+          )
         )}
       </div>
 
@@ -2674,92 +3698,130 @@ function reviewDisplay(review){
         review.review
           ? `
             <div class="review-content">
-              ${escapeHtml(review.review)}
+              ${escapeHtml(
+                review.review
+              )}
             </div>
           `
           : ''
       }
 
       <div class="review-date">
-        Reviewed ${escapeHtml(
-          formatDate(review.created_at)
+        Reviewed
+        ${escapeHtml(
+          formatDate(
+            review.created_at
+          )
         )}
       </div>
 
     </div>
+
   `;
+
 }
 
 
-function reviewForm(order,review){
+function reviewForm(
+  order,
+  review
+){
 
   const currentRating =
     Number(
-      review && review.rating
+      review &&
+      review.rating
         ? review.rating
         : 0
     );
 
+
   return `
+
     <div class="review-box">
 
       <span class="label">
-        ${review
-          ? 'Update Your Review'
-          : 'Rate This Service'}
+        ${
+          review
+            ? 'Update Your Review'
+            : 'Rate This Service'
+        }
       </span>
 
       <div
         class="stars"
-        data-stars-for="${escapeHtml(order.id)}"
+        data-stars-for="${escapeHtml(
+          order.id
+        )}"
       >
 
-        ${[1,2,3,4,5]
-          .map(number => `
-            <button
-              type="button"
-              class="star ${
-                number <= currentRating
-                  ? 'selected'
-                  : ''
-              }"
-              data-rating="${number}"
-              data-order="${escapeHtml(order.id)}"
-            >★</button>
-          `)
-          .join('')}
+        ${
+          [1,2,3,4,5]
+            .map(
+              number => `
+
+                <button
+                  type="button"
+                  class="star ${
+                    number <= currentRating
+                      ? 'selected'
+                      : ''
+                  }"
+                  data-rating="${number}"
+                  data-order="${escapeHtml(
+                    order.id
+                  )}"
+                >★</button>
+
+              `
+            )
+            .join('')
+        }
 
       </div>
 
       <textarea
         class="review-text"
-        id="review-text-${escapeHtml(order.id)}"
+        id="review-text-${escapeHtml(
+          order.id
+        )}"
         maxlength="1000"
         placeholder="Tell us about your StarRise experience..."
-      >${escapeHtml(
-        review && review.review
-          ? review.review
-          : ''
-      )}</textarea>
+      >${
+        escapeHtml(
+          review &&
+          review.review
+            ? review.review
+            : ''
+        )
+      }</textarea>
 
       <button
         type="button"
         class="order-button"
-        data-submit-review="${escapeHtml(order.id)}"
+        data-submit-review="${escapeHtml(
+          order.id
+        )}"
       >
-        ${review
-          ? 'Update Review'
-          : 'Submit Review'}
+        ${
+          review
+            ? 'Update Review'
+            : 'Submit Review'
+        }
       </button>
 
       <div
-        id="review-message-${escapeHtml(order.id)}"
+        id="review-message-${escapeHtml(
+          order.id
+        )}"
         class="muted"
         style="margin-top:10px"
       ></div>
 
     </div>
+
   `;
+
 }
 
 
@@ -2775,14 +3837,18 @@ function renderOrder(
       ? service.title
       : 'Service';
 
+
   const requestMessage =
     order.request_message &&
     order.request_message.trim()
       ? order.request_message
       : 'No request details provided.';
 
+
   const personLabel =
-    options.personLabel || 'Member';
+    options.personLabel ||
+    'Member';
+
 
   const personName =
     profile
@@ -2797,19 +3863,27 @@ function renderOrder(
         )
       : personLabel;
 
+
   let actions = '';
+
 
   if(options.provider){
 
-    if(order.status === 'pending'){
+    if(
+      order.status ===
+      'pending'
+    ){
 
       actions = `
+
         <div class="order-actions">
 
           <button
             class="order-button"
             data-order-action="accepted"
-            data-order-id="${escapeHtml(order.id)}"
+            data-order-id="${escapeHtml(
+              order.id
+            )}"
           >
             Accept Request
           </button>
@@ -2817,115 +3891,170 @@ function renderOrder(
           <button
             class="order-button decline-button"
             data-order-action="declined"
-            data-order-id="${escapeHtml(order.id)}"
+            data-order-id="${escapeHtml(
+              order.id
+            )}"
           >
             Decline Request
           </button>
 
         </div>
+
       `;
 
-    }else if(order.status === 'accepted'){
+
+    }else if(
+      order.status ===
+      'accepted'
+    ){
 
       actions = `
+
         <div class="order-actions">
 
           <button
             class="order-button"
             data-order-action="in_progress"
-            data-order-id="${escapeHtml(order.id)}"
+            data-order-id="${escapeHtml(
+              order.id
+            )}"
           >
             Start Service
           </button>
 
         </div>
+
       `;
 
-    }else if(order.status === 'in_progress'){
+
+    }else if(
+      order.status ===
+      'in_progress'
+    ){
 
       actions = `
+
         <div class="order-actions">
 
           <button
             class="order-button"
             data-order-action="completed"
-            data-order-id="${escapeHtml(order.id)}"
+            data-order-id="${escapeHtml(
+              order.id
+            )}"
           >
             Mark Completed
           </button>
 
         </div>
+
       `;
+
     }
+
   }
+
 
   const serviceLink =
     service
       ? `
+
         <a
           class="service-link"
-          href="service.html?id=${encodeURIComponent(service.id)}"
+          href="service.html?id=${encodeURIComponent(
+            service.id
+          )}"
         >
           View Service
         </a>
+
       `
       : '';
 
+
   return `
+
     <div class="order-card">
 
       <div class="service-title">
-        ${escapeHtml(serviceTitle)}
+        ${escapeHtml(
+          serviceTitle
+        )}
       </div>
 
       <div class="order-price">
-        ${formatMoney(order.amount_cents)}
+        ${formatMoney(
+          order.amount_cents
+        )}
       </div>
 
       <div class="order-status">
-        ${escapeHtml(order.status)}
+        ${escapeHtml(
+          order.status
+        )}
       </div>
 
       <div class="order-request">
-        ${escapeHtml(requestMessage)}
+        ${escapeHtml(
+          requestMessage
+        )}
       </div>
 
       <div class="order-meta">
-        ${escapeHtml(personLabel)}:
-        ${escapeHtml(personName)}
+        ${escapeHtml(
+          personLabel
+        )}:
+        ${escapeHtml(
+          personName
+        )}
       </div>
 
       <div class="order-meta">
         Requested:
         ${escapeHtml(
-          formatDate(order.created_at)
+          formatDate(
+            order.created_at
+          )
         )}
       </div>
 
       ${serviceLink}
+
       ${actions}
 
     </div>
+
   `;
+
 }
 
 
-async function loadIncomingOrders(user){
+async function loadIncomingOrders(
+  user
+){
 
   setStatus(
     ordersStatus,
     'Loading orders...'
   );
 
-  ordersContainer.innerHTML = '';
+
+  ordersContainer.innerHTML =
+    '';
+
 
   try{
 
     const result =
       await supabaseClient
-        .from('service_orders')
+        .from(
+          'service_orders'
+        )
         .select('*')
-        .eq('seller_id',user.id)
+        .eq(
+          'seller_id',
+          user.id
+        )
         .in(
           'status',
           [
@@ -2936,15 +4065,23 @@ async function loadIncomingOrders(user){
         )
         .order(
           'created_at',
-          {ascending:false}
+          {
+            ascending:false
+          }
         );
 
+
     if(result.error){
+
       throw result.error;
+
     }
 
+
     const orders =
-      result.data || [];
+      result.data ||
+      [];
+
 
     if(!orders.length){
 
@@ -2953,27 +4090,34 @@ async function loadIncomingOrders(user){
         'You have no active service requests.'
       );
 
+
       ordersContainer.innerHTML =
         '<div class="empty">' +
         'No incoming service orders yet.' +
         '</div>';
 
       return;
+
     }
+
 
     const services =
       await getServices(
         orders.map(
-          order => order.service_id
+          order =>
+            order.service_id
         )
       );
+
 
     const profiles =
       await getProfiles(
         orders.map(
-          order => order.buyer_id
+          order =>
+            order.buyer_id
         )
       );
+
 
     setStatus(
       ordersStatus,
@@ -2984,18 +4128,28 @@ async function loadIncomingOrders(user){
       'success'
     );
 
+
     ordersContainer.innerHTML =
-      orders.map(order =>
-        renderOrder(
-          order,
-          services[order.service_id],
-          profiles[order.buyer_id],
-          {
-            provider:true,
-            personLabel:'Customer'
-          }
+      orders
+        .map(
+          order =>
+            renderOrder(
+              order,
+              services[
+                order.service_id
+              ],
+              profiles[
+                order.buyer_id
+              ],
+              {
+                provider:true,
+                personLabel:
+                  'Customer'
+              }
+            )
         )
-      ).join('');
+        .join('');
+
 
   }catch(error){
 
@@ -3004,45 +4158,68 @@ async function loadIncomingOrders(user){
       error
     );
 
+
     setStatus(
       ordersStatus,
       'Unable to load incoming orders: ' +
       error.message,
       'error'
     );
+
   }
 
 }
 
 
-async function loadCompletedOrders(user){
+async function loadCompletedOrders(
+  user
+){
 
   setStatus(
     completedOrdersStatus,
     'Loading completed services...'
   );
 
-  completedOrdersContainer.innerHTML = '';
+
+  completedOrdersContainer.innerHTML =
+    '';
+
 
   try{
 
     const result =
       await supabaseClient
-        .from('service_orders')
+        .from(
+          'service_orders'
+        )
         .select('*')
-        .eq('seller_id',user.id)
-        .eq('status','completed')
+        .eq(
+          'seller_id',
+          user.id
+        )
+        .eq(
+          'status',
+          'completed'
+        )
         .order(
           'updated_at',
-          {ascending:false}
+          {
+            ascending:false
+          }
         );
 
+
     if(result.error){
+
       throw result.error;
+
     }
 
+
     const orders =
-      result.data || [];
+      result.data ||
+      [];
+
 
     if(!orders.length){
 
@@ -3051,27 +4228,34 @@ async function loadCompletedOrders(user){
         'No completed services yet.'
       );
 
+
       completedOrdersContainer.innerHTML =
         '<div class="empty">' +
         'You have not completed any services yet.' +
         '</div>';
 
       return;
+
     }
+
 
     const services =
       await getServices(
         orders.map(
-          order => order.service_id
+          order =>
+            order.service_id
         )
       );
+
 
     const profiles =
       await getProfiles(
         orders.map(
-          order => order.buyer_id
+          order =>
+            order.buyer_id
         )
       );
+
 
     setStatus(
       completedOrdersStatus,
@@ -3082,18 +4266,28 @@ async function loadCompletedOrders(user){
       'success'
     );
 
+
     completedOrdersContainer.innerHTML =
-      orders.map(order =>
-        renderOrder(
-          order,
-          services[order.service_id],
-          profiles[order.buyer_id],
-          {
-            provider:false,
-            personLabel:'Customer'
-          }
+      orders
+        .map(
+          order =>
+            renderOrder(
+              order,
+              services[
+                order.service_id
+              ],
+              profiles[
+                order.buyer_id
+              ],
+              {
+                provider:false,
+                personLabel:
+                  'Customer'
+              }
+            )
         )
-      ).join('');
+        .join('');
+
 
   }catch(error){
 
@@ -3102,33 +4296,45 @@ async function loadCompletedOrders(user){
       error
     );
 
+
     setStatus(
       completedOrdersStatus,
       'Unable to load completed services: ' +
       error.message,
       'error'
     );
+
   }
 
 }
 
 
-async function loadMyOrders(user){
+async function loadMyOrders(
+  user
+){
 
   setStatus(
     myOrdersStatus,
     'Loading your orders...'
   );
 
-  myOrdersContainer.innerHTML = '';
+
+  myOrdersContainer.innerHTML =
+    '';
+
 
   try{
 
     const result =
       await supabaseClient
-        .from('service_orders')
+        .from(
+          'service_orders'
+        )
         .select('*')
-        .eq('buyer_id',user.id)
+        .eq(
+          'buyer_id',
+          user.id
+        )
         .in(
           'status',
           [
@@ -3139,15 +4345,23 @@ async function loadMyOrders(user){
         )
         .order(
           'created_at',
-          {ascending:false}
+          {
+            ascending:false
+          }
         );
 
+
     if(result.error){
+
       throw result.error;
+
     }
 
+
     const orders =
-      result.data || [];
+      result.data ||
+      [];
+
 
     if(!orders.length){
 
@@ -3156,27 +4370,34 @@ async function loadMyOrders(user){
         'You have no active orders.'
       );
 
+
       myOrdersContainer.innerHTML =
         '<div class="empty">' +
         'You have not placed any orders yet.' +
         '</div>';
 
       return;
+
     }
+
 
     const services =
       await getServices(
         orders.map(
-          order => order.service_id
+          order =>
+            order.service_id
         )
       );
+
 
     const profiles =
       await getProfiles(
         orders.map(
-          order => order.seller_id
+          order =>
+            order.seller_id
         )
       );
+
 
     setStatus(
       myOrdersStatus,
@@ -3187,18 +4408,28 @@ async function loadMyOrders(user){
       'success'
     );
 
+
     myOrdersContainer.innerHTML =
-      orders.map(order =>
-        renderOrder(
-          order,
-          services[order.service_id],
-          profiles[order.seller_id],
-          {
-            provider:false,
-            personLabel:'Seller'
-          }
+      orders
+        .map(
+          order =>
+            renderOrder(
+              order,
+              services[
+                order.service_id
+              ],
+              profiles[
+                order.seller_id
+              ],
+              {
+                provider:false,
+                personLabel:
+                  'Seller'
+              }
+            )
         )
-      ).join('');
+        .join('');
+
 
   }catch(error){
 
@@ -3207,45 +4438,68 @@ async function loadMyOrders(user){
       error
     );
 
+
     setStatus(
       myOrdersStatus,
       'Unable to load your orders: ' +
       error.message,
       'error'
     );
+
   }
 
 }
 
 
-async function loadMyCompletedOrders(user){
+async function loadMyCompletedOrders(
+  user
+){
 
   setStatus(
     myCompletedStatus,
     'Loading completed orders...'
   );
 
-  myCompletedContainer.innerHTML = '';
+
+  myCompletedContainer.innerHTML =
+    '';
+
 
   try{
 
     const result =
       await supabaseClient
-        .from('service_orders')
+        .from(
+          'service_orders'
+        )
         .select('*')
-        .eq('buyer_id',user.id)
-        .eq('status','completed')
+        .eq(
+          'buyer_id',
+          user.id
+        )
+        .eq(
+          'status',
+          'completed'
+        )
         .order(
           'updated_at',
-          {ascending:false}
+          {
+            ascending:false
+          }
         );
 
+
     if(result.error){
+
       throw result.error;
+
     }
 
+
     const orders =
-      result.data || [];
+      result.data ||
+      [];
+
 
     if(!orders.length){
 
@@ -3254,34 +4508,43 @@ async function loadMyCompletedOrders(user){
         'No completed services yet.'
       );
 
+
       myCompletedContainer.innerHTML =
         '<div class="empty">' +
         'You have not placed any orders yet.' +
         '</div>';
 
       return;
+
     }
+
 
     const services =
       await getServices(
         orders.map(
-          order => order.service_id
+          order =>
+            order.service_id
         )
       );
+
 
     const profiles =
       await getProfiles(
         orders.map(
-          order => order.seller_id
+          order =>
+            order.seller_id
         )
       );
+
 
     const reviews =
       await getReviews(
         orders.map(
-          order => order.id
+          order =>
+            order.id
         )
       );
+
 
     setStatus(
       myCompletedStatus,
@@ -3292,30 +4555,54 @@ async function loadMyCompletedOrders(user){
       'success'
     );
 
+
     myCompletedContainer.innerHTML =
-      orders.map(order => {
+      orders
+        .map(
+          order => {
 
-        const review =
-          reviews[order.id];
+            const review =
+              reviews[
+                order.id
+              ];
 
-        return (
-          renderOrder(
-            order,
-            services[order.service_id],
-            profiles[order.seller_id],
-            {
-              provider:false,
-              personLabel:'Seller'
-            }
-          ) +
-          (
-            review
-              ? reviewDisplay(review)
-              : reviewForm(order,review)
-          )
-        );
 
-      }).join('');
+            return (
+
+              renderOrder(
+                order,
+                services[
+                  order.service_id
+                ],
+                profiles[
+                  order.seller_id
+                ],
+                {
+                  provider:false,
+                  personLabel:
+                    'Seller'
+                }
+              )
+
+              +
+
+              (
+                review
+                  ? reviewDisplay(
+                      review
+                    )
+                  : reviewForm(
+                      order,
+                      review
+                    )
+              )
+
+            );
+
+          }
+        )
+        .join('');
+
 
   }catch(error){
 
@@ -3324,20 +4611,24 @@ async function loadMyCompletedOrders(user){
       error
     );
 
+
     setStatus(
       myCompletedStatus,
       'Unable to load completed orders: ' +
       error.message,
       'error'
     );
+
   }
 
 }
 
 
-/* =========================
-   ORDER STATUS / REVIEWS
-========================= */
+/*
+==================================================
+ORDER STATUS
+==================================================
+*/
 
 async function updateOrderStatus(
   orderId,
@@ -3345,43 +4636,75 @@ async function updateOrderStatus(
 ){
 
   if(!currentUser){
+
     throw new Error(
       'You must be signed in.'
     );
+
   }
+
 
   const result =
     await supabaseClient
-      .from('service_orders')
+      .from(
+        'service_orders'
+      )
       .update({
-        status:newStatus,
+
+        status:
+          newStatus,
+
         updated_at:
           new Date().toISOString()
+
       })
-      .eq('id',orderId)
-      .eq('seller_id',currentUser.id);
+      .eq(
+        'id',
+        orderId
+      )
+      .eq(
+        'seller_id',
+        currentUser.id
+      );
+
 
   if(result.error){
+
     throw result.error;
+
   }
 
 }
 
 
-async function submitReview(orderId){
+/*
+==================================================
+REVIEWS
+==================================================
+*/
+
+async function submitReview(
+  orderId
+){
 
   if(!currentUser){
+
     throw new Error(
       'You must be signed in.'
     );
+
   }
+
 
   const starsContainer =
     document.querySelector(
       '[data-stars-for="' +
-      CSS.escape(orderId) +
+      CSS.escape(
+        orderId
+      ) +
       '"]'
     );
+
 
   const selectedStar =
     starsContainer
@@ -3390,6 +4713,7 @@ async function submitReview(orderId){
         )
       : null;
 
+
   const rating =
     selectedStar
       ? Number(
@@ -3397,98 +4721,173 @@ async function submitReview(orderId){
         )
       : 0;
 
+
   const textElement =
     document.getElementById(
-      'review-text-' + orderId
+      'review-text-' +
+      orderId
     );
+
 
   const reviewText =
     textElement
       ? textElement.value.trim()
       : '';
 
-  if(rating < 1 || rating > 5){
+
+  if(
+    rating < 1 ||
+    rating > 5
+  ){
+
     throw new Error(
       'Please select a rating from 1 to 5 stars.'
     );
+
   }
+
 
   const orderResult =
     await supabaseClient
-      .from('service_orders')
+      .from(
+        'service_orders'
+      )
       .select(
         'id,seller_id,buyer_id,status'
       )
-      .eq('id',orderId)
-      .eq('buyer_id',currentUser.id)
-      .eq('status','completed')
+      .eq(
+        'id',
+        orderId
+      )
+      .eq(
+        'buyer_id',
+        currentUser.id
+      )
+      .eq(
+        'status',
+        'completed'
+      )
       .maybeSingle();
 
+
   if(orderResult.error){
+
     throw orderResult.error;
+
   }
 
+
   if(!orderResult.data){
+
     throw new Error(
       'Completed order not found.'
     );
+
   }
+
 
   const existing =
     await supabaseClient
-      .from('service_reviews')
+      .from(
+        'service_reviews'
+      )
       .select('id')
-      .eq('order_id',orderId)
-      .eq('reviewer_id',currentUser.id)
+      .eq(
+        'order_id',
+        orderId
+      )
+      .eq(
+        'reviewer_id',
+        currentUser.id
+      )
       .maybeSingle();
 
+
   if(existing.error){
+
     throw existing.error;
+
   }
 
+
   let result;
+
 
   if(existing.data){
 
     result =
       await supabaseClient
-        .from('service_reviews')
+        .from(
+          'service_reviews'
+        )
         .update({
-          rating:rating,
-          review:reviewText,
+
+          rating:
+            rating,
+
+          review:
+            reviewText,
+
           seller_id:
             orderResult.data.seller_id,
+
           updated_at:
             new Date().toISOString()
+
         })
-        .eq('id',existing.data.id)
-        .eq('reviewer_id',currentUser.id);
+        .eq(
+          'id',
+          existing.data.id
+        )
+        .eq(
+          'reviewer_id',
+          currentUser.id
+        );
+
 
   }else{
 
     result =
       await supabaseClient
-        .from('service_reviews')
+        .from(
+          'service_reviews'
+        )
         .insert({
-          order_id:orderId,
-          reviewer_id:currentUser.id,
+
+          order_id:
+            orderId,
+
+          reviewer_id:
+            currentUser.id,
+
           seller_id:
             orderResult.data.seller_id,
-          rating:rating,
-          review:reviewText
+
+          rating:
+            rating,
+
+          review:
+            reviewText
+
         });
+
   }
 
+
   if(result.error){
+
     throw result.error;
+
   }
 
 }
 
 
-/* =========================
-   EVENTS
-========================= */
+/*
+==================================================
+CLICK HANDLERS
+==================================================
+*/
 
 document.addEventListener(
   'click',
@@ -3499,69 +4898,97 @@ document.addEventListener(
         '[data-support-fund]'
       );
 
+
     if(supportButton){
 
       await supportTalentFund(
-        supportButton.dataset.supportFund
+        supportButton.dataset
+          .supportFund
       );
 
       return;
+
     }
+
 
     const star =
       event.target.closest(
         '.star[data-rating]'
       );
 
+
     if(star){
 
       const orderId =
         star.dataset.order;
 
+
       const rating =
-        Number(star.dataset.rating);
+        Number(
+          star.dataset.rating
+        );
+
 
       const container =
         document.querySelector(
           '[data-stars-for="' +
-          CSS.escape(orderId) +
+          CSS.escape(
+            orderId
+          ) +
           '"]'
         );
+
 
       if(container){
 
         container
-          .querySelectorAll('.star')
-          .forEach(button => {
+          .querySelectorAll(
+            '.star'
+          )
+          .forEach(
+            button => {
 
-            button.classList.toggle(
-              'selected',
-              Number(button.dataset.rating) <= rating
-            );
+              button.classList.toggle(
+                'selected',
+                Number(
+                  button.dataset.rating
+                ) <= rating
+              );
 
-          });
+            }
+          );
+
       }
 
+
       return;
+
     }
+
 
     const actionButton =
       event.target.closest(
         '[data-order-action]'
       );
 
+
     if(actionButton){
 
       const orderId =
-        actionButton.dataset.orderId;
+        actionButton.dataset
+          .orderId;
+
 
       const newStatus =
-        actionButton.dataset.orderAction;
+        actionButton.dataset
+          .orderAction;
+
 
       const card =
         actionButton.closest(
           '.order-card'
         );
+
 
       const buttons =
         card
@@ -3570,11 +4997,16 @@ document.addEventListener(
             )
           : [];
 
+
       buttons.forEach(
         button => {
-          button.disabled = true;
+
+          button.disabled =
+            true;
+
         }
       );
+
 
       try{
 
@@ -3582,6 +5014,7 @@ document.addEventListener(
           orderId,
           newStatus
         );
+
 
         await loadActiveServices(
           currentUser
@@ -3603,6 +5036,7 @@ document.addEventListener(
           currentUser
         );
 
+
       }catch(error){
 
         console.error(
@@ -3610,39 +5044,56 @@ document.addEventListener(
           error
         );
 
+
         alert(
           'Unable to update order: ' +
           error.message
         );
 
+
         buttons.forEach(
           button => {
-            button.disabled = false;
+
+            button.disabled =
+              false;
+
           }
         );
+
       }
 
+
       return;
+
     }
+
 
     const reviewButton =
       event.target.closest(
         '[data-submit-review]'
       );
 
+
     if(reviewButton){
 
       const orderId =
-        reviewButton.dataset.submitReview;
+        reviewButton.dataset
+          .submitReview;
+
 
       const message =
         document.getElementById(
-          'review-message-' + orderId
+          'review-message-' +
+          orderId
         );
 
-      reviewButton.disabled = true;
+
+      reviewButton.disabled =
+        true;
+
 
       if(message){
+
         message.textContent =
           'Saving review...';
 
@@ -3651,11 +5102,16 @@ document.addEventListener(
 
         message.style.marginTop =
           '10px';
+
       }
+
 
       try{
 
-        await submitReview(orderId);
+        await submitReview(
+          orderId
+        );
+
 
         if(message){
 
@@ -3667,11 +5123,14 @@ document.addEventListener(
 
           message.style.marginTop =
             '10px';
+
         }
+
 
         await loadMyCompletedOrders(
           currentUser
         );
+
 
       }catch(error){
 
@@ -3679,6 +5138,7 @@ document.addEventListener(
           'Review error:',
           error
         );
+
 
         if(message){
 
@@ -3691,15 +5151,26 @@ document.addEventListener(
 
           message.style.marginTop =
             '10px';
+
         }
 
-        reviewButton.disabled = false;
+
+        reviewButton.disabled =
+          false;
+
       }
+
     }
 
   }
 );
 
+
+/*
+==================================================
+BUTTON EVENTS
+==================================================
+*/
 
 createFundButton.addEventListener(
   'click',
@@ -3714,7 +5185,9 @@ connectStripeButton.addEventListener(
 
 
 document
-  .getElementById('signout')
+  .getElementById(
+    'signout'
+  )
   .addEventListener(
     'click',
     async function(){
@@ -3724,10 +5197,13 @@ document
           'signout'
         );
 
-      button.disabled = true;
+
+      button.disabled =
+        true;
 
       button.textContent =
         'Signing Out...';
+
 
       try{
 
@@ -3737,17 +5213,26 @@ document
             'login.html';
 
           return;
+
         }
+
 
         const result =
-          await supabaseClient.auth.signOut();
+          await supabaseClient
+            .auth
+            .signOut();
+
 
         if(result.error){
+
           throw result.error;
+
         }
+
 
         window.location.href =
           'login.html';
+
 
       }catch(error){
 
@@ -3756,10 +5241,13 @@ document
           error
         );
 
-        button.disabled = false;
+
+        button.disabled =
+          false;
 
         button.textContent =
           'Sign Out';
+
 
         setStatus(
           statusBox,
@@ -3767,6 +5255,7 @@ document
           error.message,
           'error'
         );
+
       }
 
     }
@@ -3776,6 +5265,7 @@ document
 initialize();
 
 })();
+
 </script>
 
 </body>
