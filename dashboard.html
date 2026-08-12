@@ -1,210 +1,589 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StarRise Dashboard</title>
 
-async function loadMyOpportunities(user) {
-  setStatus(myOpportunitiesStatus, 'Loading your opportunities...');
-  myOpportunitiesContainer.innerHTML = '';
+  <style>
+    *{box-sizing:border-box}
 
-  try {
-    const createdResult = await supabaseClient
-      .from('opportunities')
-      .select('*')
-      .eq('creator_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (createdResult.error) throw createdResult.error;
-
-    const created = (createdResult.data || []).map(opportunity => ({
-      ...opportunity,
-      member_status: 'created',
-      member_role: 'creator'
-    }));
-
-    const applicationsResult = await supabaseClient
-      .from('opportunity_applications')
-      .select(`
-        opportunity_id,
-        applicant_id,
-        status,
-        created_at,
-        opportunities (*)
-      `)
-      .eq('applicant_id', user.id);
-
-    if (applicationsResult.error) throw applicationsResult.error;
-
-    const applied = (applicationsResult.data || [])
-      .filter(item => item.opportunities)
-      .map(item => ({
-        ...item.opportunities,
-        member_status: item.status || 'pending',
-        member_role: 'applicant',
-        application_created_at: item.created_at
-      }));
-
-    const combined = [...created, ...applied];
-
-    const uniqueMap = new Map();
-
-    combined.forEach(opportunity => {
-      const existing = uniqueMap.get(opportunity.id);
-
-      if (!existing) {
-        uniqueMap.set(opportunity.id, opportunity);
-        return;
-      }
-
-      if (
-        existing.member_role !== 'creator' &&
-        opportunity.member_role === 'creator'
-      ) {
-        uniqueMap.set(opportunity.id, opportunity);
-      }
-    });
-
-    const unique = Array.from(uniqueMap.values());
-
-    unique.sort((a, b) => {
-      const dateA = new Date(
-        a.application_created_at || a.created_at || 0
-      ).getTime();
-
-      const dateB = new Date(
-        b.application_created_at || b.created_at || 0
-      ).getTime();
-
-      return dateB - dateA;
-    });
-
-    if (!unique.length) {
-      setStatus(
-        myOpportunitiesStatus,
-        'You have not created or applied to any opportunities yet.'
-      );
-
-      myOpportunitiesContainer.innerHTML = `
-        <div class="empty-state">
-          Create an opportunity or apply to one to see it here.
-        </div>
-      `;
-
-      return;
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:#080812;
+      color:#fff;
+      min-height:100vh;
+      line-height:1.6
     }
 
-    setStatus(
-      myOpportunitiesStatus,
-      unique.length === 1
-        ? '1 opportunity connected to you.'
-        : `${unique.length} opportunities connected to you.`,
-      'success'
-    );
+    header{
+      padding:20px 24px;
+      border-bottom:1px solid #ffffff18;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px
+    }
 
-    myOpportunitiesContainer.innerHTML = unique
-      .map(opportunity => renderMyOpportunity(opportunity))
-      .join('');
+    header a{
+      color:#fff;
+      text-decoration:none;
+      font-weight:bold
+    }
 
-  } catch (error) {
-    console.error('My Opportunities error:', error);
+    button{font-family:inherit}
 
-    setStatus(
-      myOpportunitiesStatus,
-      'Unable to load your opportunities: ' +
-        (error.message || 'Unknown error'),
-      'error'
-    );
-  }
-}
+    #signout{
+      border:1px solid #ffffff33;
+      background:transparent;
+      color:#fff;
+      padding:10px 16px;
+      border-radius:20px;
+      cursor:pointer
+    }
+
+    #signout:hover{background:#ffffff10}
+
+    main{
+      width:min(950px,calc(100% - 30px));
+      margin:35px auto 60px
+    }
+
+    .hero,.panel{
+      border:1px solid #ffffff18;
+      border-radius:20px;
+      background:#ffffff08;
+      padding:25px;
+      margin-bottom:20px
+    }
+
+    h1,h2,h3{margin-top:0}
+    .muted{color:#aaa}
+
+    .status-box{
+      padding:14px;
+      border-radius:12px;
+      background:#ffffff08;
+      color:#aaa;
+      margin-bottom:15px
+    }
+
+    .error{
+      color:#ffb5b5!important;
+      background:rgba(200,50,50,.12)!important
+    }
+
+    .success{
+      color:#baffca!important;
+      background:rgba(50,200,100,.10)!important
+    }
+
+    .warning{
+      color:#ffe3a3!important;
+      background:rgba(200,150,50,.12)!important
+    }
+
+    .profile-grid,.stripe-grid,.fund-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+      gap:14px
+    }
+
+    .item,.stripe-stat{
+      padding:17px;
+      border-radius:14px;
+      background:#ffffff08
+    }
+
+    .label{
+      display:block;
+      color:#999;
+      font-size:12px;
+      margin-bottom:5px;
+      text-transform:uppercase;
+      letter-spacing:.08em
+    }
+
+    .profile-value{word-break:break-word}
+
+    .role{
+      display:inline-block;
+      padding:7px 12px;
+      margin:4px;
+      border-radius:20px;
+      background:#ffffff12
+    }
+
+    .order-card,
+    .fund-card,
+    .active-service-card,
+    .opportunity-card{
+      padding:20px;
+      border-radius:16px;
+      background:#ffffff08;
+      border:1px solid #ffffff12;
+      margin-top:15px
+    }
+
+    .active-service-card{
+      border-color:#ffffff28;
+      background:linear-gradient(135deg,#ffffff0d,#ffffff03)
+    }
+
+    .opportunity-card{
+      border-color:#ffffff20
+    }
+
+    .order-price{
+      font-size:25px;
+      font-weight:bold;
+      margin-bottom:5px
+    }
+
+    .order-status,
+    .fund-status,
+    .service-status{
+      display:inline-block;
+      padding:6px 12px;
+      border-radius:20px;
+      background:#ffffff12;
+      text-transform:capitalize;
+      margin-bottom:10px
+    }
+
+    .fund-status{
+      padding:5px 10px;
+      font-size:13px
+    }
+
+    .service-status{
+      margin-top:8px
+    }
+
+    .order-request{
+      padding:14px;
+      border-radius:12px;
+      background:#00000025;
+      color:#ccc;
+      white-space:pre-wrap;
+      margin:12px 0
+    }
+
+    .order-meta{
+      color:#888;
+      font-size:14px;
+      margin-top:4px
+    }
+
+    .order-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:15px
+    }
+
+    .order-button,
+    .fund-button,
+    .action-button{
+      border:0;
+      padding:11px 20px;
+      border-radius:25px;
+      background:#fff;
+      color:#080812;
+      font-weight:bold;
+      cursor:pointer;
+      text-decoration:none;
+      display:inline-block
+    }
+
+    .order-button:hover,
+    .fund-button:hover,
+    .action-button:hover{
+      opacity:.9
+    }
+
+    .order-button:disabled,
+    .fund-button:disabled,
+    .connect-button:disabled{
+      opacity:.6;
+      cursor:wait
+    }
+
+    .decline-button{
+      background:transparent;
+      color:#fff;
+      border:1px solid #ffffff35
+    }
+
+    .edit-link,
+    .connect-button{
+      display:inline-block;
+      margin-top:18px;
+      padding:11px 20px;
+      border-radius:25px;
+      background:#fff;
+      color:#080812;
+      text-decoration:none;
+      font-weight:bold;
+      border:0;
+      cursor:pointer
+    }
+
+    .opportunity-button{
+      margin-left:8px
+    }
+
+    .service-link{
+      display:inline-block;
+      margin-top:12px;
+      color:#fff;
+      text-decoration:underline
+    }
+
+    .empty{
+      padding:18px;
+      border-radius:14px;
+      background:#ffffff06;
+      color:#999;
+      margin-top:12px
+    }
+
+    .review-box,
+    .review-display{
+      margin-top:18px;
+      padding:18px;
+      border-radius:14px;
+      background:#00000022;
+      border:1px solid #ffffff12
+    }
+
+    .stars{
+      display:flex;
+      gap:4px;
+      margin:10px 0 14px
+    }
+
+    .star{
+      border:0;
+      background:transparent;
+      color:#555;
+      font-size:31px;
+      line-height:1;
+      padding:2px;
+      cursor:pointer
+    }
+
+    .star.selected{color:#ffd84d}
+
+    .review-text,
+    .fund-input,
+    .fund-textarea{
+      width:100%;
+      border:1px solid #ffffff20;
+      border-radius:12px;
+      background:#080812;
+      color:#fff;
+      padding:13px;
+      font-family:inherit;
+      margin-bottom:12px
+    }
+
+    .review-text{
+      min-height:100px;
+      resize:vertical
+    }
+
+    .fund-textarea{
+      min-height:120px;
+      resize:vertical
+    }
+
+    .review-stars{
+      color:#ffd84d;
+      font-size:22px;
+      letter-spacing:2px
+    }
+
+    .review-content{
+      color:#ccc;
+      white-space:pre-wrap;
+      margin-top:8px
+    }
+
+    .review-date{
+      color:#777;
+      font-size:13px;
+      margin-top:8px
+    }
+
+    .service-title{
+      font-size:18px;
+      font-weight:bold;
+      margin-bottom:4px
+    }
+
+    .stripe-grid{margin-top:15px}
+
+    .stripe-stat strong{
+      display:block;
+      font-size:18px;
+      margin-top:3px
+    }
+
+    .small{font-size:13px}
+
+    .fund-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:15px
+    }
+
+    .fund-title{
+      font-size:20px;
+      font-weight:bold
+    }
+
+    .fund-owner{
+      color:#999;
+      font-size:14px;
+      margin-top:3px
+    }
+
+    .fund-description{
+      color:#ccc;
+      margin:15px 0;
+      white-space:pre-wrap
+    }
+
+    .fund-progress{
+      height:12px;
+      background:#ffffff12;
+      border-radius:20px;
+      overflow:hidden;
+      margin:15px 0 8px
+    }
+
+    .fund-progress-bar{
+      height:100%;
+      width:0;
+      background:#fff;
+      border-radius:20px;
+      transition:width .3s ease
+    }
+
+    .fund-numbers{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      color:#aaa;
+      font-size:14px
+    }
+
+    .fund-form{
+      padding:20px;
+      border-radius:16px;
+      background:#00000020;
+      border:1px solid #ffffff12;
+      margin-top:18px
+    }
+
+    .fund-form-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px
+    }
+
+    .fund-card .fund-button{margin-top:10px}
+
+    .talent-fund-highlight{
+      border-color:#ffffff30;
+      background:linear-gradient(135deg,#ffffff0d,#ffffff03)
+    }
+
+    .opportunity-panel{
+      border-color:#ffffff30;
+      background:linear-gradient(135deg,#ffffff0d,#ffffff03)
+    }
+
+    .active-service-panel{
+      border-color:#ffffff30;
+      background:linear-gradient(135deg,#ffffff0d,#ffffff03)
+    }
+
+    .service-details{
+      color:#ccc;
+      margin:10px 0
+    }
+
+    .service-price{
+      font-size:24px;
+      font-weight:bold;
+      margin:8px 0
+    }
+
+    .opportunity-type{
+      display:inline-block;
+      padding:5px 10px;
+      border-radius:20px;
+      background:#ffffff12;
+      font-size:13px;
+      margin-bottom:10px
+    }
+
+    @media(max-width:650px){
+
+      header{
+        flex-direction:column
+      }
+
+      main{
+        width:calc(100% - 20px);
+        margin-top:20px
+      }
+
+      .hero,.panel{
+        padding:20px
+      }
+
+      .order-actions{
+        flex-direction:column
+      }
+
+      .order-button,
+      .connect-button,
+      .fund-button,
+      .action-button{
+        width:100%;
+        text-align:center
+      }
+
+      .fund-form-grid{
+        grid-template-columns:1fr
+      }
+
+      .fund-header{
+        flex-direction:column
+      }
+
+      .opportunity-button{
+        margin-left:0;
+        margin-top:10px
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <a href="index.html">⭐ StarRise</a>
+  <button id="signout">Sign Out</button>
+</header>
+
+<main>
+
+<section class="hero">
+
+  <p class="muted">MEMBER DASHBOARD</p>
+
+  <h1>
+    Welcome, <span id="name">Member</span>
+  </h1>
+
+  <p>
+    Your StarRise member account is active.
+  </p>
+
+  <a
+    class="edit-link"
+    href="edit-profile.html"
+  >
+    Edit Profile
+  </a>
+
+  <a
+    class="edit-link opportunity-button"
+    href="opportunities.html"
+  >
+    + Create Opportunity
+  </a>
+
+</section>
 
 
-function renderMyOpportunity(opportunity) {
-  const type = String(
-    opportunity.type || 'opportunity'
-  ).toLowerCase();
+<section class="panel opportunity-panel">
 
-  const memberStatus =
-    opportunity.member_status ||
-    opportunity.status ||
-    'pending';
+  <h2>🚀 Opportunities</h2>
 
-  const memberRole =
-    opportunity.member_role ||
-    'applicant';
+  <p class="muted">
+    Create auditions, gigs, collaborations and other opportunities
+    for StarRise talent. Discover opportunities and connect with
+    artists, performers and creators.
+  </p>
 
-  const location =
-    opportunity.location &&
-    String(opportunity.location).trim()
-      ? opportunity.location
-      : opportunity.is_remote
-        ? 'Remote'
-        : 'Location to be announced';
+  <a
+    class="action-button"
+    href="opportunities.html"
+  >
+    View Opportunities
+  </a>
 
-  const eventDate =
-    opportunity.event_date
-      ? formatDate(opportunity.event_date)
-      : 'Date to be announced';
+  <a
+    class="action-button"
+    href="opportunities.html"
+  >
+    + Create Opportunity
+  </a>
 
-  const compensation =
-    opportunity.compensation !== undefined &&
-    opportunity.compensation !== null &&
-    String(opportunity.compensation).trim()
-      ? opportunity.compensation
-      : 'Not specified';
+</section>
 
-  const description =
-    opportunity.description || '';
 
-  const statusLabel =
-    memberRole === 'creator'
-      ? 'created'
-      : memberStatus;
+<section class="panel opportunity-panel">
 
-  const roleLabel =
-    memberRole === 'creator'
-      ? 'Creator'
-      : 'Applicant';
+  <h2>⭐ My Opportunities</h2>
 
-  return `
-    <div class="opportunity-card">
+  <p class="muted">
+    Opportunities you created or have been accepted into appear here.
+  </p>
 
-      <div class="opportunity-type">
-        ${escapeHtml(type)}
-      </div>
+  <div
+    id="my-opportunities-status"
+    class="status-box"
+  >
+    Loading your opportunities...
+  </div>
 
-      <h3>
-        ${escapeHtml(
-          opportunity.title || 'Opportunity'
-        )}
-      </h3>
+  <div id="my-opportunities"></div>
 
-      <p>
-        ${escapeHtml(description)}
-      </p>
+</section>
 
-      <div>
-        📍 ${escapeHtml(location)}
-      </div>
 
-      <div>
-        📅 ${escapeHtml(eventDate)}
-      </div>
+<section class="panel active-service-panel">
 
-      <div>
-        💰 ${escapeHtml(compensation)}
-      </div>
+  <h2>🎤 My Active Services</h2>
 
-      <div>
-        👤 ${escapeHtml(roleLabel)}
-      </div>
+  <p class="muted">
+    Services you have accepted appear here so StarRise talent
+    can see what you currently have available.
+  </p>
 
-      <div>
-        ${escapeHtml(statusLabel)}
-      </div>
+  <div
+    id="active-services-status"
+    class="status-box"
+  >
+    Loading your active services...
+  </div>
 
-      <button
-        type="button"
-        onclick="viewOpportunity('${opportunity.id}')"
-      >
-        View Opportunity
-      </button>
+  <div id="active-services"></div>
 
-    </div>
-  `;
-}
+</section>
+
+
+<section class="panel talent-fund-highlight">
+
+  <h2>⭐ Talent Funds</h2>
+
+  <p class="muted">
+    Help StarRise talent fund music,
