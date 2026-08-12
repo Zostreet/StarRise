@@ -64,7 +64,8 @@
     }
 
     h1,
-    h2 {
+    h2,
+    h3 {
       margin-top: 0;
     }
 
@@ -95,7 +96,9 @@
       background: rgba(200, 150, 50, .12) !important;
     }
 
-    .profile-grid {
+    .profile-grid,
+    .stripe-grid,
+    .fund-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 14px;
@@ -128,7 +131,8 @@
       background: #ffffff12;
     }
 
-    .order-card {
+    .order-card,
+    .fund-card {
       padding: 20px;
       border-radius: 16px;
       background: #ffffff08;
@@ -173,7 +177,8 @@
       margin-top: 15px;
     }
 
-    .order-button {
+    .order-button,
+    .fund-button {
       border: 0;
       padding: 11px 20px;
       border-radius: 25px;
@@ -183,11 +188,14 @@
       cursor: pointer;
     }
 
-    .order-button:hover {
+    .order-button:hover,
+    .fund-button:hover {
       opacity: .9;
     }
 
-    .order-button:disabled {
+    .order-button:disabled,
+    .fund-button:disabled,
+    .connect-button:disabled {
       opacity: .6;
       cursor: wait;
     }
@@ -261,10 +269,10 @@
       color: #ffd84d;
     }
 
-    .review-text {
+    .review-text,
+    .fund-input,
+    .fund-textarea {
       width: 100%;
-      min-height: 100px;
-      resize: vertical;
       border: 1px solid #ffffff20;
       border-radius: 12px;
       background: #080812;
@@ -272,6 +280,16 @@
       padding: 13px;
       font-family: inherit;
       margin-bottom: 12px;
+    }
+
+    .review-text {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .fund-textarea {
+      min-height: 120px;
+      resize: vertical;
     }
 
     .review-stars {
@@ -299,9 +317,6 @@
     }
 
     .stripe-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-      gap: 12px;
       margin-top: 15px;
     }
 
@@ -319,6 +334,91 @@
 
     .small {
       font-size: 13px;
+    }
+
+    .fund-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .fund-title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .fund-owner {
+      color: #999;
+      font-size: 14px;
+      margin-top: 3px;
+    }
+
+    .fund-description {
+      color: #ccc;
+      margin: 15px 0;
+      white-space: pre-wrap;
+    }
+
+    .fund-progress {
+      height: 12px;
+      background: #ffffff12;
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 15px 0 8px;
+    }
+
+    .fund-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #fff;
+      border-radius: 20px;
+      transition: width .3s ease;
+    }
+
+    .fund-numbers {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .fund-form {
+      padding: 20px;
+      border-radius: 16px;
+      background: #00000020;
+      border: 1px solid #ffffff12;
+      margin-top: 18px;
+    }
+
+    .fund-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .fund-card .fund-button {
+      margin-top: 10px;
+    }
+
+    .fund-status {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 20px;
+      background: #ffffff12;
+      text-transform: capitalize;
+      font-size: 13px;
+    }
+
+    .talent-fund-highlight {
+      border-color: #ffffff30;
+      background:
+        linear-gradient(
+          135deg,
+          #ffffff0d,
+          #ffffff03
+        );
     }
 
     @media (max-width: 650px) {
@@ -341,8 +441,17 @@
       }
 
       .order-button,
-      .connect-button {
+      .connect-button,
+      .fund-button {
         width: 100%;
+      }
+
+      .fund-form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .fund-header {
+        flex-direction: column;
       }
     }
   </style>
@@ -371,12 +480,108 @@
     </a>
   </section>
 
+  <!-- TALENT FUNDS -->
+  <section class="panel talent-fund-highlight">
+    <h2>⭐ Talent Funds</h2>
+
+    <p class="muted">
+      Help StarRise talent fund music, performances, equipment,
+      creative projects and other goals. You can also create your
+      own Talent Fund and let supporters back your vision.
+    </p>
+
+    <div id="talent-fund-status" class="status-box">
+      Loading Talent Funds...
+    </div>
+
+    <div class="fund-form">
+      <h3>Create Your Talent Fund</h3>
+
+      <p class="muted small">
+        Set a funding goal and tell supporters what you are building.
+        StarRise will handle the payment flow through Stripe.
+      </p>
+
+      <div class="fund-form-grid">
+
+        <div>
+          <label class="label" for="fund-title">
+            Fund Title
+          </label>
+
+          <input
+            id="fund-title"
+            class="fund-input"
+            type="text"
+            maxlength="120"
+            placeholder="Example: New Music Project"
+          >
+        </div>
+
+        <div>
+          <label class="label" for="fund-goal">
+            Funding Goal ($)
+          </label>
+
+          <input
+            id="fund-goal"
+            class="fund-input"
+            type="number"
+            min="1"
+            max="100000"
+            step="0.01"
+            placeholder="5000.00"
+          >
+        </div>
+
+      </div>
+
+      <label class="label" for="fund-description">
+        What are you raising money for?
+      </label>
+
+      <textarea
+        id="fund-description"
+        class="fund-textarea"
+        maxlength="2000"
+        placeholder="Tell your StarRise supporters what this fund will help you accomplish..."
+      ></textarea>
+
+      <button
+        id="create-fund"
+        class="fund-button"
+        type="button"
+      >
+        Create Talent Fund
+      </button>
+
+      <div
+        id="create-fund-message"
+        class="small"
+        style="margin-top:12px;"
+      ></div>
+    </div>
+
+    <h3 style="margin-top:28px;">
+      Talent Funds You Can Support
+    </h3>
+
+    <div id="talent-funds"></div>
+
+    <h3 style="margin-top:30px;">
+      My Talent Funds
+    </h3>
+
+    <div id="my-talent-funds"></div>
+  </section>
+
   <!-- STRIPE PAYOUTS -->
   <section class="panel">
     <h2>Get Paid Through StarRise</h2>
 
     <p class="muted">
-      Connect your Stripe account to receive payouts for services you complete.
+      Connect your Stripe account to receive payouts for services
+      and Talent Fund support.
     </p>
 
     <div id="stripe-status" class="status-box">
@@ -561,6 +766,9 @@
   const FUNCTIONS_URL =
     SUPABASE_URL + '/functions/v1';
 
+  let supabaseClient = null;
+  let currentUser = null;
+
   const statusBox =
     document.getElementById('status');
 
@@ -606,10 +814,23 @@
   const stripeMessage =
     document.getElementById('stripe-message');
 
-  let supabaseClient = null;
-  let currentUser = null;
+  const talentFundStatus =
+    document.getElementById('talent-fund-status');
+
+  const talentFundsContainer =
+    document.getElementById('talent-funds');
+
+  const myTalentFundsContainer =
+    document.getElementById('my-talent-funds');
+
+  const createFundButton =
+    document.getElementById('create-fund');
+
+  const createFundMessage =
+    document.getElementById('create-fund-message');
 
   function escapeHtml(value) {
+
     return String(value ?? '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -755,6 +976,8 @@
       await loadProfile(currentUser);
       await loadRoles(currentUser);
       await loadStripeStatus(currentUser);
+      await loadTalentFunds(currentUser);
+      await loadMyTalentFunds(currentUser);
       await loadIncomingOrders(currentUser);
       await loadCompletedOrders(currentUser);
       await loadMyOrders(currentUser);
@@ -1087,10 +1310,8 @@
     connectStripeButton.textContent =
       'Opening Stripe...';
 
-    if (stripeMessage) {
-      stripeMessage.textContent =
-        'Preparing your secure Stripe onboarding page...';
-    }
+    stripeMessage.textContent =
+      'Preparing your secure Stripe onboarding page...';
 
     try {
 
@@ -1156,10 +1377,8 @@
         'error'
       );
 
-      if (stripeMessage) {
-        stripeMessage.textContent =
-          'Please try again.';
-      }
+      stripeMessage.textContent =
+        'Please try again.';
 
       connectStripeButton.disabled = false;
       connectStripeButton.textContent =
@@ -1167,9 +1386,671 @@
     }
   }
 
+  async function loadTalentFunds(user) {
+
+    setStatus(
+      talentFundStatus,
+      'Loading Talent Funds...'
+    );
+
+    talentFundsContainer.innerHTML = '';
+
+    try {
+
+      const result =
+        await supabaseClient
+          .from('talent_funds')
+          .select('*')
+          .in(
+            'status',
+            ['active', 'funded']
+          )
+          .order(
+            'created_at',
+            { ascending: false }
+          );
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      const funds =
+        result.data || [];
+
+      if (!funds.length) {
+
+        setStatus(
+          talentFundStatus,
+          'No Talent Funds are active yet.'
+        );
+
+        talentFundsContainer.innerHTML =
+          '<div class="empty">' +
+          'Be the first StarRise member to create a Talent Fund.' +
+          '</div>';
+
+        return;
+      }
+
+      const talentIds =
+        [...new Set(
+          funds.map(function (fund) {
+            return fund.talent_id;
+          })
+        )];
+
+      const profiles =
+        await getProfiles(talentIds);
+
+      setStatus(
+        talentFundStatus,
+        funds.length === 1
+          ? '1 Talent Fund available.'
+          : funds.length +
+            ' Talent Funds available.',
+        'success'
+      );
+
+      talentFundsContainer.innerHTML =
+        funds
+          .map(function (fund) {
+
+            return renderTalentFund(
+              fund,
+              profiles[fund.talent_id],
+              fund.talent_id === user.id
+            );
+
+          })
+          .join('');
+
+    } catch (error) {
+
+      console.error(
+        'Talent Funds error:',
+        error
+      );
+
+      setStatus(
+        talentFundStatus,
+        'Unable to load Talent Funds: ' +
+        error.message,
+        'error'
+      );
+    }
+  }
+
+  async function loadMyTalentFunds(user) {
+
+    myTalentFundsContainer.innerHTML = '';
+
+    try {
+
+      const result =
+        await supabaseClient
+          .from('talent_funds')
+          .select('*')
+          .eq('talent_id', user.id)
+          .order(
+            'created_at',
+            { ascending: false }
+          );
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      const funds =
+        result.data || [];
+
+      if (!funds.length) {
+
+        myTalentFundsContainer.innerHTML =
+          '<div class="empty">' +
+          'You have not created a Talent Fund yet.' +
+          '</div>';
+
+        return;
+      }
+
+      const fundCards =
+        await Promise.all(
+          funds.map(
+            async function (fund) {
+
+              const contributionResult =
+                await supabaseClient
+                  .from('talent_fund_contributions')
+                  .select(
+                    'amount_cents, payment_status'
+                  )
+                  .eq(
+                    'fund_id',
+                    fund.id
+                  )
+                  .eq(
+                    'payment_status',
+                    'paid'
+                  );
+
+              const contributions =
+                contributionResult.data || [];
+
+              const total =
+                contributions.reduce(
+                  function (sum, contribution) {
+                    return (
+                      sum +
+                      Number(
+                        contribution.amount_cents || 0
+                      )
+                    );
+                  },
+                  0
+                );
+
+              const displayRaised =
+                total > 0
+                  ? total
+                  : Number(fund.raised_cents || 0);
+
+              return renderMyTalentFund(
+                fund,
+                displayRaised,
+                contributions.length
+              );
+            }
+          )
+        );
+
+      myTalentFundsContainer.innerHTML =
+        fundCards.join('');
+
+    } catch (error) {
+
+      console.error(
+        'My Talent Funds error:',
+        error
+      );
+
+      myTalentFundsContainer.innerHTML =
+        '<div class="empty">' +
+        'Unable to load your Talent Funds: ' +
+        escapeHtml(error.message) +
+        '</div>';
+    }
+  }
+
+  function renderTalentFund(
+    fund,
+    profile,
+    isOwner
+  ) {
+
+    const goal =
+      Number(fund.goal_cents || 0);
+
+    const raised =
+      Number(fund.raised_cents || 0);
+
+    const percentage =
+      goal > 0
+        ? Math.min(
+            100,
+            Math.round(
+              (raised / goal) * 100
+            )
+          )
+        : 0;
+
+    const talentName =
+      profile
+        ? getField(
+            profile,
+            [
+              'display_name',
+              'full_name',
+              'name'
+            ],
+            'StarRise Talent'
+          )
+        : 'StarRise Talent';
+
+    let button = '';
+
+    if (fund.status === 'funded') {
+
+      button =
+        '<button class="fund-button" disabled>' +
+        'Funded' +
+        '</button>';
+
+    } else if (isOwner) {
+
+      button =
+        '<button class="fund-button" disabled>' +
+        'Your Talent Fund' +
+        '</button>';
+
+    } else {
+
+      button =
+        '<button ' +
+        'class="fund-button" ' +
+        'data-support-fund="' +
+        escapeHtml(fund.id) +
+        '">' +
+        'Support This Talent' +
+        '</button>';
+    }
+
+    return `
+      <div class="fund-card">
+
+        <div class="fund-header">
+
+          <div>
+            <div class="fund-title">
+              ${escapeHtml(fund.title)}
+            </div>
+
+            <div class="fund-owner">
+              By ${escapeHtml(talentName)}
+            </div>
+          </div>
+
+          <span class="fund-status">
+            ${escapeHtml(fund.status)}
+          </span>
+
+        </div>
+
+        <div class="fund-description">
+          ${escapeHtml(fund.description)}
+        </div>
+
+        <div class="fund-progress">
+          <div
+            class="fund-progress-bar"
+            style="width:${percentage}%"
+          ></div>
+        </div>
+
+        <div class="fund-numbers">
+          <span>
+            ${escapeHtml(formatMoney(raised))} raised
+          </span>
+
+          <span>
+            ${escapeHtml(formatMoney(goal))} goal
+          </span>
+        </div>
+
+        ${button}
+
+      </div>
+    `;
+  }
+
+  function renderMyTalentFund(
+    fund,
+    raised,
+    contributionCount
+  ) {
+
+    const goal =
+      Number(fund.goal_cents || 0);
+
+    const percentage =
+      goal > 0
+        ? Math.min(
+            100,
+            Math.round(
+              (raised / goal) * 100
+            )
+          )
+        : 0;
+
+    return `
+      <div class="fund-card">
+
+        <div class="fund-header">
+
+          <div>
+            <div class="fund-title">
+              ${escapeHtml(fund.title)}
+            </div>
+
+            <div class="fund-owner">
+              ${escapeHtml(
+                contributionCount
+              )}
+              paid contribution${
+                contributionCount === 1
+                  ? ''
+                  : 's'
+              }
+            </div>
+          </div>
+
+          <span class="fund-status">
+            ${escapeHtml(fund.status)}
+          </span>
+
+        </div>
+
+        <div class="fund-description">
+          ${escapeHtml(fund.description)}
+        </div>
+
+        <div class="fund-progress">
+          <div
+            class="fund-progress-bar"
+            style="width:${percentage}%"
+          ></div>
+        </div>
+
+        <div class="fund-numbers">
+          <span>
+            ${escapeHtml(formatMoney(raised))} raised
+          </span>
+
+          <span>
+            ${escapeHtml(formatMoney(goal))} goal
+          </span>
+        </div>
+
+      </div>
+    `;
+  }
+
+  async function createTalentFund() {
+
+    if (!currentUser) {
+      return;
+    }
+
+    const title =
+      document.getElementById(
+        'fund-title'
+      ).value.trim();
+
+    const description =
+      document.getElementById(
+        'fund-description'
+      ).value.trim();
+
+    const goalValue =
+      Number(
+        document.getElementById(
+          'fund-goal'
+        ).value
+      );
+
+    if (!title) {
+
+      createFundMessage.textContent =
+        'Please enter a Talent Fund title.';
+
+      createFundMessage.className =
+        'error small';
+
+      return;
+    }
+
+    if (!description) {
+
+      createFundMessage.textContent =
+        'Please explain what the Talent Fund is for.';
+
+      createFundMessage.className =
+        'error small';
+
+      return;
+    }
+
+    if (
+      !Number.isFinite(goalValue) ||
+      goalValue < 1 ||
+      goalValue > 100000
+    ) {
+
+      createFundMessage.textContent =
+        'Funding goal must be between $1 and $100,000.';
+
+      createFundMessage.className =
+        'error small';
+
+      return;
+    }
+
+    createFundButton.disabled = true;
+    createFundButton.textContent =
+      'Creating...';
+
+    createFundMessage.textContent =
+      'Creating your Talent Fund...';
+
+    createFundMessage.className =
+      'muted small';
+
+    try {
+
+      const goalCents =
+        Math.round(
+          goalValue * 100
+        );
+
+      const result =
+        await supabaseClient
+          .from('talent_funds')
+          .insert({
+            talent_id:
+              currentUser.id,
+            title:
+              title,
+            description:
+              description,
+            goal_cents:
+              goalCents,
+            raised_cents:
+              0,
+            status:
+              'active'
+          })
+          .select()
+          .single();
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      document.getElementById(
+        'fund-title'
+      ).value = '';
+
+      document.getElementById(
+        'fund-goal'
+      ).value = '';
+
+      document.getElementById(
+        'fund-description'
+      ).value = '';
+
+      createFundMessage.textContent =
+        'Talent Fund created successfully.';
+
+      createFundMessage.className =
+        'success small';
+
+      await loadTalentFunds(
+        currentUser
+      );
+
+      await loadMyTalentFunds(
+        currentUser
+      );
+
+    } catch (error) {
+
+      console.error(
+        'Create Talent Fund error:',
+        error
+      );
+
+      createFundMessage.textContent =
+        'Unable to create Talent Fund: ' +
+        error.message;
+
+      createFundMessage.className =
+        'error small';
+
+    } finally {
+
+      createFundButton.disabled = false;
+      createFundButton.textContent =
+        'Create Talent Fund';
+    }
+  }
+
+  async function supportTalentFund(fundId) {
+
+    if (!currentUser) {
+      throw new Error(
+        'You must be signed in.'
+      );
+    }
+
+    const amount =
+      prompt(
+        'How much would you like to contribute? Enter a dollar amount.'
+      );
+
+    if (amount === null) {
+      return;
+    }
+
+    const amountValue =
+      Number(
+        String(amount)
+          .replace('$', '')
+          .trim()
+      );
+
+    if (
+      !Number.isFinite(amountValue) ||
+      amountValue < 1 ||
+      amountValue > 10000
+    ) {
+
+      alert(
+        'Support amount must be between $1 and $10,000.'
+      );
+
+      return;
+    }
+
+    const amountCents =
+      Math.round(
+        amountValue * 100
+      );
+
+    const button =
+      document.querySelector(
+        '[data-support-fund="' +
+        CSS.escape(fundId) +
+        '"]'
+      );
+
+    if (button) {
+      button.disabled = true;
+      button.textContent =
+        'Opening Stripe...';
+    }
+
+    try {
+
+      const sessionResult =
+        await supabaseClient.auth.getSession();
+
+      if (sessionResult.error) {
+        throw sessionResult.error;
+      }
+
+      const session =
+        sessionResult.data &&
+        sessionResult.data.session;
+
+      if (!session) {
+        throw new Error(
+          'Your login session has expired.'
+        );
+      }
+
+      const response =
+        await fetch(
+          FUNCTIONS_URL +
+          '/create-talent-fund-checkout',
+          {
+            method: 'POST',
+            headers: {
+              'Authorization':
+                'Bearer ' +
+                session.access_token,
+              'apikey':
+                SUPABASE_KEY,
+              'Content-Type':
+                'application/json'
+            },
+            body: JSON.stringify({
+              fund_id:
+                fundId,
+              amount_cents:
+                amountCents
+            })
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (!response.ok || !data.url) {
+
+        throw new Error(
+          data.error ||
+          'Unable to start Talent Fund checkout.'
+        );
+      }
+
+      window.location.href =
+        data.url;
+
+    } catch (error) {
+
+      console.error(
+        'Talent Fund checkout error:',
+        error
+      );
+
+      alert(
+        'Unable to start Talent Fund support: ' +
+        error.message
+      );
+
+      if (button) {
+        button.disabled = false;
+        button.textContent =
+          'Support This Talent';
+      }
+    }
+  }
+
   async function getServices(serviceIds) {
 
-    if (!serviceIds.length) {
+    const ids =
+      serviceIds.filter(Boolean);
+
+    if (!ids.length) {
       return {};
     }
 
@@ -1177,7 +2058,7 @@
       await supabaseClient
         .from('star_rise_services')
         .select('*')
-        .in('id', serviceIds);
+        .in('id', ids);
 
     if (result.error) {
       throw result.error;
@@ -1196,7 +2077,10 @@
 
   async function getProfiles(userIds) {
 
-    if (!userIds.length) {
+    const ids =
+      userIds.filter(Boolean);
+
+    if (!ids.length) {
       return {};
     }
 
@@ -1204,7 +2088,7 @@
       await supabaseClient
         .from('Profiles')
         .select('*')
-        .in('id', userIds);
+        .in('id', ids);
 
     if (result.error) {
       return {};
@@ -1984,7 +2868,8 @@
       await supabaseClient
         .from('service_orders')
         .update({
-          status: newStatus,
+          status:
+            newStatus,
           updated_at:
             new Date().toISOString()
         })
@@ -2091,8 +2976,10 @@
         await supabaseClient
           .from('service_reviews')
           .update({
-            rating: rating,
-            review: reviewText,
+            rating:
+              rating,
+            review:
+              reviewText,
             seller_id:
               orderResult.data.seller_id,
             updated_at:
@@ -2113,13 +3000,16 @@
         await supabaseClient
           .from('service_reviews')
           .insert({
-            order_id: orderId,
+            order_id:
+              orderId,
             reviewer_id:
               currentUser.id,
             seller_id:
               orderResult.data.seller_id,
-            rating: rating,
-            review: reviewText
+            rating:
+              rating,
+            review:
+              reviewText
           });
     }
 
@@ -2131,6 +3021,20 @@
   document.addEventListener(
     'click',
     async function (event) {
+
+      const supportButton =
+        event.target.closest(
+          '[data-support-fund]'
+        );
+
+      if (supportButton) {
+
+        await supportTalentFund(
+          supportButton.dataset.supportFund
+        );
+
+        return;
+      }
 
       const star =
         event.target.closest(
@@ -2270,6 +3174,7 @@
         reviewButton.disabled = true;
 
         if (message) {
+
           message.textContent =
             'Saving review...';
 
@@ -2329,11 +3234,14 @@
     }
   );
 
+  createFundButton.addEventListener(
+    'click',
+    createTalentFund
+  );
+
   connectStripeButton.addEventListener(
     'click',
-    function () {
-      startStripeOnboarding();
-    }
+    startStripeOnboarding
   );
 
   document
@@ -2353,6 +3261,13 @@
           'Signing Out...';
 
         try {
+
+          if (!supabaseClient) {
+            window.location.href =
+              'login.html';
+
+            return;
+          }
 
           const result =
             await supabaseClient.auth.signOut();
