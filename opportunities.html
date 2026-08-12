@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Opportunities | StarRise</title>
 
   <style>
@@ -21,11 +22,11 @@
     }
 
     header {
-      border-bottom: 1px solid #ffffff18;
-      background: #080812;
       position: sticky;
       top: 0;
       z-index: 20;
+      background: #080812;
+      border-bottom: 1px solid #ffffff18;
     }
 
     .nav {
@@ -45,8 +46,8 @@
 
     .nav-links {
       display: flex;
-      gap: 18px;
       flex-wrap: wrap;
+      gap: 18px;
     }
 
     .nav-links a {
@@ -86,10 +87,10 @@
       margin-top: 15px;
       padding: 13px 24px;
       border-radius: 30px;
+      border: 0;
       background: #fff;
       color: #080812;
       font-weight: 800;
-      border: 0;
       cursor: pointer;
     }
 
@@ -198,11 +199,10 @@
       margin-top: 20px;
       padding: 12px;
       border-radius: 25px;
-      border: 1px solid #ffffff25;
+      border: 0;
       background: #fff;
       color: #080812;
       font-weight: 800;
-      text-align: center;
       cursor: pointer;
     }
 
@@ -243,8 +243,8 @@
     .modal-header {
       display: flex;
       justify-content: space-between;
-      gap: 15px;
       align-items: center;
+      gap: 15px;
       margin-bottom: 20px;
     }
 
@@ -256,7 +256,7 @@
       border: 0;
       background: transparent;
       color: #aaa;
-      font-size: 25px;
+      font-size: 27px;
       cursor: pointer;
     }
 
@@ -297,14 +297,37 @@
     }
 
     .message {
+      display: none;
       margin-top: 15px;
       padding: 12px;
       border-radius: 10px;
-      display: none;
     }
 
     .message.show {
       display: block;
+    }
+
+    .success {
+      background: #16351f;
+      color: #b9f6c8;
+    }
+
+    .error {
+      background: #351616;
+      color: #ffb8b8;
+    }
+
+    .opportunity-detail {
+      color: #ccc;
+      line-height: 1.7;
+    }
+
+    .opportunity-detail strong {
+      color: #fff;
+    }
+
+    .apply-text {
+      margin-top: 18px;
     }
 
     footer {
@@ -410,26 +433,41 @@
 
   <div class="toolbar">
 
-    <button class="filter active" data-filter="all">
+    <button
+      class="filter active"
+      data-filter="all"
+    >
       All Opportunities
     </button>
 
-    <button class="filter" data-filter="audition">
+    <button
+      class="filter"
+      data-filter="audition"
+    >
       🎭 Auditions
     </button>
 
-    <button class="filter" data-filter="gig">
+    <button
+      class="filter"
+      data-filter="gig"
+    >
       🎵 Gigs
     </button>
 
-    <button class="filter" data-filter="collaboration">
+    <button
+      class="filter"
+      data-filter="collaboration"
+    >
       🤝 Collaborations
     </button>
 
   </div>
 
 
-  <div id="status" class="status">
+  <div
+    id="status"
+    class="status"
+  >
     Loading StarRise opportunities...
   </div>
 
@@ -447,7 +485,7 @@
 </footer>
 
 
-<!-- CREATE OPPORTUNITY MODAL -->
+<!-- CREATE OPPORTUNITY -->
 
 <div
   id="createModal"
@@ -458,9 +496,7 @@
 
     <div class="modal-header">
 
-      <h2>
-        Create Opportunity
-      </h2>
+      <h2>Create Opportunity</h2>
 
       <button
         id="closeCreate"
@@ -494,6 +530,7 @@
         id="type"
         required
       >
+
         <option value="audition">
           🎭 Audition
         </option>
@@ -505,6 +542,7 @@
         <option value="collaboration">
           🤝 Collaboration
         </option>
+
       </select>
 
 
@@ -547,17 +585,20 @@
       <input
         id="compensation"
         type="text"
-        placeholder="Example: $100, paid gig, exposure, etc."
+        placeholder="Example: $100 paid gig"
       >
 
 
       <label>
+
         <input
           id="remote"
           type="checkbox"
           style="width:auto;margin-right:8px;"
         >
+
         Remote opportunity available
+
       </label>
 
 
@@ -572,6 +613,123 @@
 
       <div
         id="formMessage"
+        class="message"
+      ></div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- OPPORTUNITY DETAILS -->
+
+<div
+  id="detailModal"
+  class="modal"
+>
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+
+      <h2 id="detailTitle">
+        Opportunity
+      </h2>
+
+      <button
+        id="closeDetail"
+        class="close"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div
+      id="detailContent"
+      class="opportunity-detail"
+    ></div>
+
+
+    <button
+      id="applyButton"
+      class="submit"
+    >
+      Apply / Respond
+    </button>
+
+
+    <div
+      id="applicationMessage"
+      class="message"
+    ></div>
+
+  </div>
+
+</div>
+
+
+<!-- APPLICATION FORM -->
+
+<div
+  id="applicationModal"
+  class="modal"
+>
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+
+      <h2>Respond to Opportunity</h2>
+
+      <button
+        id="closeApplication"
+        class="close"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <form id="applicationForm">
+
+      <label for="applicationMessageInput">
+        Message
+      </label>
+
+      <textarea
+        id="applicationMessageInput"
+        placeholder="Tell the opportunity owner why you're a good fit..."
+        required
+      ></textarea>
+
+
+      <label for="applicationPortfolio">
+        Portfolio / Website
+      </label>
+
+      <input
+        id="applicationPortfolio"
+        type="url"
+        placeholder="https://..."
+      >
+
+
+      <button
+        id="applicationSubmit"
+        class="submit"
+        type="submit"
+      >
+        Submit Application
+      </button>
+
+
+      <div
+        id="applicationFormMessage"
         class="message"
       ></div>
 
@@ -605,28 +763,27 @@ const grid =
 const status =
   document.getElementById("status");
 
-const modal =
+const createModal =
   document.getElementById("createModal");
 
-const openCreate =
-  document.getElementById("openCreate");
+const detailModal =
+  document.getElementById("detailModal");
 
-const closeCreate =
-  document.getElementById("closeCreate");
+const applicationModal =
+  document.getElementById("applicationModal");
 
-const form =
+const createForm =
   document.getElementById("opportunityForm");
 
-const message =
-  document.getElementById("formMessage");
-
-const submitButton =
-  document.getElementById("submitButton");
+const applicationForm =
+  document.getElementById("applicationForm");
 
 
 let opportunities = [];
 
 let currentFilter = "all";
+
+let selectedOpportunity = null;
 
 
 function escapeHtml(value) {
@@ -688,23 +845,16 @@ function formatDate(date) {
 
 
 function showMessage(
+  element,
   text,
   success = false
 ) {
 
-  message.textContent = text;
+  element.textContent = text;
 
-  message.classList.add("show");
-
-  message.style.background =
-    success
-      ? "#16351f"
-      : "#351616";
-
-  message.style.color =
-    success
-      ? "#b9f6c8"
-      : "#ffb8b8";
+  element.className =
+    "message show " +
+    (success ? "success" : "error");
 
 }
 
@@ -725,9 +875,7 @@ function render() {
     grid.innerHTML = `
       <div class="empty">
 
-        <h2>
-          No opportunities yet
-        </h2>
+        <h2>No opportunities yet</h2>
 
         <p>
           Be one of the first StarRise members
@@ -749,7 +897,9 @@ function render() {
 
           <div class="badge">
             ${escapeHtml(
-              formatType(opportunity.type)
+              formatType(
+                opportunity.type
+              )
             )}
           </div>
 
@@ -814,7 +964,7 @@ function render() {
             class="card-button"
             onclick="viewOpportunity('${opportunity.id}')"
           >
-            View Opportunity
+            View & Apply
           </button>
 
         </article>
@@ -827,7 +977,8 @@ function render() {
 
 async function loadOpportunities() {
 
-  status.style.display = "block";
+  status.style.display =
+    "block";
 
   status.textContent =
     "Loading StarRise opportunities...";
@@ -836,27 +987,32 @@ async function loadOpportunities() {
   const {
     data,
     error
-  } = await supabaseClient
-    .from("opportunities")
-    .select(`
-      id,
-      title,
-      type,
-      description,
-      location,
-      is_remote,
-      event_date,
-      compensation,
-      status,
-      created_at
-    `)
-    .eq("status", "active")
-    .order(
-      "created_at",
-      {
-        ascending: false
-      }
-    );
+  } =
+    await supabaseClient
+      .from("opportunities")
+      .select(`
+        id,
+        title,
+        type,
+        description,
+        location,
+        is_remote,
+        event_date,
+        compensation,
+        status,
+        created_by,
+        created_at
+      `)
+      .eq(
+        "status",
+        "active"
+      )
+      .order(
+        "created_at",
+        {
+          ascending: false
+        }
+      );
 
 
   if (error) {
@@ -886,181 +1042,125 @@ async function loadOpportunities() {
 
 async function viewOpportunity(id) {
 
-  const {
-    data,
-    error
-  } = await supabaseClient
-    .from("opportunities")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-
-  if (error) {
-
-    alert(
-      "We could not load this opportunity."
+  const opportunity =
+    opportunities.find(
+      item =>
+        item.id === id
     );
 
-    console.error(error);
 
+  if (!opportunity) {
     return;
-
   }
 
 
-  const details =
-    `
-    ${data.title}
+  selectedOpportunity =
+    opportunity;
 
-    ${data.description}
 
-    Location:
-    ${data.location || "To be announced"}
+  document
+    .getElementById("detailTitle")
+    .textContent =
+      opportunity.title;
 
-    ${
-      data.is_remote
-        ? "Remote available"
-        : "In-person"
-    }
 
-    Date:
-    ${
-      formatDate(data.event_date)
-    }
+  document
+    .getElementById("detailContent")
+    .innerHTML = `
 
-    ${
-      data.compensation
-        ? "Compensation: " +
-          data.compensation
-        : ""
-    }
+      <p>
+        <strong>
+          ${escapeHtml(
+            formatType(
+              opportunity.type
+            )
+          )}
+        </strong>
+      </p>
+
+      <p>
+        ${escapeHtml(
+          opportunity.description
+        )}
+      </p>
+
+      <p>
+        <strong>Location:</strong>
+        ${
+          escapeHtml(
+            opportunity.location ||
+            "To be announced"
+          )
+        }
+      </p>
+
+      <p>
+        <strong>Format:</strong>
+        ${
+          opportunity.is_remote
+            ? "Remote available"
+            : "In-person"
+        }
+      </p>
+
+      <p>
+        <strong>Date:</strong>
+        ${
+          escapeHtml(
+            formatDate(
+              opportunity.event_date
+            )
+          )
+        }
+      </p>
+
+      ${
+        opportunity.compensation
+          ? `
+            <p>
+              <strong>Compensation:</strong>
+              ${
+                escapeHtml(
+                  opportunity.compensation
+                )
+              }
+            </p>
+          `
+          : ""
+      }
+
     `;
 
 
-  const apply =
-    confirm(
-      details +
-      "\n\nWould you like to respond to this opportunity?"
-    );
+  document
+    .getElementById(
+      "applicationMessage"
+    )
+    .className =
+      "message";
 
 
-  if (!apply) {
-    return;
-  }
-
-
-  const {
-    data: sessionData
-  } =
-    await supabaseClient
-      .auth
-      .getSession();
-
-
-  if (!sessionData.session) {
-
-    alert(
-      "Please sign in to respond to an opportunity."
-    );
-
-    window.location.href =
-      "dashboard.html";
-
-    return;
-
-  }
-
-
-  alert(
-    "You're signed in. The application/response system is the next connection."
+  detailModal.classList.add(
+    "show"
   );
 
 }
 
 
-openCreate.addEventListener(
-  "click",
-  async () => {
+document
+  .getElementById("applyButton")
+  .addEventListener(
+    "click",
+    async () => {
 
-    const {
-      data
-    } =
-      await supabaseClient
-        .auth
-        .getSession();
+      if (!selectedOpportunity) {
+        return;
+      }
 
-
-    if (!data.session) {
-
-      alert(
-        "Please sign in before creating an opportunity."
-      );
-
-      window.location.href =
-        "dashboard.html";
-
-      return;
-
-    }
-
-
-    form.reset();
-
-    message.classList.remove("show");
-
-    modal.classList.add("show");
-
-  }
-);
-
-
-closeCreate.addEventListener(
-  "click",
-  () => {
-
-    modal.classList.remove("show");
-
-  }
-);
-
-
-modal.addEventListener(
-  "click",
-  event => {
-
-    if (event.target === modal) {
-      modal.classList.remove("show");
-    }
-
-  }
-);
-
-
-form.addEventListener(
-  "submit",
-  async event => {
-
-    event.preventDefault();
-
-
-    submitButton.disabled =
-      true;
-
-    submitButton.textContent =
-      "Publishing...";
-
-
-    message.classList.remove(
-      "show"
-    );
-
-
-    try {
 
       const {
-        data: sessionData,
-        error: sessionError
+        data,
+        error
       } =
         await supabaseClient
           .auth
@@ -1068,8 +1168,396 @@ form.addEventListener(
 
 
       if (
-        sessionError ||
-        !sessionData.session
+        error ||
+        !data.session
+      ) {
+
+        alert(
+          "Please sign in before applying."
+        );
+
+        window.location.href =
+          "dashboard.html";
+
+        return;
+
+      }
+
+
+      if (
+        selectedOpportunity.created_by ===
+        data.session.user.id
+      ) {
+
+        showMessage(
+          document.getElementById(
+            "applicationMessage"
+          ),
+          "You cannot apply to your own opportunity."
+        );
+
+        return;
+
+      }
+
+
+      applicationForm.reset();
+
+
+      document
+        .getElementById(
+          "applicationFormMessage"
+        )
+        .className =
+          "message";
+
+
+      detailModal.classList.remove(
+        "show"
+      );
+
+
+      applicationModal.classList.add(
+        "show"
+      );
+
+    }
+  );
+
+
+applicationForm.addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+
+    const submit =
+      document.getElementById(
+        "applicationSubmit"
+      );
+
+
+    submit.disabled =
+      true;
+
+    submit.textContent =
+      "Submitting...";
+
+
+    try {
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .auth
+          .getSession();
+
+
+      if (
+        error ||
+        !data.session
+      ) {
+
+        throw new Error(
+          "Please sign in before applying."
+        );
+
+      }
+
+
+      if (!selectedOpportunity) {
+
+        throw new Error(
+          "Opportunity could not be found."
+        );
+
+      }
+
+
+      if (
+        selectedOpportunity.created_by ===
+        data.session.user.id
+      ) {
+
+        throw new Error(
+          "You cannot apply to your own opportunity."
+        );
+
+      }
+
+
+      const applicationMessage =
+        document
+          .getElementById(
+            "applicationMessageInput"
+          )
+          .value
+          .trim();
+
+
+      const portfolio =
+        document
+          .getElementById(
+            "applicationPortfolio"
+          )
+          .value
+          .trim();
+
+
+      const {
+        error: insertError
+      } =
+        await supabaseClient
+          .from(
+            "opportunity_applications"
+          )
+          .insert({
+
+            opportunity_id:
+              selectedOpportunity.id,
+
+            applicant_id:
+              data.session.user.id,
+
+            message:
+              applicationMessage,
+
+            portfolio_url:
+              portfolio || null,
+
+            status:
+              "pending"
+
+          });
+
+
+      if (insertError) {
+
+        if (
+          insertError.code ===
+          "23505"
+        ) {
+
+          throw new Error(
+            "You have already applied to this opportunity."
+          );
+
+        }
+
+        throw insertError;
+
+      }
+
+
+      showMessage(
+        document.getElementById(
+          "applicationFormMessage"
+        ),
+        "Application submitted successfully!",
+        true
+      );
+
+
+      submit.textContent =
+        "Application Sent";
+
+
+      setTimeout(
+        () => {
+
+          applicationModal.classList.remove(
+            "show"
+          );
+
+          submit.disabled =
+            false;
+
+          submit.textContent =
+            "Submit Application";
+
+        },
+        1200
+      );
+
+
+    } catch (error) {
+
+      console.error(error);
+
+
+      showMessage(
+        document.getElementById(
+          "applicationFormMessage"
+        ),
+        error.message ||
+        "We could not submit your application."
+      );
+
+
+      submit.disabled =
+        false;
+
+      submit.textContent =
+        "Submit Application";
+
+    }
+
+  }
+);
+
+
+document
+  .getElementById("openCreate")
+  .addEventListener(
+    "click",
+    async () => {
+
+      const {
+        data
+      } =
+        await supabaseClient
+          .auth
+          .getSession();
+
+
+      if (!data.session) {
+
+        alert(
+          "Please sign in before creating an opportunity."
+        );
+
+        window.location.href =
+          "dashboard.html";
+
+        return;
+
+      }
+
+
+      createForm.reset();
+
+
+      document
+        .getElementById(
+          "formMessage"
+        )
+        .className =
+          "message";
+
+
+      createModal.classList.add(
+        "show"
+      );
+
+    }
+  );
+
+
+document
+  .getElementById("closeCreate")
+  .addEventListener(
+    "click",
+    () => {
+
+      createModal.classList.remove(
+        "show"
+      );
+
+    }
+  );
+
+
+document
+  .getElementById("closeDetail")
+  .addEventListener(
+    "click",
+    () => {
+
+      detailModal.classList.remove(
+        "show"
+      );
+
+    }
+  );
+
+
+document
+  .getElementById("closeApplication")
+  .addEventListener(
+    "click",
+    () => {
+
+      applicationModal.classList.remove(
+        "show"
+      );
+
+    }
+  );
+
+
+[
+  createModal,
+  detailModal,
+  applicationModal
+].forEach(modal => {
+
+  modal.addEventListener(
+    "click",
+    event => {
+
+      if (
+        event.target === modal
+      ) {
+
+        modal.classList.remove(
+          "show"
+        );
+
+      }
+
+    }
+  );
+
+});
+
+
+createForm.addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+
+    const button =
+      document.getElementById(
+        "submitButton"
+      );
+
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "Publishing...";
+
+
+    try {
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .auth
+          .getSession();
+
+
+      if (
+        error ||
+        !data.session
       ) {
 
         throw new Error(
@@ -1120,50 +1608,54 @@ form.addEventListener(
 
 
       const {
-        error
-      } = await supabaseClient
-        .from("opportunities")
-        .insert({
+        error: insertError
+      } =
+        await supabaseClient
+          .from("opportunities")
+          .insert({
 
-          title,
+            title,
 
-          type,
+            type,
 
-          description,
+            description,
 
-          location:
-            location || null,
+            location:
+              location || null,
 
-          event_date:
-            eventDate || null,
+            event_date:
+              eventDate || null,
 
-          compensation:
-            compensation || null,
+            compensation:
+              compensation || null,
 
-          is_remote:
-            isRemote,
+            is_remote:
+              isRemote,
 
-          status:
-            "active",
+            status:
+              "active",
 
-          created_by:
-            sessionData.session.user.id
+            created_by:
+              data.session.user.id
 
-        });
+          });
 
 
-      if (error) {
-        throw error;
+      if (insertError) {
+        throw insertError;
       }
 
 
       showMessage(
+        document.getElementById(
+          "formMessage"
+        ),
         "Opportunity published successfully!",
         true
       );
 
 
-      submitButton.textContent =
+      button.textContent =
         "Published!";
 
 
@@ -1173,14 +1665,14 @@ form.addEventListener(
       setTimeout(
         () => {
 
-          modal.classList.remove(
+          createModal.classList.remove(
             "show"
           );
 
-          submitButton.disabled =
+          button.disabled =
             false;
 
-          submitButton.textContent =
+          button.textContent =
             "Publish Opportunity";
 
         },
@@ -1194,15 +1686,18 @@ form.addEventListener(
 
 
       showMessage(
+        document.getElementById(
+          "formMessage"
+        ),
         error.message ||
         "We could not publish the opportunity."
       );
 
 
-      submitButton.disabled =
+      button.disabled =
         false;
 
-      submitButton.textContent =
+      button.textContent =
         "Publish Opportunity";
 
     }
