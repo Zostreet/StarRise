@@ -1306,32 +1306,20 @@ applicationForm.addEventListener(
           .value
           .trim();
 
-
-      const {
-        error: insertError
-      } =
-        await supabaseClient
-          .from(
-            "opportunity_applications"
-          )
-          .insert({
-
-            opportunity_id:
-              selectedOpportunity.id,
-
-            applicant_id:
-              data.session.user.id,
-
-            message:
-              applicationMessage,
-
-            portfolio_url:
-              portfolio || null,
-
-            status:
-              "pending"
-
-          });
+const { error: insertError } =
+  await supabaseClient
+    .from("opportunities")
+    .insert({
+      title,
+      type,
+      description,
+      location: location || null,
+      event_date: eventDate || null,
+      compensation: compensation || null,
+      is_remote: isRemote,
+      status: "active",
+      creator_id: data.session.user.id
+    });
 
 
       if (insertError) {
