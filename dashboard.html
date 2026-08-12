@@ -586,4 +586,677 @@
   <h2>⭐ Talent Funds</h2>
 
   <p class="muted">
-    Help StarRise talent fund music,
+    Help StarRise talent fund music, performances, equipment,
+    creative projects and other goals. You can also create your
+    own Talent Fund and let supporters back your vision.
+  </p>
+
+  <div
+    id="talent-fund-status"
+    class="status-box"
+  >
+    Loading Talent Funds...
+  </div>
+
+  <div class="fund-form">
+
+    <h3>Create Your Talent Fund</h3>
+
+    <p class="muted small">
+      Set a funding goal and tell supporters what you are building.
+      StarRise will handle the payment flow through Stripe.
+    </p>
+
+    <div class="fund-form-grid">
+
+      <div>
+
+        <label
+          class="label"
+          for="fund-title"
+        >
+          Fund Title
+        </label>
+
+        <input
+          id="fund-title"
+          class="fund-input"
+          type="text"
+          maxlength="120"
+          placeholder="Example: New Music Project"
+        >
+
+      </div>
+
+      <div>
+
+        <label
+          class="label"
+          for="fund-goal"
+        >
+          Funding Goal ($)
+        </label>
+
+        <input
+          id="fund-goal"
+          class="fund-input"
+          type="number"
+          min="1"
+          max="100000"
+          step="0.01"
+          placeholder="5000.00"
+        >
+
+      </div>
+
+    </div>
+
+    <label
+      class="label"
+      for="fund-description"
+    >
+      What are you raising money for?
+    </label>
+
+    <textarea
+      id="fund-description"
+      class="fund-textarea"
+      maxlength="2000"
+      placeholder="Tell your StarRise supporters what this fund will help you accomplish..."
+    ></textarea>
+
+    <button
+      id="create-fund"
+      class="fund-button"
+      type="button"
+    >
+      Create Talent Fund
+    </button>
+
+    <div
+      id="create-fund-message"
+      class="small"
+      style="margin-top:12px"
+    ></div>
+
+  </div>
+
+  <h3 style="margin-top:28px">
+    Talent Funds You Can Support
+  </h3>
+
+  <div id="talent-funds"></div>
+
+  <h3 style="margin-top:30px">
+    My Talent Funds
+  </h3>
+
+  <div id="my-talent-funds"></div>
+
+</section>
+
+
+<section class="panel">
+
+  <h2>Get Paid Through StarRise</h2>
+
+  <p class="muted">
+    Connect your Stripe account to receive payouts for services
+    and Talent Fund support.
+  </p>
+
+  <div
+    id="stripe-status"
+    class="status-box"
+  >
+    Checking Stripe payout status...
+  </div>
+
+  <div class="stripe-grid">
+
+    <div class="stripe-stat">
+
+      <span class="label">
+        Account
+      </span>
+
+      <strong id="stripe-account-status">
+        Checking...
+      </strong>
+
+    </div>
+
+    <div class="stripe-stat">
+
+      <span class="label">
+        Charges
+      </span>
+
+      <strong id="stripe-charges">
+        Checking...
+      </strong>
+
+    </div>
+
+    <div class="stripe-stat">
+
+      <span class="label">
+        Payouts
+      </span>
+
+      <strong id="stripe-payouts">
+        Checking...
+      </strong>
+
+    </div>
+
+  </div>
+
+  <button
+    id="connect-stripe"
+    class="connect-button"
+    type="button"
+  >
+    Set Up Stripe Payouts
+  </button>
+
+  <p
+    id="stripe-message"
+    class="muted small"
+    style="margin-top:12px"
+  ></p>
+
+</section>
+
+
+<section class="panel">
+
+  <h2>Your Profile</h2>
+
+  <div
+    id="status"
+    class="status-box"
+  >
+    Connecting to StarRise...
+  </div>
+
+  <div class="profile-grid">
+
+    <div class="item">
+
+      <span class="label">
+        Full Name
+      </span>
+
+      <span
+        id="profile-name"
+        class="profile-value"
+      >
+        Loading...
+      </span>
+
+    </div>
+
+    <div class="item">
+
+      <span class="label">
+        Display / Stage Name
+      </span>
+
+      <span
+        id="display-name"
+        class="profile-value"
+      >
+        Loading...
+      </span>
+
+    </div>
+
+    <div class="item">
+
+      <span class="label">
+        Email
+      </span>
+
+      <span
+        id="email"
+        class="profile-value"
+      >
+        Loading...
+      </span>
+
+    </div>
+
+    <div class="item">
+
+      <span class="label">
+        Location
+      </span>
+
+      <span
+        id="location"
+        class="profile-value"
+      >
+        Loading...
+      </span>
+
+    </div>
+
+    <div class="item">
+
+      <span class="label">
+        Website
+      </span>
+
+      <span
+        id="website"
+        class="profile-value"
+      >
+        Loading...
+      </span>
+
+    </div>
+
+    <div class="item">
+
+      <span class="label">
+        Member Since
+      </span>
+
+      <span
+        id="member-since"
+        class="profile-value"
+      >
+        Loading...
+      </span>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="panel">
+
+  <h2>About You</h2>
+
+  <p
+    id="bio"
+    class="muted"
+  >
+    Loading...
+  </p>
+
+</section>
+
+
+<section class="panel">
+
+  <h2>Your StarRise Roles</h2>
+
+  <div id="roles">
+    Loading roles...
+  </div>
+
+</section>
+
+
+<section class="panel">
+
+  <h2>Incoming Service Orders</h2>
+
+  <p class="muted">
+    Active service requests from customers appear here.
+  </p>
+
+  <div
+    id="orders-status"
+    class="status-box"
+  >
+    Loading orders...
+  </div>
+
+  <div id="orders"></div>
+
+</section>
+
+
+<section class="panel">
+
+  <h2>Completed Services</h2>
+
+  <p class="muted">
+    Services you completed appear here.
+  </p>
+
+  <div
+    id="completed-orders-status"
+    class="status-box"
+  >
+    Loading completed services...
+  </div>
+
+  <div id="completed-orders"></div>
+
+</section>
+
+
+<section class="panel">
+
+  <h2>My Orders</h2>
+
+  <p class="muted">
+    Services you requested from other StarRise members.
+  </p>
+
+  <div
+    id="my-orders-status"
+    class="status-box"
+  >
+    Loading your orders...
+  </div>
+
+  <div id="my-orders"></div>
+
+</section>
+
+
+<section class="panel">
+
+  <h2>My Completed Services</h2>
+
+  <p class="muted">
+    Completed services you received.
+  </p>
+
+  <div
+    id="my-completed-status"
+    class="status-box"
+  >
+    Loading completed orders...
+  </div>
+
+  <div id="my-completed"></div>
+
+</section>
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+(function(){
+
+'use strict';
+
+
+const SUPABASE_URL =
+  'https://rcnikxotdalxtuvpmlvm.supabase.co';
+
+const SUPABASE_KEY =
+  'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
+
+const FUNCTIONS_URL =
+  SUPABASE_URL + '/functions/v1';
+
+
+let supabaseClient = null;
+let currentUser = null;
+
+
+const statusBox =
+  document.getElementById('status');
+
+const ordersStatus =
+  document.getElementById('orders-status');
+
+const ordersContainer =
+  document.getElementById('orders');
+
+const completedOrdersStatus =
+  document.getElementById(
+    'completed-orders-status'
+  );
+
+const completedOrdersContainer =
+  document.getElementById(
+    'completed-orders'
+  );
+
+const myOrdersStatus =
+  document.getElementById(
+    'my-orders-status'
+  );
+
+const myOrdersContainer =
+  document.getElementById(
+    'my-orders'
+  );
+
+const myCompletedStatus =
+  document.getElementById(
+    'my-completed-status'
+  );
+
+const myCompletedContainer =
+  document.getElementById(
+    'my-completed'
+  );
+
+
+const stripeStatus =
+  document.getElementById(
+    'stripe-status'
+  );
+
+const stripeAccountStatus =
+  document.getElementById(
+    'stripe-account-status'
+  );
+
+const stripeCharges =
+  document.getElementById(
+    'stripe-charges'
+  );
+
+const stripePayouts =
+  document.getElementById(
+    'stripe-payouts'
+  );
+
+const connectStripeButton =
+  document.getElementById(
+    'connect-stripe'
+  );
+
+const stripeMessage =
+  document.getElementById(
+    'stripe-message'
+  );
+
+
+const talentFundStatus =
+  document.getElementById(
+    'talent-fund-status'
+  );
+
+const talentFundsContainer =
+  document.getElementById(
+    'talent-funds'
+  );
+
+const myTalentFundsContainer =
+  document.getElementById(
+    'my-talent-funds'
+  );
+
+const createFundButton =
+  document.getElementById(
+    'create-fund'
+  );
+
+const createFundMessage =
+  document.getElementById(
+    'create-fund-message'
+  );
+
+
+const myOpportunitiesStatus =
+  document.getElementById(
+    'my-opportunities-status'
+  );
+
+const myOpportunitiesContainer =
+  document.getElementById(
+    'my-opportunities'
+  );
+
+
+const activeServicesStatus =
+  document.getElementById(
+    'active-services-status'
+  );
+
+const activeServicesContainer =
+  document.getElementById(
+    'active-services'
+  );
+
+
+function escapeHtml(value){
+
+  return String(value ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+
+}
+
+
+function setStatus(
+  element,
+  message,
+  type
+){
+
+  if(!element)return;
+
+  element.textContent =
+    message;
+
+  element.classList.remove(
+    'error',
+    'success',
+    'warning'
+  );
+
+  if(type){
+    element.classList.add(type);
+  }
+
+}
+
+
+function formatDate(value){
+
+  if(!value){
+    return 'Unknown';
+  }
+
+  const date =
+    new Date(value);
+
+  if(
+    Number.isNaN(
+      date.getTime()
+    )
+  ){
+    return 'Unknown';
+  }
+
+  return date.toLocaleDateString();
+
+}
+
+
+function formatMoney(cents){
+
+  return '$' +
+    (
+      Number(cents || 0) /
+      100
+    ).toFixed(2);
+
+}
+
+
+function starsHtml(rating){
+
+  const value =
+    Number(rating || 0);
+
+  return [1,2,3,4,5]
+    .map(
+      number =>
+        number <= value
+          ? '★'
+          : '☆'
+    )
+    .join('');
+
+}
+
+
+function getField(
+  object,
+  fields,
+  fallback
+){
+
+  for(
+    const field of fields
+  ){
+
+    if(
+      object &&
+      object[field] !== undefined &&
+      object[field] !== null &&
+      object[field] !== ''
+    ){
+
+      return object[field];
+
+    }
+
+  }
+
+  return fallback;
+
+}
+
+
+function yesNo(value){
+
+  return value
+    ? 'Enabled'
+    : 'Not enabled';
+
+}
+
+
+/* ==================================================
+INITIALIZE
+================================================== */
+
+async function initialize(){
+
+  try{
+
+    setStatus(
+      statusBox,
+  
