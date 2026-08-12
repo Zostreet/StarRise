@@ -3,29 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <title>Opportunities | StarRise</title>
 
-  <meta
-    name="description"
-    content="Discover auditions, gigs, collaborations and creative opportunities through StarRise."
-  >
-
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
       background: #080812;
       color: #fff;
-      line-height: 1.6;
     }
 
     a {
@@ -34,18 +21,17 @@
     }
 
     header {
+      border-bottom: 1px solid #ffffff18;
+      background: #080812;
       position: sticky;
       top: 0;
-      z-index: 100;
-      background: rgba(8, 8, 18, .96);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid #ffffff18;
+      z-index: 20;
     }
 
     .nav {
       width: min(1150px, calc(100% - 30px));
+      min-height: 70px;
       margin: auto;
-      min-height: 72px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -55,19 +41,17 @@
     .logo {
       font-size: 22px;
       font-weight: 800;
-      white-space: nowrap;
     }
 
     .nav-links {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
       gap: 18px;
+      flex-wrap: wrap;
     }
 
     .nav-links a {
       color: #aaa;
-      font-size: 15px;
+      font-size: 14px;
     }
 
     .nav-links a:hover {
@@ -77,62 +61,60 @@
     main {
       width: min(1150px, calc(100% - 30px));
       margin: auto;
-      padding: 60px 0 80px;
+      padding: 55px 0 80px;
     }
 
     .hero {
       text-align: center;
-      max-width: 850px;
+      max-width: 800px;
       margin: 0 auto 45px;
     }
 
-    .hero-badge {
-      display: inline-block;
-      border: 1px solid #ffffff25;
-      background: #ffffff08;
-      border-radius: 30px;
-      padding: 7px 14px;
-      color: #aaa;
-      font-size: 13px;
-      margin-bottom: 18px;
-    }
-
     .hero h1 {
-      margin: 0 0 16px;
       font-size: clamp(44px, 8vw, 76px);
       line-height: 1;
+      margin: 0 0 18px;
     }
 
     .hero p {
-      margin: auto;
       color: #aaa;
       font-size: 18px;
-      max-width: 750px;
+    }
+
+    .create-button {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 13px 24px;
+      border-radius: 30px;
+      background: #fff;
+      color: #080812;
+      font-weight: 800;
+      border: 0;
+      cursor: pointer;
     }
 
     .categories {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 12px;
-      margin-bottom: 35px;
+      margin-bottom: 30px;
     }
 
     .category {
+      padding: 18px;
       border: 1px solid #ffffff18;
       background: #ffffff08;
       border-radius: 18px;
-      padding: 18px;
       text-align: center;
     }
 
     .category-icon {
-      font-size: 28px;
-      margin-bottom: 5px;
+      font-size: 27px;
     }
 
     .category strong {
       display: block;
-      font-size: 15px;
+      margin-top: 5px;
     }
 
     .category span {
@@ -144,20 +126,18 @@
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
     .filter {
       border: 1px solid #ffffff25;
       background: #ffffff08;
       color: #aaa;
-      border-radius: 25px;
       padding: 10px 17px;
+      border-radius: 25px;
       cursor: pointer;
-      font-size: 14px;
     }
 
-    .filter:hover,
     .filter.active {
       background: #fff;
       color: #080812;
@@ -166,28 +146,23 @@
     .status {
       text-align: center;
       color: #aaa;
-      padding: 30px;
+      padding: 25px;
     }
 
-    .opportunity-grid {
+    .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
       gap: 20px;
     }
 
-    .opportunity {
+    .card {
       border: 1px solid #ffffff18;
       background: #ffffff08;
       border-radius: 20px;
-      padding: 24px;
-      transition: transform .2s ease;
+      padding: 23px;
     }
 
-    .opportunity:hover {
-      transform: translateY(-3px);
-    }
-
-    .type {
+    .badge {
       display: inline-block;
       padding: 6px 10px;
       border-radius: 20px;
@@ -195,109 +170,155 @@
       color: #aaa;
       font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
-    .opportunity h2 {
-      margin: 0 0 7px;
-      font-size: 24px;
-    }
-
-    .creator {
-      color: #aaa;
-      margin-bottom: 14px;
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 23px;
     }
 
     .description {
       color: #ccc;
-      margin-bottom: 18px;
+      margin: 15px 0;
     }
 
     .details {
       border-top: 1px solid #ffffff12;
       padding-top: 15px;
-      display: grid;
-      gap: 6px;
       color: #999;
+      display: grid;
+      gap: 7px;
       font-size: 14px;
-      margin-bottom: 20px;
     }
 
-    .button {
+    .card-button {
       display: block;
       width: 100%;
-      padding: 12px 18px;
+      margin-top: 20px;
+      padding: 12px;
       border-radius: 25px;
-      text-align: center;
+      border: 1px solid #ffffff25;
       background: #fff;
       color: #080812;
-      font-weight: bold;
+      font-weight: 800;
+      text-align: center;
+      cursor: pointer;
     }
 
     .empty {
       grid-column: 1 / -1;
-      text-align: center;
       padding: 50px 20px;
       border: 1px solid #ffffff18;
       border-radius: 20px;
-      background: #ffffff08;
-      color: #aaa;
-    }
-
-    .empty h2 {
-      color: #fff;
-      margin-top: 0;
-    }
-
-    .post-section {
-      margin-top: 60px;
-      padding: 40px 30px;
-      border: 1px solid #ffffff18;
-      border-radius: 25px;
-      background: #ffffff08;
       text-align: center;
-    }
-
-    .post-section h2 {
-      margin: 0 0 10px;
-      font-size: 32px;
-    }
-
-    .post-section p {
-      max-width: 700px;
-      margin: 0 auto 22px;
       color: #aaa;
     }
 
-    .secondary {
-      display: inline-block;
-      padding: 12px 22px;
-      border: 1px solid #ffffff25;
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: #000b;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-box {
+      width: min(650px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      background: #10101c;
+      border: 1px solid #ffffff20;
+      border-radius: 22px;
+      padding: 25px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+    }
+
+    .close {
+      border: 0;
+      background: transparent;
+      color: #aaa;
+      font-size: 25px;
+      cursor: pointer;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 7px;
+      color: #ccc;
+      font-size: 14px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      border: 1px solid #ffffff20;
+      background: #080812;
+      color: #fff;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .submit {
+      width: 100%;
+      margin-top: 22px;
+      padding: 14px;
+      border: 0;
       border-radius: 25px;
-      font-weight: bold;
+      background: #fff;
+      color: #080812;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    .message.show {
+      display: block;
     }
 
     footer {
       border-top: 1px solid #ffffff18;
-      padding: 30px 15px;
+      padding: 30px;
       text-align: center;
       color: #888;
     }
 
     @media (max-width: 700px) {
       .nav {
-        padding: 15px 0;
         flex-direction: column;
         align-items: flex-start;
-      }
-
-      .nav-links {
-        justify-content: flex-start;
-      }
-
-      main {
-        padding-top: 45px;
+        padding: 15px 0;
       }
     }
   </style>
@@ -323,68 +344,69 @@
   </div>
 </header>
 
+
 <main>
 
   <section class="hero">
-
-    <div class="hero-badge">
-      ⭐ Talent • Creativity • Opportunity
-    </div>
 
     <h1>Opportunities</h1>
 
     <p>
       Discover auditions, gigs, collaborations,
-      creative work, and meaningful opportunities
-      designed to help StarRise talent connect,
-      create, and grow.
+      creative work, and opportunities that help
+      StarRise talent connect, create and grow.
     </p>
+
+    <button
+      id="openCreate"
+      class="create-button"
+    >
+      + Create Opportunity
+    </button>
 
   </section>
 
-  <section>
 
-    <div class="categories">
+  <section class="categories">
 
-      <div class="category">
-        <div class="category-icon">🎤</div>
-        <strong>Musicians & Singers</strong>
-        <span>Music & performance</span>
-      </div>
+    <div class="category">
+      <div class="category-icon">🎤</div>
+      <strong>Musicians & Singers</strong>
+      <span>Music & performance</span>
+    </div>
 
-      <div class="category">
-        <div class="category-icon">😂</div>
-        <strong>Comedians</strong>
-        <span>Comedy & entertainment</span>
-      </div>
+    <div class="category">
+      <div class="category-icon">😂</div>
+      <strong>Comedians</strong>
+      <span>Comedy & entertainment</span>
+    </div>
 
-      <div class="category">
-        <div class="category-icon">🎬</div>
-        <strong>Content Creators</strong>
-        <span>Digital & social content</span>
-      </div>
+    <div class="category">
+      <div class="category-icon">🎬</div>
+      <strong>Content Creators</strong>
+      <span>Digital content</span>
+    </div>
 
-      <div class="category">
-        <div class="category-icon">🎭</div>
-        <strong>Actors & Performers</strong>
-        <span>Stage & screen</span>
-      </div>
+    <div class="category">
+      <div class="category-icon">🎭</div>
+      <strong>Actors & Performers</strong>
+      <span>Stage & screen</span>
+    </div>
 
-      <div class="category">
-        <div class="category-icon">🎨</div>
-        <strong>Creative Artists</strong>
-        <span>Visual & original work</span>
-      </div>
+    <div class="category">
+      <div class="category-icon">🎨</div>
+      <strong>Creative Artists</strong>
+      <span>Visual creativity</span>
+    </div>
 
-      <div class="category">
-        <div class="category-icon">🎧</div>
-        <strong>Producers & DJs</strong>
-        <span>Production & sound</span>
-      </div>
-
+    <div class="category">
+      <div class="category-icon">🎧</div>
+      <strong>Producers & DJs</strong>
+      <span>Production & sound</span>
     </div>
 
   </section>
+
 
   <div class="toolbar">
 
@@ -406,271 +428,728 @@
 
   </div>
 
+
   <div id="status" class="status">
     Loading StarRise opportunities...
   </div>
 
+
   <section
-    id="opportunityGrid"
-    class="opportunity-grid"
-    aria-live="polite"
+    id="grid"
+    class="grid"
   ></section>
 
-  <section class="post-section">
-
-    <h2>Have an Opportunity?</h2>
-
-    <p>
-      StarRise members, approved partners, vendors,
-      and organizations can create opportunities for
-      auditions, gigs, collaborations, and creative
-      projects.
-    </p>
-
-    <a class="secondary" href="dashboard.html">
-      Go to Member Dashboard
-    </a>
-
-  </section>
-
 </main>
+
 
 <footer>
   ⭐ StarRise — Where Talent Rises.
 </footer>
 
+
+<!-- CREATE OPPORTUNITY MODAL -->
+
+<div
+  id="createModal"
+  class="modal"
+>
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+
+      <h2>
+        Create Opportunity
+      </h2>
+
+      <button
+        id="closeCreate"
+        class="close"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <form id="opportunityForm">
+
+      <label for="title">
+        Opportunity Title
+      </label>
+
+      <input
+        id="title"
+        type="text"
+        placeholder="Example: Charlotte Music Video Audition"
+        required
+      >
+
+
+      <label for="type">
+        Opportunity Type
+      </label>
+
+      <select
+        id="type"
+        required
+      >
+        <option value="audition">
+          🎭 Audition
+        </option>
+
+        <option value="gig">
+          🎵 Gig
+        </option>
+
+        <option value="collaboration">
+          🤝 Collaboration
+        </option>
+      </select>
+
+
+      <label for="description">
+        Description
+      </label>
+
+      <textarea
+        id="description"
+        placeholder="Tell StarRise members about this opportunity..."
+        required
+      ></textarea>
+
+
+      <label for="location">
+        Location
+      </label>
+
+      <input
+        id="location"
+        type="text"
+        placeholder="Charlotte, NC"
+      >
+
+
+      <label for="eventDate">
+        Date
+      </label>
+
+      <input
+        id="eventDate"
+        type="datetime-local"
+      >
+
+
+      <label for="compensation">
+        Compensation
+      </label>
+
+      <input
+        id="compensation"
+        type="text"
+        placeholder="Example: $100, paid gig, exposure, etc."
+      >
+
+
+      <label>
+        <input
+          id="remote"
+          type="checkbox"
+          style="width:auto;margin-right:8px;"
+        >
+        Remote opportunity available
+      </label>
+
+
+      <button
+        id="submitButton"
+        class="submit"
+        type="submit"
+      >
+        Publish Opportunity
+      </button>
+
+
+      <div
+        id="formMessage"
+        class="message"
+      ></div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-  const SUPABASE_URL =
-    "https://rcnikxotdalxtuvpmlvm.supabase.co";
+const SUPABASE_URL =
+  "https://rcnikxotdalxtuvpmlvm.supabase.co";
 
-  const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
 
-  const supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
-
-
-  const grid =
-    document.getElementById("opportunityGrid");
-
-  const status =
-    document.getElementById("status");
-
-  const filters =
-    document.querySelectorAll(".filter");
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
 
 
-  let opportunities = [];
+const grid =
+  document.getElementById("grid");
 
-  let selectedFilter = "all";
+const status =
+  document.getElementById("status");
+
+const modal =
+  document.getElementById("createModal");
+
+const openCreate =
+  document.getElementById("openCreate");
+
+const closeCreate =
+  document.getElementById("closeCreate");
+
+const form =
+  document.getElementById("opportunityForm");
+
+const message =
+  document.getElementById("formMessage");
+
+const submitButton =
+  document.getElementById("submitButton");
 
 
-  function escapeHtml(value) {
+let opportunities = [];
 
-    return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+let currentFilter = "all";
 
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+function formatType(type) {
+
+  if (type === "audition") {
+    return "🎭 Audition";
+  }
+
+  if (type === "gig") {
+    return "🎵 Gig";
+  }
+
+  if (type === "collaboration") {
+    return "🤝 Collaboration";
+  }
+
+  return "Opportunity";
+
+}
+
+
+function formatDate(date) {
+
+  if (!date) {
+    return "Date to be announced";
+  }
+
+  const parsed =
+    new Date(date);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "Date to be announced";
+  }
+
+  return parsed.toLocaleString(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
+    }
+  );
+
+}
+
+
+function showMessage(
+  text,
+  success = false
+) {
+
+  message.textContent = text;
+
+  message.classList.add("show");
+
+  message.style.background =
+    success
+      ? "#16351f"
+      : "#351616";
+
+  message.style.color =
+    success
+      ? "#b9f6c8"
+      : "#ffb8b8";
+
+}
+
+
+function render() {
+
+  const visible =
+    currentFilter === "all"
+      ? opportunities
+      : opportunities.filter(
+          opportunity =>
+            opportunity.type === currentFilter
+        );
+
+
+  if (!visible.length) {
+
+    grid.innerHTML = `
+      <div class="empty">
+
+        <h2>
+          No opportunities yet
+        </h2>
+
+        <p>
+          Be one of the first StarRise members
+          to create one.
+        </p>
+
+      </div>
+    `;
+
+    return;
   }
 
 
-  function formatType(type) {
+  grid.innerHTML =
+    visible.map(opportunity => {
 
-    if (type === "audition") {
-      return "🎭 Audition";
-    }
+      return `
+        <article class="card">
 
-    if (type === "gig") {
-      return "🎵 Gig";
-    }
+          <div class="badge">
+            ${escapeHtml(
+              formatType(opportunity.type)
+            )}
+          </div>
 
-    if (type === "collaboration") {
-      return "🤝 Collaboration";
-    }
+          <h2>
+            ${escapeHtml(
+              opportunity.title
+            )}
+          </h2>
 
-    return "Opportunity";
+          <div class="description">
+            ${escapeHtml(
+              opportunity.description
+            )}
+          </div>
 
-  }
+          <div class="details">
+
+            <div>
+              📍 ${
+                escapeHtml(
+                  opportunity.location ||
+                  "Location to be announced"
+                )
+              }
+            </div>
+
+            <div>
+              ${
+                opportunity.is_remote
+                  ? "🌎 Remote available"
+                  : "🏢 In-person"
+              }
+            </div>
+
+            <div>
+              📅 ${
+                escapeHtml(
+                  formatDate(
+                    opportunity.event_date
+                  )
+                )
+              }
+            </div>
+
+            ${
+              opportunity.compensation
+                ? `
+                  <div>
+                    💰 ${
+                      escapeHtml(
+                        opportunity.compensation
+                      )
+                    }
+                  </div>
+                `
+                : ""
+            }
+
+          </div>
+
+          <button
+            class="card-button"
+            onclick="viewOpportunity('${opportunity.id}')"
+          >
+            View Opportunity
+          </button>
+
+        </article>
+      `;
+
+    }).join("");
+
+}
 
 
-  function formatDate(date) {
+async function loadOpportunities() {
 
-    if (!date) {
-      return "Date to be announced";
-    }
+  status.style.display = "block";
 
-    const parsed =
-      new Date(date);
+  status.textContent =
+    "Loading StarRise opportunities...";
 
-    if (Number.isNaN(parsed.getTime())) {
-      return "Date to be announced";
-    }
 
-    return parsed.toLocaleDateString(
-      "en-US",
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("opportunities")
+    .select(`
+      id,
+      title,
+      type,
+      description,
+      location,
+      is_remote,
+      event_date,
+      compensation,
+      status,
+      created_at
+    `)
+    .eq("status", "active")
+    .order(
+      "created_at",
       {
-        month: "short",
-        day: "numeric",
-        year: "numeric"
+        ascending: false
       }
     );
 
+
+  if (error) {
+
+    console.error(error);
+
+    status.textContent =
+      "We could not load opportunities right now.";
+
+    return;
+
   }
 
 
-  function renderOpportunities() {
-
-    const visible =
-      selectedFilter === "all"
-        ? opportunities
-        : opportunities.filter(
-            item =>
-              item.type === selectedFilter
-          );
+  opportunities =
+    data || [];
 
 
-    if (!visible.length) {
+  status.style.display =
+    "none";
 
-      grid.innerHTML = `
-        <div class="empty">
 
-          <h2>
-            No opportunities yet
-          </h2>
+  render();
 
-          <p>
-            New StarRise auditions, gigs, and
-            collaborations will appear here.
-          </p>
+}
 
-        </div>
-      `;
+
+async function viewOpportunity(id) {
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("opportunities")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+
+  if (error) {
+
+    alert(
+      "We could not load this opportunity."
+    );
+
+    console.error(error);
+
+    return;
+
+  }
+
+
+  const details =
+    `
+    ${data.title}
+
+    ${data.description}
+
+    Location:
+    ${data.location || "To be announced"}
+
+    ${
+      data.is_remote
+        ? "Remote available"
+        : "In-person"
+    }
+
+    Date:
+    ${
+      formatDate(data.event_date)
+    }
+
+    ${
+      data.compensation
+        ? "Compensation: " +
+          data.compensation
+        : ""
+    }
+    `;
+
+
+  const apply =
+    confirm(
+      details +
+      "\n\nWould you like to respond to this opportunity?"
+    );
+
+
+  if (!apply) {
+    return;
+  }
+
+
+  const {
+    data: sessionData
+  } =
+    await supabaseClient
+      .auth
+      .getSession();
+
+
+  if (!sessionData.session) {
+
+    alert(
+      "Please sign in to respond to an opportunity."
+    );
+
+    window.location.href =
+      "dashboard.html";
+
+    return;
+
+  }
+
+
+  alert(
+    "You're signed in. The application/response system is the next connection."
+  );
+
+}
+
+
+openCreate.addEventListener(
+  "click",
+  async () => {
+
+    const {
+      data
+    } =
+      await supabaseClient
+        .auth
+        .getSession();
+
+
+    if (!data.session) {
+
+      alert(
+        "Please sign in before creating an opportunity."
+      );
+
+      window.location.href =
+        "dashboard.html";
 
       return;
 
     }
 
 
-    grid.innerHTML =
-      visible.map(item => {
+    form.reset();
 
-        const location =
-          item.location ||
-          "Location to be announced";
+    message.classList.remove("show");
 
-        const remote =
-          item.is_remote
-            ? "Remote available"
-            : "In-person";
-
-
-        return `
-          <article class="opportunity">
-
-            <div class="type">
-              ${escapeHtml(
-                formatType(item.type)
-              )}
-            </div>
-
-            <h2>
-              ${escapeHtml(item.title)}
-            </h2>
-
-            <div class="creator">
-              ⭐ StarRise Member
-            </div>
-
-            <div class="description">
-              ${escapeHtml(item.description)}
-            </div>
-
-            <div class="details">
-
-              <div>
-                📍 ${escapeHtml(location)}
-              </div>
-
-              <div>
-                🌎 ${remote}
-              </div>
-
-              <div>
-                📅 ${escapeHtml(
-                  formatDate(item.event_date)
-                )}
-              </div>
-
-              ${
-                item.compensation
-                  ? `
-                    <div>
-                      💰 ${escapeHtml(
-                        item.compensation
-                      )}
-                    </div>
-                  `
-                  : ""
-              }
-
-            </div>
-
-            <a
-              class="button"
-              href="dashboard.html"
-            >
-              View Opportunity
-            </a>
-
-          </article>
-        `;
-
-      }).join("");
+    modal.classList.add("show");
 
   }
+);
 
 
-  async function loadOpportunities() {
+closeCreate.addEventListener(
+  "click",
+  () => {
+
+    modal.classList.remove("show");
+
+  }
+);
+
+
+modal.addEventListener(
+  "click",
+  event => {
+
+    if (event.target === modal) {
+      modal.classList.remove("show");
+    }
+
+  }
+);
+
+
+form.addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+
+    submitButton.disabled =
+      true;
+
+    submitButton.textContent =
+      "Publishing...";
+
+
+    message.classList.remove(
+      "show"
+    );
+
 
     try {
 
-      status.textContent =
-        "Loading StarRise opportunities...";
+      const {
+        data: sessionData,
+        error: sessionError
+      } =
+        await supabaseClient
+          .auth
+          .getSession();
+
+
+      if (
+        sessionError ||
+        !sessionData.session
+      ) {
+
+        throw new Error(
+          "Please sign in before creating an opportunity."
+        );
+
+      }
+
+
+      const title =
+        document
+          .getElementById("title")
+          .value
+          .trim();
+
+      const type =
+        document
+          .getElementById("type")
+          .value;
+
+      const description =
+        document
+          .getElementById("description")
+          .value
+          .trim();
+
+      const location =
+        document
+          .getElementById("location")
+          .value
+          .trim();
+
+      const eventDate =
+        document
+          .getElementById("eventDate")
+          .value;
+
+      const compensation =
+        document
+          .getElementById("compensation")
+          .value
+          .trim();
+
+      const isRemote =
+        document
+          .getElementById("remote")
+          .checked;
 
 
       const {
-        data,
         error
       } = await supabaseClient
         .from("opportunities")
-        .select(`
-          id,
+        .insert({
+
           title,
+
           type,
+
           description,
-          location,
-          is_remote,
-          event_date,
-          compensation,
-          status,
-          created_at
-        `)
-        .eq("status", "active")
-        .order(
-          "created_at",
-          {
-            ascending: false
-          }
-        );
+
+          location:
+            location || null,
+
+          event_date:
+            eventDate || null,
+
+          compensation:
+            compensation || null,
+
+          is_remote:
+            isRemote,
+
+          status:
+            "active",
+
+          created_by:
+            sessionData.session.user.id
+
+        });
 
 
       if (error) {
@@ -678,66 +1157,87 @@
       }
 
 
-      opportunities =
-        data || [];
-
-
-      status.style.display =
-        "none";
-
-
-      renderOpportunities();
-
-    } catch (error) {
-
-      console.error(
-        "StarRise opportunities error:",
-        error
+      showMessage(
+        "Opportunity published successfully!",
+        true
       );
 
 
-      status.textContent =
-        "We could not load opportunities right now.";
+      submitButton.textContent =
+        "Published!";
 
 
-      grid.innerHTML = `
-        <div class="empty">
+      await loadOpportunities();
 
-          <h2>
-            Opportunities are temporarily unavailable
-          </h2>
 
-          <p>
-            Please try refreshing the page.
-          </p>
+      setTimeout(
+        () => {
 
-        </div>
-      `;
+          modal.classList.remove(
+            "show"
+          );
+
+          submitButton.disabled =
+            false;
+
+          submitButton.textContent =
+            "Publish Opportunity";
+
+        },
+        1000
+      );
+
+
+    } catch (error) {
+
+      console.error(error);
+
+
+      showMessage(
+        error.message ||
+        "We could not publish the opportunity."
+      );
+
+
+      submitButton.disabled =
+        false;
+
+      submitButton.textContent =
+        "Publish Opportunity";
 
     }
 
   }
+);
 
 
-  filters.forEach(filter => {
+document
+  .querySelectorAll(".filter")
+  .forEach(button => {
 
-    filter.addEventListener(
+    button.addEventListener(
       "click",
       () => {
 
-        filters.forEach(button => {
-          button.classList.remove("active");
-        });
+        document
+          .querySelectorAll(".filter")
+          .forEach(item =>
+            item.classList.remove(
+              "active"
+            )
+          );
 
 
-        filter.classList.add("active");
+        button.classList.add(
+          "active"
+        );
 
 
-        selectedFilter =
-          filter.dataset.filter;
+        currentFilter =
+          button.dataset.filter;
 
 
-        renderOpportunities();
+        render();
 
       }
     );
@@ -745,7 +1245,7 @@
   });
 
 
-  loadOpportunities();
+loadOpportunities();
 
 </script>
 
