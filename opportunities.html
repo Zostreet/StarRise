@@ -8,12 +8,16 @@
 
   <meta
     name="description"
-    content="Discover auditions, gigs, collaborations and creative opportunities through StarRise."
+    content="Discover auditions, gigs, collaborations and creative opportunities for musicians, comedians, content creators and emerging talent."
   >
 
   <style>
     * {
       box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
@@ -30,12 +34,16 @@
     }
 
     header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8, 8, 18, .96);
+      backdrop-filter: blur(10px);
       border-bottom: 1px solid #ffffff18;
-      background: #080812;
     }
 
     .nav {
-      width: min(1100px, calc(100% - 30px));
+      width: min(1150px, calc(100% - 30px));
       margin: auto;
       min-height: 72px;
       display: flex;
@@ -53,11 +61,13 @@
     .nav-links {
       display: flex;
       flex-wrap: wrap;
+      justify-content: flex-end;
       gap: 18px;
     }
 
     .nav-links a {
       color: #aaa;
+      font-size: 15px;
     }
 
     .nav-links a:hover {
@@ -65,31 +75,76 @@
     }
 
     main {
-      width: min(1100px, calc(100% - 30px));
+      width: min(1150px, calc(100% - 30px));
       margin: auto;
       padding: 60px 0 80px;
     }
 
     .hero {
       text-align: center;
-      margin-bottom: 45px;
+      max-width: 850px;
+      margin: 0 auto 45px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      border: 1px solid #ffffff25;
+      background: #ffffff08;
+      border-radius: 30px;
+      padding: 7px 14px;
+      color: #aaa;
+      font-size: 13px;
+      margin-bottom: 18px;
     }
 
     .hero h1 {
-      font-size: clamp(42px, 8vw, 72px);
-      margin: 0 0 15px;
+      margin: 0 0 16px;
+      font-size: clamp(44px, 8vw, 76px);
+      line-height: 1;
     }
 
     .hero p {
-      max-width: 720px;
       margin: auto;
       color: #aaa;
       font-size: 18px;
+      max-width: 750px;
+    }
+
+    .categories {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 35px;
+    }
+
+    .category {
+      border: 1px solid #ffffff18;
+      background: #ffffff08;
+      border-radius: 18px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .category-icon {
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+
+    .category strong {
+      display: block;
+      font-size: 15px;
+    }
+
+    .category span {
+      color: #888;
+      font-size: 12px;
     }
 
     .toolbar {
       display: flex;
       flex-wrap: wrap;
+      align-items: center;
       gap: 10px;
       margin-bottom: 30px;
     }
@@ -101,10 +156,11 @@
       border-radius: 25px;
       padding: 10px 17px;
       cursor: pointer;
+      font-size: 14px;
     }
 
-    .filter.active,
-    .filter:hover {
+    .filter:hover,
+    .filter.active {
       background: #fff;
       color: #080812;
     }
@@ -121,28 +177,34 @@
       background: #ffffff08;
       border-radius: 20px;
       padding: 24px;
+      transition: transform .2s ease, border-color .2s ease;
     }
 
-    .opportunity-type {
+    .opportunity:hover {
+      transform: translateY(-3px);
+      border-color: #ffffff35;
+    }
+
+    .type {
       display: inline-block;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
       padding: 6px 10px;
       border-radius: 20px;
       background: #ffffff10;
       color: #aaa;
-      margin-bottom: 15px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
     }
 
     .opportunity h2 {
-      margin: 0 0 8px;
-      font-size: 25px;
+      margin: 0 0 7px;
+      font-size: 24px;
     }
 
-    .organization {
+    .creator {
       color: #aaa;
-      margin-bottom: 15px;
+      margin-bottom: 14px;
     }
 
     .description {
@@ -155,34 +217,29 @@
       padding-top: 15px;
       display: grid;
       gap: 6px;
-      color: #aaa;
+      color: #999;
       font-size: 14px;
       margin-bottom: 20px;
     }
 
     .button {
-      display: inline-block;
+      display: block;
       width: 100%;
-      text-align: center;
       padding: 12px 18px;
       border-radius: 25px;
+      text-align: center;
       background: #fff;
       color: #080812;
       font-weight: bold;
     }
 
-    .empty {
-      text-align: center;
-      padding: 45px 20px;
-      border: 1px solid #ffffff18;
-      border-radius: 20px;
-      background: #ffffff08;
-      color: #aaa;
+    .button:hover {
+      opacity: .9;
     }
 
     .post-section {
       margin-top: 60px;
-      padding: 35px;
+      padding: 40px 30px;
       border: 1px solid #ffffff18;
       border-radius: 25px;
       background: #ffffff08;
@@ -190,22 +247,26 @@
     }
 
     .post-section h2 {
-      margin-top: 0;
-      font-size: 30px;
+      margin: 0 0 10px;
+      font-size: 32px;
     }
 
     .post-section p {
-      max-width: 650px;
-      margin: auto auto 20px;
+      max-width: 700px;
+      margin: 0 auto 22px;
       color: #aaa;
     }
 
-    .secondary-button {
+    .secondary {
       display: inline-block;
       padding: 12px 22px;
       border: 1px solid #ffffff25;
       border-radius: 25px;
-      color: #fff;
+      font-weight: bold;
+    }
+
+    .secondary:hover {
+      background: #ffffff08;
     }
 
     footer {
@@ -216,11 +277,21 @@
     }
 
     @media (max-width: 700px) {
+
       .nav {
         padding: 15px 0;
         flex-direction: column;
         align-items: flex-start;
       }
+
+      .nav-links {
+        justify-content: flex-start;
+      }
+
+      main {
+        padding-top: 45px;
+      }
+
     }
   </style>
 </head>
@@ -231,10 +302,7 @@
 
   <div class="nav">
 
-    <a
-      class="logo"
-      href="index.html"
-    >
+    <a class="logo" href="index.html">
       ⭐ StarRise
     </a>
 
@@ -255,18 +323,71 @@
 
   <section class="hero">
 
+    <div class="hero-badge">
+      ⭐ Talent • Creativity • Opportunity
+    </div>
+
     <h1>
       Opportunities
     </h1>
 
     <p>
-      Discover auditions, gigs, collaborations,
-      creative work, and meaningful opportunities
-      designed to help talent rise.
+      Find auditions, gigs, collaborations, creative
+      projects, and opportunities designed to help
+      StarRise talent connect, create, and grow.
     </p>
 
   </section>
 
+
+  <!-- TALENT CATEGORIES -->
+
+  <section>
+
+    <div class="categories">
+
+      <div class="category">
+        <div class="category-icon">🎤</div>
+        <strong>Musicians & Singers</strong>
+        <span>Music & performance</span>
+      </div>
+
+      <div class="category">
+        <div class="category-icon">😂</div>
+        <strong>Comedians</strong>
+        <span>Comedy & entertainment</span>
+      </div>
+
+      <div class="category">
+        <div class="category-icon">🎬</div>
+        <strong>Content Creators</strong>
+        <span>Digital & social content</span>
+      </div>
+
+      <div class="category">
+        <div class="category-icon">🎭</div>
+        <strong>Actors & Performers</strong>
+        <span>Stage & screen</span>
+      </div>
+
+      <div class="category">
+        <div class="category-icon">🎨</div>
+        <strong>Creative Artists</strong>
+        <span>Visual & original work</span>
+      </div>
+
+      <div class="category">
+        <div class="category-icon">🎧</div>
+        <strong>Producers & DJs</strong>
+        <span>Production & sound</span>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- FILTERS -->
 
   <div class="toolbar">
 
@@ -274,7 +395,7 @@
       class="filter active"
       data-filter="all"
     >
-      All
+      All Opportunities
     </button>
 
     <button
@@ -301,6 +422,8 @@
   </div>
 
 
+  <!-- OPPORTUNITIES -->
+
   <section
     id="opportunityGrid"
     class="opportunity-grid"
@@ -311,7 +434,7 @@
       data-type="audition"
     >
 
-      <div class="opportunity-type">
+      <div class="type">
         Audition
       </div>
 
@@ -319,8 +442,8 @@
         Vocal Performance Audition
       </h2>
 
-      <div class="organization">
-        StarRise Community
+      <div class="creator">
+        ⭐ StarRise Community
       </div>
 
       <div class="description">
@@ -349,7 +472,7 @@
       data-type="gig"
     >
 
-      <div class="opportunity-type">
+      <div class="type">
         Gig
       </div>
 
@@ -357,13 +480,14 @@
         Live Music Performance
       </h2>
 
-      <div class="organization">
-        StarRise Community
+      <div class="creator">
+        ⭐ StarRise Community
       </div>
 
       <div class="description">
-        Performance opportunity for musicians,
-        singers, and entertainers.
+        Performance opportunity for singers,
+        musicians, comedians, entertainers, and
+        other performers.
       </div>
 
       <div class="details">
@@ -387,7 +511,7 @@
       data-type="collaboration"
     >
 
-      <div class="opportunity-type">
+      <div class="type">
         Collaboration
       </div>
 
@@ -395,19 +519,136 @@
         Music Creator Collaboration
       </h2>
 
-      <div class="organization">
-        StarRise Community
+      <div class="creator">
+        ⭐ StarRise Community
       </div>
 
       <div class="description">
-        Connect with artists, producers, writers,
-        musicians, and creators to build something new.
+        Connect with musicians, producers, writers,
+        singers, content creators, comedians, and
+        other creatives to build something together.
       </div>
 
       <div class="details">
         <div>🌎 Remote / Charlotte</div>
-        <div>🎵 Music & Creative</div>
+        <div>🎨 Music & Creative</div>
         <div>🤝 Open Collaboration</div>
+      </div>
+
+      <a
+        class="button"
+        href="dashboard.html"
+      >
+        View Opportunity
+      </a>
+
+    </article>
+
+
+    <article
+      class="opportunity"
+      data-type="gig"
+    >
+
+      <div class="type">
+        Gig
+      </div>
+
+      <h2>
+        Comedy Performance Opportunity
+      </h2>
+
+      <div class="creator">
+        ⭐ StarRise Community
+      </div>
+
+      <div class="description">
+        Opportunity for comedians and entertainers
+        looking for a stage to perform original material.
+      </div>
+
+      <div class="details">
+        <div>📍 Charlotte, North Carolina</div>
+        <div>😂 Comedy / Stand-Up</div>
+        <div>📅 Date to be announced</div>
+      </div>
+
+      <a
+        class="button"
+        href="dashboard.html"
+      >
+        View Opportunity
+      </a>
+
+    </article>
+
+
+    <article
+      class="opportunity"
+      data-type="collaboration"
+    >
+
+      <div class="type">
+        Collaboration
+      </div>
+
+      <h2>
+        Content Creator Collaboration
+      </h2>
+
+      <div class="creator">
+        ⭐ StarRise Community
+      </div>
+
+      <div class="description">
+        Looking for creators to collaborate on videos,
+        social content, interviews, comedy, music,
+        and original digital projects.
+      </div>
+
+      <div class="details">
+        <div>🌎 Remote / Charlotte</div>
+        <div>🎬 Digital Content</div>
+        <div>🤝 Open Collaboration</div>
+      </div>
+
+      <a
+        class="button"
+        href="dashboard.html"
+      >
+        View Opportunity
+      </a>
+
+    </article>
+
+
+    <article
+      class="opportunity"
+      data-type="audition"
+    >
+
+      <div class="type">
+        Audition
+      </div>
+
+      <h2>
+        Comedy & Entertainment Audition
+      </h2>
+
+      <div class="creator">
+        ⭐ StarRise Community
+      </div>
+
+      <div class="description">
+        Open opportunity for comedians, actors,
+        performers, and content creators interested
+        in entertainment projects.
+      </div>
+
+      <div class="details">
+        <div>📍 Charlotte, North Carolina</div>
+        <div>😂 Comedy / Entertainment</div>
+        <div>📅 Date to be announced</div>
       </div>
 
       <a
@@ -422,6 +663,8 @@
   </section>
 
 
+  <!-- POST OPPORTUNITY -->
+
   <section class="post-section">
 
     <h2>
@@ -429,17 +672,17 @@
     </h2>
 
     <p>
-      StarRise will give approved members, partners,
-      and organizations a place to post auditions,
-      gigs, collaborations, and other opportunities
-      for the community.
+      StarRise members, approved partners, vendors,
+      and organizations will be able to post auditions,
+      gigs, collaborations, creative projects, and
+      other opportunities for the community.
     </p>
 
     <a
-      class="secondary-button"
+      class="secondary"
       href="dashboard.html"
     >
-      Member Dashboard
+      Go to Member Dashboard
     </a>
 
   </section>
@@ -454,24 +697,22 @@
 
 <script>
 
-const filters =
-  document.querySelectorAll('.filter');
+  const filters =
+    document.querySelectorAll(".filter");
 
-const opportunities =
-  document.querySelectorAll('.opportunity');
+  const opportunities =
+    document.querySelectorAll(".opportunity");
 
 
-filters.forEach(filter => {
+  filters.forEach(filter => {
 
-  filter.addEventListener(
-    'click',
-    () => {
+    filter.addEventListener("click", () => {
 
       filters.forEach(button => {
-        button.classList.remove('active');
+        button.classList.remove("active");
       });
 
-      filter.classList.add('active');
+      filter.classList.add("active");
 
       const selected =
         filter.dataset.filter;
@@ -480,24 +721,23 @@ filters.forEach(filter => {
       opportunities.forEach(card => {
 
         if (
-          selected === 'all' ||
+          selected === "all" ||
           card.dataset.type === selected
         ) {
 
-          card.style.display = '';
+          card.style.display = "";
 
         } else {
 
-          card.style.display = 'none';
+          card.style.display = "none";
 
         }
 
       });
 
-    }
-  );
+    });
 
-});
+  });
 
 </script>
 
