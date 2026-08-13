@@ -1,0 +1,1265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StarRise Store</title>
+
+  <style>
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:#080812;
+      color:#fff;
+      min-height:100vh;
+      line-height:1.6
+    }
+
+    header{
+      padding:20px 24px;
+      border-bottom:1px solid #ffffff18;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:18px
+    }
+
+    header a,
+    nav a{
+      color:#fff;
+      text-decoration:none;
+      font-weight:bold
+    }
+
+    nav{
+      display:flex;
+      gap:18px;
+      flex-wrap:wrap
+    }
+
+    main{
+      width:min(1150px,calc(100% - 30px));
+      margin:35px auto 60px
+    }
+
+    .hero,
+    .panel{
+      border:1px solid #ffffff18;
+      border-radius:22px;
+      background:#ffffff08;
+      padding:28px;
+      margin-bottom:20px
+    }
+
+    .eyebrow{
+      color:#999;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.1em;
+      margin-bottom:8px
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(42px,7vw,68px);
+      line-height:1.05
+    }
+
+    h2{
+      margin-top:0
+    }
+
+    .hero p,
+    .muted{
+      color:#aaa
+    }
+
+    .hero-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:20px
+    }
+
+    .button{
+      display:inline-block;
+      padding:12px 20px;
+      border-radius:25px;
+      background:#fff;
+      color:#080812;
+      text-decoration:none;
+      font-weight:bold;
+      border:0;
+      cursor:pointer;
+      font-family:inherit
+    }
+
+    .button.secondary{
+      background:transparent;
+      color:#fff;
+      border:1px solid #ffffff30
+    }
+
+    .button:disabled{
+      opacity:.5;
+      cursor:wait
+    }
+
+    .controls{
+      display:grid;
+      grid-template-columns:2fr 1fr 1fr;
+      gap:12px;
+      margin-bottom:20px
+    }
+
+    .control{
+      width:100%;
+      padding:13px 15px;
+      border:1px solid #ffffff20;
+      border-radius:12px;
+      background:#11111d;
+      color:#fff;
+      font:inherit
+    }
+
+    .control:focus{
+      outline:none;
+      border-color:#ffffff55
+    }
+
+    .results{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      color:#aaa;
+      margin-bottom:15px
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:
+        repeat(auto-fit,minmax(290px,1fr));
+      gap:18px
+    }
+
+    .card{
+      border:1px solid #ffffff18;
+      border-radius:20px;
+      background:#ffffff08;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:430px;
+      transition:.15s
+    }
+
+    .card:hover{
+      transform:translateY(-2px);
+      border-color:#ffffff35
+    }
+
+    .cover{
+      height:190px;
+      background:
+        linear-gradient(
+          135deg,
+          #17172a,
+          #0d0d17
+        );
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden
+    }
+
+    .cover img{
+      width:100%;
+      height:100%;
+      object-fit:cover
+    }
+
+    .cover-placeholder{
+      font-size:55px
+    }
+
+    .card-body{
+      padding:20px;
+      display:flex;
+      flex-direction:column;
+      flex:1
+    }
+
+    .tag{
+      display:inline-block;
+      width:max-content;
+      padding:5px 10px;
+      border-radius:20px;
+      background:#ffffff12;
+      color:#bbb;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      margin-bottom:10px
+    }
+
+    .title{
+      font-size:23px;
+      font-weight:bold
+    }
+
+    .description{
+      color:#aaa;
+      white-space:pre-wrap;
+      margin:8px 0 15px;
+      flex:1
+    }
+
+    .seller{
+      color:#999;
+      font-size:14px
+    }
+
+    .seller strong{
+      color:#fff
+    }
+
+    .price{
+      font-size:28px;
+      font-weight:bold;
+      margin:12px 0
+    }
+
+    .card-actions{
+      display:flex;
+      gap:9px
+    }
+
+    .card-actions .button{
+      flex:1;
+      text-align:center
+    }
+
+    .status,
+    .empty{
+      padding:20px;
+      border-radius:15px;
+      background:#ffffff08;
+      border:1px solid #ffffff18;
+      color:#aaa;
+      text-align:center
+    }
+
+    .error{
+      color:#ffb5b5;
+      background:rgba(200,50,50,.12)
+    }
+
+    .success{
+      color:#baffca;
+      background:rgba(50,200,100,.10)
+    }
+
+    .hidden{
+      display:none!important
+    }
+
+    @media(max-width:760px){
+
+      header{
+        flex-direction:column;
+        align-items:flex-start
+      }
+
+      main{
+        width:calc(100% - 20px);
+        margin-top:20px
+      }
+
+      .hero,
+      .panel{
+        padding:21px
+      }
+
+      .controls{
+        grid-template-columns:1fr
+      }
+
+      .results{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:8px
+      }
+
+      .card-actions{
+        flex-direction:column
+      }
+
+      .card-actions .button{
+        width:100%
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+
+  <a href="index.html">
+    ⭐ StarRise
+  </a>
+
+  <nav>
+    <a href="services.html">
+      Services
+    </a>
+
+    <a href="opportunities.html">
+      Opportunities
+    </a>
+
+    <a href="dashboard.html">
+      Dashboard
+    </a>
+  </nav>
+
+</header>
+
+
+<main>
+
+<section class="hero">
+
+  <div class="eyebrow">
+    StarRise Talent Marketplace
+  </div>
+
+  <h1>
+    The StarRise Store
+  </h1>
+
+  <p>
+    Discover music, beats, vocals, artwork, videos,
+    digital creations and other work created by
+    StarRise talent.
+  </p>
+
+  <div class="hero-actions">
+
+    <a
+      class="button"
+      href="create-marketplace-item.html"
+    >
+      + Sell Your Work
+    </a>
+
+    <a
+      class="button secondary"
+      href="dashboard.html"
+    >
+      My Dashboard
+    </a>
+
+  </div>
+
+</section>
+
+
+<section class="controls">
+
+  <input
+    id="search"
+    class="control"
+    type="search"
+    placeholder="Search music, beats, creators..."
+    autocomplete="off"
+  >
+
+  <select
+    id="category"
+    class="control"
+  >
+    <option value="all">
+      All Categories
+    </option>
+  </select>
+
+  <select
+    id="sort"
+    class="control"
+  >
+
+    <option value="newest">
+      Newest
+    </option>
+
+    <option value="price-low">
+      Price: Low to High
+    </option>
+
+    <option value="price-high">
+      Price: High to Low
+    </option>
+
+    <option value="title">
+      Name: A to Z
+    </option>
+
+  </select>
+
+</section>
+
+
+<div class="results">
+
+  <span id="count">
+    Loading the Store...
+  </span>
+
+</div>
+
+
+<div
+  id="status"
+  class="status"
+>
+  Loading StarRise Store...
+</div>
+
+
+<section
+  id="grid"
+  class="grid hidden"
+></section>
+
+
+<div
+  id="empty"
+  class="empty hidden"
+></div>
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+(function(){
+
+'use strict';
+
+
+const SUPABASE_URL =
+  'https://rcnikxotdalxtuvpmlvm.supabase.co';
+
+const SUPABASE_KEY =
+  'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
+
+const FUNCTIONS_URL =
+  SUPABASE_URL +
+  '/functions/v1';
+
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+const search =
+  document.getElementById('search');
+
+const category =
+  document.getElementById('category');
+
+const sort =
+  document.getElementById('sort');
+
+const status =
+  document.getElementById('status');
+
+const grid =
+  document.getElementById('grid');
+
+const empty =
+  document.getElementById('empty');
+
+const count =
+  document.getElementById('count');
+
+
+let items = [];
+
+
+function escapeHtml(value){
+
+  return String(value ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+
+}
+
+
+function money(cents){
+
+  return (
+    Number(cents || 0) /
+    100
+  ).toLocaleString(
+    'en-US',
+    {
+      style:'currency',
+      currency:'USD'
+    }
+  );
+
+}
+
+
+function normalize(value){
+
+  return String(value || '')
+    .toLowerCase()
+    .trim();
+
+}
+
+
+/* ==========================================
+LOAD MARKETPLACE
+========================================== */
+
+async function load(){
+
+  try{
+
+    const result =
+      await supabaseClient
+        .from('marketplace_items')
+        .select(`
+          id,
+          seller_id,
+          title,
+          description,
+          category,
+          price_cents,
+          cover_url,
+          preview_url,
+          mime_type,
+          status,
+          created_at
+        `)
+        .eq(
+          'status',
+          'active'
+        )
+        .order(
+          'created_at',
+          {
+            ascending:false
+          }
+        );
+
+
+    if(result.error){
+
+      throw result.error;
+
+    }
+
+
+    items =
+      result.data || [];
+
+
+    /*
+      Get public member information.
+    */
+
+    let profiles = [];
+
+
+    try{
+
+      const profileResult =
+        await supabaseClient
+          .rpc(
+            'get_public_members'
+          );
+
+
+      if(
+        !profileResult.error
+      ){
+
+        profiles =
+          profileResult.data || [];
+
+      }
+
+    }catch(error){
+
+      console.warn(
+        'Profile lookup failed:',
+        error
+      );
+
+    }
+
+
+    const profileMap =
+      new Map(
+        profiles.map(
+          profile => [
+            String(profile.id),
+            profile
+          ]
+        )
+      );
+
+
+    items =
+      items.map(
+        item => ({
+          ...item,
+          profile:
+            profileMap.get(
+              String(
+                item.seller_id
+              )
+            ) || null
+        })
+      );
+
+
+    /*
+      Build category filter.
+    */
+
+    const categories =
+      [
+        ...new Set(
+          items
+            .map(
+              item =>
+                String(
+                  item.category || ''
+                ).trim()
+            )
+            .filter(Boolean)
+        )
+      ]
+      .sort(
+        (a,b) =>
+          a.localeCompare(b)
+      );
+
+
+    category.innerHTML =
+      '<option value="all">' +
+      'All Categories' +
+      '</option>' +
+      categories
+        .map(
+          value =>
+            '<option value="' +
+            escapeHtml(value) +
+            '">' +
+            escapeHtml(value) +
+            '</option>'
+        )
+        .join('');
+
+
+    status.classList.add(
+      'hidden'
+    );
+
+    grid.classList.remove(
+      'hidden'
+    );
+
+
+    render();
+
+  }catch(error){
+
+    console.error(
+      'Marketplace loading error:',
+      error
+    );
+
+
+    status.textContent =
+      'Unable to load the Store: ' +
+      (
+        error.message ||
+        error
+      );
+
+
+    status.className =
+      'status error';
+
+  }
+
+}
+
+
+/* ==========================================
+RENDER
+========================================== */
+
+function render(){
+
+  const query =
+    normalize(
+      search.value
+    );
+
+  const selectedCategory =
+    category.value;
+
+
+  let results =
+    items.filter(
+      item => {
+
+        const profile =
+          item.profile || {};
+
+
+        const searchable = [
+
+          item.title,
+
+          item.description,
+
+          item.category,
+
+          profile.display_name,
+
+          profile.full_name,
+
+          profile.name,
+
+          profile.location
+
+        ]
+        .map(normalize)
+        .join(' ');
+
+
+        return (
+
+          (
+            !query ||
+            searchable.includes(query)
+          )
+
+          &&
+
+          (
+            selectedCategory ===
+              'all'
+
+            ||
+
+            item.category ===
+              selectedCategory
+          )
+
+        );
+
+      }
+    );
+
+
+  if(
+    sort.value ===
+    'price-low'
+  ){
+
+    results.sort(
+      (a,b) =>
+        a.price_cents -
+        b.price_cents
+    );
+
+  }
+
+
+  if(
+    sort.value ===
+    'price-high'
+  ){
+
+    results.sort(
+      (a,b) =>
+        b.price_cents -
+        a.price_cents
+    );
+
+  }
+
+
+  if(
+    sort.value ===
+    'title'
+  ){
+
+    results.sort(
+      (a,b) =>
+        String(
+          a.title
+        ).localeCompare(
+          String(b.title)
+        )
+    );
+
+  }
+
+
+  if(
+    sort.value ===
+    'newest'
+  ){
+
+    results.sort(
+      (a,b) =>
+        new Date(
+          b.created_at
+        ) -
+        new Date(
+          a.created_at
+        )
+    );
+
+  }
+
+
+  count.textContent =
+    results.length +
+    ' item' +
+    (
+      results.length === 1
+        ? ''
+        : 's'
+    ) +
+    ' available';
+
+
+  if(!results.length){
+
+    grid.innerHTML = '';
+
+    empty.classList.remove(
+      'hidden'
+    );
+
+    empty.innerHTML = `
+      <h2>
+        No work found
+      </h2>
+
+      <p>
+        Try another search or category.
+      </p>
+    `;
+
+    return;
+
+  }
+
+
+  empty.classList.add(
+    'hidden'
+  );
+
+
+  grid.innerHTML =
+    results
+      .map(
+        createCard
+      )
+      .join('');
+
+
+  grid
+    .querySelectorAll(
+      '[data-buy]'
+    )
+    .forEach(
+      button => {
+
+        button.addEventListener(
+          'click',
+          function(){
+
+            buy(
+              button.dataset.buy,
+              button
+            );
+
+          }
+        );
+
+      }
+    );
+
+}
+
+
+/* ==========================================
+CARD
+========================================== */
+
+function createCard(item){
+
+  const profile =
+    item.profile || {};
+
+
+  const seller =
+    profile.display_name ||
+    profile.full_name ||
+    profile.name ||
+    'StarRise Talent';
+
+
+  const cover =
+    item.cover_url
+
+      ? `
+        <img
+          src="${escapeHtml(
+            item.cover_url
+          )}"
+          alt="${escapeHtml(
+            item.title
+          )}"
+        >
+      `
+
+      : `
+        <div class="cover-placeholder">
+          ⭐
+        </div>
+      `;
+
+
+  const preview =
+    item.preview_url
+
+      ? `
+        <a
+          class="button secondary"
+          target="_blank"
+          rel="noopener"
+          href="${escapeHtml(
+            item.preview_url
+          )}"
+        >
+          Preview
+        </a>
+      `
+
+      : '';
+
+
+  return `
+
+    <article class="card">
+
+      <div class="cover">
+
+        ${cover}
+
+      </div>
+
+
+      <div class="card-body">
+
+        <span class="tag">
+
+          ${escapeHtml(
+            item.category ||
+            'Creative Work'
+          )}
+
+        </span>
+
+
+        <div class="title">
+
+          ${escapeHtml(
+            item.title
+          )}
+
+        </div>
+
+
+        <div class="description">
+
+          ${escapeHtml(
+            item.description ||
+            'No description provided.'
+          )}
+
+        </div>
+
+
+        <div class="seller">
+
+          Created by
+
+          <strong>
+            ${escapeHtml(
+              seller
+            )}
+          </strong>
+
+        </div>
+
+
+        <div class="price">
+
+          ${money(
+            item.price_cents
+          )}
+
+        </div>
+
+
+        <div class="card-actions">
+
+          <button
+            class="button"
+            data-buy="${escapeHtml(
+              item.id
+            )}"
+          >
+            Buy Now
+          </button>
+
+          ${preview}
+
+        </div>
+
+      </div>
+
+    </article>
+
+  `;
+
+}
+
+
+/* ==========================================
+STRIPE MARKETPLACE CHECKOUT
+========================================== */
+
+async function buy(
+  itemId,
+  button
+){
+
+  try{
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      'Preparing...';
+
+
+    const sessionResult =
+      await supabaseClient
+        .auth
+        .getSession();
+
+
+    if(sessionResult.error){
+
+      throw sessionResult.error;
+
+    }
+
+
+    const session =
+      sessionResult.data &&
+      sessionResult.data.session;
+
+
+    if(!session){
+
+      window.location.href =
+        'login.html?redirect=marketplace.html';
+
+      return;
+
+    }
+
+
+    const response =
+      await fetch(
+        FUNCTIONS_URL +
+        '/create-marketplace-checkout',
+        {
+
+          method:'POST',
+
+          headers:{
+
+            'Authorization':
+              'Bearer ' +
+              session.access_token,
+
+            'apikey':
+              SUPABASE_KEY,
+
+            'Content-Type':
+              'application/json'
+
+          },
+
+          body:JSON.stringify({
+
+            item_id:
+              itemId
+
+          })
+
+        }
+      );
+
+
+    const data =
+      await response
+        .json()
+        .catch(
+          () => null
+        );
+
+
+    if(
+      !response.ok ||
+      !data
+    ){
+
+      throw new Error(
+        data?.error ||
+        'Unable to create checkout.'
+      );
+
+    }
+
+
+    /*
+      The deployed marketplace
+      checkout function already returns
+      the secure StarRise Stripe redirect.
+    */
+
+    if(data.url){
+
+      window.location.assign(
+        data.url
+      );
+
+      return;
+
+    }
+
+
+    /*
+      Fallback if only the
+      Checkout Session ID is returned.
+    */
+
+    if(data.session_id){
+
+      window.location.assign(
+
+        FUNCTIONS_URL +
+        '/stripe-redirect?session_id=' +
+        encodeURIComponent(
+          data.session_id
+        )
+
+      );
+
+      return;
+
+    }
+
+
+    throw new Error(
+      'Stripe checkout URL was not returned.'
+    );
+
+
+  }catch(error){
+
+    console.error(
+      'Marketplace checkout error:',
+      error
+    );
+
+
+    alert(
+      error.message ||
+      'Unable to start checkout.'
+    );
+
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      'Buy Now';
+
+  }
+
+}
+
+
+/* ==========================================
+FILTER EVENTS
+========================================== */
+
+search.addEventListener(
+  'input',
+  render
+);
+
+category.addEventListener(
+  'change',
+  render
+);
+
+sort.addEventListener(
+  'change',
+  render
+);
+
+
+/* ==========================================
+START
+========================================== */
+
+load();
+
+})();
+
+</script>
+
+</body>
+</html>
