@@ -2,10 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Browse Services | StarRise</title>
 
@@ -29,10 +26,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
+      gap: 20px;
     }
 
-    header a {
+    header a,
+    nav a {
       color: #fff;
       text-decoration: none;
       font-weight: bold;
@@ -44,27 +42,18 @@
       flex-wrap: wrap;
     }
 
-    nav a {
-      color: #fff;
-      text-decoration: none;
-    }
-
     main {
       width: min(1150px, calc(100% - 30px));
       margin: 35px auto 60px;
     }
 
-    .hero {
-      padding: 30px;
+    .hero,
+    .panel {
       border: 1px solid #ffffff18;
       border-radius: 22px;
       background: #ffffff08;
+      padding: 28px;
       margin-bottom: 20px;
-    }
-
-    .hero p {
-      color: #aaa;
-      margin-bottom: 0;
     }
 
     .eyebrow {
@@ -85,12 +74,14 @@
       margin-top: 0;
     }
 
+    .hero p {
+      color: #aaa;
+      margin-bottom: 0;
+    }
+
     .controls {
       display: grid;
-      grid-template-columns:
-        minmax(220px, 2fr)
-        minmax(150px, 1fr)
-        minmax(150px, 1fr);
+      grid-template-columns: 2fr 1fr 1fr;
       gap: 12px;
       margin-bottom: 20px;
     }
@@ -114,19 +105,13 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
       margin-bottom: 15px;
       color: #aaa;
     }
 
-    .results-count {
-      font-size: 14px;
-    }
-
     .services-grid {
       display: grid;
-      grid-template-columns:
-        repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
       gap: 18px;
     }
 
@@ -137,12 +122,14 @@
       padding: 22px;
       display: flex;
       flex-direction: column;
-      min-height: 360px;
+      min-height: 400px;
+      transition: .15s ease;
     }
 
     .service-card:hover {
-      border-color: #ffffff30;
-      background: #ffffff0b;
+      transform: translateY(-2px);
+      border-color: #ffffff35;
+      background: #ffffff0c;
     }
 
     .category {
@@ -180,7 +167,7 @@
     .provider {
       color: #999;
       font-size: 14px;
-      margin-bottom: 17px;
+      margin-bottom: 15px;
     }
 
     .provider strong {
@@ -188,8 +175,27 @@
     }
 
     .location {
-      margin-top: 3px;
       color: #777;
+      margin-top: 3px;
+    }
+
+    .rating {
+      margin: 10px 0 15px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #00000020;
+    }
+
+    .rating-stars {
+      color: #ffd84d;
+      font-size: 20px;
+      letter-spacing: 2px;
+    }
+
+    .rating-text {
+      color: #999;
+      font-size: 13px;
+      margin-top: 2px;
     }
 
     .service-actions {
@@ -220,8 +226,9 @@
       opacity: .88;
     }
 
-    .status {
-      padding: 18px;
+    .status,
+    .empty {
+      padding: 20px;
       border-radius: 15px;
       background: #ffffff08;
       border: 1px solid #ffffff18;
@@ -234,26 +241,11 @@
       background: rgba(200, 50, 50, .12);
     }
 
-    .empty {
-      padding: 35px 20px;
-      border-radius: 20px;
-      border: 1px solid #ffffff18;
-      background: #ffffff08;
-      color: #aaa;
-      text-align: center;
-    }
-
-    .empty h2 {
-      color: #fff;
-      margin-bottom: 8px;
-    }
-
     .hidden {
       display: none !important;
     }
 
     @media (max-width: 760px) {
-
       header {
         flex-direction: column;
         align-items: flex-start;
@@ -264,8 +256,9 @@
         margin-top: 20px;
       }
 
-      .hero {
-        padding: 22px;
+      .hero,
+      .panel {
+        padding: 21px;
       }
 
       .controls {
@@ -275,6 +268,7 @@
       .results-bar {
         flex-direction: column;
         align-items: flex-start;
+        gap: 8px;
       }
 
       .service-actions {
@@ -297,17 +291,9 @@
   </a>
 
   <nav>
-    <a href="services.html">
-      Browse Services
-    </a>
-
-    <a href="members.html">
-      Find Members
-    </a>
-
-    <a href="dashboard.html">
-      Dashboard
-    </a>
+    <a href="services.html">Browse Services</a>
+    <a href="members.html">Find Members</a>
+    <a href="dashboard.html">Dashboard</a>
   </nav>
 
 </header>
@@ -325,9 +311,9 @@
     </h1>
 
     <p>
-      Discover services offered by StarRise members
-      and connect with people who can help bring
-      your next idea to life.
+      Discover services offered by StarRise members,
+      compare providers, and request the service
+      that fits what you need.
     </p>
 
   </section>
@@ -339,23 +325,18 @@
       id="search"
       class="control"
       type="search"
-      placeholder="Search services..."
+      placeholder="Search services, providers, or locations..."
       autocomplete="off"
     >
 
-    <select
-      id="category"
-      class="control"
-    >
+    <select id="category" class="control">
       <option value="all">
         All Categories
       </option>
     </select>
 
-    <select
-      id="sort"
-      class="control"
-    >
+    <select id="sort" class="control">
+
       <option value="newest">
         Newest
       </option>
@@ -368,9 +349,14 @@
         Price: High to Low
       </option>
 
+      <option value="rating">
+        Highest Rated
+      </option>
+
       <option value="title">
         Name: A to Z
       </option>
+
     </select>
 
   </section>
@@ -378,20 +364,14 @@
 
   <div class="results-bar">
 
-    <div
-      id="results-count"
-      class="results-count"
-    >
+    <div id="results-count">
       Loading services...
     </div>
 
   </div>
 
 
-  <div
-    id="status"
-    class="status"
-  >
+  <div id="status" class="status">
     Loading StarRise services...
   </div>
 
@@ -406,15 +386,13 @@
     id="empty"
     class="empty hidden"
   >
-
     <h2>
       No services found
     </h2>
 
     <p>
-      Try a different search or category.
+      Try another search or category.
     </p>
-
   </div>
 
 </main>
@@ -428,14 +406,11 @@
 
   'use strict';
 
-
   const SUPABASE_URL =
     'https://rcnikxotdalxtuvpmlvm.supabase.co';
 
-
   const SUPABASE_KEY =
     'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
-
 
   const supabaseClient =
     window.supabase.createClient(
@@ -447,26 +422,20 @@
   const searchInput =
     document.getElementById('search');
 
-
   const categorySelect =
     document.getElementById('category');
-
 
   const sortSelect =
     document.getElementById('sort');
 
-
   const statusElement =
     document.getElementById('status');
-
 
   const servicesElement =
     document.getElementById('services');
 
-
   const emptyElement =
     document.getElementById('empty');
-
 
   const resultsCount =
     document.getElementById('results-count');
@@ -478,15 +447,10 @@
   function escapeHtml(value) {
 
     return String(value ?? '')
-
       .replace(/&/g, '&amp;')
-
       .replace(/</g, '&lt;')
-
       .replace(/>/g, '&gt;')
-
       .replace(/"/g, '&quot;')
-
       .replace(/'/g, '&#039;');
 
   }
@@ -516,6 +480,27 @@
   }
 
 
+  function stars(rating) {
+
+    const value =
+      Number(rating || 0);
+
+    let output = '';
+
+    for (let i = 1; i <= 5; i++) {
+
+      output +=
+        i <= Math.round(value)
+          ? '★'
+          : '☆';
+
+    }
+
+    return output;
+
+  }
+
+
   async function loadServices() {
 
     statusElement.textContent =
@@ -524,46 +509,237 @@
     statusElement.className =
       'status';
 
+    servicesElement.innerHTML = '';
 
-    const result =
-      await supabaseClient
+    try {
 
-        .from('star_rise_services')
+      const result =
+        await supabaseClient
+          .from('star_rise_services')
+          .select(`
+            id,
+            user_id,
+            title,
+            description,
+            category,
+            price_cents,
+            is_active,
+            created_at
+          `)
+          .eq(
+            'is_active',
+            true
+          )
+          .order(
+            'created_at',
+            {
+              ascending: false
+            }
+          );
 
-        .select(`
-          id,
-          user_id,
-          title,
-          description,
-          category,
-          price_cents,
-          is_active,
-          created_at
-        `)
+      if (result.error) {
+        throw result.error;
+      }
 
-        .eq(
-          'is_active',
-          true
-        )
+      allServices =
+        result.data || [];
 
-        .order(
-          'created_at',
-          {
-            ascending: false
+
+      if (!allServices.length) {
+
+        statusElement.classList.add(
+          'hidden'
+        );
+
+        emptyElement.classList.remove(
+          'hidden'
+        );
+
+        emptyElement.innerHTML = `
+          <h2>
+            No services available yet
+          </h2>
+
+          <p>
+            StarRise members have not published
+            any active services yet.
+          </p>
+        `;
+
+        resultsCount.textContent =
+          '0 services';
+
+        return;
+
+      }
+
+
+      const providerIds =
+        [
+          ...new Set(
+            allServices.map(
+              service =>
+                service.user_id
+            )
+          )
+        ];
+
+
+      let profiles = [];
+
+
+      if (providerIds.length) {
+
+        const profileResult =
+          await supabaseClient
+            .from('Profiles')
+            .select(`
+              id,
+              display_name,
+              full_name,
+              name,
+              location
+            `)
+            .in(
+              'id',
+              providerIds
+            );
+
+        if (
+          !profileResult.error
+        ) {
+
+          profiles =
+            profileResult.data || [];
+
+        }
+
+      }
+
+
+      const profileMap =
+        new Map(
+          profiles.map(
+            profile => [
+              profile.id,
+              profile
+            ]
+          )
+        );
+
+
+      let reviews = [];
+
+
+      if (providerIds.length) {
+
+        const reviewResult =
+          await supabaseClient
+            .from('service_reviews')
+            .select(`
+              seller_id,
+              rating
+            `)
+            .in(
+              'seller_id',
+              providerIds
+            );
+
+        if (
+          !reviewResult.error
+        ) {
+
+          reviews =
+            reviewResult.data || [];
+
+        }
+
+      }
+
+
+      const ratingMap =
+        {};
+
+
+      reviews.forEach(
+        function (review) {
+
+          const sellerId =
+            review.seller_id;
+
+          if (
+            !ratingMap[sellerId]
+          ) {
+
+            ratingMap[sellerId] = {
+              total: 0,
+              count: 0
+            };
+
+          }
+
+          ratingMap[sellerId].total +=
+            Number(review.rating || 0);
+
+          ratingMap[sellerId].count += 1;
+
+        }
+      );
+
+
+      allServices =
+        allServices.map(
+          function (service) {
+
+            const profile =
+              profileMap.get(
+                service.user_id
+              ) || null;
+
+            const ratingData =
+              ratingMap[
+                service.user_id
+              ] || {
+                total: 0,
+                count: 0
+              };
+
+            const average =
+              ratingData.count
+                ? ratingData.total /
+                  ratingData.count
+                : 0;
+
+            return {
+              ...service,
+              profile: profile,
+              averageRating: average,
+              reviewCount:
+                ratingData.count
+            };
+
           }
         );
 
 
-    if (result.error) {
+      buildCategories();
+
+      statusElement.classList.add(
+        'hidden'
+      );
+
+      renderServices();
+
+    } catch (error) {
 
       console.error(
         'Services error:',
-        result.error
+        error
       );
 
       statusElement.textContent =
         'Unable to load services: ' +
-        result.error.message;
+        error.message;
 
       statusElement.className =
         'status error';
@@ -571,131 +747,7 @@
       resultsCount.textContent =
         '';
 
-      return;
-
     }
-
-
-    allServices =
-      result.data || [];
-
-
-    if (!allServices.length) {
-
-      statusElement.classList.add(
-        'hidden'
-      );
-
-      emptyElement.classList.remove(
-        'hidden'
-      );
-
-      emptyElement.innerHTML = `
-        <h2>
-          No services available yet
-        </h2>
-
-        <p>
-          StarRise members have not published
-          any active services yet.
-        </p>
-      `;
-
-      resultsCount.textContent =
-        '0 services';
-
-      return;
-
-    }
-
-
-    const providerIds =
-      [
-        ...new Set(
-          allServices.map(
-            service =>
-              service.user_id
-          )
-        )
-      ];
-
-
-    let profiles = [];
-
-
-    if (providerIds.length) {
-
-      const profileResult =
-        await supabaseClient
-
-          .from('Profiles')
-
-          .select(`
-            id,
-            display_name,
-            full_name,
-            name,
-            location
-          `)
-
-          .in(
-            'id',
-            providerIds
-          );
-
-
-      if (
-        profileResult.error
-      ) {
-
-        console.error(
-          'Profile loading error:',
-          profileResult.error
-        );
-
-      } else {
-
-        profiles =
-          profileResult.data || [];
-
-      }
-
-    }
-
-
-    const profileMap =
-      new Map(
-        profiles.map(
-          profile => [
-            profile.id,
-            profile
-          ]
-        )
-      );
-
-
-    allServices =
-      allServices.map(
-        service => ({
-
-          ...service,
-
-          profile:
-            profileMap.get(
-              service.user_id
-            ) || null
-
-        })
-      );
-
-
-    buildCategories();
-
-    statusElement.classList.add(
-      'hidden'
-    );
-
-    renderServices();
 
   }
 
@@ -714,10 +766,10 @@
             )
             .filter(Boolean)
         )
-      ]
-      .sort(
-        (a, b) =>
-          a.localeCompare(b)
+      ].sort(
+        function (a, b) {
+          return a.localeCompare(b);
+        }
       );
 
 
@@ -729,7 +781,7 @@
 
 
     categories.forEach(
-      category => {
+      function (category) {
 
         const option =
           document.createElement(
@@ -752,6 +804,25 @@
   }
 
 
+  function getProviderName(service) {
+
+    const profile =
+      service.profile;
+
+    if (!profile) {
+      return 'StarRise Member';
+    }
+
+    return (
+      profile.display_name ||
+      profile.full_name ||
+      profile.name ||
+      'StarRise Member'
+    );
+
+  }
+
+
   function renderServices() {
 
     const search =
@@ -759,10 +830,8 @@
         searchInput.value
       );
 
-
     const category =
       categorySelect.value;
-
 
     const sort =
       sortSelect.value;
@@ -770,63 +839,42 @@
 
     let filtered =
       allServices.filter(
-        service => {
-
-          const title =
-            normalize(
-              service.title
-            );
-
-          const description =
-            normalize(
-              service.description
-            );
-
-          const serviceCategory =
-            String(
-              service.category || ''
-            ).trim();
-
-
-          const profile =
-            service.profile;
-
+        function (service) {
 
           const provider =
-            normalize(
-              profile
-                ? (
-                    profile.display_name ||
-                    profile.full_name ||
-                    profile.name ||
-                    ''
-                  )
-                : ''
+            getProviderName(
+              service
             );
-
 
           const location =
-            normalize(
-              profile
-                ? profile.location
-                : ''
-            );
+            service.profile
+              ? service.profile.location || ''
+              : '';
+
+          const searchText =
+            [
+              service.title,
+              service.description,
+              service.category,
+              provider,
+              location
+            ]
+              .join(' ')
+              .toLowerCase();
 
 
           const matchesSearch =
             !search ||
-            title.includes(search) ||
-            description.includes(search) ||
-            serviceCategory
-              .toLowerCase()
-              .includes(search) ||
-            provider.includes(search) ||
-            location.includes(search);
+            searchText.includes(
+              search
+            );
 
 
           const matchesCategory =
             category === 'all' ||
-            serviceCategory === category;
+            String(
+              service.category || ''
+            ).trim() === category;
 
 
           return (
@@ -839,7 +887,7 @@
 
 
     filtered.sort(
-      (a, b) => {
+      function (a, b) {
 
         if (sort === 'price-low') {
 
@@ -850,7 +898,6 @@
 
         }
 
-
         if (sort === 'price-high') {
 
           return (
@@ -860,27 +907,28 @@
 
         }
 
+        if (sort === 'rating') {
+
+          return (
+            Number(b.averageRating || 0) -
+            Number(a.averageRating || 0)
+          );
+
+        }
 
         if (sort === 'title') {
 
           return String(
             a.title || ''
           ).localeCompare(
-            String(
-              b.title || ''
-            )
+            String(b.title || '')
           );
 
         }
 
-
         return (
-          new Date(
-            b.created_at
-          ).getTime() -
-          new Date(
-            a.created_at
-          ).getTime()
+          new Date(b.created_at) -
+          new Date(a.created_at)
         );
 
       }
@@ -920,77 +968,95 @@
 
     servicesElement.innerHTML =
       filtered.map(
-        service => {
+        function (service) {
 
-          const profile =
-            service.profile;
-
-
-          const providerName =
-            profile
-              ? (
-                  profile.display_name ||
-                  profile.full_name ||
-                  profile.name ||
-                  'StarRise Member'
-                )
-              : 'StarRise Member';
-
+          const provider =
+            getProviderName(
+              service
+            );
 
           const location =
-            profile &&
-            profile.location
+            service.profile
+              ? service.profile.location || ''
+              : '';
+
+          const rating =
+            Number(
+              service.averageRating || 0
+            );
+
+          const reviewCount =
+            Number(
+              service.reviewCount || 0
+            );
+
+          const category =
+            service.category
               ? `
-                <div class="location">
+                <div class="category">
                   ${escapeHtml(
-                    profile.location
+                    service.category
                   )}
                 </div>
               `
               : '';
 
 
-          const category =
-            service.category ||
-            'Service';
+          const ratingBlock =
+            reviewCount
+              ? `
+                <div class="rating">
 
+                  <div class="rating-stars">
+                    ${stars(rating)}
+                  </div>
 
-          const title =
-            service.title ||
-            'StarRise Service';
+                  <div class="rating-text">
+                    ${rating.toFixed(1)}
+                    ·
+                    ${reviewCount}
+                    ${
+                      reviewCount === 1
+                        ? 'review'
+                        : 'reviews'
+                    }
+                  </div>
 
+                </div>
+              `
+              : `
+                <div class="rating">
 
-          const description =
-            service.description ||
-            'No description provided.';
+                  <div class="rating-stars">
+                    ☆☆☆☆☆
+                  </div>
+
+                  <div class="rating-text">
+                    No reviews yet
+                  </div>
+
+                </div>
+              `;
 
 
           return `
+            <article class="service-card">
 
-            <article
-              class="service-card"
-            >
-
-              <div class="category">
-                ${escapeHtml(
-                  category
-                )}
-              </div>
-
+              ${category}
 
               <div class="service-title">
                 ${escapeHtml(
-                  title
+                  service.title ||
+                  'StarRise Service'
                 )}
               </div>
-
 
               <div class="description">
                 ${escapeHtml(
-                  description
+                  service.description ||
+                  'No description provided.'
                 )}
               </div>
-
 
               <div class="price">
                 ${escapeHtml(
@@ -1000,32 +1066,32 @@
                 )}
               </div>
 
-
               <div class="provider">
 
-                Provided by
+                Provider:
                 <strong>
                   ${escapeHtml(
-                    providerName
+                    provider
                   )}
                 </strong>
 
-                ${location}
+                ${
+                  location
+                    ? `
+                      <div class="location">
+                        ${escapeHtml(
+                          location
+                        )}
+                      </div>
+                    `
+                    : ''
+                }
 
               </div>
 
+              ${ratingBlock}
 
               <div class="service-actions">
-
-                <a
-                  class="service-button"
-                  href="service.html?id=${encodeURIComponent(
-                    service.id
-                  )}"
-                >
-                  View Details
-                </a>
-
 
                 <a
                   class="service-button primary"
@@ -1033,13 +1099,12 @@
                     service.id
                   )}"
                 >
-                  Request Service
+                  View Service
                 </a>
 
               </div>
 
             </article>
-
           `;
 
         }
