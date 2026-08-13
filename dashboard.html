@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <title>StarRise Dashboard</title>
 
   <style>
@@ -19,12 +18,17 @@
     }
 
     header {
-      padding: 20px 24px;
+      padding: 18px 24px;
       border-bottom: 1px solid #ffffff18;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
+      gap: 15px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: #080812ee;
+      backdrop-filter: blur(12px);
     }
 
     header a {
@@ -33,26 +37,34 @@
       font-weight: bold;
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     button {
       font-family: inherit;
     }
 
-    #signout {
+    #signout,
+    .header-button {
       border: 1px solid #ffffff33;
       background: transparent;
       color: #fff;
-      padding: 10px 16px;
+      padding: 9px 15px;
       border-radius: 20px;
       cursor: pointer;
     }
 
-    #signout:hover {
+    #signout:hover,
+    .header-button:hover {
       background: #ffffff10;
     }
 
     main {
       width: min(950px, calc(100% - 30px));
-      margin: 35px auto 60px;
+      margin: 30px auto 60px;
     }
 
     .hero,
@@ -65,12 +77,17 @@
     }
 
     h1,
-    h2 {
+    h2,
+    h3 {
       margin-top: 0;
     }
 
     .muted {
       color: #aaa;
+    }
+
+    .small {
+      font-size: 13px;
     }
 
     .status-box {
@@ -96,17 +113,13 @@
       background: rgba(200, 150, 50, .12) !important;
     }
 
-    .profile-grid,
-    .stripe-grid,
-    .rating-grid {
+    .profile-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 14px;
     }
 
-    .item,
-    .stripe-stat,
-    .rating-stat {
+    .item {
       padding: 17px;
       border-radius: 14px;
       background: #ffffff08;
@@ -178,9 +191,7 @@
       margin-top: 15px;
     }
 
-    .order-button,
-    .connect-button,
-    .edit-link {
+    .order-button {
       border: 0;
       padding: 11px 20px;
       border-radius: 25px;
@@ -190,14 +201,11 @@
       cursor: pointer;
     }
 
-    .order-button:hover,
-    .connect-button:hover,
-    .edit-link:hover {
+    .order-button:hover {
       opacity: .9;
     }
 
-    .order-button:disabled,
-    .connect-button:disabled {
+    .order-button:disabled {
       opacity: .6;
       cursor: wait;
     }
@@ -208,15 +216,23 @@
       border: 1px solid #ffffff35;
     }
 
-    .edit-link {
-      display: inline-block;
-      margin-top: 18px;
-      text-decoration: none;
-    }
-
+    .edit-link,
     .connect-button {
       display: inline-block;
       margin-top: 18px;
+      padding: 11px 20px;
+      border-radius: 25px;
+      background: #fff;
+      color: #080812;
+      text-decoration: none;
+      font-weight: bold;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .connect-button:disabled {
+      opacity: .6;
+      cursor: wait;
     }
 
     .service-link {
@@ -233,6 +249,138 @@
       color: #999;
       margin-top: 12px;
     }
+
+    /* NOTIFICATIONS */
+
+    .notification-panel {
+      border: 1px solid #ffffff18;
+      border-radius: 18px;
+      background: #ffffff08;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .notification-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .notification-list {
+      margin-top: 14px;
+    }
+
+    .notification {
+      padding: 14px;
+      border-radius: 12px;
+      background: #00000022;
+      border: 1px solid #ffffff10;
+      margin-top: 10px;
+    }
+
+    .notification.unread {
+      border-color: #ffffff35;
+      background: #ffffff0c;
+    }
+
+    .notification-title {
+      font-weight: bold;
+    }
+
+    .notification-time {
+      color: #777;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    /* RATING */
+
+    .rating-box {
+      padding: 20px;
+      border-radius: 16px;
+      background: #ffffff08;
+      border: 1px solid #ffffff12;
+    }
+
+    .rating-number {
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+    .rating-stars {
+      color: #ffd84d;
+      font-size: 28px;
+      letter-spacing: 2px;
+    }
+
+    /* ORDER TIMELINE */
+
+    .timeline {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 14px;
+      background: #00000022;
+      border: 1px solid #ffffff12;
+    }
+
+    .timeline-title {
+      font-weight: bold;
+      margin-bottom: 14px;
+    }
+
+    .timeline-track {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .timeline-step {
+      text-align: center;
+      position: relative;
+    }
+
+    .timeline-dot {
+      width: 30px;
+      height: 30px;
+      margin: 0 auto 8px;
+      border-radius: 50%;
+      background: #ffffff12;
+      border: 1px solid #ffffff20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    .timeline-step.active .timeline-dot,
+    .timeline-step.complete .timeline-dot {
+      background: #fff;
+      color: #080812;
+      border-color: #fff;
+    }
+
+    .timeline-step.active .timeline-label {
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .timeline-step.complete .timeline-label {
+      color: #bbb;
+    }
+
+    .timeline-label {
+      font-size: 11px;
+      color: #777;
+    }
+
+    .timeline-date {
+      font-size: 10px;
+      color: #666;
+      margin-top: 3px;
+    }
+
+    /* REVIEWS */
 
     .review-box,
     .review-display {
@@ -276,8 +424,7 @@
       margin-bottom: 12px;
     }
 
-    .review-stars,
-    .rating-stars {
+    .review-stars {
       color: #ffd84d;
       font-size: 22px;
       letter-spacing: 2px;
@@ -301,106 +448,37 @@
       margin-bottom: 4px;
     }
 
-    .stripe-stat strong,
-    .rating-stat strong {
+    /* STRIPE */
+
+    .stripe-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .stripe-stat {
+      padding: 15px;
+      border-radius: 14px;
+      background: #ffffff08;
+    }
+
+    .stripe-stat strong {
       display: block;
       font-size: 18px;
       margin-top: 3px;
     }
 
-    .small {
-      font-size: 13px;
-    }
-
-    .dashboard-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 18px;
-    }
-
-    .dashboard-links a {
-      color: #fff;
-      text-decoration: none;
-      border: 1px solid #ffffff20;
-      padding: 9px 15px;
-      border-radius: 20px;
-    }
-
-    .dashboard-links a:hover {
-      background: #ffffff10;
-    }
-
-    /* NOTIFICATIONS */
-
-    .notification-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .notification {
-      padding: 16px;
-      border-radius: 14px;
-      background: #ffffff08;
-      border: 1px solid #ffffff12;
-      cursor: pointer;
-    }
-
-    .notification.unread {
-      border-color: #ffffff35;
-      background: #ffffff10;
-    }
-
-    .notification-title {
-      font-weight: bold;
-      margin-bottom: 3px;
-    }
-
-    .notification-message {
-      color: #bbb;
-    }
-
-    .notification-date {
-      color: #777;
-      font-size: 12px;
-      margin-top: 7px;
-    }
-
-    .notification-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 22px;
-      height: 22px;
-      padding: 0 7px;
-      margin-left: 7px;
-      border-radius: 20px;
-      background: #fff;
-      color: #080812;
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .notification-actions {
-      margin-top: 12px;
-    }
-
-    .small-button {
-      border: 1px solid #ffffff25;
-      background: transparent;
-      color: #fff;
-      padding: 8px 13px;
-      border-radius: 18px;
-      cursor: pointer;
-    }
-
-    .small-button:hover {
-      background: #ffffff10;
-    }
-
     @media (max-width: 650px) {
+
       header {
         flex-direction: column;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
       }
 
       main {
@@ -409,7 +487,8 @@
       }
 
       .hero,
-      .panel {
+      .panel,
+      .notification-panel {
         padding: 20px;
       }
 
@@ -421,6 +500,11 @@
       .connect-button {
         width: 100%;
       }
+
+      .timeline-track {
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
     }
   </style>
 </head>
@@ -428,11 +512,31 @@
 <body>
 
 <header>
+
   <a href="index.html">⭐ StarRise</a>
 
-  <button id="signout" type="button">
-    Sign Out
-  </button>
+  <div class="header-actions">
+
+    <a
+      class="header-button"
+      href="services.html"
+    >
+      Browse Services
+    </a>
+
+    <a
+      class="header-button"
+      href="members.html"
+    >
+      Find Members
+    </a>
+
+    <button id="signout">
+      Sign Out
+    </button>
+
+  </div>
+
 </header>
 
 <main>
@@ -441,7 +545,9 @@
 
   <section class="hero">
 
-    <p class="muted">MEMBER DASHBOARD</p>
+    <p class="muted">
+      MEMBER DASHBOARD
+    </p>
 
     <h1>
       Welcome, <span id="name">Member</span>
@@ -451,51 +557,51 @@
       Your StarRise member account is active.
     </p>
 
-    <div class="dashboard-links">
-      <a href="services.html">Browse Services</a>
-      <a href="members.html">Find Members</a>
-      <a href="edit-profile.html">Edit Profile</a>
-    </div>
+    <a
+      class="edit-link"
+      href="edit-profile.html"
+    >
+      Edit Profile
+    </a>
 
   </section>
 
 
   <!-- NOTIFICATIONS -->
 
-  <section class="panel">
+  <section class="notification-panel">
 
-    <h2>
-      Notifications
-      <span
-        id="notification-count"
-        class="notification-badge"
-        style="display:none;"
+    <div class="notification-header">
+
+      <div>
+
+        <h2 style="margin-bottom:4px;">
+          Notifications
+        </h2>
+
+        <span
+          id="notification-summary"
+          class="muted small"
+        >
+          Checking notifications...
+        </span>
+
+      </div>
+
+      <button
+        id="mark-notifications-read"
+        class="header-button"
+        type="button"
       >
-        0
-      </span>
-    </h2>
+        Mark All Read
+      </button>
 
-    <div
-      id="notifications-status"
-      class="status-box"
-    >
-      Loading notifications...
     </div>
 
     <div
       id="notifications"
       class="notification-list"
     ></div>
-
-    <div class="notification-actions">
-      <button
-        id="mark-all-read"
-        class="small-button"
-        type="button"
-      >
-        Mark All Read
-      </button>
-    </div>
 
   </section>
 
@@ -504,10 +610,13 @@
 
   <section class="panel">
 
-    <h2>Get Paid Through StarRise</h2>
+    <h2>
+      Get Paid Through StarRise
+    </h2>
 
     <p class="muted">
-      Connect your Stripe account to receive payouts for services you complete.
+      Connect your Stripe account to receive payouts
+      for services you complete.
     </p>
 
     <div
@@ -520,21 +629,30 @@
     <div class="stripe-grid">
 
       <div class="stripe-stat">
-        <span class="label">Account</span>
+        <span class="label">
+          Account
+        </span>
+
         <strong id="stripe-account-status">
           Checking...
         </strong>
       </div>
 
       <div class="stripe-stat">
-        <span class="label">Charges</span>
+        <span class="label">
+          Charges
+        </span>
+
         <strong id="stripe-charges">
           Checking...
         </strong>
       </div>
 
       <div class="stripe-stat">
-        <span class="label">Payouts</span>
+        <span class="label">
+          Payouts
+        </span>
+
         <strong id="stripe-payouts">
           Checking...
         </strong>
@@ -562,7 +680,9 @@
 
   <section class="panel">
 
-    <h2>Your Profile</h2>
+    <h2>
+      Your Profile
+    </h2>
 
     <div
       id="status"
@@ -574,7 +694,10 @@
     <div class="profile-grid">
 
       <div class="item">
-        <span class="label">Full Name</span>
+        <span class="label">
+          Full Name
+        </span>
+
         <span
           id="profile-name"
           class="profile-value"
@@ -584,7 +707,10 @@
       </div>
 
       <div class="item">
-        <span class="label">Display / Stage Name</span>
+        <span class="label">
+          Display / Stage Name
+        </span>
+
         <span
           id="display-name"
           class="profile-value"
@@ -594,7 +720,10 @@
       </div>
 
       <div class="item">
-        <span class="label">Email</span>
+        <span class="label">
+          Email
+        </span>
+
         <span
           id="email"
           class="profile-value"
@@ -604,7 +733,10 @@
       </div>
 
       <div class="item">
-        <span class="label">Location</span>
+        <span class="label">
+          Location
+        </span>
+
         <span
           id="location"
           class="profile-value"
@@ -614,7 +746,10 @@
       </div>
 
       <div class="item">
-        <span class="label">Website</span>
+        <span class="label">
+          Website
+        </span>
+
         <span
           id="website"
           class="profile-value"
@@ -624,7 +759,10 @@
       </div>
 
       <div class="item">
-        <span class="label">Member Since</span>
+        <span class="label">
+          Member Since
+        </span>
+
         <span
           id="member-since"
           class="profile-value"
@@ -642,41 +780,57 @@
 
   <section class="panel">
 
-    <h2>Your StarRise Rating</h2>
+    <h2>
+      Your StarRise Rating
+    </h2>
 
     <p class="muted">
-      Your rating is based on completed services and customer reviews.
+      Your rating is based on completed services
+      and customer reviews.
     </p>
 
-    <div class="rating-grid">
+    <div class="rating-box">
 
-      <div class="rating-stat">
-        <span class="label">Average Rating</span>
+      <span class="label">
+        Average Rating
+      </span>
 
-        <strong id="average-rating">
-          Loading...
-        </strong>
-
-        <div
-          id="rating-stars"
-          class="rating-stars"
-        ></div>
+      <div
+        id="average-rating"
+        class="rating-number"
+      >
+        Loading...
       </div>
 
-      <div class="rating-stat">
-        <span class="label">Reviews</span>
-
-        <strong id="review-count">
-          Loading...
-        </strong>
+      <div
+        id="rating-stars"
+        class="rating-stars"
+      >
+        ☆☆☆☆☆
       </div>
 
-      <div class="rating-stat">
-        <span class="label">Completed Services</span>
+      <div class="stripe-grid">
 
-        <strong id="completed-count">
-          Loading...
-        </strong>
+        <div class="stripe-stat">
+          <span class="label">
+            Reviews
+          </span>
+
+          <strong id="review-count">
+            0
+          </strong>
+        </div>
+
+        <div class="stripe-stat">
+          <span class="label">
+            Completed Services
+          </span>
+
+          <strong id="completed-count">
+            0
+          </strong>
+        </div>
+
       </div>
 
     </div>
@@ -684,11 +838,13 @@
   </section>
 
 
-  <!-- BIO -->
+  <!-- ABOUT -->
 
   <section class="panel">
 
-    <h2>About You</h2>
+    <h2>
+      About You
+    </h2>
 
     <p
       id="bio"
@@ -704,7 +860,9 @@
 
   <section class="panel">
 
-    <h2>Your StarRise Roles</h2>
+    <h2>
+      Your StarRise Roles
+    </h2>
 
     <div id="roles">
       Loading roles...
@@ -717,7 +875,9 @@
 
   <section class="panel">
 
-    <h2>Incoming Service Orders</h2>
+    <h2>
+      Incoming Service Orders
+    </h2>
 
     <p class="muted">
       Active service requests from customers appear here.
@@ -735,11 +895,13 @@
   </section>
 
 
-  <!-- COMPLETED PROVIDER ORDERS -->
+  <!-- COMPLETED PROVIDER SERVICES -->
 
   <section class="panel">
 
-    <h2>Completed Services</h2>
+    <h2>
+      Completed Services
+    </h2>
 
     <p class="muted">
       Services you completed appear here.
@@ -757,11 +919,13 @@
   </section>
 
 
-  <!-- CUSTOMER ORDERS -->
+  <!-- BUYER ACTIVE ORDERS -->
 
   <section class="panel">
 
-    <h2>My Orders</h2>
+    <h2>
+      My Orders
+    </h2>
 
     <p class="muted">
       Services you requested from other StarRise members.
@@ -779,11 +943,13 @@
   </section>
 
 
-  <!-- CUSTOMER COMPLETED -->
+  <!-- BUYER COMPLETED -->
 
   <section class="panel">
 
-    <h2>My Completed Services</h2>
+    <h2>
+      My Completed Services
+    </h2>
 
     <p class="muted">
       Completed services you received.
@@ -806,11 +972,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-
 (function () {
 
   'use strict';
-
 
   const SUPABASE_URL =
     'https://rcnikxotdalxtuvpmlvm.supabase.co';
@@ -820,10 +984,6 @@
 
   const FUNCTIONS_URL =
     SUPABASE_URL + '/functions/v1';
-
-
-  let supabaseClient = null;
-  let currentUser = null;
 
 
   const statusBox =
@@ -871,17 +1031,19 @@
   const stripeMessage =
     document.getElementById('stripe-message');
 
-  const notifications =
+  const notificationsContainer =
     document.getElementById('notifications');
 
-  const notificationsStatus =
-    document.getElementById('notifications-status');
+  const notificationSummary =
+    document.getElementById('notification-summary');
 
-  const notificationCount =
-    document.getElementById('notification-count');
+  const markNotificationsRead =
+    document.getElementById(
+      'mark-notifications-read'
+    );
 
-  const markAllRead =
-    document.getElementById('mark-all-read');
+  let supabaseClient = null;
+  let currentUser = null;
 
 
   function escapeHtml(value) {
@@ -892,14 +1054,20 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+
   }
 
 
-  function setStatus(element, message, type) {
+  function setStatus(
+    element,
+    message,
+    type
+  ) {
 
     if (!element) return;
 
-    element.textContent = message;
+    element.textContent =
+      message;
 
     element.classList.remove(
       'error',
@@ -910,6 +1078,7 @@
     if (type) {
       element.classList.add(type);
     }
+
   }
 
 
@@ -922,11 +1091,34 @@
     const date =
       new Date(value);
 
-    if (Number.isNaN(date.getTime())) {
+    if (Number.isNaN(
+      date.getTime()
+    )) {
       return 'Unknown';
     }
 
     return date.toLocaleDateString();
+
+  }
+
+
+  function formatDateTime(value) {
+
+    if (!value) {
+      return '';
+    }
+
+    const date =
+      new Date(value);
+
+    if (Number.isNaN(
+      date.getTime()
+    )) {
+      return '';
+    }
+
+    return date.toLocaleString();
+
   }
 
 
@@ -934,8 +1126,11 @@
 
     return (
       '$' +
-      (Number(cents || 0) / 100).toFixed(2)
+      (
+        Number(cents || 0) / 100
+      ).toFixed(2)
     );
+
   }
 
 
@@ -944,7 +1139,7 @@
     const value =
       Number(rating || 0);
 
-    return [1,2,3,4,5]
+    return [1, 2, 3, 4, 5]
       .map(function (number) {
 
         return number <= value
@@ -953,6 +1148,7 @@
 
       })
       .join('');
+
   }
 
 
@@ -962,7 +1158,9 @@
     fallback
   ) {
 
-    for (const field of fields) {
+    for (
+      const field of fields
+    ) {
 
       if (
         object &&
@@ -970,12 +1168,15 @@
         object[field] !== null &&
         object[field] !== ''
       ) {
+
         return object[field];
+
       }
 
     }
 
     return fallback;
+
   }
 
 
@@ -984,12 +1185,175 @@
     return value
       ? 'Enabled'
       : 'Not enabled';
+
+  }
+
+
+  function statusLabel(status) {
+
+    const labels = {
+
+      pending:
+        'Waiting for seller',
+
+      accepted:
+        'Accepted by seller',
+
+      in_progress:
+        'Service in progress',
+
+      completed:
+        'Completed',
+
+      declined:
+        'Declined',
+
+      cancelled:
+        'Cancelled'
+
+    };
+
+    return (
+      labels[status] ||
+      status ||
+      'Unknown'
+    );
+
+  }
+
+
+  function statusIndex(status) {
+
+    const statuses = [
+      'pending',
+      'accepted',
+      'in_progress',
+      'completed'
+    ];
+
+    const index =
+      statuses.indexOf(status);
+
+    return index >= 0
+      ? index
+      : 0;
+
+  }
+
+
+  function renderTimeline(order) {
+
+    const current =
+      statusIndex(order.status);
+
+    const steps = [
+      {
+        key: 'pending',
+        label: 'Requested'
+      },
+      {
+        key: 'accepted',
+        label: 'Accepted'
+      },
+      {
+        key: 'in_progress',
+        label: 'In Progress'
+      },
+      {
+        key: 'completed',
+        label: 'Completed'
+      }
+    ];
+
+    return `
+
+      <div class="timeline">
+
+        <div class="timeline-title">
+          Order Progress
+        </div>
+
+        <div class="timeline-track">
+
+          ${steps.map(function (
+            step,
+            index
+          ) {
+
+            let className = '';
+
+            if (
+              order.status !== 'declined' &&
+              order.status !== 'cancelled'
+            ) {
+
+              if (
+                index < current
+              ) {
+                className = 'complete';
+              }
+
+              if (
+                index === current
+              ) {
+                className = 'active';
+              }
+
+            }
+
+            return `
+
+              <div
+                class="timeline-step ${className}"
+              >
+
+                <div class="timeline-dot">
+                  ${
+                    index < current
+                      ? '✓'
+                      : index + 1
+                  }
+                </div>
+
+                <div class="timeline-label">
+                  ${escapeHtml(step.label)}
+                </div>
+
+              </div>
+
+            `;
+
+          }).join('')}
+
+        </div>
+
+        <div
+          class="muted small"
+          style="margin-top:12px;"
+        >
+          Current status:
+          <strong>
+            ${escapeHtml(
+              statusLabel(order.status)
+            )}
+          </strong>
+        </div>
+
+      </div>
+
+    `;
+
   }
 
 
   async function initialize() {
 
     try {
+
+      setStatus(
+        statusBox,
+        'Connecting to StarRise...'
+      );
 
       if (!window.supabase) {
 
@@ -1005,22 +1369,21 @@
           SUPABASE_KEY
         );
 
-
       const sessionResult =
         await supabaseClient.auth.getSession();
-
 
       if (sessionResult.error) {
         throw sessionResult.error;
       }
 
-
       const session =
         sessionResult.data &&
         sessionResult.data.session;
 
-
-      if (!session || !session.user) {
+      if (
+        !session ||
+        !session.user
+      ) {
 
         setStatus(
           statusBox,
@@ -1038,10 +1401,8 @@
         return;
       }
 
-
       currentUser =
         session.user;
-
 
       document.getElementById(
         'email'
@@ -1049,32 +1410,47 @@
         currentUser.email ||
         'Not available';
 
-
       setStatus(
         statusBox,
         'Connected to StarRise.',
         'success'
       );
 
+      await loadProfile(
+        currentUser
+      );
 
-      await loadProfile(currentUser);
+      await loadRoles(
+        currentUser
+      );
 
-      await loadRoles(currentUser);
+      await loadStripeStatus(
+        currentUser
+      );
 
-      await loadStripeStatus(currentUser);
+      await loadIncomingOrders(
+        currentUser
+      );
 
-      await loadRating(currentUser);
+      await loadCompletedOrders(
+        currentUser
+      );
 
-      await loadNotifications(currentUser);
+      await loadMyOrders(
+        currentUser
+      );
 
-      await loadIncomingOrders(currentUser);
+      await loadMyCompletedOrders(
+        currentUser
+      );
 
-      await loadCompletedOrders(currentUser);
+      await loadRating(
+        currentUser
+      );
 
-      await loadMyOrders(currentUser);
-
-      await loadMyCompletedOrders(currentUser);
-
+      await loadNotifications(
+        currentUser
+      );
 
     } catch (error) {
 
@@ -1086,7 +1462,10 @@
       setStatus(
         statusBox,
         'Dashboard error: ' +
-        (error.message || 'Unknown error'),
+        (
+          error.message ||
+          'Unknown error'
+        ),
         'error'
       );
 
@@ -1104,7 +1483,6 @@
         .eq('id', user.id)
         .maybeSingle();
 
-
     if (result.error) {
 
       throw new Error(
@@ -1114,7 +1492,6 @@
 
     }
 
-
     if (!result.data) {
 
       result =
@@ -1123,7 +1500,6 @@
           .select('*')
           .eq('User_id', user.id)
           .maybeSingle();
-
 
       if (result.error) {
 
@@ -1136,7 +1512,6 @@
 
     }
 
-
     if (!result.data) {
 
       throw new Error(
@@ -1145,10 +1520,8 @@
 
     }
 
-
     const profile =
       result.data;
-
 
     const fullName =
       getField(
@@ -1162,7 +1535,6 @@
         'StarRise Member'
       );
 
-
     const displayName =
       getField(
         profile,
@@ -1175,24 +1547,20 @@
         fullName
       );
 
-
     document.getElementById(
       'name'
     ).textContent =
       displayName;
-
 
     document.getElementById(
       'profile-name'
     ).textContent =
       fullName;
 
-
     document.getElementById(
       'display-name'
     ).textContent =
       displayName;
-
 
     document.getElementById(
       'email'
@@ -1200,36 +1568,41 @@
       user.email ||
       'Not available';
 
-
     document.getElementById(
       'location'
     ).textContent =
       getField(
         profile,
-        ['location','Location'],
+        [
+          'location',
+          'Location'
+        ],
         'Not provided'
       );
-
 
     document.getElementById(
       'bio'
     ).textContent =
       getField(
         profile,
-        ['bio','Bio'],
+        [
+          'bio',
+          'Bio'
+        ],
         'No bio added yet.'
       );
-
 
     document.getElementById(
       'website'
     ).textContent =
       getField(
         profile,
-        ['website','Website'],
+        [
+          'website',
+          'Website'
+        ],
         'Not provided'
       );
-
 
     document.getElementById(
       'member-since'
@@ -1237,7 +1610,10 @@
       formatDate(
         getField(
           profile,
-          ['created_at','Created_at'],
+          [
+            'created_at',
+            'Created_at'
+          ],
           null
         )
       );
@@ -1248,8 +1624,9 @@
   async function loadRoles(user) {
 
     const element =
-      document.getElementById('roles');
-
+      document.getElementById(
+        'roles'
+      );
 
     try {
 
@@ -1257,14 +1634,15 @@
         await supabaseClient
           .from('member_roles')
           .select('role')
-          .eq('user_id', user.id)
+          .eq(
+            'user_id',
+            user.id
+          )
           .order('role');
-
 
       if (result.error) {
         throw result.error;
       }
-
 
       if (
         !result.data ||
@@ -1277,8 +1655,8 @@
           '</span>';
 
         return;
-      }
 
+      }
 
       element.innerHTML =
         result.data
@@ -1311,265 +1689,6 @@
   }
 
 
-  /* =========================
-     NOTIFICATIONS
-     ========================= */
-
-  async function loadNotifications(user) {
-
-    setStatus(
-      notificationsStatus,
-      'Loading notifications...'
-    );
-
-    notifications.innerHTML = '';
-
-
-    try {
-
-      const result =
-        await supabaseClient
-          .from('notifications')
-          .select('*')
-          .eq('user_id', user.id)
-          .order(
-            'created_at',
-            { ascending: false }
-          )
-          .limit(20);
-
-
-      if (result.error) {
-        throw result.error;
-      }
-
-
-      const items =
-        result.data || [];
-
-
-      const unread =
-        items.filter(function (item) {
-
-          return !item.read_at;
-
-        }).length;
-
-
-      if (unread > 0) {
-
-        notificationCount.textContent =
-          unread;
-
-        notificationCount.style.display =
-          'inline-flex';
-
-      } else {
-
-        notificationCount.style.display =
-          'none';
-
-      }
-
-
-      if (!items.length) {
-
-        setStatus(
-          notificationsStatus,
-          'You have no notifications.'
-        );
-
-        notifications.innerHTML =
-          '<div class="empty">' +
-          'You are all caught up.' +
-          '</div>';
-
-        return;
-      }
-
-
-      setStatus(
-        notificationsStatus,
-        unread
-          ? unread + ' unread notification' +
-            (unread === 1 ? '.' : 's.')
-          : 'You are all caught up.',
-        unread ? 'warning' : 'success'
-      );
-
-
-      notifications.innerHTML =
-        items
-          .map(function (item) {
-
-            return `
-              <div
-                class="notification ${
-                  item.read_at
-                    ? ''
-                    : 'unread'
-                }"
-                data-notification-id="${escapeHtml(item.id)}"
-              >
-
-                <div class="notification-title">
-                  ${escapeHtml(
-                    item.title ||
-                    'StarRise Notification'
-                  )}
-                </div>
-
-                <div class="notification-message">
-                  ${escapeHtml(
-                    item.message ||
-                    ''
-                  )}
-                </div>
-
-                <div class="notification-date">
-                  ${escapeHtml(
-                    formatDate(
-                      item.created_at
-                    )
-                  )}
-
-                  ${
-                    item.read_at
-                      ? ''
-                      : ' • Unread'
-                  }
-                </div>
-
-              </div>
-            `;
-
-          })
-          .join('');
-
-
-    } catch (error) {
-
-      console.error(
-        'Notifications error:',
-        error
-      );
-
-      setStatus(
-        notificationsStatus,
-        'Unable to load notifications: ' +
-        error.message,
-        'error'
-      );
-
-      notifications.innerHTML =
-        '<div class="empty">' +
-        'Notifications are temporarily unavailable.' +
-        '</div>';
-
-    }
-
-  }
-
-
-  async function markNotificationRead(
-    notificationId
-  ) {
-
-    if (!currentUser) return;
-
-
-    const result =
-      await supabaseClient
-        .from('notifications')
-        .update({
-          read_at:
-            new Date().toISOString()
-        })
-        .eq(
-          'id',
-          notificationId
-        )
-        .eq(
-          'user_id',
-          currentUser.id
-        );
-
-
-    if (result.error) {
-      throw result.error;
-    }
-
-  }
-
-
-  async function markAllNotificationsRead() {
-
-    if (!currentUser) return;
-
-
-    markAllRead.disabled = true;
-
-    markAllRead.textContent =
-      'Marking Read...';
-
-
-    try {
-
-      const result =
-        await supabaseClient
-          .from('notifications')
-          .update({
-            read_at:
-              new Date().toISOString()
-          })
-          .eq(
-            'user_id',
-            currentUser.id
-          )
-          .is(
-            'read_at',
-            null
-          );
-
-
-      if (result.error) {
-        throw result.error;
-      }
-
-
-      await loadNotifications(
-        currentUser
-      );
-
-
-    } catch (error) {
-
-      console.error(
-        'Mark notifications error:',
-        error
-      );
-
-      alert(
-        'Unable to mark notifications as read: ' +
-        error.message
-      );
-
-    } finally {
-
-      markAllRead.disabled = false;
-
-      markAllRead.textContent =
-        'Mark All Read';
-
-    }
-
-  }
-
-
-  /* =========================
-     RATING
-     ========================= */
-
   async function loadRating(user) {
 
     const averageElement =
@@ -1582,89 +1701,24 @@
         'rating-stars'
       );
 
-    const countElement =
+    const reviewCount =
       document.getElementById(
         'review-count'
       );
 
-    const completedElement =
+    const completedCount =
       document.getElementById(
         'completed-count'
       );
 
-
     try {
 
-      const reviewResult =
-        await supabaseClient
-          .from('service_reviews')
-          .select(
-            'rating',
-            { count: 'exact' }
-          )
-          .eq(
-            'seller_id',
-            user.id
-          );
-
-
-      if (reviewResult.error) {
-        throw reviewResult.error;
-      }
-
-
-      const reviews =
-        reviewResult.data || [];
-
-
-      const total =
-        reviews.length;
-
-
-      const average =
-        total
-          ? reviews.reduce(
-              function (
-                sum,
-                review
-              ) {
-
-                return (
-                  sum +
-                  Number(
-                    review.rating || 0
-                  )
-                );
-
-              },
-              0
-            ) / total
-          : 0;
-
-
-      averageElement.textContent =
-        total
-          ? average.toFixed(1) +
-            ' / 5'
-          : 'No rating yet';
-
-
-      starsElement.textContent =
-        total
-          ? starsHtml(average)
-          : '☆☆☆☆☆';
-
-
-      countElement.textContent =
-        total;
-
-
-      const completedResult =
+      const completed =
         await supabaseClient
           .from('service_orders')
           .select(
             'id',
-            { count: 'exact', head: true }
+            { count: 'exact' }
           )
           .eq(
             'seller_id',
@@ -1675,19 +1729,77 @@
             'completed'
           );
 
+      if (completed.error) {
+        throw completed.error;
+      }
 
-      if (!completedResult.error) {
+      const reviews =
+        await supabaseClient
+          .from('service_reviews')
+          .select(
+            'rating'
+          )
+          .eq(
+            'seller_id',
+            user.id
+          );
 
-        completedElement.textContent =
-          completedResult.count || 0;
+      if (reviews.error) {
+        throw reviews.error;
+      }
 
-      } else {
+      const rows =
+        reviews.data || [];
 
-        completedElement.textContent =
-          'Unavailable';
+      const total =
+        rows.length;
+
+      completedCount.textContent =
+        String(
+          completed.count || 0
+        );
+
+      reviewCount.textContent =
+        String(total);
+
+      if (!total) {
+
+        averageElement.textContent =
+          'No rating yet';
+
+        starsElement.textContent =
+          '☆☆☆☆☆';
+
+        return;
 
       }
 
+      const average =
+        rows.reduce(
+          function (
+            sum,
+            review
+          ) {
+
+            return (
+              sum +
+              Number(
+                review.rating || 0
+              )
+            );
+
+          },
+          0
+        ) / total;
+
+      averageElement.textContent =
+        average.toFixed(1) +
+        ' / 5';
+
+      starsElement.textContent =
+        starsHtml(
+          Math.round(average)
+        );
 
     } catch (error) {
 
@@ -1702,20 +1814,10 @@
       starsElement.textContent =
         '☆☆☆☆☆';
 
-      countElement.textContent =
-        'Unavailable';
-
-      completedElement.textContent =
-        'Unavailable';
-
     }
 
   }
 
-
-  /* =========================
-     STRIPE
-     ========================= */
 
   async function loadStripeStatus(user) {
 
@@ -1724,14 +1826,11 @@
       'Checking Stripe payout status...'
     );
 
-
     connectStripeButton.disabled =
       true;
 
-
     connectStripeButton.textContent =
       'Checking Stripe...';
-
 
     try {
 
@@ -1749,15 +1848,12 @@
           )
           .maybeSingle();
 
-
       if (result.error) {
         throw result.error;
       }
 
-
       const account =
         result.data;
-
 
       if (!account) {
 
@@ -1770,13 +1866,11 @@
         stripePayouts.textContent =
           'Not enabled';
 
-
         setStatus(
           stripeStatus,
           'Stripe payouts have not been set up yet.',
           'warning'
         );
-
 
         connectStripeButton.disabled =
           false;
@@ -1785,20 +1879,18 @@
           'Set Up Stripe Payouts';
 
         return;
-      }
 
+      }
 
       stripeCharges.textContent =
         yesNo(
           account.charges_enabled
         );
 
-
       stripePayouts.textContent =
         yesNo(
           account.payouts_enabled
         );
-
 
       if (
         account.payouts_enabled
@@ -1807,20 +1899,17 @@
         stripeAccountStatus.textContent =
           'Ready';
 
-
         setStatus(
           stripeStatus,
           'Your Stripe account is ready to receive payouts.',
           'success'
         );
 
-
         connectStripeButton.disabled =
           false;
 
         connectStripeButton.textContent =
           'Manage Stripe Setup';
-
 
       } else if (
         account.details_submitted
@@ -1829,13 +1918,11 @@
         stripeAccountStatus.textContent =
           'Under review';
 
-
         setStatus(
           stripeStatus,
           'Stripe setup has been submitted. Complete any remaining requirements in Stripe.',
           'warning'
         );
-
 
         connectStripeButton.disabled =
           false;
@@ -1843,19 +1930,16 @@
         connectStripeButton.textContent =
           'Continue Stripe Setup';
 
-
       } else {
 
         stripeAccountStatus.textContent =
           'Setup required';
-
 
         setStatus(
           stripeStatus,
           'Finish Stripe onboarding before receiving payouts.',
           'warning'
         );
-
 
         connectStripeButton.disabled =
           false;
@@ -1865,14 +1949,12 @@
 
       }
 
-
     } catch (error) {
 
       console.error(
         'Stripe status error:',
         error
       );
-
 
       stripeAccountStatus.textContent =
         'Unavailable';
@@ -1883,14 +1965,12 @@
       stripePayouts.textContent =
         'Unavailable';
 
-
       setStatus(
         stripeStatus,
         'Stripe status could not be loaded: ' +
         error.message,
         'error'
       );
-
 
       connectStripeButton.disabled =
         false;
@@ -1913,34 +1993,27 @@
 
     }
 
-
     connectStripeButton.disabled =
       true;
-
 
     connectStripeButton.textContent =
       'Opening Stripe...';
 
-
     stripeMessage.textContent =
       'Preparing your secure Stripe onboarding page...';
-
 
     try {
 
       const sessionResult =
         await supabaseClient.auth.getSession();
 
-
       if (sessionResult.error) {
         throw sessionResult.error;
       }
 
-
       const session =
         sessionResult.data &&
         sessionResult.data.session;
-
 
       if (!session) {
 
@@ -1950,7 +2023,6 @@
 
       }
 
-
       const response =
         await fetch(
           FUNCTIONS_URL +
@@ -1959,6 +2031,7 @@
             method: 'POST',
 
             headers: {
+
               'Authorization':
                 'Bearer ' +
                 session.access_token,
@@ -1968,17 +2041,17 @@
 
               'Content-Type':
                 'application/json'
+
             },
 
             body:
               JSON.stringify({})
+
           }
         );
 
-
       const data =
         await response.json();
-
 
       if (
         !response.ok ||
@@ -1992,10 +2065,8 @@
 
       }
 
-
       window.location.href =
         data.url;
-
 
     } catch (error) {
 
@@ -2004,7 +2075,6 @@
         error
       );
 
-
       setStatus(
         stripeStatus,
         'Unable to start Stripe setup: ' +
@@ -2012,14 +2082,11 @@
         'error'
       );
 
-
       stripeMessage.textContent =
         'Please try again.';
 
-
       connectStripeButton.disabled =
         false;
-
 
       connectStripeButton.textContent =
         'Set Up Stripe Payouts';
@@ -2029,39 +2096,35 @@
   }
 
 
-  /* =========================
-     DATA HELPERS
-     ========================= */
-
   async function getServices(
     serviceIds
   ) {
 
     const ids =
-      [...new Set(
-        serviceIds.filter(Boolean)
-      )];
-
+      [
+        ...new Set(
+          serviceIds.filter(Boolean)
+        )
+      ];
 
     if (!ids.length) {
       return {};
     }
 
-
     const result =
       await supabaseClient
-        .from('star_rise_services')
+        .from(
+          'star_rise_services'
+        )
         .select('*')
         .in(
           'id',
           ids
         );
 
-
     if (result.error) {
       throw result.error;
     }
-
 
     return (
       result.data || []
@@ -2088,15 +2151,15 @@
   ) {
 
     const ids =
-      [...new Set(
-        userIds.filter(Boolean)
-      )];
-
+      [
+        ...new Set(
+          userIds.filter(Boolean)
+        )
+      ];
 
     if (!ids.length) {
       return {};
     }
-
 
     const result =
       await supabaseClient
@@ -2107,11 +2170,9 @@
           ids
         );
 
-
     if (result.error) {
       return {};
     }
-
 
     return (
       result.data || []
@@ -2137,26 +2198,20 @@
     orderIds
   ) {
 
-    const ids =
-      [...new Set(
-        orderIds.filter(Boolean)
-      )];
-
-
-    if (!ids.length) {
+    if (!orderIds.length) {
       return {};
     }
 
-
     const result =
       await supabaseClient
-        .from('service_reviews')
+        .from(
+          'service_reviews'
+        )
         .select('*')
         .in(
           'order_id',
-          ids
+          orderIds
         );
-
 
     if (result.error) {
 
@@ -2168,7 +2223,6 @@
       return {};
 
     }
-
 
     return (
       result.data || []
@@ -2190,10 +2244,6 @@
   }
 
 
-  /* =========================
-     ORDER RENDERING
-     ========================= */
-
   function reviewDisplay(
     review
   ) {
@@ -2202,8 +2252,8 @@
       return '';
     }
 
-
     return `
+
       <div class="review-display">
 
         <span class="label">
@@ -2240,6 +2290,7 @@
         </div>
 
       </div>
+
     `;
 
   }
@@ -2258,8 +2309,8 @@
           : 0
       );
 
-
     return `
+
       <div class="review-box">
 
         <span class="label">
@@ -2278,11 +2329,10 @@
         >
 
           ${[1,2,3,4,5]
-            .map(function (
-              number
-            ) {
+            .map(function(number) {
 
               return `
+
                 <button
                   type="button"
                   class="star ${
@@ -2294,7 +2344,10 @@
                   data-order="${escapeHtml(
                     order.id
                   )}"
-                >★</button>
+                >
+                  ★
+                </button>
+
               `;
 
             })
@@ -2341,6 +2394,7 @@
         ></div>
 
       </div>
+
     `;
 
   }
@@ -2358,18 +2412,15 @@
         ? service.title
         : 'Service';
 
-
     const requestMessage =
       order.request_message &&
       order.request_message.trim()
         ? order.request_message
         : 'No request details provided.';
 
-
     const personLabel =
       options.personLabel ||
       'Member';
-
 
     const personName =
       profile
@@ -2384,18 +2435,16 @@
           )
         : personLabel;
 
-
     let actions = '';
-
 
     if (options.provider) {
 
       if (
-        order.status ===
-        'pending'
+        order.status === 'pending'
       ) {
 
         actions = `
+
           <div class="order-actions">
 
             <button
@@ -2419,17 +2468,17 @@
             </button>
 
           </div>
+
         `;
 
       }
 
-
       if (
-        order.status ===
-        'accepted'
+        order.status === 'accepted'
       ) {
 
         actions = `
+
           <div class="order-actions">
 
             <button
@@ -2443,17 +2492,17 @@
             </button>
 
           </div>
+
         `;
 
       }
 
-
       if (
-        order.status ===
-        'in_progress'
+        order.status === 'in_progress'
       ) {
 
         actions = `
+
           <div class="order-actions">
 
             <button
@@ -2467,6 +2516,7 @@
             </button>
 
           </div>
+
         `;
 
       }
@@ -2477,6 +2527,7 @@
     const serviceLink =
       service
         ? `
+
           <a
             class="service-link"
             href="service.html?id=${encodeURIComponent(
@@ -2485,11 +2536,13 @@
           >
             View Service
           </a>
+
         `
         : '';
 
 
     return `
+
       <div class="order-card">
 
         <div class="service-title">
@@ -2508,7 +2561,9 @@
 
         <div class="order-status">
           ${escapeHtml(
-            order.status
+            statusLabel(
+              order.status
+            )
           )}
         </div>
 
@@ -2536,11 +2591,29 @@
           )}
         </div>
 
+        ${
+          order.updated_at
+            ? `
+              <div class="order-meta">
+                Last Updated:
+                ${escapeHtml(
+                  formatDateTime(
+                    order.updated_at
+                  )
+                )}
+              </div>
+            `
+            : ''
+        }
+
         ${serviceLink}
+
+        ${renderTimeline(order)}
 
         ${actions}
 
       </div>
+
     `;
 
   }
@@ -2555,10 +2628,8 @@
       'Loading orders...'
     );
 
-
     ordersContainer.innerHTML =
       '';
-
 
     try {
 
@@ -2580,18 +2651,17 @@
           )
           .order(
             'created_at',
-            { ascending: false }
+            {
+              ascending: false
+            }
           );
-
 
       if (result.error) {
         throw result.error;
       }
 
-
       const orders =
         result.data || [];
-
 
       if (!orders.length) {
 
@@ -2600,39 +2670,38 @@
           'You have no active service requests.'
         );
 
-
         ordersContainer.innerHTML =
           '<div class="empty">' +
           'No incoming service orders yet.' +
           '</div>';
 
         return;
+
       }
 
+      const serviceIds =
+        orders.map(
+          function(order) {
+            return order.service_id;
+          }
+        );
+
+      const buyerIds =
+        orders.map(
+          function(order) {
+            return order.buyer_id;
+          }
+        );
 
       const services =
         await getServices(
-          orders.map(function (
-            order
-          ) {
-
-            return order.service_id;
-
-          })
+          serviceIds
         );
-
 
       const profiles =
         await getProfiles(
-          orders.map(function (
-            order
-          ) {
-
-            return order.buyer_id;
-
-          })
+          buyerIds
         );
-
 
       setStatus(
         ordersStatus,
@@ -2643,31 +2712,29 @@
         'success'
       );
 
-
       ordersContainer.innerHTML =
         orders
-          .map(function (
-            order
-          ) {
+          .map(
+            function(order) {
 
-            return renderOrder(
-              order,
-              services[
-                order.service_id
-              ],
-              profiles[
-                order.buyer_id
-              ],
-              {
-                provider: true,
-                personLabel:
-                  'Customer'
-              }
-            );
+              return renderOrder(
+                order,
+                services[
+                  order.service_id
+                ],
+                profiles[
+                  order.buyer_id
+                ],
+                {
+                  provider: true,
+                  personLabel:
+                    'Customer'
+                }
+              );
 
-          })
+            }
+          )
           .join('');
-
 
     } catch (error) {
 
@@ -2675,7 +2742,6 @@
         'Incoming orders error:',
         error
       );
-
 
       setStatus(
         ordersStatus,
@@ -2698,10 +2764,8 @@
       'Loading completed services...'
     );
 
-
     completedOrdersContainer.innerHTML =
       '';
-
 
     try {
 
@@ -2719,18 +2783,17 @@
           )
           .order(
             'updated_at',
-            { ascending: false }
+            {
+              ascending: false
+            }
           );
-
 
       if (result.error) {
         throw result.error;
       }
 
-
       const orders =
         result.data || [];
-
 
       if (!orders.length) {
 
@@ -2739,39 +2802,38 @@
           'No completed services yet.'
         );
 
-
         completedOrdersContainer.innerHTML =
           '<div class="empty">' +
           'You have not completed any services yet.' +
           '</div>';
 
         return;
+
       }
 
+      const serviceIds =
+        orders.map(
+          function(order) {
+            return order.service_id;
+          }
+        );
+
+      const buyerIds =
+        orders.map(
+          function(order) {
+            return order.buyer_id;
+          }
+        );
 
       const services =
         await getServices(
-          orders.map(function (
-            order
-          ) {
-
-            return order.service_id;
-
-          })
+          serviceIds
         );
-
 
       const profiles =
         await getProfiles(
-          orders.map(function (
-            order
-          ) {
-
-            return order.buyer_id;
-
-          })
+          buyerIds
         );
-
 
       setStatus(
         completedOrdersStatus,
@@ -2782,31 +2844,29 @@
         'success'
       );
 
-
       completedOrdersContainer.innerHTML =
         orders
-          .map(function (
-            order
-          ) {
+          .map(
+            function(order) {
 
-            return renderOrder(
-              order,
-              services[
-                order.service_id
-              ],
-              profiles[
-                order.buyer_id
-              ],
-              {
-                provider: false,
-                personLabel:
-                  'Customer'
-              }
-            );
+              return renderOrder(
+                order,
+                services[
+                  order.service_id
+                ],
+                profiles[
+                  order.buyer_id
+                ],
+                {
+                  provider: false,
+                  personLabel:
+                    'Customer'
+                }
+              );
 
-          })
+            }
+          )
           .join('');
-
 
     } catch (error) {
 
@@ -2814,7 +2874,6 @@
         'Completed services error:',
         error
       );
-
 
       setStatus(
         completedOrdersStatus,
@@ -2837,10 +2896,8 @@
       'Loading your orders...'
     );
 
-
     myOrdersContainer.innerHTML =
       '';
-
 
     try {
 
@@ -2862,18 +2919,17 @@
           )
           .order(
             'created_at',
-            { ascending: false }
+            {
+              ascending: false
+            }
           );
-
 
       if (result.error) {
         throw result.error;
       }
 
-
       const orders =
         result.data || [];
-
 
       if (!orders.length) {
 
@@ -2882,39 +2938,38 @@
           'You have no active orders.'
         );
 
-
         myOrdersContainer.innerHTML =
           '<div class="empty">' +
           'You have not placed any orders yet.' +
           '</div>';
 
         return;
+
       }
 
+      const serviceIds =
+        orders.map(
+          function(order) {
+            return order.service_id;
+          }
+        );
+
+      const sellerIds =
+        orders.map(
+          function(order) {
+            return order.seller_id;
+          }
+        );
 
       const services =
         await getServices(
-          orders.map(function (
-            order
-          ) {
-
-            return order.service_id;
-
-          })
+          serviceIds
         );
-
 
       const profiles =
         await getProfiles(
-          orders.map(function (
-            order
-          ) {
-
-            return order.seller_id;
-
-          })
+          sellerIds
         );
-
 
       setStatus(
         myOrdersStatus,
@@ -2925,31 +2980,29 @@
         'success'
       );
 
-
       myOrdersContainer.innerHTML =
         orders
-          .map(function (
-            order
-          ) {
+          .map(
+            function(order) {
 
-            return renderOrder(
-              order,
-              services[
-                order.service_id
-              ],
-              profiles[
-                order.seller_id
-              ],
-              {
-                provider: false,
-                personLabel:
-                  'Seller'
-              }
-            );
+              return renderOrder(
+                order,
+                services[
+                  order.service_id
+                ],
+                profiles[
+                  order.seller_id
+                ],
+                {
+                  provider: false,
+                  personLabel:
+                    'Seller'
+                }
+              );
 
-          })
+            }
+          )
           .join('');
-
 
     } catch (error) {
 
@@ -2957,7 +3010,6 @@
         'My orders error:',
         error
       );
-
 
       setStatus(
         myOrdersStatus,
@@ -2980,10 +3032,8 @@
       'Loading completed orders...'
     );
 
-
     myCompletedContainer.innerHTML =
       '';
-
 
     try {
 
@@ -3001,18 +3051,17 @@
           )
           .order(
             'updated_at',
-            { ascending: false }
+            {
+              ascending: false
+            }
           );
-
 
       if (result.error) {
         throw result.error;
       }
 
-
       const orders =
         result.data || [];
-
 
       if (!orders.length) {
 
@@ -3021,51 +3070,47 @@
           'No completed services yet.'
         );
 
-
         myCompletedContainer.innerHTML =
           '<div class="empty">' +
           'You have not placed any orders yet.' +
           '</div>';
 
         return;
+
       }
 
+      const serviceIds =
+        orders.map(
+          function(order) {
+            return order.service_id;
+          }
+        );
+
+      const sellerIds =
+        orders.map(
+          function(order) {
+            return order.seller_id;
+          }
+        );
 
       const services =
         await getServices(
-          orders.map(function (
-            order
-          ) {
-
-            return order.service_id;
-
-          })
+          serviceIds
         );
-
 
       const profiles =
         await getProfiles(
-          orders.map(function (
-            order
-          ) {
-
-            return order.seller_id;
-
-          })
+          sellerIds
         );
-
 
       const reviews =
         await getReviews(
-          orders.map(function (
-            order
-          ) {
-
-            return order.id;
-
-          })
+          orders.map(
+            function(order) {
+              return order.id;
+            }
+          )
         );
-
 
       setStatus(
         myCompletedStatus,
@@ -3076,50 +3121,49 @@
         'success'
       );
 
-
       myCompletedContainer.innerHTML =
         orders
-          .map(function (
-            order
-          ) {
+          .map(
+            function(order) {
 
-            const review =
-              reviews[
-                order.id
-              ];
+              const review =
+                reviews[
+                  order.id
+                ];
 
+              return (
 
-            return (
-              renderOrder(
-                order,
-                services[
-                  order.service_id
-                ],
-                profiles[
-                  order.seller_id
-                ],
-                {
-                  provider: false,
-                  personLabel:
-                    'Seller'
-                }
-              ) +
+                renderOrder(
+                  order,
+                  services[
+                    order.service_id
+                  ],
+                  profiles[
+                    order.seller_id
+                  ],
+                  {
+                    provider: false,
+                    personLabel:
+                      'Seller'
+                  }
+                ) +
 
-              (
-                review
-                  ? reviewDisplay(
-                      review
-                    )
-                  : reviewForm(
-                      order,
-                      review
-                    )
-              )
-            );
+                (
+                  review
+                    ? reviewDisplay(
+                        review
+                      )
+                    : reviewForm(
+                        order,
+                        review
+                      )
+                )
 
-          })
+              );
+
+            }
+          )
           .join('');
-
 
     } catch (error) {
 
@@ -3127,7 +3171,6 @@
         'My completed orders error:',
         error
       );
-
 
       setStatus(
         myCompletedStatus,
@@ -3140,10 +3183,6 @@
 
   }
 
-
-  /* =========================
-     ORDER STATUS
-     ========================= */
 
   async function updateOrderStatus(
     orderId,
@@ -3158,15 +3197,17 @@
 
     }
 
-
     const result =
       await supabaseClient
         .from('service_orders')
         .update({
-          status: newStatus,
+
+          status:
+            newStatus,
 
           updated_at:
             new Date().toISOString()
+
         })
         .eq(
           'id',
@@ -3177,17 +3218,12 @@
           currentUser.id
         );
 
-
     if (result.error) {
       throw result.error;
     }
 
   }
 
-
-  /* =========================
-     REVIEWS
-     ========================= */
 
   async function submitReview(
     orderId
@@ -3201,14 +3237,12 @@
 
     }
 
-
     const starsContainer =
       document.querySelector(
         '[data-stars-for="' +
         CSS.escape(orderId) +
         '"]'
       );
-
 
     const selectedStar =
       starsContainer
@@ -3217,7 +3251,6 @@
           )
         : null;
 
-
     const rating =
       selectedStar
         ? Number(
@@ -3225,19 +3258,16 @@
           )
         : 0;
 
-
     const textElement =
       document.getElementById(
         'review-text-' +
         orderId
       );
 
-
     const reviewText =
       textElement
         ? textElement.value.trim()
         : '';
-
 
     if (
       rating < 1 ||
@@ -3249,7 +3279,6 @@
       );
 
     }
-
 
     const orderResult =
       await supabaseClient
@@ -3271,11 +3300,9 @@
         )
         .maybeSingle();
 
-
     if (orderResult.error) {
       throw orderResult.error;
     }
-
 
     if (!orderResult.data) {
 
@@ -3284,7 +3311,6 @@
       );
 
     }
-
 
     const existing =
       await supabaseClient
@@ -3300,14 +3326,11 @@
         )
         .maybeSingle();
 
-
     if (existing.error) {
       throw existing.error;
     }
 
-
     let result;
-
 
     if (existing.data) {
 
@@ -3316,7 +3339,8 @@
           .from('service_reviews')
           .update({
 
-            rating: rating,
+            rating:
+              rating,
 
             review:
               reviewText,
@@ -3336,7 +3360,6 @@
             'reviewer_id',
             currentUser.id
           );
-
 
     } else {
 
@@ -3364,7 +3387,6 @@
 
     }
 
-
     if (result.error) {
       throw result.error;
     }
@@ -3372,59 +3394,377 @@
   }
 
 
-  /* =========================
-     CLICK EVENTS
-     ========================= */
+  /*
+   * NOTIFICATIONS
+   *
+   * These are generated from real service-order
+   * activity, so no new database table is required.
+   */
 
-  document.addEventListener(
-    'click',
-    async function (event) {
+  async function loadNotifications(
+    user
+  ) {
 
+    notificationsContainer.innerHTML =
+      '';
 
-      /* NOTIFICATION */
+    try {
 
-      const notification =
-        event.target.closest(
-          '[data-notification-id]'
-        );
+      const incoming =
+        await supabaseClient
+          .from('service_orders')
+          .select(
+            'id, status, created_at, updated_at, amount_cents, buyer_id, service_id'
+          )
+          .eq(
+            'seller_id',
+            user.id
+          )
+          .order(
+            'updated_at',
+            {
+              ascending: false
+            }
+          )
+          .limit(10);
 
+      const outgoing =
+        await supabaseClient
+          .from('service_orders')
+          .select(
+            'id, status, created_at, updated_at, amount_cents, seller_id, service_id'
+          )
+          .eq(
+            'buyer_id',
+            user.id
+          )
+          .order(
+            'updated_at',
+            {
+              ascending: false
+            }
+          )
+          .limit(10);
 
-      if (notification) {
+      if (incoming.error) {
+        throw incoming.error;
+      }
 
-        const notificationId =
-          notification.dataset.notificationId;
+      if (outgoing.error) {
+        throw outgoing.error;
+      }
 
+      const notifications = [];
 
-        try {
+      const seenKey =
+        'starrise_seen_notifications_' +
+        user.id;
 
-          await markNotificationRead(
-            notificationId
+      let seen = [];
+
+      try {
+
+        seen =
+          JSON.parse(
+            localStorage.getItem(
+              seenKey
+            ) || '[]'
           );
 
-          await loadNotifications(
-            currentUser
-          );
+      } catch (_) {
 
-        } catch (error) {
+        seen = [];
 
-          console.error(
-            'Notification error:',
-            error
-          );
-
-        }
-
-        return;
       }
 
 
-      /* STAR */
+      (
+        incoming.data || []
+      ).forEach(
+        function(order) {
+
+          notifications.push({
+
+            id:
+              'seller-' +
+              order.id +
+              '-' +
+              order.status,
+
+            orderId:
+              order.id,
+
+            title:
+              'Service order update',
+
+            message:
+              order.status === 'pending'
+                ? 'You have a new service request.'
+                : 'A service order you are providing is now ' +
+                  statusLabel(
+                    order.status
+                  ).toLowerCase() +
+                  '.',
+
+            date:
+              order.updated_at ||
+              order.created_at
+
+          });
+
+        }
+      );
+
+
+      (
+        outgoing.data || []
+      ).forEach(
+        function(order) {
+
+          notifications.push({
+
+            id:
+              'buyer-' +
+              order.id +
+              '-' +
+              order.status,
+
+            orderId:
+              order.id,
+
+            title:
+              'Your service order',
+
+            message:
+              'Your order is now ' +
+              statusLabel(
+                order.status
+              ).toLowerCase() +
+              '.',
+
+            date:
+              order.updated_at ||
+              order.created_at
+
+          });
+
+        }
+      );
+
+
+      notifications.sort(
+        function(a, b) {
+
+          return (
+            new Date(b.date) -
+            new Date(a.date)
+          );
+
+        }
+      );
+
+
+      const unique = [];
+
+      const ids =
+        new Set();
+
+      notifications.forEach(
+        function(notification) {
+
+          if (
+            !ids.has(
+              notification.id
+            )
+          ) {
+
+            ids.add(
+              notification.id
+            );
+
+            unique.push(
+              notification
+            );
+
+          }
+
+        }
+      );
+
+
+      const unread =
+        unique.filter(
+          function(item) {
+
+            return !seen.includes(
+              item.id
+            );
+
+          }
+        );
+
+
+      notificationSummary.textContent =
+        unread.length
+          ? unread.length +
+            ' unread notification' +
+            (
+              unread.length === 1
+                ? ''
+                : 's'
+            )
+          : 'You have no notifications.';
+
+
+      if (!unique.length) {
+
+        notificationsContainer.innerHTML =
+          '<div class="empty">' +
+          'You have no notifications. You are all caught up.' +
+          '</div>';
+
+        return;
+
+      }
+
+
+      notificationsContainer.innerHTML =
+        unique
+          .slice(0, 10)
+          .map(
+            function(notification) {
+
+              const isUnread =
+                !seen.includes(
+                  notification.id
+                );
+
+              return `
+
+                <div
+                  class="notification ${
+                    isUnread
+                      ? 'unread'
+                      : ''
+                  }"
+                  data-notification-id="${escapeHtml(
+                    notification.id
+                  )}"
+                  data-order-link="${escapeHtml(
+                    notification.orderId
+                  )}"
+                >
+
+                  <div class="notification-title">
+                    ${escapeHtml(
+                      notification.title
+                    )}
+                  </div>
+
+                  <div class="muted small">
+                    ${escapeHtml(
+                      notification.message
+                    )}
+                  </div>
+
+                  <div class="notification-time">
+                    ${escapeHtml(
+                      formatDateTime(
+                        notification.date
+                      )
+                    )}
+                  </div>
+
+                </div>
+
+              `;
+
+            }
+          )
+          .join('');
+
+    } catch (error) {
+
+      console.error(
+        'Notifications error:',
+        error
+      );
+
+      notificationSummary.textContent =
+        'Notifications unavailable';
+
+      notificationsContainer.innerHTML =
+        '<div class="empty">' +
+        'Unable to load notifications right now.' +
+        '</div>';
+
+    }
+
+  }
+
+
+  markNotificationsRead.addEventListener(
+    'click',
+    function() {
+
+      if (!currentUser) {
+        return;
+      }
+
+      const key =
+        'starrise_seen_notifications_' +
+        currentUser.id;
+
+      const notificationElements =
+        notificationsContainer
+          .querySelectorAll(
+            '[data-notification-id]'
+          );
+
+      const ids = [];
+
+      notificationElements.forEach(
+        function(element) {
+
+          ids.push(
+            element.dataset.notificationId
+          );
+
+          element.classList.remove(
+            'unread'
+          );
+
+        }
+      );
+
+      try {
+
+        localStorage.setItem(
+          key,
+          JSON.stringify(ids)
+        );
+
+      } catch (_) {}
+
+      notificationSummary.textContent =
+        'You are all caught up.';
+
+    }
+  );
+
+
+  document.addEventListener(
+    'click',
+    async function(event) {
+
+      /*
+       * STAR RATING
+       */
 
       const star =
         event.target.closest(
           '.star[data-rating]'
         );
-
 
       if (star) {
 
@@ -3436,7 +3776,6 @@
             star.dataset.rating
           );
 
-
         const container =
           document.querySelector(
             '[data-stars-for="' +
@@ -3444,13 +3783,14 @@
             '"]'
           );
 
-
         if (container) {
 
           container
-            .querySelectorAll('.star')
+            .querySelectorAll(
+              '.star'
+            )
             .forEach(
-              function (button) {
+              function(button) {
 
                 const buttonRating =
                   Number(
@@ -3468,32 +3808,31 @@
         }
 
         return;
+
       }
 
 
-      /* ORDER STATUS */
+      /*
+       * ORDER STATUS ACTION
+       */
 
       const actionButton =
         event.target.closest(
           '[data-order-action]'
         );
 
-
       if (actionButton) {
 
         const orderId =
           actionButton.dataset.orderId;
 
-
         const newStatus =
           actionButton.dataset.orderAction;
-
 
         const card =
           actionButton.closest(
             '.order-card'
           );
-
 
         const buttons =
           card
@@ -3502,9 +3841,8 @@
               )
             : [];
 
-
         buttons.forEach(
-          function (button) {
+          function(button) {
 
             button.disabled =
               true;
@@ -3518,15 +3856,6 @@
           await updateOrderStatus(
             orderId,
             newStatus
-          );
-
-
-          await loadNotifications(
-            currentUser
-          );
-
-          await loadRating(
-            currentUser
           );
 
           await loadIncomingOrders(
@@ -3545,6 +3874,13 @@
             currentUser
           );
 
+          await loadRating(
+            currentUser
+          );
+
+          await loadNotifications(
+            currentUser
+          );
 
         } catch (error) {
 
@@ -3553,15 +3889,13 @@
             error
           );
 
-
           alert(
             'Unable to update order: ' +
             error.message
           );
 
-
           buttons.forEach(
-            function (button) {
+            function(button) {
 
               button.disabled =
                 false;
@@ -3572,22 +3906,23 @@
         }
 
         return;
+
       }
 
 
-      /* REVIEW */
+      /*
+       * REVIEW SUBMISSION
+       */
 
       const reviewButton =
         event.target.closest(
           '[data-submit-review]'
         );
 
-
       if (reviewButton) {
 
         const orderId =
           reviewButton.dataset.submitReview;
-
 
         const message =
           document.getElementById(
@@ -3595,10 +3930,8 @@
             orderId
           );
 
-
         reviewButton.disabled =
           true;
-
 
         if (message) {
 
@@ -3620,7 +3953,6 @@
             orderId
           );
 
-
           if (message) {
 
             message.textContent =
@@ -3634,21 +3966,17 @@
 
           }
 
-
           await loadMyCompletedOrders(
             currentUser
           );
-
 
           await loadRating(
             currentUser
           );
 
-
           await loadNotifications(
             currentUser
           );
-
 
         } catch (error) {
 
@@ -3656,7 +3984,6 @@
             'Review error:',
             error
           );
-
 
           if (message) {
 
@@ -3672,11 +3999,75 @@
 
           }
 
-
           reviewButton.disabled =
             false;
 
         }
+
+        return;
+
+      }
+
+
+      /*
+       * NOTIFICATION CLICK
+       */
+
+      const notification =
+        event.target.closest(
+          '[data-notification-id]'
+        );
+
+      if (notification) {
+
+        if (!currentUser) {
+          return;
+        }
+
+        const key =
+          'starrise_seen_notifications_' +
+          currentUser.id;
+
+        let seen = [];
+
+        try {
+
+          seen =
+            JSON.parse(
+              localStorage.getItem(
+                key
+              ) || '[]'
+            );
+
+        } catch (_) {
+
+          seen = [];
+
+        }
+
+        const id =
+          notification.dataset.notificationId;
+
+        if (!seen.includes(id)) {
+
+          seen.push(id);
+
+          try {
+
+            localStorage.setItem(
+              key,
+              JSON.stringify(seen)
+            );
+
+          } catch (_) {}
+
+        }
+
+        notification.classList.remove(
+          'unread'
+        );
+
+        return;
 
       }
 
@@ -3684,19 +4075,9 @@
   );
 
 
-  /* MARK ALL READ */
-
-  markAllRead.addEventListener(
-    'click',
-    markAllNotificationsRead
-  );
-
-
-  /* STRIPE */
-
   connectStripeButton.addEventListener(
     'click',
-    function () {
+    function() {
 
       startStripeOnboarding();
 
@@ -3704,42 +4085,36 @@
   );
 
 
-  /* SIGN OUT */
-
   document
     .getElementById('signout')
     .addEventListener(
       'click',
-      async function () {
+      async function() {
 
         const button =
           document.getElementById(
             'signout'
           );
 
-
         button.disabled =
           true;
-
 
         button.textContent =
           'Signing Out...';
 
-
         try {
 
           const result =
-            await supabaseClient.auth.signOut();
-
+            await supabaseClient
+              .auth
+              .signOut();
 
           if (result.error) {
             throw result.error;
           }
 
-
           window.location.href =
             'login.html';
-
 
         } catch (error) {
 
@@ -3748,14 +4123,11 @@
             error
           );
 
-
           button.disabled =
             false;
 
-
           button.textContent =
             'Sign Out';
-
 
           setStatus(
             statusBox,
@@ -3770,10 +4142,64 @@
     );
 
 
+  /*
+   * AUTO REFRESH
+   *
+   * Keeps order status and notifications
+   * reasonably current without requiring
+   * the user to manually refresh.
+   */
+
+  setInterval(
+    async function() {
+
+      if (!currentUser) {
+        return;
+      }
+
+      try {
+
+        await loadIncomingOrders(
+          currentUser
+        );
+
+        await loadCompletedOrders(
+          currentUser
+        );
+
+        await loadMyOrders(
+          currentUser
+        );
+
+        await loadMyCompletedOrders(
+          currentUser
+        );
+
+        await loadRating(
+          currentUser
+        );
+
+        await loadNotifications(
+          currentUser
+        );
+
+      } catch (error) {
+
+        console.error(
+          'Dashboard refresh error:',
+          error
+        );
+
+      }
+
+    },
+    30000
+  );
+
+
   initialize();
 
 })();
-
 </script>
 
 </body>
