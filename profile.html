@@ -186,6 +186,35 @@
       margin-top: 2px;
     }
 
+    .service-box {
+      padding: 20px;
+      border-radius: 15px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      margin-top: 15px;
+    }
+
+    .service-box:first-child {
+      margin-top: 0;
+    }
+
+    .service-box h3 {
+      margin-bottom: 5px;
+      font-size: 20px;
+    }
+
+    .category {
+      color: #999;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .service-price {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 8px 0 12px;
+    }
+
     .actions {
       display: flex;
       gap: 12px;
@@ -218,35 +247,6 @@
       border: 1px solid rgba(255,255,255,.15);
     }
 
-    .service-box {
-      margin-top: 20px;
-      padding: 20px;
-      border-radius: 15px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-    }
-
-    .service-box:first-child {
-      margin-top: 0;
-    }
-
-    .service-box h3 {
-      margin-bottom: 5px;
-      font-size: 20px;
-    }
-
-    .service-price {
-      font-size: 24px;
-      font-weight: bold;
-      margin: 8px 0 15px;
-    }
-
-    .category {
-      color: #999;
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
-
     .progress {
       margin-top: 15px;
       height: 9px;
@@ -277,8 +277,13 @@
       color: #ffaaaa;
     }
 
-    .loading {
-      color: #aaa;
+    .error-box {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 25px;
+      border: 1px solid rgba(255,100,100,.25);
+      border-radius: 16px;
+      background: rgba(255,50,50,.05);
     }
 
     footer {
@@ -345,7 +350,7 @@
 
   <div
     id="message"
-    class="message loading"
+    class="message"
   >
     Loading StarRise profile...
   </div>
@@ -365,7 +370,8 @@
         <div
           id="avatar"
           class="avatar"
-        ></div>
+        >
+        </div>
 
         <div class="name-area">
 
@@ -383,7 +389,8 @@
           <div
             id="location"
             class="location"
-          ></div>
+          >
+          </div>
 
         </div>
 
@@ -409,7 +416,6 @@
           </section>
 
           <section
-            id="servicesSection"
             class="section"
             style="margin-top:20px;"
           >
@@ -420,8 +426,13 @@
 
             <div id="services">
 
-              Services offered by this member
-              will appear here.
+              <div class="service-box">
+
+                <p class="bio">
+                  Loading services...
+                </p>
+
+              </div>
 
             </div>
 
@@ -430,7 +441,7 @@
           <section
             id="fundsSection"
             class="section"
-            style="margin-top:20px; display:none;"
+            style="margin-top:20px;display:none;"
           >
 
             <h2>
@@ -531,489 +542,583 @@
 
 <script>
 
-const starRiseSupabase =
-  window.supabase.createClient(
-    'https://rcnikxotdalxtuvpmlvm.supabase.co',
-    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
-  );
+(function () {
+
+  'use strict';
+
+  const SUPABASE_URL =
+    'https://rcnikxotdalxtuvpmlvm.supabase.co';
+
+  const SUPABASE_KEY =
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
 
-const message =
-  document.getElementById('message');
+  const message =
+    document.getElementById('message');
 
-const profile =
-  document.getElementById('profile');
+  const profile =
+    document.getElementById('profile');
 
-const avatar =
-  document.getElementById('avatar');
+  const avatar =
+    document.getElementById('avatar');
 
-const displayName =
-  document.getElementById('displayName');
+  const displayName =
+    document.getElementById('displayName');
 
-const role =
-  document.getElementById('role');
+  const role =
+    document.getElementById('role');
 
-const statRole =
-  document.getElementById('statRole');
+  const statRole =
+    document.getElementById('statRole');
 
-const location =
-  document.getElementById('location');
+  const location =
+    document.getElementById('location');
 
-const bio =
-  document.getElementById('bio');
+  const bio =
+    document.getElementById('bio');
 
-const rating =
-  document.getElementById('rating');
+  const rating =
+    document.getElementById('rating');
 
-const serviceCount =
-  document.getElementById('serviceCount');
+  const serviceCount =
+    document.getElementById('serviceCount');
 
-const services =
-  document.getElementById('services');
+  const services =
+    document.getElementById('services');
 
-const fundsSection =
-  document.getElementById('fundsSection');
+  const fundsSection =
+    document.getElementById('fundsSection');
 
-const funds =
-  document.getElementById('funds');
-
-
-function escapeHtml(value) {
-
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-
-}
+  const funds =
+    document.getElementById('funds');
 
 
-function formatMoney(cents) {
+  function escapeHtml(value) {
 
-  const amount =
-    Number(cents || 0) / 100;
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
 
-  return amount.toLocaleString(
-    'en-US',
-    {
-      style: 'currency',
-      currency: 'USD'
-    }
-  );
-
-}
+  }
 
 
-async function loadProfile() {
+  function money(cents) {
 
-  const params =
-    new URLSearchParams(
-      window.location.search
+    const number =
+      Number(cents || 0);
+
+    return (
+      number / 100
+    ).toLocaleString(
+      'en-US',
+      {
+        style: 'currency',
+        currency: 'USD'
+      }
     );
 
-  const memberId =
-    params.get('id');
+  }
 
 
-  if (!memberId) {
-
-    message.textContent =
-      'No StarRise member was specified.';
+  function showError(text) {
 
     message.className =
       'message error';
 
-    return;
+    message.innerHTML = `
 
-  }
+      <div class="error-box">
 
+        <h2>
+          StarRise profile could not load
+        </h2>
 
-  try {
-
-    const {
-      data,
-      error
-    } =
-      await starRiseSupabase.rpc(
-        'get_public_talent_profile',
-        {
-          p_profile_id: memberId
-        }
-      );
-
-
-    if (error) {
-
-      console.error(
-        'Profile RPC error:',
-        error
-      );
-
-      message.textContent =
-        'We could not load this StarRise profile.';
-
-      message.className =
-        'message error';
-
-      return;
-
-    }
-
-
-    let result =
-      data;
-
-
-    if (
-      Array.isArray(result)
-    ) {
-
-      result =
-        result[0];
-
-    }
-
-
-    if (
-      !result ||
-      !result.profile
-    ) {
-
-      message.textContent =
-        'This StarRise member could not be found or is not publicly available.';
-
-      message.className =
-        'message error';
-
-      return;
-
-    }
-
-
-    renderProfile(
-      result.profile,
-      result.services || [],
-      result.funds || []
-    );
-
-  } catch (error) {
-
-    console.error(
-      'Unexpected profile error:',
-      error
-    );
-
-    message.textContent =
-      'Something went wrong while loading this profile.';
-
-    message.className =
-      'message error';
-
-  }
-
-}
-
-
-function renderProfile(
-  member,
-  memberServices,
-  memberFunds
-) {
-
-  const name =
-    member.display_name ||
-    'StarRise Member';
-
-  const memberRole =
-    member.role ||
-    'Member';
-
-  const initial =
-    name
-      .charAt(0)
-      .toUpperCase();
-
-
-  displayName.textContent =
-    name;
-
-  role.textContent =
-    memberRole;
-
-  statRole.textContent =
-    memberRole;
-
-  location.textContent =
-    member.location ||
-    '';
-
-  bio.textContent =
-    member.bio ||
-    'This member has not added a bio yet.';
-
-
-  rating.textContent =
-    'No rating yet';
-
-
-  serviceCount.textContent =
-    memberServices.length;
-
-
-  if (
-    member.avatar_url
-  ) {
-
-    avatar.innerHTML = `
-
-      <img
-        src="${escapeHtml(
-          member.avatar_url
-        )}"
-        alt="${escapeHtml(
-          name
-        )}"
-      >
-
-    `;
-
-  } else {
-
-    avatar.textContent =
-      initial;
-
-  }
-
-
-  /*
-    SERVICES
-  */
-
-  services.innerHTML = '';
-
-
-  if (
-    !Array.isArray(memberServices) ||
-    memberServices.length === 0
-  ) {
-
-    services.innerHTML = `
-
-      <div class="service-box">
-
-        <h3>
-          No public services listed
-        </h3>
-
-        <p class="bio">
-          This member has not published
-          any services yet.
+        <p style="margin-top:10px;">
+          ${escapeHtml(text)}
         </p>
+
+        <div class="actions">
+
+          <a
+            href="members.html"
+            class="button secondary"
+          >
+            Back to Members
+          </a>
+
+        </div>
 
       </div>
 
     `;
 
-  } else {
-
-    memberServices.forEach(
-      service => {
-
-        const box =
-          document.createElement(
-            'div'
-          );
-
-        box.className =
-          'service-box';
-
-
-        const title =
-          service.title ||
-          'StarRise Service';
-
-
-        const category =
-          service.category ||
-          'Service';
-
-
-        const description =
-          service.description ||
-          'No service description provided.';
-
-
-        box.innerHTML = `
-
-          <h3>
-            ${escapeHtml(title)}
-          </h3>
-
-          <div class="category">
-            ${escapeHtml(category)}
-          </div>
-
-          <div class="service-price">
-            ${formatMoney(
-              service.price_cents
-            )}
-          </div>
-
-          <p class="bio">
-            ${escapeHtml(description)}
-          </p>
-
-          <div class="actions">
-
-            <a
-              href="service.html?id=${encodeURIComponent(
-                service.id
-              )}"
-              class="button"
-            >
-              View Service
-            </a>
-
-          </div>
-
-        `;
-
-        services.appendChild(
-          box
-        );
-
-      }
-    );
-
-  }
-
-
-  /*
-    FUNDING
-  */
-
-  funds.innerHTML = '';
-
-
-  if (
-    !Array.isArray(memberFunds) ||
-    memberFunds.length === 0
-  ) {
-
-    fundsSection.style.display =
-      'none';
-
-  } else {
-
-    fundsSection.style.display =
+    message.style.display =
       'block';
 
-
-    memberFunds.forEach(
-      fund => {
-
-        const goal =
-          Number(
-            fund.goal_cents || 0
-          );
-
-
-        const raised =
-          Number(
-            fund.raised_cents || 0
-          );
-
-
-        const percentage =
-          goal > 0
-            ? Math.min(
-                100,
-                Math.round(
-                  raised / goal * 100
-                )
-              )
-            : 0;
-
-
-        const box =
-          document.createElement(
-            'div'
-          );
-
-
-        box.className =
-          'service-box';
-
-
-        box.innerHTML = `
-
-          <h3>
-            ${escapeHtml(
-              fund.title ||
-              'StarRise Fund'
-            )}
-          </h3>
-
-          <div class="service-price">
-            ${formatMoney(raised)}
-
-            <span
-              style="
-                font-size:14px;
-                color:#999;
-                font-weight:normal;
-              "
-            >
-              raised of
-              ${formatMoney(goal)}
-            </span>
-          </div>
-
-          <p class="bio">
-            ${escapeHtml(
-              fund.description ||
-              'Support this StarRise project.'
-            )}
-          </p>
-
-          <div class="progress">
-
-            <div
-              class="progress-bar"
-              style="width:${percentage}%"
-            ></div>
-
-          </div>
-
-          <div class="progress-label">
-            ${percentage}% funded
-          </div>
-
-        `;
-
-
-        funds.appendChild(
-          box
-        );
-
-      }
-    );
+    profile.style.display =
+      'none';
 
   }
 
 
-  message.style.display =
-    'none';
+  async function start() {
 
-  profile.style.display =
-    'block';
+    try {
 
-}
+      if (
+        !window.supabase ||
+        typeof window.supabase.createClient !== 'function'
+      ) {
+
+        showError(
+          'The StarRise connection library did not load. Please refresh the page.'
+        );
+
+        return;
+
+      }
 
 
-loadProfile();
+      const client =
+        window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY
+        );
+
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+
+      const memberId =
+        params.get('id');
+
+
+      if (!memberId) {
+
+        showError(
+          'No member ID was found in this profile link.'
+        );
+
+        return;
+
+      }
+
+
+      const {
+        data,
+        error
+      } =
+        await client.rpc(
+          'get_public_talent_profile',
+          {
+            p_profile_id: memberId
+          }
+        );
+
+
+      if (error) {
+
+        console.error(
+          'StarRise profile RPC error:',
+          error
+        );
+
+        showError(
+          error.message ||
+          'The StarRise profile service returned an error.'
+        );
+
+        return;
+
+      }
+
+
+      if (!data) {
+
+        showError(
+          'This member could not be found or is not publicly available.'
+        );
+
+        return;
+
+      }
+
+
+      const member =
+        data.profile;
+
+
+      const memberServices =
+        Array.isArray(data.services)
+          ? data.services
+          : [];
+
+
+      const memberFunds =
+        Array.isArray(data.funds)
+          ? data.funds
+          : [];
+
+
+      if (!member) {
+
+        showError(
+          'The profile exists, but no public profile information was returned.'
+        );
+
+        return;
+
+      }
+
+
+      renderProfile(
+        member,
+        memberServices,
+        memberFunds
+      );
+
+    } catch (error) {
+
+      console.error(
+        'StarRise profile error:',
+        error
+      );
+
+      showError(
+        error.message ||
+        'An unexpected error occurred while loading this profile.'
+      );
+
+    }
+
+  }
+
+
+  function renderProfile(
+    member,
+    memberServices,
+    memberFunds
+  ) {
+
+    const name =
+      member.display_name ||
+      'StarRise Member';
+
+
+    const memberRole =
+      member.role ||
+      'Member';
+
+
+    const initial =
+      name
+        .charAt(0)
+        .toUpperCase();
+
+
+    displayName.textContent =
+      name;
+
+
+    role.textContent =
+      memberRole;
+
+
+    statRole.textContent =
+      memberRole;
+
+
+    location.textContent =
+      member.location ||
+      '';
+
+
+    bio.textContent =
+      member.bio ||
+      'This member has not added a bio yet.';
+
+
+    rating.textContent =
+      'No rating yet';
+
+
+    serviceCount.textContent =
+      memberServices.length;
+
+
+    if (
+      member.avatar_url
+    ) {
+
+      avatar.innerHTML = `
+
+        <img
+          src="${escapeHtml(
+            member.avatar_url
+          )}"
+          alt="${escapeHtml(
+            name
+          )}"
+          onerror="this.style.display='none';this.parentElement.textContent='${escapeHtml(initial)}';"
+        >
+
+      `;
+
+    } else {
+
+      avatar.textContent =
+        initial;
+
+    }
+
+
+    /*
+      SERVICES
+    */
+
+    services.innerHTML =
+      '';
+
+
+    if (
+      memberServices.length === 0
+    ) {
+
+      services.innerHTML = `
+
+        <div class="service-box">
+
+          <h3>
+            No public services listed
+          </h3>
+
+          <p class="bio">
+            This member has not published any services yet.
+          </p>
+
+        </div>
+
+      `;
+
+    } else {
+
+      memberServices.forEach(
+        service => {
+
+          const box =
+            document.createElement(
+              'div'
+            );
+
+
+          box.className =
+            'service-box';
+
+
+          const serviceId =
+            service.id ||
+            '';
+
+
+          box.innerHTML = `
+
+            <h3>
+              ${escapeHtml(
+                service.title ||
+                'StarRise Service'
+              )}
+            </h3>
+
+            <div class="category">
+              ${escapeHtml(
+                service.category ||
+                'Service'
+              )}
+            </div>
+
+            <div class="service-price">
+              ${money(
+                service.price_cents
+              )}
+            </div>
+
+            <p class="bio">
+              ${escapeHtml(
+                service.description ||
+                'No description provided.'
+              )}
+            </p>
+
+            ${
+              serviceId
+
+                ?
+
+                `
+                  <div class="actions">
+
+                    <a
+                      href="service.html?id=${encodeURIComponent(serviceId)}"
+                      class="button"
+                    >
+                      View Service
+                    </a>
+
+                  </div>
+                `
+
+                :
+
+                ''
+            }
+
+          `;
+
+
+          services.appendChild(
+            box
+          );
+
+        }
+      );
+
+    }
+
+
+    /*
+      FUNDING
+    */
+
+    funds.innerHTML =
+      '';
+
+
+    if (
+      memberFunds.length === 0
+    ) {
+
+      fundsSection.style.display =
+        'none';
+
+    } else {
+
+      fundsSection.style.display =
+        'block';
+
+
+      memberFunds.forEach(
+        fund => {
+
+          const goal =
+            Number(
+              fund.goal_cents || 0
+            );
+
+
+          const raised =
+            Number(
+              fund.raised_cents || 0
+            );
+
+
+          const percentage =
+            goal > 0
+              ? Math.min(
+                  100,
+                  Math.round(
+                    raised / goal * 100
+                  )
+                )
+              : 0;
+
+
+          const box =
+            document.createElement(
+              'div'
+            );
+
+
+          box.className =
+            'service-box';
+
+
+          box.innerHTML = `
+
+            <h3>
+              ${escapeHtml(
+                fund.title ||
+                'StarRise Fund'
+              )}
+            </h3>
+
+            <div class="service-price">
+
+              ${money(raised)}
+
+              <span
+                style="
+                  font-size:14px;
+                  color:#999;
+                  font-weight:normal;
+                "
+              >
+                raised of ${money(goal)}
+              </span>
+
+            </div>
+
+            <p class="bio">
+              ${escapeHtml(
+                fund.description ||
+                'Support this StarRise project.'
+              )}
+            </p>
+
+            <div class="progress">
+
+              <div
+                class="progress-bar"
+                style="width:${percentage}%"
+              ></div>
+
+            </div>
+
+            <div class="progress-label">
+              ${percentage}% funded
+            </div>
+
+          `;
+
+
+          funds.appendChild(
+            box
+          );
+
+        }
+      );
+
+    }
+
+
+    message.style.display =
+      'none';
+
+
+    profile.style.display =
+      'block';
+
+  }
+
+
+  start();
+
+})();
 
 </script>
 
