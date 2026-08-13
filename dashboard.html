@@ -3,473 +3,354 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>StarRise Dashboard</title>
 
   <style>
-    *{box-sizing:border-box}
-
-    body{
-      margin:0;
-      font-family:Arial,sans-serif;
-      background:#080812;
-      color:#fff;
-      min-height:100vh;
-      line-height:1.6
+    * {
+      box-sizing: border-box;
     }
 
-    header{
-      padding:20px 24px;
-      border-bottom:1px solid #ffffff18;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:16px
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: #fff;
+      min-height: 100vh;
+      line-height: 1.6;
     }
 
-    header a{
-      color:#fff;
-      text-decoration:none;
-      font-weight:bold
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #ffffff18;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
     }
 
-    button{font-family:inherit}
-
-    #signout{
-      border:1px solid #ffffff33;
-      background:transparent;
-      color:#fff;
-      padding:10px 16px;
-      border-radius:20px;
-      cursor:pointer
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
     }
 
-    #signout:hover{background:#ffffff10}
-
-    main{
-      width:min(950px,calc(100% - 30px));
-      margin:35px auto 60px
+    button {
+      font-family: inherit;
     }
 
-    .hero,.panel{
-      border:1px solid #ffffff18;
-      border-radius:20px;
-      background:#ffffff08;
-      padding:25px;
-      margin-bottom:20px
+    #signout {
+      border: 1px solid #ffffff33;
+      background: transparent;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 20px;
+      cursor: pointer;
     }
 
-    h1,h2,h3{margin-top:0}
-    .muted{color:#aaa}
-
-    .status-box{
-      padding:14px;
-      border-radius:12px;
-      background:#ffffff08;
-      color:#aaa;
-      margin-bottom:15px
+    #signout:hover {
+      background: #ffffff10;
     }
 
-    .error{
-      color:#ffb5b5!important;
-      background:rgba(200,50,50,.12)!important
+    main {
+      width: min(950px, calc(100% - 30px));
+      margin: 35px auto 60px;
     }
 
-    .success{
-      color:#baffca!important;
-      background:rgba(50,200,100,.10)!important
+    .hero,
+    .panel {
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+      background: #ffffff08;
+      padding: 25px;
+      margin-bottom: 20px;
     }
 
-    .warning{
-      color:#ffe3a3!important;
-      background:rgba(200,150,50,.12)!important
+    h1,
+    h2 {
+      margin-top: 0;
     }
 
-    .profile-grid,.stripe-grid,.fund-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-      gap:14px
+    .muted {
+      color: #aaa;
     }
 
-    .item,.stripe-stat{
-      padding:17px;
-      border-radius:14px;
-      background:#ffffff08
+    .status-box {
+      padding: 14px;
+      border-radius: 12px;
+      background: #ffffff08;
+      color: #aaa;
+      margin-bottom: 15px;
     }
 
-    .label{
-      display:block;
-      color:#999;
-      font-size:12px;
-      margin-bottom:5px;
-      text-transform:uppercase;
-      letter-spacing:.08em
+    .error {
+      color: #ffb5b5 !important;
+      background: rgba(200, 50, 50, .12) !important;
     }
 
-    .profile-value{word-break:break-word}
-
-    .role{
-      display:inline-block;
-      padding:7px 12px;
-      margin:4px;
-      border-radius:20px;
-      background:#ffffff12
+    .success {
+      color: #baffca !important;
+      background: rgba(50, 200, 100, .10) !important;
     }
 
-    .order-card,
-    .fund-card,
-    .active-service-card,
-    .opportunity-card{
-      padding:20px;
-      border-radius:16px;
-      background:#ffffff08;
-      border:1px solid #ffffff12;
-      margin-top:15px
+    .warning {
+      color: #ffe3a3 !important;
+      background: rgba(200, 150, 50, .12) !important;
     }
 
-    .active-service-card{
-      border-color:#ffffff28;
-      background:linear-gradient(135deg,#ffffff0d,#ffffff03)
+    .profile-grid,
+    .stripe-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
     }
 
-    .opportunity-card{
-      border-color:#ffffff20
+    .item,
+    .stripe-stat {
+      padding: 17px;
+      border-radius: 14px;
+      background: #ffffff08;
     }
 
-    .order-price{
-      font-size:25px;
-      font-weight:bold;
-      margin-bottom:5px
+    .label {
+      display: block;
+      color: #999;
+      font-size: 12px;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
     }
 
-    .order-status,
-    .fund-status,
-    .service-status{
-      display:inline-block;
-      padding:6px 12px;
-      border-radius:20px;
-      background:#ffffff12;
-      text-transform:capitalize;
-      margin-bottom:10px
+    .profile-value {
+      word-break: break-word;
     }
 
-    .fund-status{
-      padding:5px 10px;
-      font-size:13px
+    .role {
+      display: inline-block;
+      padding: 7px 12px;
+      margin: 4px;
+      border-radius: 20px;
+      background: #ffffff12;
     }
 
-    .service-status{
-      margin-top:8px
+    .order-card {
+      padding: 20px;
+      border-radius: 16px;
+      background: #ffffff08;
+      border: 1px solid #ffffff12;
+      margin-top: 15px;
     }
 
-    .order-request{
-      padding:14px;
-      border-radius:12px;
-      background:#00000025;
-      color:#ccc;
-      white-space:pre-wrap;
-      margin:12px 0
+    .order-price {
+      font-size: 25px;
+      font-weight: bold;
+      margin-bottom: 5px;
     }
 
-    .order-meta{
-      color:#888;
-      font-size:14px;
-      margin-top:4px
+    .order-status {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: #ffffff12;
+      text-transform: capitalize;
+      margin-bottom: 10px;
     }
 
-    .order-actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:15px
+    .order-request {
+      padding: 14px;
+      border-radius: 12px;
+      background: #00000025;
+      color: #ccc;
+      white-space: pre-wrap;
+      margin: 12px 0;
+    }
+
+    .order-meta {
+      color: #888;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .order-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 15px;
     }
 
     .order-button,
-    .fund-button,
-    .action-button{
-      border:0;
-      padding:11px 20px;
-      border-radius:25px;
-      background:#fff;
-      color:#080812;
-      font-weight:bold;
-      cursor:pointer;
-      text-decoration:none;
-      display:inline-block
+    .connect-button,
+    .edit-link {
+      border: 0;
+      padding: 11px 20px;
+      border-radius: 25px;
+      background: #fff;
+      color: #080812;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     .order-button:hover,
-    .fund-button:hover,
-    .action-button:hover{
-      opacity:.9
+    .connect-button:hover,
+    .edit-link:hover {
+      opacity: .9;
     }
 
     .order-button:disabled,
-    .fund-button:disabled,
-    .connect-button:disabled{
-      opacity:.6;
-      cursor:wait
+    .connect-button:disabled {
+      opacity: .6;
+      cursor: wait;
     }
 
-    .decline-button{
-      background:transparent;
-      color:#fff;
-      border:1px solid #ffffff35
+    .decline-button {
+      background: transparent;
+      color: #fff;
+      border: 1px solid #ffffff35;
     }
 
-    .edit-link,
-    .connect-button{
-      display:inline-block;
-      margin-top:18px;
-      padding:11px 20px;
-      border-radius:25px;
-      background:#fff;
-      color:#080812;
-      text-decoration:none;
-      font-weight:bold;
-      border:0;
-      cursor:pointer
+    .edit-link {
+      display: inline-block;
+      margin-top: 18px;
+      text-decoration: none;
     }
 
-    .opportunity-button{
-      margin-left:8px
+    .connect-button {
+      display: inline-block;
+      margin-top: 18px;
     }
 
-    .service-link{
-      display:inline-block;
-      margin-top:12px;
-      color:#fff;
-      text-decoration:underline
+    .service-link {
+      display: inline-block;
+      margin-top: 12px;
+      color: #fff;
+      text-decoration: underline;
     }
 
-    .empty{
-      padding:18px;
-      border-radius:14px;
-      background:#ffffff06;
-      color:#999;
-      margin-top:12px
+    .empty {
+      padding: 18px;
+      border-radius: 14px;
+      background: #ffffff06;
+      color: #999;
+      margin-top: 12px;
     }
 
     .review-box,
-    .review-display{
-      margin-top:18px;
-      padding:18px;
-      border-radius:14px;
-      background:#00000022;
-      border:1px solid #ffffff12
+    .review-display {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 14px;
+      background: #00000022;
+      border: 1px solid #ffffff12;
     }
 
-    .stars{
-      display:flex;
-      gap:4px;
-      margin:10px 0 14px
+    .stars {
+      display: flex;
+      gap: 4px;
+      margin: 10px 0 14px;
     }
 
-    .star{
-      border:0;
-      background:transparent;
-      color:#555;
-      font-size:31px;
-      line-height:1;
-      padding:2px;
-      cursor:pointer
+    .star {
+      border: 0;
+      background: transparent;
+      color: #555;
+      font-size: 31px;
+      line-height: 1;
+      padding: 2px;
+      cursor: pointer;
     }
 
-    .star.selected{color:#ffd84d}
-
-    .review-text,
-    .fund-input,
-    .fund-textarea{
-      width:100%;
-      border:1px solid #ffffff20;
-      border-radius:12px;
-      background:#080812;
-      color:#fff;
-      padding:13px;
-      font-family:inherit;
-      margin-bottom:12px
+    .star.selected {
+      color: #ffd84d;
     }
 
-    .review-text{
-      min-height:100px;
-      resize:vertical
+    .review-text {
+      width: 100%;
+      min-height: 100px;
+      resize: vertical;
+      border: 1px solid #ffffff20;
+      border-radius: 12px;
+      background: #080812;
+      color: #fff;
+      padding: 13px;
+      font-family: inherit;
+      margin-bottom: 12px;
     }
 
-    .fund-textarea{
-      min-height:120px;
-      resize:vertical
+    .review-stars {
+      color: #ffd84d;
+      font-size: 22px;
+      letter-spacing: 2px;
     }
 
-    .review-stars{
-      color:#ffd84d;
-      font-size:22px;
-      letter-spacing:2px
+    .review-content {
+      color: #ccc;
+      white-space: pre-wrap;
+      margin-top: 8px;
     }
 
-    .review-content{
-      color:#ccc;
-      white-space:pre-wrap;
-      margin-top:8px
+    .review-date {
+      color: #777;
+      font-size: 13px;
+      margin-top: 8px;
     }
 
-    .review-date{
-      color:#777;
-      font-size:13px;
-      margin-top:8px
+    .service-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 4px;
     }
 
-    .service-title{
-      font-size:18px;
-      font-weight:bold;
-      margin-bottom:4px
+    .stripe-stat strong {
+      display: block;
+      font-size: 18px;
+      margin-top: 3px;
     }
 
-    .stripe-grid{margin-top:15px}
-
-    .stripe-stat strong{
-      display:block;
-      font-size:18px;
-      margin-top:3px
+    .small {
+      font-size: 13px;
     }
 
-    .small{font-size:13px}
-
-    .fund-header{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:15px
+    .dashboard-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
     }
 
-    .fund-title{
-      font-size:20px;
-      font-weight:bold
+    .dashboard-links a {
+      color: #fff;
+      text-decoration: none;
+      border: 1px solid #ffffff20;
+      padding: 9px 15px;
+      border-radius: 20px;
     }
 
-    .fund-owner{
-      color:#999;
-      font-size:14px;
-      margin-top:3px
+    .dashboard-links a:hover {
+      background: #ffffff10;
     }
 
-    .fund-description{
-      color:#ccc;
-      margin:15px 0;
-      white-space:pre-wrap
-    }
-
-    .fund-progress{
-      height:12px;
-      background:#ffffff12;
-      border-radius:20px;
-      overflow:hidden;
-      margin:15px 0 8px
-    }
-
-    .fund-progress-bar{
-      height:100%;
-      width:0;
-      background:#fff;
-      border-radius:20px;
-      transition:width .3s ease
-    }
-
-    .fund-numbers{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      color:#aaa;
-      font-size:14px
-    }
-
-    .fund-form{
-      padding:20px;
-      border-radius:16px;
-      background:#00000020;
-      border:1px solid #ffffff12;
-      margin-top:18px
-    }
-
-    .fund-form-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px
-    }
-
-    .fund-card .fund-button{margin-top:10px}
-
-    .talent-fund-highlight{
-      border-color:#ffffff30;
-      background:linear-gradient(135deg,#ffffff0d,#ffffff03)
-    }
-
-    .opportunity-panel{
-      border-color:#ffffff30;
-      background:linear-gradient(135deg,#ffffff0d,#ffffff03)
-    }
-
-    .active-service-panel{
-      border-color:#ffffff30;
-      background:linear-gradient(135deg,#ffffff0d,#ffffff03)
-    }
-
-    .service-details{
-      color:#ccc;
-      margin:10px 0
-    }
-
-    .service-price{
-      font-size:24px;
-      font-weight:bold;
-      margin:8px 0
-    }
-
-    .opportunity-type{
-      display:inline-block;
-      padding:5px 10px;
-      border-radius:20px;
-      background:#ffffff12;
-      font-size:13px;
-      margin-bottom:10px
-    }
-
-    @media(max-width:650px){
-
-      header{
-        flex-direction:column
+    @media (max-width: 650px) {
+      header {
+        flex-direction: column;
       }
 
-      main{
-        width:calc(100% - 20px);
-        margin-top:20px
+      main {
+        width: calc(100% - 20px);
+        margin-top: 20px;
       }
 
-      .hero,.panel{
-        padding:20px
+      .hero,
+      .panel {
+        padding: 20px;
       }
 
-      .order-actions{
-        flex-direction:column
+      .order-actions {
+        flex-direction: column;
       }
 
       .order-button,
-      .connect-button,
-      .fund-button,
-      .action-button{
-        width:100%;
-        text-align:center
-      }
-
-      .fund-form-grid{
-        grid-template-columns:1fr
-      }
-
-      .fund-header{
-        flex-direction:column
-      }
-
-      .opportunity-button{
-        margin-left:0;
-        margin-top:10px
+      .connect-button {
+        width: 100%;
       }
     }
   </style>
@@ -479,507 +360,247 @@
 
 <header>
   <a href="index.html">⭐ StarRise</a>
-  <button id="signout">Sign Out</button>
+
+  <button id="signout" type="button">
+    Sign Out
+  </button>
 </header>
 
 <main>
 
-<section class="hero">
+  <section class="hero">
+    <p class="muted">MEMBER DASHBOARD</p>
 
-  <p class="muted">MEMBER DASHBOARD</p>
+    <h1>
+      Welcome, <span id="name">Member</span>
+    </h1>
 
-  <h1>
-    Welcome, <span id="name">Member</span>
-  </h1>
-
-  <p>
-    Your StarRise member account is active.
-  </p>
-
-  <a
-    class="edit-link"
-    href="edit-profile.html"
-  >
-    Edit Profile
-  </a>
-
-  <a
-    class="edit-link opportunity-button"
-    href="opportunities.html"
-  >
-    + Create Opportunity
-  </a>
-
-</section>
-
-
-<section class="panel opportunity-panel">
-
-  <h2>🚀 Opportunities</h2>
-
-  <p class="muted">
-    Create auditions, gigs, collaborations and other opportunities
-    for StarRise talent. Discover opportunities and connect with
-    artists, performers and creators.
-  </p>
-
-  <a
-    class="action-button"
-    href="opportunities.html"
-  >
-    View Opportunities
-  </a>
-
-  <a
-    class="action-button"
-    href="opportunities.html"
-  >
-    + Create Opportunity
-  </a>
-
-</section>
-
-
-<section class="panel opportunity-panel">
-
-  <h2>⭐ My Opportunities</h2>
-
-  <p class="muted">
-    Opportunities you created or have been accepted into appear here.
-  </p>
-
-  <div
-    id="my-opportunities-status"
-    class="status-box"
-  >
-    Loading your opportunities...
-  </div>
-
-  <div id="my-opportunities"></div>
-
-</section>
-
-
-<section class="panel active-service-panel">
-
-  <h2>🎤 My Active Services</h2>
-
-  <p class="muted">
-    Services you have accepted appear here so StarRise talent
-    can see what you currently have available.
-  </p>
-
-  <div
-    id="active-services-status"
-    class="status-box"
-  >
-    Loading your active services...
-  </div>
-
-  <div id="active-services"></div>
-
-</section>
-
-
-<section class="panel talent-fund-highlight">
-
-  <h2>⭐ Talent Funds</h2>
-
-  <p class="muted">
-    Help StarRise talent fund music, performances, equipment,
-    creative projects and other goals. You can also create your
-    own Talent Fund and let supporters back your vision.
-  </p>
-
-  <div
-    id="talent-fund-status"
-    class="status-box"
-  >
-    Loading Talent Funds...
-  </div>
-
-  <div class="fund-form">
-
-    <h3>Create Your Talent Fund</h3>
-
-    <p class="muted small">
-      Set a funding goal and tell supporters what you are building.
-      StarRise will handle the payment flow through Stripe.
+    <p>
+      Your StarRise member account is active.
     </p>
 
-    <div class="fund-form-grid">
+    <div class="dashboard-links">
+      <a href="services.html">Browse Services</a>
+      <a href="members.html">Find Members</a>
+      <a href="edit-profile.html">Edit Profile</a>
+    </div>
+  </section>
 
-      <div>
 
-        <label
-          class="label"
-          for="fund-title"
-        >
-          Fund Title
-        </label>
+  <!-- STRIPE -->
 
-        <input
-          id="fund-title"
-          class="fund-input"
-          type="text"
-          maxlength="120"
-          placeholder="Example: New Music Project"
-        >
+  <section class="panel">
 
+    <h2>Get Paid Through StarRise</h2>
+
+    <p class="muted">
+      Connect your Stripe account to receive payouts for services you complete.
+    </p>
+
+    <div id="stripe-status" class="status-box">
+      Checking Stripe payout status...
+    </div>
+
+    <div class="stripe-grid">
+
+      <div class="stripe-stat">
+        <span class="label">Account</span>
+        <strong id="stripe-account-status">
+          Checking...
+        </strong>
       </div>
 
-      <div>
+      <div class="stripe-stat">
+        <span class="label">Charges</span>
+        <strong id="stripe-charges">
+          Checking...
+        </strong>
+      </div>
 
-        <label
-          class="label"
-          for="fund-goal"
-        >
-          Funding Goal ($)
-        </label>
-
-        <input
-          id="fund-goal"
-          class="fund-input"
-          type="number"
-          min="1"
-          max="100000"
-          step="0.01"
-          placeholder="5000.00"
-        >
-
+      <div class="stripe-stat">
+        <span class="label">Payouts</span>
+        <strong id="stripe-payouts">
+          Checking...
+        </strong>
       </div>
 
     </div>
-
-    <label
-      class="label"
-      for="fund-description"
-    >
-      What are you raising money for?
-    </label>
-
-    <textarea
-      id="fund-description"
-      class="fund-textarea"
-      maxlength="2000"
-      placeholder="Tell your StarRise supporters what this fund will help you accomplish..."
-    ></textarea>
 
     <button
-      id="create-fund"
-      class="fund-button"
+      id="connect-stripe"
+      class="connect-button"
       type="button"
     >
-      Create Talent Fund
+      Set Up Stripe Payouts
     </button>
 
-    <div
-      id="create-fund-message"
-      class="small"
-      style="margin-top:12px"
-    ></div>
+    <p
+      id="stripe-message"
+      class="muted small"
+    ></p>
 
-  </div>
-
-  <h3 style="margin-top:28px">
-    Talent Funds You Can Support
-  </h3>
-
-  <div id="talent-funds"></div>
-
-  <h3 style="margin-top:30px">
-    My Talent Funds
-  </h3>
-
-  <div id="my-talent-funds"></div>
-
-</section>
+  </section>
 
 
-<section class="panel">
+  <!-- PROFILE -->
 
-  <h2>Get Paid Through StarRise</h2>
+  <section class="panel">
 
-  <p class="muted">
-    Connect your Stripe account to receive payouts for services
-    and Talent Fund support.
-  </p>
+    <h2>Your Profile</h2>
 
-  <div
-    id="stripe-status"
-    class="status-box"
-  >
-    Checking Stripe payout status...
-  </div>
+    <div id="status" class="status-box">
+      Connecting to StarRise...
+    </div>
 
-  <div class="stripe-grid">
+    <div class="profile-grid">
 
-    <div class="stripe-stat">
+      <div class="item">
+        <span class="label">Full Name</span>
+        <span id="profile-name" class="profile-value">
+          Loading...
+        </span>
+      </div>
 
-      <span class="label">
-        Account
-      </span>
+      <div class="item">
+        <span class="label">Display / Stage Name</span>
+        <span id="display-name" class="profile-value">
+          Loading...
+        </span>
+      </div>
 
-      <strong id="stripe-account-status">
-        Checking...
-      </strong>
+      <div class="item">
+        <span class="label">Email</span>
+        <span id="email" class="profile-value">
+          Loading...
+        </span>
+      </div>
+
+      <div class="item">
+        <span class="label">Location</span>
+        <span id="location" class="profile-value">
+          Loading...
+        </span>
+      </div>
+
+      <div class="item">
+        <span class="label">Website</span>
+        <span id="website" class="profile-value">
+          Loading...
+        </span>
+      </div>
+
+      <div class="item">
+        <span class="label">Member Since</span>
+        <span id="member-since" class="profile-value">
+          Loading...
+        </span>
+      </div>
 
     </div>
 
-    <div class="stripe-stat">
+  </section>
 
-      <span class="label">
-        Charges
-      </span>
 
-      <strong id="stripe-charges">
-        Checking...
-      </strong>
+  <!-- BIO -->
 
+  <section class="panel">
+
+    <h2>About You</h2>
+
+    <p id="bio" class="muted">
+      Loading...
+    </p>
+
+  </section>
+
+
+  <!-- ROLES -->
+
+  <section class="panel">
+
+    <h2>Your StarRise Roles</h2>
+
+    <div id="roles">
+      Loading roles...
     </div>
 
-    <div class="stripe-stat">
+  </section>
 
-      <span class="label">
-        Payouts
-      </span>
 
-      <strong id="stripe-payouts">
-        Checking...
-      </strong>
+  <!-- INCOMING ORDERS -->
 
+  <section class="panel">
+
+    <h2>Incoming Service Orders</h2>
+
+    <p class="muted">
+      Active service requests from customers appear here.
+    </p>
+
+    <div id="orders-status" class="status-box">
+      Loading orders...
     </div>
 
-  </div>
+    <div id="orders"></div>
 
-  <button
-    id="connect-stripe"
-    class="connect-button"
-    type="button"
-  >
-    Set Up Stripe Payouts
-  </button>
-
-  <p
-    id="stripe-message"
-    class="muted small"
-    style="margin-top:12px"
-  ></p>
-
-</section>
+  </section>
 
 
-<section class="panel">
+  <!-- COMPLETED PROVIDER ORDERS -->
 
-  <h2>Your Profile</h2>
+  <section class="panel">
 
-  <div
-    id="status"
-    class="status-box"
-  >
-    Connecting to StarRise...
-  </div>
+    <h2>Completed Services</h2>
 
-  <div class="profile-grid">
+    <p class="muted">
+      Services you completed appear here.
+    </p>
 
-    <div class="item">
-
-      <span class="label">
-        Full Name
-      </span>
-
-      <span
-        id="profile-name"
-        class="profile-value"
-      >
-        Loading...
-      </span>
-
+    <div id="completed-orders-status" class="status-box">
+      Loading completed services...
     </div>
 
-    <div class="item">
+    <div id="completed-orders"></div>
 
-      <span class="label">
-        Display / Stage Name
-      </span>
+  </section>
 
-      <span
-        id="display-name"
-        class="profile-value"
-      >
-        Loading...
-      </span>
 
+  <!-- CUSTOMER ORDERS -->
+
+  <section class="panel">
+
+    <h2>My Orders</h2>
+
+    <p class="muted">
+      Services you requested from other StarRise members.
+    </p>
+
+    <div id="my-orders-status" class="status-box">
+      Loading your orders...
     </div>
 
-    <div class="item">
+    <div id="my-orders"></div>
 
-      <span class="label">
-        Email
-      </span>
+  </section>
 
-      <span
-        id="email"
-        class="profile-value"
-      >
-        Loading...
-      </span>
 
+  <!-- CUSTOMER COMPLETED -->
+
+  <section class="panel">
+
+    <h2>My Completed Services</h2>
+
+    <p class="muted">
+      Completed services you received.
+    </p>
+
+    <div id="my-completed-status" class="status-box">
+      Loading completed orders...
     </div>
 
-    <div class="item">
+    <div id="my-completed"></div>
 
-      <span class="label">
-        Location
-      </span>
-
-      <span
-        id="location"
-        class="profile-value"
-      >
-        Loading...
-      </span>
-
-    </div>
-
-    <div class="item">
-
-      <span class="label">
-        Website
-      </span>
-
-      <span
-        id="website"
-        class="profile-value"
-      >
-        Loading...
-      </span>
-
-    </div>
-
-    <div class="item">
-
-      <span class="label">
-        Member Since
-      </span>
-
-      <span
-        id="member-since"
-        class="profile-value"
-      >
-        Loading...
-      </span>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-<section class="panel">
-
-  <h2>About You</h2>
-
-  <p
-    id="bio"
-    class="muted"
-  >
-    Loading...
-  </p>
-
-</section>
-
-
-<section class="panel">
-
-  <h2>Your StarRise Roles</h2>
-
-  <div id="roles">
-    Loading roles...
-  </div>
-
-</section>
-
-
-<section class="panel">
-
-  <h2>Incoming Service Orders</h2>
-
-  <p class="muted">
-    Active service requests from customers appear here.
-  </p>
-
-  <div
-    id="orders-status"
-    class="status-box"
-  >
-    Loading orders...
-  </div>
-
-  <div id="orders"></div>
-
-</section>
-
-
-<section class="panel">
-
-  <h2>Completed Services</h2>
-
-  <p class="muted">
-    Services you completed appear here.
-  </p>
-
-  <div
-    id="completed-orders-status"
-    class="status-box"
-  >
-    Loading completed services...
-  </div>
-
-  <div id="completed-orders"></div>
-
-</section>
-
-
-<section class="panel">
-
-  <h2>My Orders</h2>
-
-  <p class="muted">
-    Services you requested from other StarRise members.
-  </p>
-
-  <div
-    id="my-orders-status"
-    class="status-box"
-  >
-    Loading your orders...
-  </div>
-
-  <div id="my-orders"></div>
-
-</section>
-
-
-<section class="panel">
-
-  <h2>My Completed Services</h2>
-
-  <p class="muted">
-    Completed services you received.
-  </p>
-
-  <div
-    id="my-completed-status"
-    class="status-box"
-  >
-    Loading completed orders...
-  </div>
-
-  <div id="my-completed"></div>
-
-</section>
+  </section>
 
 </main>
 
@@ -987,276 +608,2446 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+(function () {
 
-(function(){
-
-'use strict';
-
-
-const SUPABASE_URL =
-  'https://rcnikxotdalxtuvpmlvm.supabase.co';
-
-const SUPABASE_KEY =
-  'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
-
-const FUNCTIONS_URL =
-  SUPABASE_URL + '/functions/v1';
+  'use strict';
 
 
-let supabaseClient = null;
-let currentUser = null;
+  const SUPABASE_URL =
+    'https://rcnikxotdalxtuvpmlvm.supabase.co';
+
+  const SUPABASE_KEY =
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
+
+  const FUNCTIONS_URL =
+    SUPABASE_URL + '/functions/v1';
 
 
-const statusBox =
-  document.getElementById('status');
-
-const ordersStatus =
-  document.getElementById('orders-status');
-
-const ordersContainer =
-  document.getElementById('orders');
-
-const completedOrdersStatus =
-  document.getElementById(
-    'completed-orders-status'
-  );
-
-const completedOrdersContainer =
-  document.getElementById(
-    'completed-orders'
-  );
-
-const myOrdersStatus =
-  document.getElementById(
-    'my-orders-status'
-  );
-
-const myOrdersContainer =
-  document.getElementById(
-    'my-orders'
-  );
-
-const myCompletedStatus =
-  document.getElementById(
-    'my-completed-status'
-  );
-
-const myCompletedContainer =
-  document.getElementById(
-    'my-completed'
-  );
+  let supabaseClient = null;
+  let currentUser = null;
 
 
-const stripeStatus =
-  document.getElementById(
-    'stripe-status'
-  );
+  const statusBox =
+    document.getElementById('status');
 
-const stripeAccountStatus =
-  document.getElementById(
-    'stripe-account-status'
-  );
+  const ordersStatus =
+    document.getElementById('orders-status');
 
-const stripeCharges =
-  document.getElementById(
-    'stripe-charges'
-  );
+  const ordersContainer =
+    document.getElementById('orders');
 
-const stripePayouts =
-  document.getElementById(
-    'stripe-payouts'
-  );
+  const completedOrdersStatus =
+    document.getElementById('completed-orders-status');
 
-const connectStripeButton =
-  document.getElementById(
-    'connect-stripe'
-  );
+  const completedOrdersContainer =
+    document.getElementById('completed-orders');
 
-const stripeMessage =
-  document.getElementById(
-    'stripe-message'
-  );
+  const myOrdersStatus =
+    document.getElementById('my-orders-status');
 
+  const myOrdersContainer =
+    document.getElementById('my-orders');
 
-const talentFundStatus =
-  document.getElementById(
-    'talent-fund-status'
-  );
+  const myCompletedStatus =
+    document.getElementById('my-completed-status');
 
-const talentFundsContainer =
-  document.getElementById(
-    'talent-funds'
-  );
+  const myCompletedContainer =
+    document.getElementById('my-completed');
 
-const myTalentFundsContainer =
-  document.getElementById(
-    'my-talent-funds'
-  );
+  const stripeStatus =
+    document.getElementById('stripe-status');
 
-const createFundButton =
-  document.getElementById(
-    'create-fund'
-  );
+  const stripeAccountStatus =
+    document.getElementById('stripe-account-status');
 
-const createFundMessage =
-  document.getElementById(
-    'create-fund-message'
-  );
+  const stripeCharges =
+    document.getElementById('stripe-charges');
+
+  const stripePayouts =
+    document.getElementById('stripe-payouts');
+
+  const connectStripeButton =
+    document.getElementById('connect-stripe');
+
+  const stripeMessage =
+    document.getElementById('stripe-message');
 
 
-const myOpportunitiesStatus =
-  document.getElementById(
-    'my-opportunities-status'
-  );
+  function escapeHtml(value) {
 
-const myOpportunitiesContainer =
-  document.getElementById(
-    'my-opportunities'
-  );
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
 
-
-const activeServicesStatus =
-  document.getElementById(
-    'active-services-status'
-  );
-
-const activeServicesContainer =
-  document.getElementById(
-    'active-services'
-  );
-
-
-function escapeHtml(value){
-
-  return String(value ?? '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
-
-}
-
-
-function setStatus(
-  element,
-  message,
-  type
-){
-
-  if(!element)return;
-
-  element.textContent =
-    message;
-
-  element.classList.remove(
-    'error',
-    'success',
-    'warning'
-  );
-
-  if(type){
-    element.classList.add(type);
   }
 
-}
 
+  function setStatus(
+    element,
+    message,
+    type
+  ) {
 
-function formatDate(value){
+    if (!element) return;
 
-  if(!value){
-    return 'Unknown';
+    element.textContent =
+      message;
+
+    element.classList.remove(
+      'error',
+      'success',
+      'warning'
+    );
+
+    if (type) {
+      element.classList.add(type);
+    }
+
   }
 
-  const date =
-    new Date(value);
 
-  if(
-    Number.isNaN(
-      date.getTime()
-    )
-  ){
-    return 'Unknown';
+  function formatDate(value) {
+
+    if (!value) {
+      return 'Unknown';
+    }
+
+    const date =
+      new Date(value);
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+      return 'Unknown';
+    }
+
+    return date.toLocaleDateString();
+
   }
 
-  return date.toLocaleDateString();
 
-}
+  function formatMoney(cents) {
 
+    return (
+      '$' +
+      (
+        Number(cents || 0) / 100
+      ).toFixed(2)
+    );
 
-function formatMoney(cents){
-
-  return '$' +
-    (
-      Number(cents || 0) /
-      100
-    ).toFixed(2);
-
-}
+  }
 
 
-function starsHtml(rating){
+  function starsHtml(rating) {
 
-  const value =
-    Number(rating || 0);
+    const value =
+      Number(rating || 0);
 
-  return [1,2,3,4,5]
-    .map(
-      number =>
-        number <= value
+    return [1,2,3,4,5]
+      .map(function (number) {
+
+        return number <= value
           ? '★'
-          : '☆'
-    )
-    .join('');
+          : '☆';
 
-}
+      })
+      .join('');
+
+  }
 
 
-function getField(
-  object,
-  fields,
-  fallback
-){
+  function getField(
+    object,
+    fields,
+    fallback
+  ) {
 
-  for(
-    const field of fields
-  ){
+    for (
+      const field of fields
+    ) {
 
-    if(
-      object &&
-      object[field] !== undefined &&
-      object[field] !== null &&
-      object[field] !== ''
-    ){
+      if (
+        object &&
+        object[field] !== undefined &&
+        object[field] !== null &&
+        object[field] !== ''
+      ) {
 
-      return object[field];
+        return object[field];
+
+      }
+
+    }
+
+    return fallback;
+
+  }
+
+
+  function yesNo(value) {
+
+    return value
+      ? 'Enabled'
+      : 'Not enabled';
+
+  }
+
+
+  async function initialize() {
+
+    try {
+
+      if (!window.supabase) {
+
+        throw new Error(
+          'Supabase JavaScript library failed to load.'
+        );
+
+      }
+
+
+      supabaseClient =
+        window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY
+        );
+
+
+      const sessionResult =
+        await supabaseClient.auth.getSession();
+
+
+      if (sessionResult.error) {
+        throw sessionResult.error;
+      }
+
+
+      const session =
+        sessionResult.data &&
+        sessionResult.data.session;
+
+
+      if (
+        !session ||
+        !session.user
+      ) {
+
+        setStatus(
+          statusBox,
+          'No active session. Redirecting to login...',
+          'error'
+        );
+
+        setTimeout(function () {
+
+          window.location.href =
+            'login.html';
+
+        }, 800);
+
+        return;
+      }
+
+
+      currentUser =
+        session.user;
+
+
+      document.getElementById(
+        'email'
+      ).textContent =
+        currentUser.email ||
+        'Not available';
+
+
+      setStatus(
+        statusBox,
+        'Connected to StarRise.',
+        'success'
+      );
+
+
+      await Promise.all([
+        loadProfile(currentUser),
+        loadRoles(currentUser),
+        loadStripeStatus(currentUser),
+        loadIncomingOrders(currentUser),
+        loadCompletedOrders(currentUser),
+        loadMyOrders(currentUser),
+        loadMyCompletedOrders(currentUser)
+      ]);
+
+
+    } catch (error) {
+
+      console.error(
+        'Dashboard initialization error:',
+        error
+      );
+
+      setStatus(
+        statusBox,
+        'Dashboard error: ' +
+        (
+          error.message ||
+          'Unknown error'
+        ),
+        'error'
+      );
 
     }
 
   }
 
-  return fallback;
 
-}
+  async function loadProfile(user) {
 
-
-function yesNo(value){
-
-  return value
-    ? 'Enabled'
-    : 'Not enabled';
-
-}
+    let result =
+      await supabaseClient
+        .from('Profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
 
 
-/* ==================================================
-INITIALIZE
-================================================== */
+    if (
+      result.error
+    ) {
 
-async function initialize(){
+      throw new Error(
+        'Profile: ' +
+        result.error.message
+      );
 
-  try{
+    }
+
+
+    if (!result.data) {
+
+      result =
+        await supabaseClient
+          .from('Profiles')
+          .select('*')
+          .eq('User_id', user.id)
+          .maybeSingle();
+
+    }
+
+
+    if (
+      result.error
+    ) {
+
+      throw new Error(
+        'Profile: ' +
+        result.error.message
+      );
+
+    }
+
+
+    if (!result.data) {
+
+      throw new Error(
+        'Profile: no profile record exists for this account.'
+      );
+
+    }
+
+
+    const profile =
+      result.data;
+
+
+    const fullName =
+      getField(
+        profile,
+        [
+          'full_name',
+          'Full_Name',
+          'name',
+          'Name'
+        ],
+        'StarRise Member'
+      );
+
+
+    const displayName =
+      getField(
+        profile,
+        [
+          'display_name',
+          'Display_Name',
+          'stage_name',
+          'Stage_Name'
+        ],
+        fullName
+      );
+
+
+    document.getElementById(
+      'name'
+    ).textContent =
+      displayName;
+
+
+    document.getElementById(
+      'profile-name'
+    ).textContent =
+      fullName;
+
+
+    document.getElementById(
+      'display-name'
+    ).textContent =
+      displayName;
+
+
+    document.getElementById(
+      'email'
+    ).textContent =
+      user.email ||
+      'Not available';
+
+
+    document.getElementById(
+      'location'
+    ).textContent =
+      getField(
+        profile,
+        [
+          'location',
+          'Location'
+        ],
+        'Not provided'
+      );
+
+
+    document.getElementById(
+      'bio'
+    ).textContent =
+      getField(
+        profile,
+        [
+          'bio',
+          'Bio'
+        ],
+        'No bio added yet.'
+      );
+
+
+    document.getElementById(
+      'website'
+    ).textContent =
+      getField(
+        profile,
+        [
+          'website',
+          'Website'
+        ],
+        'Not provided'
+      );
+
+
+    document.getElementById(
+      'member-since'
+    ).textContent =
+      formatDate(
+        getField(
+          profile,
+          [
+            'created_at',
+            'Created_at'
+          ],
+          null
+        )
+      );
+
+  }
+
+
+  async function loadRoles(user) {
+
+    const element =
+      document.getElementById(
+        'roles'
+      );
+
+
+    try {
+
+      const result =
+        await supabaseClient
+          .from('member_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .order('role');
+
+
+      if (result.error) {
+        throw result.error;
+      }
+
+
+      if (
+        !result.data ||
+        !result.data.length
+      ) {
+
+        element.innerHTML =
+          '<span class="muted">' +
+          'No roles assigned yet.' +
+          '</span>';
+
+        return;
+      }
+
+
+      element.innerHTML =
+        result.data
+          .map(function (item) {
+
+            return (
+              '<span class="role">' +
+              escapeHtml(item.role) +
+              '</span>'
+            );
+
+          })
+          .join('');
+
+
+    } catch (error) {
+
+      console.error(
+        'Roles error:',
+        error
+      );
+
+      element.innerHTML =
+        '<span class="muted">' +
+        'Unable to load roles.' +
+        '</span>';
+
+    }
+
+  }
+
+
+  async function loadStripeStatus(user) {
 
     setStatus(
-      statusBox,
-  
+      stripeStatus,
+      'Checking Stripe payout status...'
+    );
+
+
+    connectStripeButton.disabled =
+      true;
+
+    connectStripeButton.textContent =
+      'Checking Stripe...';
+
+
+    try {
+
+      const result =
+        await supabaseClient
+          .from('stripe_connected_accounts')
+          .select(
+            'stripe_account_id, charges_enabled, payouts_enabled, details_submitted'
+          )
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+
+      if (result.error) {
+        throw result.error;
+      }
+
+
+      const account =
+        result.data;
+
+
+      if (!account) {
+
+        stripeAccountStatus.textContent =
+          'Not connected';
+
+        stripeCharges.textContent =
+          'Not enabled';
+
+        stripePayouts.textContent =
+          'Not enabled';
+
+
+        setStatus(
+          stripeStatus,
+          'Stripe payouts have not been set up yet.',
+          'warning'
+        );
+
+
+        connectStripeButton.disabled =
+          false;
+
+        connectStripeButton.textContent =
+          'Set Up Stripe Payouts';
+
+        return;
+      }
+
+
+      stripeCharges.textContent =
+        yesNo(
+          account.charges_enabled
+        );
+
+
+      stripePayouts.textContent =
+        yesNo(
+          account.payouts_enabled
+        );
+
+
+      if (
+        account.payouts_enabled
+      ) {
+
+        stripeAccountStatus.textContent =
+          'Ready';
+
+
+        setStatus(
+          stripeStatus,
+          'Your Stripe account is ready to receive payouts.',
+          'success'
+        );
+
+
+        connectStripeButton.disabled =
+          false;
+
+        connectStripeButton.textContent =
+          'Manage Stripe Setup';
+
+      } else if (
+        account.details_submitted
+      ) {
+
+        stripeAccountStatus.textContent =
+          'Under review';
+
+
+        setStatus(
+          stripeStatus,
+          'Stripe setup has been submitted. Complete any remaining Stripe requirements.',
+          'warning'
+        );
+
+
+        connectStripeButton.disabled =
+          false;
+
+        connectStripeButton.textContent =
+          'Continue Stripe Setup';
+
+      } else {
+
+        stripeAccountStatus.textContent =
+          'Setup required';
+
+
+        setStatus(
+          stripeStatus,
+          'Finish Stripe onboarding before receiving payouts.',
+          'warning'
+        );
+
+
+        connectStripeButton.disabled =
+          false;
+
+        connectStripeButton.textContent =
+          'Finish Stripe Setup';
+
+      }
+
+
+    } catch (error) {
+
+      console.error(
+        'Stripe status error:',
+        error
+      );
+
+
+      stripeAccountStatus.textContent =
+        'Unavailable';
+
+      stripeCharges.textContent =
+        'Unavailable';
+
+      stripePayouts.textContent =
+        'Unavailable';
+
+
+      setStatus(
+        stripeStatus,
+        'Stripe status could not be loaded: ' +
+        error.message,
+        'error'
+      );
+
+
+      connectStripeButton.disabled =
+        false;
+
+      connectStripeButton.textContent =
+        'Set Up Stripe Payouts';
+
+    }
+
+  }
+
+
+  async function startStripeOnboarding() {
+
+    if (!currentUser) {
+
+      alert(
+        'You must be signed in.'
+      );
+
+      return;
+    }
+
+
+    connectStripeButton.disabled =
+      true;
+
+    connectStripeButton.textContent =
+      'Opening Stripe...';
+
+
+    stripeMessage.textContent =
+      'Preparing your secure Stripe onboarding page...';
+
+
+    try {
+
+      const sessionResult =
+        await supabaseClient.auth.getSession();
+
+
+      if (sessionResult.error) {
+        throw sessionResult.error;
+      }
+
+
+      const session =
+        sessionResult.data &&
+        sessionResult.data.session;
+
+
+      if (!session) {
+
+        throw new Error(
+          'Your login session has expired.'
+        );
+
+      }
+
+
+      const response =
+        await fetch(
+          FUNCTIONS_URL +
+          '/connect-payouts',
+          {
+            method: 'POST',
+
+            headers: {
+              'Authorization':
+                'Bearer ' +
+                session.access_token,
+
+              'apikey':
+                SUPABASE_KEY,
+
+              'Content-Type':
+                'application/json'
+            },
+
+            body:
+              JSON.stringify({})
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (
+        !response.ok ||
+        !data.url
+      ) {
+
+        throw new Error(
+          data.error ||
+          'Stripe onboarding could not be started.'
+        );
+
+      }
+
+
+      window.location.href =
+        data.url;
+
+
+    } catch (error) {
+
+      console.error(
+        'Stripe onboarding error:',
+        error
+      );
+
+
+      setStatus(
+        stripeStatus,
+        'Unable to start Stripe setup: ' +
+        error.message,
+        'error'
+      );
+
+
+      stripeMessage.textContent =
+        'Please try again.';
+
+
+      connectStripeButton.disabled =
+        false;
+
+      connectStripeButton.textContent =
+        'Set Up Stripe Payouts';
+
+    }
+
+  }
+
+
+  async function getServices(
+    serviceIds
+  ) {
+
+    const ids =
+      [
+        ...new Set(
+          serviceIds.filter(Boolean)
+        )
+      ];
+
+
+    if (!ids.length) {
+      return {};
+    }
+
+
+    const result =
+      await supabaseClient
+        .from('star_rise_services')
+        .select('*')
+        .in('id', ids);
+
+
+    if (result.error) {
+      throw result.error;
+    }
+
+
+    return (
+      result.data || []
+    ).reduce(
+      function (map, service) {
+
+        map[service.id] =
+          service;
+
+        return map;
+
+      },
+      {}
+    );
+
+  }
+
+
+  async function getProfiles(
+    userIds
+  ) {
+
+    const ids =
+      [
+        ...new Set(
+          userIds.filter(Boolean)
+        )
+      ];
+
+
+    if (!ids.length) {
+      return {};
+    }
+
+
+    let result =
+      await supabaseClient
+        .from('Profiles')
+        .select('*')
+        .in('id', ids);
+
+
+    if (
+      result.error ||
+      !result.data ||
+      !result.data.length
+    ) {
+
+      result =
+        await supabaseClient
+          .from('Profiles')
+          .select('*')
+          .in('User_id', ids);
+
+    }
+
+
+    if (result.error) {
+
+      console.error(
+        'Profiles error:',
+        result.error
+      );
+
+      return {};
+
+    }
+
+
+    return (
+      result.data || []
+    ).reduce(
+      function (map, profile) {
+
+        const key =
+          profile.id ||
+          profile.User_id ||
+          profile.user_id;
+
+        if (key) {
+          map[key] =
+            profile;
+        }
+
+        return map;
+
+      },
+      {}
+    );
+
+  }
+
+
+  async function getReviews(
+    orderIds
+  ) {
+
+    const ids =
+      [
+        ...new Set(
+          orderIds.filter(Boolean)
+        )
+      ];
+
+
+    if (!ids.length) {
+      return {};
+    }
+
+
+    const result =
+      await supabaseClient
+        .from('service_reviews')
+        .select('*')
+        .in('order_id', ids);
+
+
+    if (result.error) {
+
+      console.error(
+        'Reviews error:',
+        result.error
+      );
+
+      return {};
+
+    }
+
+
+    return (
+      result.data || []
+    ).reduce(
+      function (map, review) {
+
+        map[review.order_id] =
+          review;
+
+        return map;
+
+      },
+      {}
+    );
+
+  }
+
+
+  function reviewDisplay(
+    review
+  ) {
+
+    if (!review) {
+      return '';
+    }
+
+
+    return `
+      <div class="review-display">
+
+        <span class="label">
+          Review
+        </span>
+
+        <div class="review-stars">
+          ${escapeHtml(
+            starsHtml(review.rating)
+          )}
+        </div>
+
+        ${
+          review.review
+            ? `
+              <div class="review-content">
+                ${escapeHtml(
+                  review.review
+                )}
+              </div>
+            `
+            : ''
+        }
+
+        <div class="review-date">
+          Reviewed
+          ${escapeHtml(
+            formatDate(
+              review.created_at
+            )
+          )}
+        </div>
+
+      </div>
+    `;
+
+  }
+
+
+  function reviewForm(
+    order,
+    review
+  ) {
+
+    const currentRating =
+      Number(
+        review &&
+        review.rating
+          ? review.rating
+          : 0
+      );
+
+
+    return `
+      <div class="review-box">
+
+        <span class="label">
+          ${
+            review
+              ? 'Update Your Review'
+              : 'Rate This Service'
+          }
+        </span>
+
+        <div
+          class="stars"
+          data-stars-for="${escapeHtml(order.id)}"
+        >
+
+          ${[1,2,3,4,5]
+            .map(function (number) {
+
+              return `
+                <button
+                  type="button"
+                  class="star ${
+                    number <= currentRating
+                      ? 'selected'
+                      : ''
+                  }"
+                  data-rating="${number}"
+                  data-order="${escapeHtml(order.id)}"
+                >★</button>
+              `;
+
+            })
+            .join('')}
+
+        </div>
+
+        <textarea
+          class="review-text"
+          id="review-text-${escapeHtml(order.id)}"
+          maxlength="1000"
+          placeholder="Tell us about your StarRise experience..."
+        >${
+          escapeHtml(
+            review &&
+            review.review
+              ? review.review
+              : ''
+          )
+        }</textarea>
+
+        <button
+          type="button"
+          class="order-button"
+          data-submit-review="${escapeHtml(order.id)}"
+        >
+          ${
+            review
+              ? 'Update Review'
+              : 'Submit Review'
+          }
+        </button>
+
+        <div
+          id="review-message-${escapeHtml(order.id)}"
+          class="muted"
+          style="margin-top:10px;"
+        ></div>
+
+      </div>
+    `;
+
+  }
+
+
+  function renderOrder(
+    order,
+    service,
+    profile,
+    options
+  ) {
+
+    const serviceTitle =
+      service
+        ? service.title
+        : 'Service';
+
+
+    const requestMessage =
+      order.request_message &&
+      order.request_message.trim()
+        ? order.request_message
+        : 'No request details provided.';
+
+
+    const personLabel =
+      options.personLabel ||
+      'Member';
+
+
+    const personName =
+      profile
+        ? getField(
+            profile,
+            [
+              'display_name',
+              'Display_Name',
+              'full_name',
+              'Full_Name',
+              'name',
+              'Name'
+            ],
+            personLabel
+          )
+        : personLabel;
+
+
+    let actions = '';
+
+
+    if (
+      options.provider
+    ) {
+
+      if (
+        order.status === 'pending'
+      ) {
+
+        actions = `
+          <div class="order-actions">
+
+            <button
+              class="order-button"
+              data-order-action="accepted"
+              data-order-id="${escapeHtml(order.id)}"
+            >
+              Accept Request
+            </button>
+
+            <button
+              class="order-button decline-button"
+              data-order-action="declined"
+              data-order-id="${escapeHtml(order.id)}"
+            >
+              Decline Request
+            </button>
+
+          </div>
+        `;
+
+      }
+
+
+      if (
+        order.status === 'accepted'
+      ) {
+
+        actions = `
+          <div class="order-actions">
+
+            <button
+              class="order-button"
+              data-order-action="in_progress"
+              data-order-id="${escapeHtml(order.id)}"
+            >
+              Start Service
+            </button>
+
+          </div>
+        `;
+
+      }
+
+
+      if (
+        order.status === 'in_progress'
+      ) {
+
+        actions = `
+          <div class="order-actions">
+
+            <button
+              class="order-button"
+              data-order-action="completed"
+              data-order-id="${escapeHtml(order.id)}"
+            >
+              Mark Completed
+            </button>
+
+          </div>
+        `;
+
+      }
+
+    }
+
+
+    const serviceLink =
+      service
+        ? `
+          <a
+            class="service-link"
+            href="service.html?id=${encodeURIComponent(service.id)}"
+          >
+            View Service
+          </a>
+        `
+        : '';
+
+
+    return `
+      <div class="order-card">
+
+        <div class="service-title">
+          ${escapeHtml(serviceTitle)}
+        </div>
+
+        <div class="order-price">
+          ${escapeHtml(
+            formatMoney(
+              order.amount_cents
+            )
+          )}
+        </div>
+
+        <div class="order-status">
+          ${escapeHtml(
+            order.status
+          )}
+        </div>
+
+        <div class="order-request">
+          ${escapeHtml(
+            requestMessage
+          )}
+        </div>
+
+        <div class="order-meta">
+          ${escapeHtml(personLabel)}:
+          ${escapeHtml(personName)}
+        </div>
+
+        <div class="order-meta">
+          Requested:
+          ${escapeHtml(
+            formatDate(
+              order.created_at
+            )
+          )}
+        </div>
+
+        ${serviceLink}
+
+        ${actions}
+
+      </div>
+    `;
+
+  }
+
+
+  async function loadIncomingOrders(
+    user
+  ) {
+
+    setStatus(
+      ordersStatus,
+      'Loading orders...'
+    );
+
+
+    ordersContainer.innerHTML =
+      '';
+
+
+    try {
+
+      const result =
+        await supabaseClient
+          .from('service_orders')
+          .select('*')
+          .eq('seller_id', user.id)
+          .in(
+            'status',
+            [
+              'pending',
+              'accepted',
+              'in_progress'
+            ]
+          )
+          .order(
+            'created_at',
+            {
+              ascending: false
+            }
+          );
+
+
+      if (result.error) {
+        throw result.error;
+      }
+
+
+      const orders =
+        result.data || [];
+
+
+      if (!orders.length) {
+
+        setStatus(
+          ordersStatus,
+          'You have no active service requests.'
+        );
+
+
+        ordersContainer.innerHTML =
+          '<div class="empty">' +
+          'No incoming service orders yet.' +
+          '</div>';
+
+        return;
+
+      }
+
+
+      const services =
+        await getServices(
+          orders.map(
+            order =>
+              order.service_id
+          )
+        );
+
+
+      const profiles =
+        await getProfiles(
+          orders.map(
+            order =>
+              order.buyer_id
+          )
+        );
+
+
+      setStatus(
+        ordersStatus,
+        orders.length === 1
+          ? '1 active service request.'
+          : orders.length +
+            ' active service requests.',
+        'success'
+      );
+
+
+      ordersContainer.innerHTML =
+        orders
+          .map(function (order) {
+
+            return renderOrder(
+              order,
+              services[
+                order.service_id
+              ],
+              profiles[
+                order.buyer_id
+              ],
+              {
+                provider: true,
+                personLabel:
+                  'Customer'
+              }
+            );
+
+          })
+          .join('');
+
+
+    } catch (error) {
+
+      console.error(
+        'Incoming orders error:',
+        error
+      );
+
+
+      setStatus(
+        ordersStatus,
+        'Unable to load incoming orders: ' +
+        error.message,
+        'error'
+      );
+
+    }
+
+  }
+
+
+  async function loadCompletedOrders(
+    user
+  ) {
+
+    setStatus(
+      completedOrdersStatus,
+      'Loading completed services...'
+    );
+
+
+    completedOrdersContainer.innerHTML =
+      '';
+
+
+    try {
+
+      const result =
+        await supabaseClient
+          .from('service_orders')
+          .select('*')
+          .eq('seller_id', user.id)
+          .eq(
+            'status',
+            'completed'
+          )
+          .order(
+            'updated_at',
+            {
+              ascending: false
+            }
+          );
+
+
+      if (result.error) {
+        throw result.error;
+      }
+
+
+      const orders =
+        result.data || [];
+
+
+      if (!orders.length) {
+
+        setStatus(
+          completedOrdersStatus,
+          'No completed services yet.'
+        );
+
+
+        completedOrdersContainer.innerHTML =
+          '<div class="empty">' +
+          'You have not completed any services yet.' +
+          '</div>';
+
+        return;
+
+      }
+
+
+      const services =
+        await getServices(
+          orders.map(
+            order =>
+              order.service_id
+          )
+        );
+
+
+      const profiles =
+        await getProfiles(
+          orders.map(
+            order =>
+              order.buyer_id
+          )
+        );
+
+
+      setStatus(
+        completedOrdersStatus,
+        orders.length === 1
+          ? '1 completed service.'
+          : orders.length +
+            ' completed services.',
+        'success'
+      );
+
+
+      completedOrdersContainer.innerHTML =
+        orders
+          .map(function (order) {
+
+            return renderOrder(
+              order,
+              services[
+                order.service_id
+              ],
+              profiles[
+                order.buyer_id
+              ],
+              {
+                provider: false,
+                personLabel:
+                  'Customer'
+              }
+            );
+
+          })
+          .join('');
+
+
+    } catch (error) {
+
+      console.error(
+        'Completed services error:',
+        error
+      );
+
+
+      setStatus(
+        completedOrdersStatus,
+        'Unable to load completed services: ' +
+        error.message,
+        'error'
+      );
+
+    }
+
+  }
+
+
+  async function loadMyOrders(
+    user
+  ) {
+
+    setStatus(
+      myOrdersStatus,
+      'Loading your orders...'
+    );
+
+
+    myOrdersContainer.innerHTML =
+      '';
+
+
+    try {
+
+      const result =
+        await supabaseClient
+          .from('service_orders')
+          .select('*')
+          .eq('buyer_id', user.id)
+          .in(
+            'status',
+            [
+              'pending',
+              'accepted',
+              'in_progress'
+            ]
+          )
+          .order(
+            'created_at',
+            {
+              ascending: false
+            }
+          );
+
+
+      if (result.error) {
+        throw result.error;
+      }
+
+
+      const orders =
+        result.data || [];
+
+
+      if (!orders.length) {
+
+        setStatus(
+          myOrdersStatus,
+          'You have no active orders.'
+        );
+
+
+        myOrdersContainer.innerHTML =
+          '<div class="empty">' +
+          'You have not placed any orders yet.' +
+          '</div>';
+
+        return;
+
+      }
+
+
+      const services =
+        await getServices(
+          orders.map(
+            order =>
+              order.service_id
+          )
+        );
+
+
+      const profiles =
+        await getProfiles(
+          orders.map(
+            order =>
+              order.seller_id
+          )
+        );
+
+
+      setStatus(
+        myOrdersStatus,
+        orders.length === 1
+          ? '1 active order.'
+          : orders.length +
+            ' active orders.',
+        'success'
+      );
+
+
+      myOrdersContainer.innerHTML =
+        orders
+          .map(function (order) {
+
+            return renderOrder(
+              order,
+              services[
+                order.service_id
+              ],
+              profiles[
+                order.seller_id
+              ],
+              {
+                provider: false,
+                personLabel:
+                  'Seller'
+              }
+            );
+
+          })
+          .join('');
+
+
+    } catch (error) {
+
+      console.error(
+        'My orders error:',
+        error
+      );
+
+
+      setStatus(
+        myOrdersStatus,
+        'Unable to load your orders: ' +
+        error.message,
+        'error'
+      );
+
+    }
+
+  }
+
+
+  async function loadMyCompletedOrders(
+    user
+  ) {
+
+    setStatus(
+      myCompletedStatus,
+      'Loading completed orders...'
+    );
+
+
+    myCompletedContainer.innerHTML =
+      '';
+
+
+    try {
+
+      const result =
+        await supabaseClient
+          .from('service_orders')
+          .select('*')
+          .eq('buyer_id', user.id)
+          .eq(
+            'status',
+            'completed'
+          )
+          .order(
+            'updated_at',
+            {
+              ascending: false
+            }
+          );
+
+
+      if (result.error) {
+        throw result.error;
+      }
+
+
+      const orders =
+        result.data || [];
+
+
+      if (!orders.length) {
+
+        setStatus(
+          myCompletedStatus,
+          'No completed services yet.'
+        );
+
+
+        myCompletedContainer.innerHTML =
+          '<div class="empty">' +
+          'You have not placed any orders yet.' +
+          '</div>';
+
+        return;
+
+      }
+
+
+      const services =
+        await getServices(
+          orders.map(
+            order =>
+              order.service_id
+          )
+        );
+
+
+      const profiles =
+        await getProfiles(
+          orders.map(
+            order =>
+              order.seller_id
+          )
+        );
+
+
+      const reviews =
+        await getReviews(
+          orders.map(
+            order =>
+              order.id
+          )
+        );
+
+
+      setStatus(
+        myCompletedStatus,
+        orders.length === 1
+          ? '1 completed service.'
+          : orders.length +
+            ' completed services.',
+        'success'
+      );
+
+
+      myCompletedContainer.innerHTML =
+        orders
+          .map(function (order) {
+
+            const review =
+              reviews[
+                order.id
+              ];
+
+
+            return (
+              renderOrder(
+                order,
+                services[
+                  order.service_id
+                ],
+                profiles[
+                  order.seller_id
+                ],
+                {
+                  provider: false,
+                  personLabel:
+                    'Seller'
+                }
+              ) +
+              (
+                review
+                  ? reviewDisplay(
+                      review
+                    )
+                  : reviewForm(
+                      order,
+                      review
+                    )
+              )
+            );
+
+          })
+          .join('');
+
+
+    } catch (error) {
+
+      console.error(
+        'My completed orders error:',
+        error
+      );
+
+
+      setStatus(
+        myCompletedStatus,
+        'Unable to load completed orders: ' +
+        error.message,
+        'error'
+      );
+
+    }
+
+  }
+
+
+  async function updateOrderStatus(
+    orderId,
+    newStatus
+  ) {
+
+    if (!currentUser) {
+      throw new Error(
+        'You must be signed in.'
+      );
+    }
+
+
+    const result =
+      await supabaseClient
+        .from('service_orders')
+        .update({
+          status:
+            newStatus,
+
+          updated_at:
+            new Date().toISOString()
+        })
+        .eq(
+          'id',
+          orderId
+        )
+        .eq(
+          'seller_id',
+          currentUser.id
+        );
+
+
+    if (result.error) {
+      throw result.error;
+    }
+
+  }
+
+
+  async function submitReview(
+    orderId
+  ) {
+
+    if (!currentUser) {
+      throw new Error(
+        'You must be signed in.'
+      );
+    }
+
+
+    const starsContainer =
+      document.querySelector(
+        '[data-stars-for="' +
+        CSS.escape(orderId) +
+        '"]'
+      );
+
+
+    const selectedStar =
+      starsContainer
+        ? starsContainer.querySelector(
+            '.star.selected'
+          )
+        : null;
+
+
+    const rating =
+      selectedStar
+        ? Number(
+            selectedStar.dataset.rating
+          )
+        : 0;
+
+
+    const textElement =
+      document.getElementById(
+        'review-text-' +
+        orderId
+      );
+
+
+    const reviewText =
+      textElement
+        ? textElement.value.trim()
+        : '';
+
+
+    if (
+      rating < 1 ||
+      rating > 5
+    ) {
+
+      throw new Error(
+        'Please select a rating from 1 to 5 stars.'
+      );
+
+    }
+
+
+    const orderResult =
+      await supabaseClient
+        .from('service_orders')
+        .select(
+          'id, seller_id, buyer_id, status'
+        )
+        .eq(
+          'id',
+          orderId
+        )
+        .eq(
+          'buyer_id',
+          currentUser.id
+        )
+        .eq(
+          'status',
+          'completed'
+        )
+        .maybeSingle();
+
+
+    if (orderResult.error) {
+      throw orderResult.error;
+    }
+
+
+    if (!orderResult.data) {
+
+      throw new Error(
+        'Completed order not found.'
+      );
+
+    }
+
+
+    const existing =
+      await supabaseClient
+        .from('service_reviews')
+        .select('id')
+        .eq(
+          'order_id',
+          orderId
+        )
+        .eq(
+          'reviewer_id',
+          currentUser.id
+        )
+        .maybeSingle();
+
+
+    if (existing.error) {
+      throw existing.error;
+    }
+
+
+    let result;
+
+
+    if (existing.data) {
+
+      result =
+        await supabaseClient
+          .from('service_reviews')
+          .update({
+
+            rating:
+              rating,
+
+            review:
+              reviewText,
+
+            seller_id:
+              orderResult.data.seller_id,
+
+            updated_at:
+              new Date().toISOString()
+
+          })
+          .eq(
+            'id',
+            existing.data.id
+          )
+          .eq(
+            'reviewer_id',
+            currentUser.id
+          );
+
+
+    } else {
+
+      result =
+        await supabaseClient
+          .from('service_reviews')
+          .insert({
+
+            order_id:
+              orderId,
+
+            reviewer_id:
+              currentUser.id,
+
+            seller_id:
+              orderResult.data.seller_id,
+
+            rating:
+              rating,
+
+            review:
+              reviewText
+
+          });
+
+    }
+
+
+    if (result.error) {
+      throw result.error;
+    }
+
+  }
+
+
+  document.addEventListener(
+    'click',
+    async function (event) {
+
+
+      /* STAR */
+
+      const star =
+        event.target.closest(
+          '.star[data-rating]'
+        );
+
+
+      if (star) {
+
+        const orderId =
+          star.dataset.order;
+
+
+        const rating =
+          Number(
+            star.dataset.rating
+          );
+
+
+        const container =
+          document.querySelector(
+            '[data-stars-for="' +
+            CSS.escape(orderId) +
+            '"]'
+          );
+
+
+        if (container) {
+
+          container
+            .querySelectorAll('.star')
+            .forEach(
+              function (button) {
+
+                const buttonRating =
+                  Number(
+                    button.dataset.rating
+                  );
+
+
+                button.classList.toggle(
+                  'selected',
+                  buttonRating <= rating
+                );
+
+              }
+            );
+
+        }
+
+        return;
+
+      }
+
+
+      /* ORDER STATUS */
+
+      const actionButton =
+        event.target.closest(
+          '[data-order-action]'
+        );
+
+
+      if (actionButton) {
+
+        const orderId =
+          actionButton.dataset.orderId;
+
+
+        const newStatus =
+          actionButton.dataset.orderAction;
+
+
+        const card =
+          actionButton.closest(
+            '.order-card'
+          );
+
+
+        const buttons =
+          card
+            ? card.querySelectorAll(
+                '[data-order-action]'
+              )
+            : [];
+
+
+        buttons.forEach(
+          function (button) {
+
+            button.disabled =
+              true;
+
+          }
+        );
+
+
+        try {
+
+          await updateOrderStatus(
+            orderId,
+            newStatus
+          );
+
+
+          await Promise.all([
+            loadIncomingOrders(
+              currentUser
+            ),
+
+            loadCompletedOrders(
+              currentUser
+            ),
+
+            loadMyOrders(
+              currentUser
+            ),
+
+            loadMyCompletedOrders(
+              currentUser
+            )
+          ]);
+
+
+        } catch (error) {
+
+          console.error(
+            'Order update error:',
+            error
+          );
+
+
+          alert(
+            'Unable to update order: ' +
+            error.message
+          );
+
+
+          buttons.forEach(
+            function (button) {
+
+              button.disabled =
+                false;
+
+            }
+          );
+
+        }
+
+        return;
+
+      }
+
+
+      /* REVIEW */
+
+      const reviewButton =
+        event.target.closest(
+          '[data-submit-review]'
+        );
+
+
+      if (reviewButton) {
+
+        const orderId =
+          reviewButton.dataset.submitReview;
+
+
+        const message =
+          document.getElementById(
+            'review-message-' +
+            orderId
+          );
+
+
+        reviewButton.disabled =
+          true;
+
+
+        if (message) {
+
+          message.textContent =
+            'Saving review...';
+
+          message.className =
+            'muted';
+
+        }
+
+
+        try {
+
+          await submitReview(
+            orderId
+          );
+
+
+          if (message) {
+
+            message.textContent =
+              'Review saved successfully.';
+
+            message.className =
+              'success';
+
+          }
+
+
+          await loadMyCompletedOrders(
+            currentUser
+          );
+
+
+        } catch (error) {
+
+          console.error(
+            'Review error:',
+            error
+          );
+
+
+          if (message) {
+
+            message.textContent =
+              'Unable to save review: ' +
+              error.message;
+
+            message.className =
+              'error';
+
+          }
+
+
+          reviewButton.disabled =
+            false;
+
+        }
+
+      }
+
+    }
+  );
+
+
+  /* STRIPE */
+
+  connectStripeButton.addEventListener(
+    'click',
+    startStripeOnboarding
+  );
+
+
+  /* SIGN OUT */
+
+  document
+    .getElementById('signout')
+    .addEventListener(
+      'click',
+      async function () {
+
+        const button =
+          document.getElementById(
+            'signout'
+          );
+
+
+        button.disabled =
+          true;
+
+        button.textContent =
+          'Signing Out...';
+
+
+        try {
+
+          const result =
+            await supabaseClient
+              .auth
+              .signOut();
+
+
+          if (result.error) {
+            throw result.error;
+          }
+
+
+          window.location.href =
+            'login.html';
+
+
+        } catch (error) {
+
+          console.error(
+            'Sign out error:',
+            error
+          );
+
+
+          button.disabled =
+            false;
+
+          button.textContent =
+            'Sign Out';
+
+
+          setStatus(
+            statusBox,
+            'Unable to sign out: ' +
+            error.message,
+            'error'
+          );
+
+        }
+
+      }
+    );
+
+
+  initialize();
+
+})();
+</script>
+
+</body>
+</html>
