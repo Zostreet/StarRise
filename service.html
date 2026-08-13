@@ -618,6 +618,10 @@
     checkoutStatus.textContent =
       message;
 
+    checkoutStatus.classList.remove(
+      'hidden'
+    );
+
   }
 
 
@@ -682,6 +686,7 @@
       );
 
       showError(
+        result.error.message ||
         'We could not load this service.'
       );
 
@@ -773,7 +778,7 @@
 
       if (
         !result.error &&
-        result.data
+        Array.isArray(result.data)
       ) {
 
         provider =
@@ -884,7 +889,6 @@
     currentUser =
       await getCurrentUser();
 
-
     if (!currentUser) {
 
       showLoginRequired();
@@ -892,7 +896,6 @@
       return false;
 
     }
-
 
     return true;
 
@@ -983,8 +986,7 @@
 
 
     const session =
-      sessionResult.data &&
-      sessionResult.data.session;
+      sessionResult.data?.session;
 
 
     if (!session) {
@@ -997,7 +999,7 @@
 
 
     /*
-      CREATE THE STRIPE CHECKOUT SESSION
+      CREATE CHECKOUT SESSION
     */
 
     const response =
@@ -1047,19 +1049,23 @@
       data =
         await response.json();
 
-    } catch {
+    } catch (error) {
 
-      data = null;
+      console.error(
+        'Could not read checkout response:',
+        error
+      );
 
     }
 
 
-    if (!response.ok || !data) {
+    console.log(
+      'StarRise checkout response:',
+      data
+    );
 
-      console.error(
-        'Checkout function response:',
-        data
-      );
+
+    if (!response.ok) {
 
       throw new Error(
         data?.error ||
@@ -1069,71 +1075,112 @@
     }
 
 
-    /*
-      IMPORTANT FIX
-
-      DO NOT send the giant Stripe checkout URL
-      directly to the Android browser.
-
-      We only send the Stripe Checkout Session ID
-      to our StarRise redirect function.
-
-      The redirect function retrieves the original
-      Stripe URL server-side and sends the browser
-      directly to Stripe.
-    */
-
-    const sessionId =
-      data.session_id;
-
-
-    if (
-      !sessionId ||
-      typeof sessionId !== 'string'
-    ) {
-
-      console.error(
-        'Missing Stripe session ID:',
-        data
-      );
+    if (!data) {
 
       throw new Error(
-        data.error ||
-        'Stripe created checkout, but no checkout session ID was returned.'
+        'StarRise returned an empty checkout response.'
       );
 
     }
 
 
-    const redirectUrl =
-      FUNCTIONS_URL +
-      '/stripe-redirect?session_id=' +
-      encodeURIComponent(
-        sessionId
+    /*
+      IMPORTANT FIX
+
+      create-checkout-v2 already returns the actual
+      Stripe Checkout URL.
+
+      Use that URL directly.
+
+      Do NOT send the browser through stripe-redirect.
+    */
+
+    const checkoutUrl =
+      data.checkout_url ||
+      data.session_url ||
+      data.url;
+
+
+    if (
+      !checkoutUrl ||
+      typeof checkoutUrl !== 'string'
+    ) {
+
+      console.error(
+        'Missing checkout URL:',
+        data
       );
 
+      throw new Error(
+        data.error ||
+        'Checkout was created but Stripe did not return a checkout URL.'
+      );
 
-    console.log(
-      'StarRise secure checkout redirect:',
-      redirectUrl
-    );
+    }
+
+
+    /*
+      SECURITY CHECK
+
+      Only allow Stripe Checkout URLs.
+    */
+
+    let stripeUrl;
+
+    try {
+
+      stripeUrl =
+        new URL(
+          checkoutUrl,
+          window.location.origin
+        );
+
+    } catch (error) {
+
+      throw new Error(
+        'Stripe returned an invalid checkout URL.'
+      );
+
+    }
+
+
+    if (
+      stripeUrl.protocol !==
+      'https:' ||
+      stripeUrl.hostname !==
+      'checkout.stripe.com'
+    ) {
+
+      console.error(
+        'Invalid Stripe checkout destination:',
+        stripeUrl.href
+      );
+
+      throw new Error(
+        'Stripe returned an invalid checkout destination.'
+      );
+
+    }
 
 
     setCheckoutStatus(
-      'Checkout created. Opening secure Stripe checkout...',
+      'Checkout created. Redirecting to Stripe...',
       'success'
     );
 
 
+    checkoutButton.textContent =
+      'Opening Stripe...';
+
+
     /*
-      SHORT STAR RISE URL ONLY.
-      No giant Stripe URL is passed through
-      the browser page.
+      DIRECT REDIRECT TO STRIPE
+
+      This is the important change.
     */
 
-    window.location.assign(
-      redirectUrl
-    );
+    window.location.href =
+      stripeUrl.href;
 
   }
 
@@ -1167,7 +1214,7 @@
 
 
         setCheckoutStatus(
-          error.message ||
+          error?.message ||
           'Unable to start checkout.',
           'error'
         );
@@ -1245,7 +1292,7 @@
 
 
       showError(
-        error.message ||
+        error?.message ||
         'Unable to load this service.'
       );
 
