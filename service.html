@@ -312,7 +312,6 @@
     </div>
   </section>
 
-
   <section id="service-content" class="hidden">
 
     <div class="panel hero">
@@ -329,7 +328,6 @@
 
     </div>
 
-
     <div class="panel">
 
       <h2>About This Service</h2>
@@ -337,7 +335,6 @@
       <div id="service-description" class="description">
         Loading...
       </div>
-
 
       <div class="provider">
 
@@ -366,7 +363,6 @@
 
     </div>
 
-
     <div class="panel">
 
       <h2>Service Details</h2>
@@ -388,7 +384,6 @@
 
         </div>
 
-
         <div class="summary-item">
 
           <span class="summary-label">
@@ -408,7 +403,6 @@
 
     </div>
 
-
     <div id="checkout-panel" class="panel">
 
       <h2>Request This Service</h2>
@@ -418,7 +412,6 @@
         Your request will be attached to the StarRise
         order before you continue to secure Stripe checkout.
       </p>
-
 
       <form id="checkout-form">
 
@@ -433,7 +426,6 @@
           placeholder="Tell the provider what you need..."
         ></textarea>
 
-
         <button
           id="checkout-button"
           class="checkout-button"
@@ -442,14 +434,12 @@
           Continue to Checkout
         </button>
 
-
         <div
           id="checkout-status"
           class="hidden"
         ></div>
 
       </form>
-
 
       <div class="small">
         Payment is processed securely through Stripe.
@@ -458,7 +448,6 @@
     </div>
 
   </section>
-
 
   <section id="login-panel" class="panel hidden">
 
@@ -477,7 +466,6 @@
 
   </section>
 
-
   <section id="error-panel" class="panel hidden">
 
     <div
@@ -486,7 +474,6 @@
     ></div>
 
   </section>
-
 
   <a
     class="back"
@@ -497,7 +484,6 @@
 
 </main>
 
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -506,18 +492,14 @@
 
   'use strict';
 
-
   const SUPABASE_URL =
     'https://rcnikxotdalxtuvpmlvm.supabase.co';
-
 
   const SUPABASE_KEY =
     'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
-
   const FUNCTIONS_URL =
     SUPABASE_URL + '/functions/v1';
-
 
   const supabaseClient =
     window.supabase.createClient(
@@ -525,63 +507,46 @@
       SUPABASE_KEY
     );
 
-
   const loading =
     document.getElementById('loading');
-
 
   const serviceContent =
     document.getElementById('service-content');
 
-
   const loginPanel =
     document.getElementById('login-panel');
-
 
   const errorPanel =
     document.getElementById('error-panel');
 
-
   const errorMessage =
     document.getElementById('error-message');
-
 
   const checkoutPanel =
     document.getElementById('checkout-panel');
 
-
   const checkoutForm =
     document.getElementById('checkout-form');
-
 
   const checkoutButton =
     document.getElementById('checkout-button');
 
-
   const checkoutStatus =
     document.getElementById('checkout-status');
-
 
   let currentService = null;
   let currentUser = null;
 
-
   function escapeHtml(value) {
 
     return String(value ?? '')
-
       .replace(/&/g, '&amp;')
-
       .replace(/</g, '&lt;')
-
       .replace(/>/g, '&gt;')
-
       .replace(/"/g, '&quot;')
-
       .replace(/'/g, '&#039;');
 
   }
-
 
   function getServiceId() {
 
@@ -593,7 +558,6 @@
     return params.get('id');
 
   }
-
 
   function showError(message) {
 
@@ -610,7 +574,6 @@
 
   }
 
-
   function showLoginRequired() {
 
     loading.classList.add('hidden');
@@ -622,7 +585,6 @@
     checkoutPanel.classList.add('hidden');
 
   }
-
 
   function money(cents) {
 
@@ -638,7 +600,6 @@
 
   }
 
-
   function setCheckoutStatus(
     message,
     type
@@ -652,7 +613,6 @@
       message;
 
   }
-
 
   async function getCurrentUser() {
 
@@ -669,12 +629,10 @@
 
   }
 
-
   async function loadService() {
 
     const serviceId =
       getServiceId();
-
 
     if (!serviceId) {
 
@@ -686,12 +644,9 @@
 
     }
 
-
     const result =
       await supabaseClient
-
         .from('star_rise_services')
-
         .select(`
           id,
           user_id,
@@ -701,19 +656,15 @@
           price_cents,
           is_active
         `)
-
         .eq(
           'id',
           serviceId
         )
-
         .eq(
           'is_active',
           true
         )
-
         .maybeSingle();
-
 
     if (result.error) {
 
@@ -730,7 +681,6 @@
 
     }
 
-
     if (!result.data) {
 
       showError(
@@ -741,17 +691,14 @@
 
     }
 
-
     currentService =
       result.data;
-
 
     await renderService(
       currentService
     );
 
   }
-
 
   async function renderService(service) {
 
@@ -761,14 +708,12 @@
       service.title ||
       'StarRise Service';
 
-
     document.getElementById(
       'service-price'
     ).textContent =
       money(
         service.price_cents
       );
-
 
     document.getElementById(
       'summary-price'
@@ -777,19 +722,16 @@
         service.price_cents
       );
 
-
     document.getElementById(
       'service-description'
     ).textContent =
       service.description ||
       'No description provided.';
 
-
     const category =
       document.getElementById(
         'service-category'
       );
-
 
     if (service.category) {
 
@@ -802,9 +744,7 @@
 
     }
 
-
     let provider = null;
-
 
     try {
 
@@ -837,24 +777,20 @@
 
     }
 
-
     const providerName =
       provider?.display_name ||
       provider?.full_name ||
       'StarRise Member';
-
 
     document.getElementById(
       'provider-name'
     ).textContent =
       providerName;
 
-
     document.getElementById(
       'summary-provider'
     ).textContent =
       providerName;
-
 
     document.getElementById(
       'provider-role'
@@ -862,12 +798,10 @@
       provider?.role ||
       'StarRise Member';
 
-
     const location =
       document.getElementById(
         'provider-location'
       );
-
 
     if (provider?.location) {
 
@@ -881,12 +815,10 @@
 
     }
 
-
     const avatar =
       document.getElementById(
         'provider-avatar'
       );
-
 
     if (provider?.avatar_url) {
 
@@ -910,7 +842,6 @@
 
     }
 
-
     loading.classList.add(
       'hidden'
     );
@@ -921,12 +852,10 @@
 
   }
 
-
   async function checkLogin() {
 
     currentUser =
       await getCurrentUser();
-
 
     if (!currentUser) {
 
@@ -936,11 +865,9 @@
 
     }
 
-
     return true;
 
   }
-
 
   async function createCheckout() {
 
@@ -952,7 +879,6 @@
 
     }
 
-
     if (!currentUser) {
 
       throw new Error(
@@ -960,7 +886,6 @@
       );
 
     }
-
 
     if (
       String(currentService.user_id) ===
@@ -973,7 +898,6 @@
 
     }
 
-
     const requestMessage =
       document
         .getElementById(
@@ -981,7 +905,6 @@
         )
         .value
         .trim();
-
 
     if (!requestMessage) {
 
@@ -991,7 +914,6 @@
 
     }
 
-
     if (requestMessage.length > 2000) {
 
       throw new Error(
@@ -1000,35 +922,29 @@
 
     }
 
-
     checkoutButton.disabled =
       true;
 
     checkoutButton.textContent =
       'Creating Checkout...';
 
-
     setCheckoutStatus(
       'Preparing your secure Stripe checkout...',
       ''
     );
-
 
     const sessionResult =
       await supabaseClient
         .auth
         .getSession();
 
-
     if (sessionResult.error) {
       throw sessionResult.error;
     }
 
-
     const session =
       sessionResult.data &&
       sessionResult.data.session;
-
 
     if (!session) {
 
@@ -1038,11 +954,23 @@
 
     }
 
+    /*
+      STAR RISE CHECKOUT V2
+
+      This is the important change.
+      The old checkout function was:
+
+      /create-checkout
+
+      We now use:
+
+      /create-checkout-v2
+    */
 
     const response =
       await fetch(
         FUNCTIONS_URL +
-        '/create-checkout',
+        '/create-checkout-v2',
         {
           method: 'POST',
 
@@ -1077,7 +1005,6 @@
         }
       );
 
-
     let data = null;
 
     try {
@@ -1091,32 +1018,34 @@
 
     }
 
-
     if (
       !response.ok ||
       !data ||
       !data.url
     ) {
 
+      console.error(
+        'Checkout function response:',
+        data
+      );
+
       throw new Error(
         data?.error ||
+        data?.message ||
         'Stripe checkout could not be created.'
       );
 
     }
-
 
     setCheckoutStatus(
       'Checkout created. Redirecting to Stripe...',
       'success'
     );
 
-
     window.location.href =
       data.url;
 
   }
-
 
   checkoutForm.addEventListener(
     'submit',
@@ -1124,17 +1053,14 @@
 
       event.preventDefault();
 
-
       try {
 
         const loggedIn =
           await checkLogin();
 
-
         if (!loggedIn) {
           return;
         }
-
 
         await createCheckout();
 
@@ -1145,13 +1071,11 @@
           error
         );
 
-
         setCheckoutStatus(
           error.message ||
           'Unable to start checkout.',
           'error'
         );
-
 
         checkoutButton.disabled =
           false;
@@ -1163,7 +1087,6 @@
 
     }
   );
-
 
   async function initialize() {
 
@@ -1177,18 +1100,14 @@
 
       }
 
-
       await loadService();
-
 
       if (!currentService) {
         return;
       }
 
-
       currentUser =
         await getCurrentUser();
-
 
       if (!currentUser) {
 
@@ -1197,7 +1116,6 @@
         return;
 
       }
-
 
       if (
         String(currentService.user_id) ===
@@ -1230,7 +1148,6 @@
     }
 
   }
-
 
   initialize();
 
