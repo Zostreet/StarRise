@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -188,6 +189,7 @@
 
 </header>
 
+
 <main>
 
   <a
@@ -197,16 +199,19 @@
     ← Back to StarRise Store
   </a>
 
+
   <section class="panel">
 
     <h1>Sell Your Work</h1>
 
     <p class="muted">
-      Put your music, beats, artwork, videos and digital creations
-      in the StarRise Store.
+      Put your music, beats, artwork, videos and digital
+      creations in the StarRise Store.
     </p>
 
+
     <form id="form">
+
 
       <div class="grid">
 
@@ -224,6 +229,7 @@
           >
 
         </div>
+
 
         <div>
 
@@ -318,7 +324,7 @@
         id="file"
         type="file"
         required
-        accept=".mp3,.wav,.m4a,.mp4,.jpg,.jpeg,.png,.webp,.pdf,.zip"
+        accept=".mp3,.wav,.m4a,.mp4,.jpg,.jpeg,.png,.webp,.pdf,.zip,audio/mpeg,audio/mp3,audio/wav,audio/mp4"
       >
 
       <p class="small">
@@ -337,7 +343,7 @@
       <input
         id="cover"
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
       >
 
       <p class="small">
@@ -360,6 +366,7 @@
         class="status hidden"
       ></div>
 
+
     </form>
 
   </section>
@@ -368,6 +375,7 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 
 <script>
 
@@ -394,17 +402,22 @@
   const form =
     document.getElementById('form');
 
+
   const status =
     document.getElementById('status');
+
 
   const submit =
     document.getElementById('submit');
 
+
   const fileInput =
     document.getElementById('file');
 
+
   const coverInput =
     document.getElementById('cover');
+
 
 
   function showStatus(
@@ -415,8 +428,10 @@
     status.textContent =
       message;
 
+
     status.className =
       'status ' + type;
+
 
     status.classList.remove(
       'hidden'
@@ -425,17 +440,18 @@
   }
 
 
+
+  /*
+    IMPORTANT:
+
+    Android phones sometimes report MP3 files
+    using weird MIME types.
+
+    We therefore check BOTH the filename
+    extension and the MIME type.
+  */
+
   function getMimeType(file) {
-
-    if (
-      file &&
-      file.type
-    ) {
-
-      return file.type;
-
-    }
-
 
     const name =
       String(
@@ -443,73 +459,162 @@
       ).toLowerCase();
 
 
+    const reported =
+      String(
+        file?.type || ''
+      ).toLowerCase();
+
+
+
+    /*
+      MP3
+    */
+
     if (
-      name.endsWith('.mp3')
+      name.endsWith('.mp3') ||
+      reported === 'audio/mp3' ||
+      reported === 'audio/x-mp3' ||
+      reported === 'audio/mpeg' ||
+      reported === 'audio/mpeg3' ||
+      reported === 'audio/x-mpeg-3'
     ) {
+
       return 'audio/mpeg';
+
     }
 
+
+
+    /*
+      WAV
+    */
 
     if (
-      name.endsWith('.wav')
+      name.endsWith('.wav') ||
+      reported === 'audio/wav' ||
+      reported === 'audio/x-wav' ||
+      reported === 'audio/wave' ||
+      reported === 'audio/x-pn-wav'
     ) {
+
       return 'audio/wav';
+
     }
 
+
+
+    /*
+      M4A
+    */
 
     if (
       name.endsWith('.m4a')
     ) {
+
       return 'audio/mp4';
+
     }
 
+
+
+    /*
+      MP4
+    */
 
     if (
       name.endsWith('.mp4')
     ) {
+
+      if (
+        reported.startsWith('audio/')
+      ) {
+
+        return 'audio/mp4';
+
+      }
+
+
       return 'video/mp4';
+
     }
 
+
+
+    /*
+      JPEG
+    */
 
     if (
       name.endsWith('.jpg') ||
       name.endsWith('.jpeg')
     ) {
+
       return 'image/jpeg';
+
     }
 
+
+
+    /*
+      PNG
+    */
 
     if (
       name.endsWith('.png')
     ) {
+
       return 'image/png';
+
     }
 
+
+
+    /*
+      WEBP
+    */
 
     if (
       name.endsWith('.webp')
     ) {
+
       return 'image/webp';
+
     }
 
+
+
+    /*
+      PDF
+    */
 
     if (
       name.endsWith('.pdf')
     ) {
+
       return 'application/pdf';
+
     }
 
+
+
+    /*
+      ZIP
+    */
 
     if (
       name.endsWith('.zip')
     ) {
+
       return 'application/zip';
+
     }
 
 
-    return '';
+
+    return reported;
 
   }
+
 
 
   async function getValidSession() {
@@ -545,9 +650,9 @@
     }
 
 
+
     /*
-      Refresh the session first so an old
-      login token does not sabotage the upload.
+      Refresh login before upload.
     */
 
     const refreshResult =
@@ -572,24 +677,30 @@
   }
 
 
+
   form.addEventListener(
     'submit',
     async function (event) {
 
       event.preventDefault();
 
-      submit.disabled = true;
+
+      submit.disabled =
+        true;
 
 
       try {
+
 
         showStatus(
           'Checking your StarRise account...'
         );
 
 
+
         const session =
           await getValidSession();
+
 
 
         const title =
@@ -597,6 +708,7 @@
             .getElementById('title')
             .value
             .trim();
+
 
 
         const price =
@@ -607,10 +719,12 @@
           );
 
 
+
         const category =
           document
             .getElementById('category')
             .value;
+
 
 
         const description =
@@ -620,16 +734,19 @@
             .trim();
 
 
+
         const file =
           fileInput.files[0];
+
 
 
         const cover =
           coverInput.files[0];
 
 
+
         /*
-          Validate listing.
+          Validate form.
         */
 
         if (!title) {
@@ -639,6 +756,7 @@
           );
 
         }
+
 
 
         if (
@@ -654,6 +772,7 @@
         }
 
 
+
         if (!category) {
 
           throw new Error(
@@ -661,6 +780,7 @@
           );
 
         }
+
 
 
         if (!description) {
@@ -672,6 +792,7 @@
         }
 
 
+
         if (!file) {
 
           throw new Error(
@@ -681,22 +802,34 @@
         }
 
 
+
         const fileMime =
           getMimeType(file);
 
 
+
         const allowedFiles = [
+
           'audio/mpeg',
+
           'audio/wav',
-          'audio/x-wav',
+
           'audio/mp4',
+
           'video/mp4',
+
           'image/jpeg',
+
           'image/png',
+
           'image/webp',
+
           'application/pdf',
+
           'application/zip'
+
         ];
+
 
 
         if (
@@ -707,16 +840,47 @@
         ) {
 
           throw new Error(
-            'This file type is not supported.'
+            'This file type is not supported. File: ' +
+            file.name +
+            ' | Detected type: ' +
+            (
+              fileMime ||
+              'unknown'
+            )
           );
 
         }
 
 
+
+        /*
+          File size protection.
+          Backend also checks this.
+        */
+
+        if (
+          file.size >
+          500 * 1024 * 1024
+        ) {
+
+          throw new Error(
+            'Digital files must be 500 MB or smaller.'
+          );
+
+        }
+
+
+
+        /*
+          Validate optional cover.
+        */
+
         if (cover) {
 
           const coverMime =
-            getMimeType(cover);
+            getMimeType(
+              cover
+            );
 
 
           if (
@@ -735,23 +899,35 @@
 
           }
 
+
+          if (
+            cover.size >
+            20 * 1024 * 1024
+          ) {
+
+            throw new Error(
+              'Cover image must be 20 MB or smaller.'
+            );
+
+          }
+
         }
 
 
+
         /*
-          Build multipart form.
+          Create multipart upload.
 
-          IMPORTANT:
-          The browser is NOT uploading directly
-          to Supabase Storage anymore.
+          The browser sends the file to the
+          StarRise Edge Function.
 
-          The Edge Function receives the file,
-          verifies the logged-in StarRise user,
-          and handles Storage server-side.
+          The Edge Function handles Supabase
+          Storage server-side.
         */
 
         const formData =
           new FormData();
+
 
 
         formData.append(
@@ -760,10 +936,12 @@
         );
 
 
+
         formData.append(
           'price',
           String(price)
         );
+
 
 
         formData.append(
@@ -772,28 +950,75 @@
         );
 
 
+
         formData.append(
           'description',
           description
         );
 
 
+
+        /*
+          Re-create the file with the normalized
+          MIME type.
+
+          This prevents Android's weird MP3
+          MIME type from reaching the server.
+        */
+
+        const normalizedFile =
+          new File(
+            [file],
+            file.name,
+            {
+              type:
+                fileMime,
+
+              lastModified:
+                file.lastModified
+            }
+          );
+
+
+
         formData.append(
           'file',
-          file,
+          normalizedFile,
           file.name
         );
 
 
+
         if (cover) {
+
+          const coverMime =
+            getMimeType(
+              cover
+            );
+
+
+          const normalizedCover =
+            new File(
+              [cover],
+              cover.name,
+              {
+                type:
+                  coverMime,
+
+                lastModified:
+                  cover.lastModified
+              }
+            );
+
 
           formData.append(
             'cover',
-            cover,
+            normalizedCover,
             cover.name
           );
 
         }
+
 
 
         showStatus(
@@ -801,49 +1026,67 @@
         );
 
 
-        /*
-          Send directly to the Edge Function.
 
-          Do NOT manually set Content-Type.
-          The browser must create the multipart
-          boundary automatically.
+        /*
+          IMPORTANT:
+
+          Do not manually set Content-Type.
+
+          fetch() automatically creates the
+          correct multipart boundary.
         */
 
         const response =
           await fetch(
+
             SUPABASE_URL +
             '/functions/v1/upload-marketplace-item',
+
             {
-              method: 'POST',
+
+              method:
+                'POST',
+
 
               headers: {
+
                 Authorization:
                   'Bearer ' +
                   session.access_token,
 
+
                 apikey:
                   SUPABASE_KEY
+
               },
+
 
               body:
                 formData
+
             }
+
           );
 
 
+
         /*
-          Parse response safely.
+          Read server response.
         */
-
-        let data =
-          null;
-
 
         const responseText =
           await response.text();
 
 
-        if (responseText) {
+
+        let data =
+          null;
+
+
+
+        if (
+          responseText
+        ) {
 
           try {
 
@@ -855,13 +1098,18 @@
           } catch (_) {
 
             throw new Error(
-              'StarRise received an invalid server response.'
+              'StarRise received an invalid response from the upload server.'
             );
 
           }
 
         }
 
+
+
+        /*
+          Server rejected request.
+        */
 
         if (
           !response.ok
@@ -874,6 +1122,12 @@
 
         }
 
+
+
+        /*
+          Function responded but listing
+          was not created.
+        */
 
         if (
           !data ||
@@ -888,28 +1142,43 @@
         }
 
 
+
+        /*
+          SUCCESS
+        */
+
         showStatus(
+
           data.message ||
+
           'Published! Your work is now live in the StarRise Store.',
+
           'success'
+
         );
+
 
 
         form.reset();
 
 
+
         setTimeout(
+
           function () {
 
             window.location.href =
               'marketplace.html';
 
           },
+
           1500
+
         );
 
 
       } catch (error) {
+
 
         console.error(
           'StarRise marketplace upload error:',
@@ -917,19 +1186,16 @@
         );
 
 
-        /*
-          If the browser itself could not reach
-          the Edge Function, this catches the
-          otherwise useless "Failed to fetch".
-        */
 
         if (
           error instanceof TypeError &&
           String(
             error.message
-          ).toLowerCase().includes(
-            'fetch'
           )
+            .toLowerCase()
+            .includes(
+              'fetch'
+            )
         ) {
 
           showStatus(
@@ -950,8 +1216,10 @@
 
       } finally {
 
+
         submit.disabled =
           false;
+
 
       }
 
@@ -959,9 +1227,12 @@
 
   );
 
+
 })();
 
 </script>
 
+
 </body>
+
 </html>
