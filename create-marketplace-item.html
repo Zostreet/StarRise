@@ -3,10 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Sell Your Work | StarRise</title>
 
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -36,6 +39,10 @@
       display: flex;
       gap: 18px;
       flex-wrap: wrap;
+    }
+
+    nav a:hover {
+      opacity: .75;
     }
 
     main {
@@ -121,12 +128,12 @@
 
     .error {
       color: #ffb5b5;
-      background: rgba(220,70,70,.12);
+      background: rgba(220, 70, 70, .12);
     }
 
     .success {
       color: #baffca;
-      background: rgba(50,180,80,.12);
+      background: rgba(50, 180, 80, .12);
     }
 
     .hidden {
@@ -136,6 +143,17 @@
     .small {
       font-size: 13px;
       color: #888;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #aaa;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      color: #fff;
     }
 
     @media (max-width: 650px) {
@@ -164,6 +182,9 @@
   </a>
 
   <nav>
+    <a href="index.html">Home</a>
+    <a href="members.html">Members</a>
+    <a href="ecosystem.html">Ecosystem</a>
     <a href="marketplace.html">Store</a>
     <a href="services.html">Services</a>
     <a href="dashboard.html">Dashboard</a>
@@ -172,6 +193,13 @@
 </header>
 
 <main>
+
+  <a
+    class="back-link"
+    href="marketplace.html"
+  >
+    ← Back to StarRise Store
+  </a>
 
   <section class="panel">
 
@@ -226,7 +254,10 @@
         Category
       </label>
 
-      <select id="category" required>
+      <select
+        id="category"
+        required
+      >
 
         <option value="">
           Choose a category
@@ -352,14 +383,8 @@
   const SUPABASE_URL =
     'https://rcnikxotdalxtuvpmlvm.supabase.co';
 
-
   const SUPABASE_KEY =
     'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
-
-
-  const FUNCTION_URL =
-    SUPABASE_URL +
-    '/functions/v1/upload-marketplace-item';
 
 
   const supabaseClient =
@@ -397,12 +422,14 @@
       'status ' +
       (type || '');
 
+    status.classList.remove(
+      'hidden'
+    );
+
   }
 
 
-  function getMimeType(
-    file
-  ) {
+  function getMimeType(file) {
 
     if (
       file &&
@@ -422,60 +449,131 @@
 
     if (
       name.endsWith('.mp3')
-    )
+    ) {
       return 'audio/mpeg';
+    }
 
 
     if (
       name.endsWith('.wav')
-    )
+    ) {
       return 'audio/wav';
+    }
 
 
     if (
       name.endsWith('.m4a')
-    )
+    ) {
       return 'audio/mp4';
+    }
 
 
     if (
       name.endsWith('.mp4')
-    )
+    ) {
       return 'video/mp4';
+    }
 
 
     if (
       name.endsWith('.jpg') ||
       name.endsWith('.jpeg')
-    )
+    ) {
       return 'image/jpeg';
+    }
 
 
     if (
       name.endsWith('.png')
-    )
+    ) {
       return 'image/png';
+    }
 
 
     if (
       name.endsWith('.webp')
-    )
+    ) {
       return 'image/webp';
+    }
 
 
     if (
       name.endsWith('.pdf')
-    )
+    ) {
       return 'application/pdf';
+    }
 
 
     if (
       name.endsWith('.zip')
-    )
+    ) {
       return 'application/zip';
+    }
 
 
     return '';
+
+  }
+
+
+  async function getValidSession() {
+
+    const sessionResult =
+      await supabaseClient
+        .auth
+        .getSession();
+
+
+    if (
+      sessionResult.error
+    ) {
+
+      throw new Error(
+        'Authentication error: ' +
+        sessionResult.error.message
+      );
+
+    }
+
+
+    let session =
+      sessionResult.data.session;
+
+
+    if (!session) {
+
+      throw new Error(
+        'Please sign in before selling your work.'
+      );
+
+    }
+
+
+    /*
+      Refresh the session if necessary.
+      This is especially important when a
+      different StarRise account has been
+      logged in for a while.
+    */
+
+    const refreshResult =
+      await supabaseClient
+        .auth
+        .refreshSession();
+
+
+    if (
+      !refreshResult.error &&
+      refreshResult.data.session
+    ) {
+
+      session =
+        refreshResult.data.session;
+
+    }
+
+
+    return session;
 
   }
 
@@ -486,48 +584,23 @@
 
       event.preventDefault();
 
-
-      submit.disabled =
-        true;
-
-
-      showStatus(
-        'Checking your StarRise account...'
-      );
+      submit.disabled = true;
 
 
       try {
 
-        const userResult =
-          await supabaseClient
-            .auth
-            .getUser();
+        showStatus(
+          'Checking your StarRise account...'
+        );
 
 
-        if (
-          userResult.error
-        ) {
-
-          throw new Error(
-            'Authentication error: ' +
-            userResult.error.message
-          );
-
-        }
+        const session =
+          await getValidSession();
 
 
-        const user =
-          userResult.data.user;
-
-
-        if (!user) {
-
-          throw new Error(
-            'Please sign in before selling your work.'
-          );
-
-        }
-
+        /*
+          Read the form.
+        */
 
         const title =
           document
@@ -564,6 +637,10 @@
         const cover =
           coverInput.files[0];
 
+
+        /*
+          Validate the listing.
+        */
 
         if (!title) {
 
@@ -672,40 +749,9 @@
         }
 
 
-        showStatus(
-          'Preparing secure upload...'
-        );
-
-
-        const sessionResult =
-          await supabaseClient
-            .auth
-            .getSession();
-
-
-        if (
-          sessionResult.error
-        ) {
-
-          throw new Error(
-            sessionResult.error.message
-          );
-
-        }
-
-
-        const session =
-          sessionResult.data.session;
-
-
-        if (!session) {
-
-          throw new Error(
-            'Your login session has expired. Please sign in again.'
-          );
-
-        }
-
+        /*
+          Build the multipart request.
+        */
 
         const formData =
           new FormData();
@@ -759,61 +805,91 @@
 
 
         /*
-          IMPORTANT:
+          IMPORTANT FIX:
 
-          There is intentionally NO apikey
-          header here.
+          Use Supabase's functions.invoke()
+          instead of a manually constructed
+          fetch() request.
 
-          The authenticated Bearer token
-          is all the Edge Function needs.
+          Supabase automatically supplies the
+          project API key and authenticated
+          session headers.
         */
 
-        const response =
-          await fetch(
-            FUNCTION_URL,
+        const result =
+          await supabaseClient.functions.invoke(
+            'upload-marketplace-item',
             {
-              method: 'POST',
-
-              headers: {
-                'Authorization':
-                  'Bearer ' +
-                  session.access_token
-              },
-
               body: formData
             }
           );
 
 
-        let data;
+        /*
+          Supabase can return an Edge Function
+          error separately from the HTTP body.
+        */
 
+        if (result.error) {
 
-        try {
-
-          data =
-            await response.json();
-
-        } catch {
-
-          data = null;
-
-        }
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            data?.error ||
-            (
-              'Upload request failed with HTTP ' +
-              response.status
-            )
+          console.error(
+            'StarRise function error:',
+            result.error
           );
 
+
+          let message =
+            result.error.message ||
+            'Unable to publish your work.';
+
+
+          /*
+            Try to expose the actual server
+            message when Supabase provides it.
+          */
+
+          if (
+            result.error.context &&
+            typeof result.error.context.json ===
+              'function'
+          ) {
+
+            try {
+
+              const serverData =
+                await result.error.context.json();
+
+              if (
+                serverData?.error
+              ) {
+
+                message =
+                  serverData.error;
+
+              }
+
+            } catch (_) {
+
+              // Keep the original error message.
+
+            }
+
+          }
+
+
+          throw new Error(message);
+
         }
 
 
-        if (!data?.ok) {
+        const data =
+          result.data;
+
+
+        if (
+          !data ||
+          data.ok !== true
+        ) {
 
           throw new Error(
             data?.error ||
@@ -823,6 +899,10 @@
         }
 
 
+        /*
+          Success.
+        */
+
         showStatus(
           'Published! Your work is now live in the StarRise Store.',
           'success'
@@ -831,6 +911,11 @@
 
         form.reset();
 
+
+        /*
+          Give the user a moment to see the
+          success message, then return to Store.
+        */
 
         setTimeout(
           function () {
@@ -853,19 +938,20 @@
 
         showStatus(
           error?.message ||
-          'Unable to publish your work.',
+          'Unable to publish your work. Please try again.',
           'error'
         );
 
 
-        submit.disabled =
-          false;
+      } finally {
+
+        submit.disabled = false;
 
       }
 
     }
-  );
 
+  );
 
 })();
 
@@ -873,4 +959,3 @@
 
 </body>
 </html>
-
