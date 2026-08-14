@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sell Your Work | StarRise</title>
+
+  <style>
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:#080812;
+      color:#fff;
+      line-height:1.6
+    }
+
+    header{
+      padding:20px 24px;
+      border-bottom:1px solid #ffffff18;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:18px
+    }
+
+    header a,nav a{
+      color:#fff;
+      text-decoration:none;
+      font-weight:bold
+    }
+
+    nav{
+      display:flex;
+      gap:18px;
+      flex-wrap:wrap
+    }
+
+    main{
+      width:min(850px,calc(100% - 30px));
+      margin:35px auto 60px
+    }
+
+    .panel{
+      border:1px solid #ffffff18;
+      border-radius:22px;
+      background:#ffffff08;
+      padding:28px;
+      margin-bottom:20px
+    }
+
+    h1,h2{
+      margin-top:0
+    }
+
+    .muted{
+      color:#aaa
+    }
+
+    label{
+      display:block;
+      margin:16px 0 7px;
+      font-weight:bold
+    }
+
+    input,textarea,select{
+      width:100%;
+      padding:13px 15px;
+      border:1px solid #ffffff20;
+      border-radius:12px;
+      background:#11111d;
+      color:#fff;
+      font:inherit
+    }
+
+    textarea{
+      min-height:130px;
+      resize:vertical
+    }
+
+    input[type="file"]{
+      padding:12px
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px
+    }
+
+    .button{
+      display:inline-block;
+      border:0;
+      border-radius:25px;
+      padding:12px 20px;
+      background:#fff;
+      color:#080812;
+      font-weight:bold;
+      cursor:pointer;
+      margin-top:18px
+    }
+
+    .button:disabled{
+      opacity:.5;
+      cursor:wait
+    }
+
+    .status{
+      padding:14px;
+      border-radius:12px;
+      background:#ffffff08;
+      color:#aaa;
+      margin-top:16px
+    }
+
+    .error{
+      color:#ffb5b5;
+      background:rgba(220,70,70,.12)
+    }
+
+    .success{
+      color:#baffca;
+      background:rgba(50,180,80,.12)
+    }
+
+    .hidden{
+      display:none!important
+    }
+
+    .small{
+      font-size:13px;
+      color:#888
+    }
+
+    @media(max-width:650px){
+      header{
+        flex-direction:column;
+        align-items:flex-start
+      }
+
+      .grid{
+        grid-template-columns:1fr
+      }
+
+      .panel{
+        padding:21px
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+
+  <a href="index.html">
+    ⭐ StarRise
+  </a>
+
+  <nav>
+    <a href="marketplace.html">
+      Store
+    </a>
+
+    <a href="services.html">
+      Services
+    </a>
+
+    <a href="dashboard.html">
+      Dashboard
+    </a>
+  </nav>
+
+</header>
+
+<main>
+
+  <section class="panel">
+
+    <h1>
+      Sell Your Work
+    </h1>
+
+    <p class="muted">
+      Put your music, beats, artwork, videos and digital
+      creations in the StarRise Store.
+    </p>
+
+    <form id="form">
+
+      <div class="grid">
+
+        <div>
+
+          <label for="title">
+            Title
+          </label>
+
+          <input
+            id="title"
+            maxlength="160"
+            required
+            placeholder="My New Single"
+          >
+
+        </div>
+
+        <div>
+
+          <label for="price">
+            Price ($)
+          </label>
+
+          <input
+            id="price"
+            type="number"
+            min="1"
+            max="10000"
+            step="0.01"
+            required
+            placeholder="10.00"
+          >
+
+        </div>
+
+      </div>
+
+      <label for="category">
+        Category
+      </label>
+
+      <select id="category" required>
+
+        <option value="">
+          Choose a category
+        </option>
+
+        <option value="Music">
+          Music
+        </option>
+
+        <option value="Beats">
+          Beats
+        </option>
+
+        <option value="Vocals">
+          Vocals
+        </option>
+
+        <option value="Artwork">
+          Artwork
+        </option>
+
+        <option value="Video">
+          Video
+        </option>
+
+        <option value="Digital Content">
+          Digital Content
+        </option>
+
+        <option value="Other">
+          Other
+        </option>
+
+      </select>
+
+      <label for="description">
+        Description
+      </label>
+
+      <textarea
+        id="description"
+        maxlength="4000"
+        required
+        placeholder="Tell buyers what they are getting..."
+      ></textarea>
+
+      <label for="file">
+        Digital File
+      </label>
+
+      <input
+        id="file"
+        type="file"
+        required
+      >
+
+      <p class="small">
+        Upload the actual file buyers will receive.
+      </p>
+
+      <label for="cover">
+        Cover Image
+        <span class="small">
+          Optional
+        </span>
+      </label>
+
+      <input
+        id="cover"
+        type="file"
+        accept="image/*"
+      >
+
+      <button
+        id="submit"
+        class="button"
+        type="submit"
+      >
+        Publish to StarRise Store
+      </button>
+
+      <div
+        id="status"
+        class="status hidden"
+      ></div>
+
+    </form>
+
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+(() => {
+
+  'use strict';
+
+  const SUPABASE_URL =
+    'https://rcnikxotdalxtuvpmlvm.supabase.co';
+
+  const SUPABASE_KEY =
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+  const form =
+    document.getElementById('form');
+
+  const status =
+    document.getElementById('status');
+
+  const submit =
+    document.getElementById('submit');
+
+
+  function showStatus(
+    message,
+    type = ''
+  ){
+
+    status.textContent =
+      message;
+
+    status.className =
+      'status ' + type;
+
+  }
+
+
+  function safeFileName(
+    value
+  ){
+
+    return String(value || 'file')
+      .replace(
+        /[^a-zA-Z0-9._-]/g,
+        '_'
+      );
+
+  }
+
+
+  form.addEventListener(
+    'submit',
+    async event => {
+
+      event.preventDefault();
+
+      submit.disabled =
+        true;
+
+      try {
+
+        showStatus(
+          'Checking your StarRise account...'
+        );
+
+
+        const userResult =
+          await supabaseClient
+            .auth
+            .getUser();
+
+
+        if(userResult.error){
+
+          throw userResult.error;
+
+        }
+
+
+        const user =
+          userResult.data.user;
+
+
+        if(!user){
+
+          throw new Error(
+            'Please sign in before selling your work.'
+          );
+
+        }
+
+
+        const title =
+          document
+            .getElementById('title')
+            .value
+            .trim();
+
+
+        const description =
+          document
+            .getElementById('description')
+            .value
+            .trim();
+
+
+        const category =
+          document
+            .getElementById('category')
+            .value;
+
+
+        const price =
+          Number(
+            document
+              .getElementById('price')
+              .value
+          );
+
+
+        const priceCents =
+          Math.round(
+            price * 100
+          );
+
+
+        const fileInput =
+          document
+            .getElementById('file');
+
+
+        const coverInput =
+          document
+            .getElementById('cover');
+
+
+        const file =
+          fileInput.files[0];
+
+
+        const cover =
+          coverInput.files[0];
+
+
+        if(!title){
+
+          throw new Error(
+            'Enter a title for your work.'
+          );
+
+        }
+
+
+        if(!category){
+
+          throw new Error(
+            'Choose a category.'
+          );
+
+        }
+
+
+        if(!description){
+
+          throw new Error(
+            'Add a description.'
+          );
+
+        }
+
+
+        if(!file){
+
+          throw new Error(
+            'Choose the digital file buyers will receive.'
+          );
+
+        }
+
+
+        if(
+          !Number.isFinite(price) ||
+          price < 1 ||
+          price > 10000
+        ){
+
+          throw new Error(
+            'Price must be between $1.00 and $10,000.'
+          );
+
+        }
+
+
+        const timestamp =
+          Date.now();
+
+
+        const filePath =
+          user.id +
+          '/' +
+          timestamp +
+          '-' +
+          safeFileName(
+            file.name
+          );
+
+
+        showStatus(
+          'Uploading your work...'
+        );
+
+
+        const uploadResult =
+          await supabaseClient
+            .storage
+            .from('talent-store')
+            .upload(
+              filePath,
+              file,
+              {
+                upsert:false
+              }
+            );
+
+
+        if(uploadResult.error){
+
+          throw uploadResult.error;
+
+        }
+
+
+        let coverPath =
+          null;
+
+
+        if(cover){
+
+          coverPath =
+            user.id +
+            '/' +
+            timestamp +
+            '-cover-' +
+            safeFileName(
+              cover.name
+            );
+
+
+          const coverResult =
+            await supabaseClient
+              .storage
+              .from('talent-store')
+              .upload(
+                coverPath,
+                cover,
+                {
+                  upsert:false
+                }
+              );
+
+
+          if(coverResult.error){
+
+            throw coverResult.error;
+
+          }
+
+        }
+
+
+        showStatus(
+          'Publishing your Store listing...'
+        );
+
+
+        const insertResult =
+          await supabaseClient
+            .from('marketplace_items')
+            .insert({
+
+              seller_id:
+                user.id,
+
+              title:
+                title,
+
+              description:
+                description,
+
+              category:
+                category,
+
+              price_cents:
+                priceCents,
+
+              file_path:
+                filePath,
+
+              cover_path:
+                coverPath,
+
+              is_active:
+                true
+
+            })
+            .select('id')
+            .single();
+
+
+        if(insertResult.error){
+
+          /*
+            If the database insert fails after
+            the upload, remove the uploaded files
+            so abandoned files do not pile up.
+          */
+
+          await supabaseClient
+            .storage
+            .from('talent-store')
+            .remove(
+              [
+                filePath,
+                ...(coverPath
+                  ? [coverPath]
+                  : [])
+              ]
+            );
+
+          throw insertResult.error;
+
+        }
+
+
+        showStatus(
+          'Published! Your work is now available in the StarRise Store.',
+          'success'
+        );
+
+
+        form.reset();
+
+
+        setTimeout(
+          () => {
+
+            window.location.href =
+              'marketplace.html';
+
+          },
+          1200
+        );
+
+
+      } catch(error){
+
+        console.error(
+          'Marketplace publishing error:',
+          error
+        );
+
+
+        showStatus(
+          error?.message ||
+          'Unable to publish your work.',
+          'error'
+        );
+
+
+        submit.disabled =
+          false;
+
+      }
+
+    }
+
+  );
+
+})();
+
+</script>
+
+</body>
+</html>
