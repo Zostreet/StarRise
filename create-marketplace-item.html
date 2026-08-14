@@ -25,7 +25,8 @@
       gap: 18px;
     }
 
-    header a, nav a {
+    header a,
+    nav a {
       color: #fff;
       text-decoration: none;
       font-weight: bold;
@@ -47,12 +48,15 @@
       border-radius: 22px;
       background: #ffffff08;
       padding: 28px;
-      margin-bottom: 20px;
     }
 
-    h1 { margin-top: 0; }
+    h1 {
+      margin-top: 0;
+    }
 
-    .muted { color: #aaa; }
+    .muted {
+      color: #aaa;
+    }
 
     label {
       display: block;
@@ -154,13 +158,17 @@
 <body>
 
 <header>
-  <a href="index.html">⭐ StarRise</a>
+
+  <a href="index.html">
+    ⭐ StarRise
+  </a>
 
   <nav>
     <a href="marketplace.html">Store</a>
     <a href="services.html">Services</a>
     <a href="dashboard.html">Dashboard</a>
   </nav>
+
 </header>
 
 <main>
@@ -179,7 +187,10 @@
       <div class="grid">
 
         <div>
-          <label for="title">Title</label>
+
+          <label for="title">
+            Title
+          </label>
 
           <input
             id="title"
@@ -187,10 +198,14 @@
             required
             placeholder="My New Single"
           >
+
         </div>
 
         <div>
-          <label for="price">Price ($)</label>
+
+          <label for="price">
+            Price ($)
+          </label>
 
           <input
             id="price"
@@ -201,26 +216,64 @@
             required
             placeholder="10.00"
           >
+
         </div>
 
       </div>
 
-      <label for="category">Category</label>
+
+      <label for="category">
+        Category
+      </label>
 
       <select id="category" required>
-        <option value="">Choose a category</option>
-        <option value="Music">Music</option>
-        <option value="Beats">Beats</option>
-        <option value="Vocals">Vocals</option>
-        <option value="Artwork">Artwork</option>
-        <option value="Video">Video</option>
-        <option value="Digital">Digital Content</option>
-        <option value="Writing">Writing</option>
-        <option value="Photography">Photography</option>
-        <option value="Other">Other</option>
+
+        <option value="">
+          Choose a category
+        </option>
+
+        <option value="Music">
+          Music
+        </option>
+
+        <option value="Beats">
+          Beats
+        </option>
+
+        <option value="Vocals">
+          Vocals
+        </option>
+
+        <option value="Artwork">
+          Artwork
+        </option>
+
+        <option value="Video">
+          Video
+        </option>
+
+        <option value="Digital">
+          Digital Content
+        </option>
+
+        <option value="Writing">
+          Writing
+        </option>
+
+        <option value="Photography">
+          Photography
+        </option>
+
+        <option value="Other">
+          Other
+        </option>
+
       </select>
 
-      <label for="description">Description</label>
+
+      <label for="description">
+        Description
+      </label>
 
       <textarea
         id="description"
@@ -229,7 +282,10 @@
         placeholder="Tell buyers what they are getting..."
       ></textarea>
 
-      <label for="file">Digital File</label>
+
+      <label for="file">
+        Digital File
+      </label>
 
       <input
         id="file"
@@ -243,9 +299,12 @@
         JPEG, PNG, WebP, PDF and ZIP.
       </p>
 
+
       <label for="cover">
         Cover Image
-        <span class="small">Optional</span>
+        <span class="small">
+          Optional
+        </span>
       </label>
 
       <input
@@ -259,6 +318,7 @@
         HEIF/HEIC images are not currently supported.
       </p>
 
+
       <button
         id="submit"
         class="button"
@@ -266,6 +326,7 @@
       >
         Publish to StarRise Store
       </button>
+
 
       <div
         id="status"
@@ -278,28 +339,35 @@
 
 </main>
 
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 (function () {
 
   'use strict';
 
+
   const SUPABASE_URL =
     'https://rcnikxotdalxtuvpmlvm.supabase.co';
+
 
   const SUPABASE_KEY =
     'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
+
   const FUNCTION_URL =
     SUPABASE_URL +
     '/functions/v1/upload-marketplace-item';
+
 
   const supabaseClient =
     window.supabase.createClient(
       SUPABASE_URL,
       SUPABASE_KEY
     );
+
 
   const form =
     document.getElementById('form');
@@ -317,36 +385,64 @@
     document.getElementById('cover');
 
 
-  function showStatus(message, type) {
+  function showStatus(
+    message,
+    type
+  ) {
 
-    status.textContent = message;
+    status.textContent =
+      message;
 
     status.className =
-      'status ' + (type || '');
+      'status ' +
+      (type || '');
 
   }
 
 
-  function getMimeType(file) {
+  function getMimeType(
+    file
+  ) {
 
-    if (file && file.type) {
+    if (
+      file &&
+      file.type
+    ) {
+
       return file.type;
+
     }
 
-    const name =
-      String(file?.name || '').toLowerCase();
 
-    if (name.endsWith('.mp3'))
+    const name =
+      String(
+        file?.name || ''
+      ).toLowerCase();
+
+
+    if (
+      name.endsWith('.mp3')
+    )
       return 'audio/mpeg';
 
-    if (name.endsWith('.wav'))
+
+    if (
+      name.endsWith('.wav')
+    )
       return 'audio/wav';
 
-    if (name.endsWith('.m4a'))
+
+    if (
+      name.endsWith('.m4a')
+    )
       return 'audio/mp4';
 
-    if (name.endsWith('.mp4'))
+
+    if (
+      name.endsWith('.mp4')
+    )
       return 'video/mp4';
+
 
     if (
       name.endsWith('.jpg') ||
@@ -354,17 +450,30 @@
     )
       return 'image/jpeg';
 
-    if (name.endsWith('.png'))
+
+    if (
+      name.endsWith('.png')
+    )
       return 'image/png';
 
-    if (name.endsWith('.webp'))
+
+    if (
+      name.endsWith('.webp')
+    )
       return 'image/webp';
 
-    if (name.endsWith('.pdf'))
+
+    if (
+      name.endsWith('.pdf')
+    )
       return 'application/pdf';
 
-    if (name.endsWith('.zip'))
+
+    if (
+      name.endsWith('.zip')
+    )
       return 'application/zip';
+
 
     return '';
 
@@ -377,31 +486,46 @@
 
       event.preventDefault();
 
-      submit.disabled = true;
+
+      submit.disabled =
+        true;
+
+
+      showStatus(
+        'Checking your StarRise account...'
+      );
+
 
       try {
 
-        showStatus(
-          'Checking your StarRise account...'
-        );
-
         const userResult =
-          await supabaseClient.auth.getUser();
+          await supabaseClient
+            .auth
+            .getUser();
 
-        if (userResult.error) {
+
+        if (
+          userResult.error
+        ) {
+
           throw new Error(
             'Authentication error: ' +
             userResult.error.message
           );
+
         }
+
 
         const user =
           userResult.data.user;
 
+
         if (!user) {
+
           throw new Error(
             'Please sign in before selling your work.'
           );
+
         }
 
 
@@ -411,6 +535,7 @@
             .value
             .trim();
 
+
         const price =
           Number(
             document
@@ -418,10 +543,12 @@
               .value
           );
 
+
         const category =
           document
             .getElementById('category')
             .value;
+
 
         const description =
           document
@@ -429,50 +556,67 @@
             .value
             .trim();
 
+
         const file =
           fileInput.files[0];
+
 
         const cover =
           coverInput.files[0];
 
 
         if (!title) {
+
           throw new Error(
             'Enter a title for your work.'
           );
+
         }
+
 
         if (
           !Number.isFinite(price) ||
           price < 1 ||
           price > 10000
         ) {
+
           throw new Error(
             'Price must be between $1.00 and $10,000.'
           );
+
         }
 
+
         if (!category) {
+
           throw new Error(
             'Choose a category.'
           );
+
         }
 
+
         if (!description) {
+
           throw new Error(
             'Add a description.'
           );
+
         }
 
+
         if (!file) {
+
           throw new Error(
             'Choose the digital file buyers will receive.'
           );
+
         }
 
 
         const fileMime =
           getMimeType(file);
+
 
         const allowedFiles = [
           'audio/mpeg',
@@ -487,14 +631,19 @@
           'application/zip'
         ];
 
+
         if (
           fileMime &&
-          !allowedFiles.includes(fileMime)
+          !allowedFiles.includes(
+            fileMime
+          )
         ) {
+
           throw new Error(
             'This file type is not supported: ' +
             fileMime
           );
+
         }
 
 
@@ -503,17 +652,103 @@
           const coverMime =
             getMimeType(cover);
 
+
           if (
             ![
               'image/jpeg',
               'image/png',
               'image/webp'
-            ].includes(coverMime)
+            ].includes(
+              coverMime
+            )
           ) {
+
             throw new Error(
               'Cover image must be JPG, PNG or WebP.'
             );
+
           }
+
+        }
+
+
+        showStatus(
+          'Preparing secure upload...'
+        );
+
+
+        const sessionResult =
+          await supabaseClient
+            .auth
+            .getSession();
+
+
+        if (
+          sessionResult.error
+        ) {
+
+          throw new Error(
+            sessionResult.error.message
+          );
+
+        }
+
+
+        const session =
+          sessionResult.data.session;
+
+
+        if (!session) {
+
+          throw new Error(
+            'Your login session has expired. Please sign in again.'
+          );
+
+        }
+
+
+        const formData =
+          new FormData();
+
+
+        formData.append(
+          'title',
+          title
+        );
+
+
+        formData.append(
+          'description',
+          description
+        );
+
+
+        formData.append(
+          'category',
+          category
+        );
+
+
+        formData.append(
+          'price',
+          String(price)
+        );
+
+
+        formData.append(
+          'file',
+          file,
+          file.name
+        );
+
+
+        if (cover) {
+
+          formData.append(
+            'cover',
+            cover,
+            cover.name
+          );
 
         }
 
@@ -523,68 +758,15 @@
         );
 
 
-        const sessionResult =
-          await supabaseClient.auth.getSession();
-
-        if (sessionResult.error) {
-          throw sessionResult.error;
-        }
-
-        const session =
-          sessionResult.data.session;
-
-        if (!session) {
-          throw new Error(
-            'Your login session has expired. Please sign in again.'
-          );
-        }
-
-
         /*
-          Send everything to the authenticated
-          Edge Function.
+          IMPORTANT:
 
-          The browser no longer uploads directly
-          to the private Storage bucket.
+          There is intentionally NO apikey
+          header here.
+
+          The authenticated Bearer token
+          is all the Edge Function needs.
         */
-
-        const formData =
-          new FormData();
-
-        formData.append(
-          'title',
-          title
-        );
-
-        formData.append(
-          'description',
-          description
-        );
-
-        formData.append(
-          'category',
-          category
-        );
-
-        formData.append(
-          'price',
-          String(price)
-        );
-
-        formData.append(
-          'file',
-          file,
-          file.name
-        );
-
-        if (cover) {
-          formData.append(
-            'cover',
-            cover,
-            cover.name
-          );
-        }
-
 
         const response =
           await fetch(
@@ -595,10 +777,7 @@
               headers: {
                 'Authorization':
                   'Bearer ' +
-                  session.access_token,
-
-                'apikey':
-                  SUPABASE_KEY
+                  session.access_token
               },
 
               body: formData
@@ -606,26 +785,29 @@
           );
 
 
-        let data = null;
+        let data;
+
 
         try {
+
           data =
             await response.json();
+
         } catch {
+
           data = null;
+
         }
 
 
         if (!response.ok) {
 
-          console.error(
-            'Marketplace function error:',
-            data
-          );
-
           throw new Error(
             data?.error ||
-            'StarRise could not publish your item.'
+            (
+              'Upload request failed with HTTP ' +
+              response.status
+            )
           );
 
         }
@@ -664,15 +846,17 @@
       } catch (error) {
 
         console.error(
-          'StarRise marketplace error:',
+          'StarRise marketplace upload error:',
           error
         );
+
 
         showStatus(
           error?.message ||
           'Unable to publish your work.',
           'error'
         );
+
 
         submit.disabled =
           false;
@@ -682,8 +866,11 @@
     }
   );
 
+
 })();
+
 </script>
 
 </body>
 </html>
+
