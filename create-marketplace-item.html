@@ -41,10 +41,6 @@
       flex-wrap: wrap;
     }
 
-    nav a:hover {
-      opacity: .75;
-    }
-
     main {
       width: min(850px, calc(100% - 30px));
       margin: 35px auto 60px;
@@ -128,12 +124,12 @@
 
     .error {
       color: #ffb5b5;
-      background: rgba(220, 70, 70, .12);
+      background: rgba(220,70,70,.12);
     }
 
     .success {
       color: #baffca;
-      background: rgba(50, 180, 80, .12);
+      background: rgba(50,180,80,.12);
     }
 
     .hidden {
@@ -383,6 +379,7 @@
   const SUPABASE_URL =
     'https://rcnikxotdalxtuvpmlvm.supabase.co';
 
+
   const SUPABASE_KEY =
     'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
@@ -412,15 +409,14 @@
 
   function showStatus(
     message,
-    type
+    type = ''
   ) {
 
     status.textContent =
       message;
 
     status.className =
-      'status ' +
-      (type || '');
+      'status ' + type;
 
     status.classList.remove(
       'hidden'
@@ -447,97 +443,60 @@
       ).toLowerCase();
 
 
-    if (
-      name.endsWith('.mp3')
-    ) {
+    if (name.endsWith('.mp3'))
       return 'audio/mpeg';
-    }
 
-
-    if (
-      name.endsWith('.wav')
-    ) {
+    if (name.endsWith('.wav'))
       return 'audio/wav';
-    }
 
-
-    if (
-      name.endsWith('.m4a')
-    ) {
+    if (name.endsWith('.m4a'))
       return 'audio/mp4';
-    }
 
-
-    if (
-      name.endsWith('.mp4')
-    ) {
+    if (name.endsWith('.mp4'))
       return 'video/mp4';
-    }
-
 
     if (
       name.endsWith('.jpg') ||
       name.endsWith('.jpeg')
-    ) {
+    )
       return 'image/jpeg';
-    }
 
-
-    if (
-      name.endsWith('.png')
-    ) {
+    if (name.endsWith('.png'))
       return 'image/png';
-    }
 
-
-    if (
-      name.endsWith('.webp')
-    ) {
+    if (name.endsWith('.webp'))
       return 'image/webp';
-    }
 
-
-    if (
-      name.endsWith('.pdf')
-    ) {
+    if (name.endsWith('.pdf'))
       return 'application/pdf';
-    }
 
-
-    if (
-      name.endsWith('.zip')
-    ) {
+    if (name.endsWith('.zip'))
       return 'application/zip';
-    }
-
 
     return '';
 
   }
 
 
-  async function getValidSession() {
+  async function getSession() {
 
-    const sessionResult =
+    const result =
       await supabaseClient
         .auth
         .getSession();
 
 
-    if (
-      sessionResult.error
-    ) {
+    if (result.error) {
 
       throw new Error(
-        'Authentication error: ' +
-        sessionResult.error.message
+        result.error.message
       );
 
     }
 
 
     let session =
-      sessionResult.data.session;
+      result.data.session;
 
 
     if (!session) {
@@ -550,30 +509,65 @@
 
 
     /*
-      Refresh the session if necessary.
-      This is especially important when a
-      different StarRise account has been
-      logged in for a while.
+      Refresh the session so an older
+      login does not cause an upload
+      to fail.
     */
 
-    const refreshResult =
+    const refresh =
       await supabaseClient
         .auth
         .refreshSession();
 
 
     if (
-      !refreshResult.error &&
-      refreshResult.data.session
+      !refresh.error &&
+      refresh.data.session
     ) {
 
       session =
-        refreshResult.data.session;
+        refresh.data.session;
 
     }
 
 
     return session;
+
+  }
+
+
+  async function uploadFile(
+    file,
+    path
+  ) {
+
+    const result =
+      await supabaseClient
+        .storage
+        .from('talent-store')
+        .upload(
+          path,
+          file,
+          {
+            cacheControl: '3600',
+            upsert: false,
+            contentType:
+              getMimeType(file)
+          }
+        );
+
+
+    if (result.error) {
+
+      throw new Error(
+        'File upload failed: ' +
+        result.error.message
+      );
+
+    }
+
+
+    return path;
 
   }
 
@@ -584,7 +578,12 @@
 
       event.preventDefault();
 
-      submit.disabled = true;
+
+      submit.disabled =
+        true;
+
+
+      let uploadedPaths = [];
 
 
       try {
@@ -595,12 +594,21 @@
 
 
         const session =
-          await getValidSession();
+          await getSession();
 
 
-        /*
-          Read the form.
-        */
+        const user =
+          session.user;
+
+
+        if (!user) {
+
+          throw new Error(
+            'Please sign in before selling your work.'
+          );
+
+        }
+
 
         const title =
           document
@@ -637,10 +645,6 @@
         const cover =
           coverInput.files[0];
 
-
-        /*
-          Validate the listing.
-        */
 
         if (!title) {
 
@@ -691,7 +695,7 @@
         }
 
 
-        const fileMime =
+        const mime =
           getMimeType(file);
 
 
@@ -710,15 +714,13 @@
 
 
         if (
-          fileMime &&
-          !allowedFiles.includes(
-            fileMime
-          )
+          mime &&
+          !allowedFiles.includes(mime)
         ) {
 
           throw new Error(
             'This file type is not supported: ' +
-            fileMime
+            mime
           );
 
         }
@@ -735,9 +737,7 @@
               'image/jpeg',
               'image/png',
               'image/webp'
-            ].includes(
-              coverMime
-            )
+            ].includes(coverMime)
           ) {
 
             throw new Error(
@@ -750,108 +750,150 @@
 
 
         /*
-          Build the multipart request.
+          Create unique Storage paths.
         */
 
-        const formData =
-          new FormData();
+        const timestamp =
+          Date.now();
 
 
-        formData.append(
-          'title',
-          title
-        );
-
-
-        formData.append(
-          'description',
-          description
-        );
-
-
-        formData.append(
-          'category',
-          category
-        );
-
-
-        formData.append(
-          'price',
-          String(price)
-        );
-
-
-        formData.append(
-          'file',
-          file,
+        const cleanName =
           file.name
-        );
+            .replace(
+              /[^a-zA-Z0-9._-]/g,
+              '_'
+            );
+
+
+        const filePath =
+          user.id +
+          '/' +
+          timestamp +
+          '-' +
+          cleanName;
+
+
+        let coverPath =
+          null;
 
 
         if (cover) {
 
-          formData.append(
-            'cover',
-            cover,
+          const cleanCover =
             cover.name
+              .replace(
+                /[^a-zA-Z0-9._-]/g,
+                '_'
+              );
+
+
+          coverPath =
+            user.id +
+            '/' +
+            timestamp +
+            '-cover-' +
+            cleanCover;
+
+        }
+
+
+        /*
+          STEP 1
+          Upload the actual music/file
+          directly to Supabase Storage.
+
+          This is the important change.
+        */
+
+        showStatus(
+          'Uploading your file securely...'
+        );
+
+
+        await uploadFile(
+          file,
+          filePath
+        );
+
+
+        uploadedPaths.push(
+          filePath
+        );
+
+
+        /*
+          STEP 2
+          Upload optional cover image.
+        */
+
+        if (cover) {
+
+          showStatus(
+            'Uploading your cover image...'
+          );
+
+
+          await uploadFile(
+            cover,
+            coverPath
+          );
+
+
+          uploadedPaths.push(
+            coverPath
           );
 
         }
 
 
+        /*
+          STEP 3
+          Send only small JSON metadata
+          to the Edge Function.
+
+          No MP3 is traveling through
+          the Edge Function anymore.
+        */
+
         showStatus(
-          'Uploading your work securely...'
+          'Publishing your listing...'
         );
 
 
-        /*
-          IMPORTANT FIX:
-
-          Use Supabase's functions.invoke()
-          instead of a manually constructed
-          fetch() request.
-
-          Supabase automatically supplies the
-          project API key and authenticated
-          session headers.
-        */
-
         const result =
-          await supabaseClient.functions.invoke(
-            'upload-marketplace-item',
-            {
-              body: formData
-            }
-          );
+          await supabaseClient
+            .functions
+            .invoke(
+              'upload-marketplace-item',
+              {
+                body: {
+                  title: title,
+                  description: description,
+                  category: category,
+                  price: price,
+                  file_path: filePath,
+                  cover_path: coverPath,
+                  mime_type: mime
+                }
+              }
+            );
 
-
-        /*
-          Supabase can return an Edge Function
-          error separately from the HTTP body.
-        */
 
         if (result.error) {
 
           console.error(
-            'StarRise function error:',
+            'StarRise publish error:',
             result.error
           );
 
 
           let message =
             result.error.message ||
-            'Unable to publish your work.';
+            'Unable to publish your listing.';
 
-
-          /*
-            Try to expose the actual server
-            message when Supabase provides it.
-          */
 
           if (
-            result.error.context &&
-            typeof result.error.context.json ===
-              'function'
+            result.error.context
           ) {
 
             try {
@@ -859,8 +901,10 @@
               const serverData =
                 await result.error.context.json();
 
+
               if (
-                serverData?.error
+                serverData &&
+                serverData.error
               ) {
 
                 message =
@@ -870,14 +914,16 @@
 
             } catch (_) {
 
-              // Keep the original error message.
+              // Keep original message.
 
             }
 
           }
 
 
-          throw new Error(message);
+          throw new Error(
+            message
+          );
 
         }
 
@@ -900,7 +946,7 @@
 
 
         /*
-          Success.
+          SUCCESS
         */
 
         showStatus(
@@ -911,11 +957,6 @@
 
         form.reset();
 
-
-        /*
-          Give the user a moment to see the
-          success message, then return to Store.
-        */
 
         setTimeout(
           function () {
@@ -931,21 +972,49 @@
       } catch (error) {
 
         console.error(
-          'StarRise marketplace upload error:',
+          'StarRise marketplace error:',
           error
         );
 
 
+        /*
+          If Storage succeeded but publishing
+          failed, remove the orphaned files.
+        */
+
+        if (
+          uploadedPaths.length > 0
+        ) {
+
+          try {
+
+            await supabaseClient
+              .storage
+              .from('talent-store')
+              .remove(
+                uploadedPaths
+              );
+
+          } catch (_) {
+
+            // Do not hide the original error.
+
+          }
+
+        }
+
+
         showStatus(
           error?.message ||
-          'Unable to publish your work. Please try again.',
+          'Unable to publish your work.',
           'error'
         );
 
 
       } finally {
 
-        submit.disabled = false;
+        submit.disabled =
+          false;
 
       }
 
