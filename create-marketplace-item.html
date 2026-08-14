@@ -6,145 +6,154 @@
   <title>Sell Your Work | StarRise</title>
 
   <style>
-    *{box-sizing:border-box}
+    * { box-sizing: border-box; }
 
-    body{
-      margin:0;
-      font-family:Arial,sans-serif;
-      background:#080812;
-      color:#fff;
-      line-height:1.6
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: #fff;
+      line-height: 1.6;
     }
 
-    header{
-      padding:20px 24px;
-      border-bottom:1px solid #ffffff18;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:18px
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #ffffff18;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
     }
 
-    header a,nav a{
-      color:#fff;
-      text-decoration:none;
-      font-weight:bold
+    header a,
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
     }
 
-    nav{
-      display:flex;
-      gap:18px;
-      flex-wrap:wrap
+    nav {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
     }
 
-    main{
-      width:min(850px,calc(100% - 30px));
-      margin:35px auto 60px
+    main {
+      width: min(850px, calc(100% - 30px));
+      margin: 35px auto 60px;
     }
 
-    .panel{
-      border:1px solid #ffffff18;
-      border-radius:22px;
-      background:#ffffff08;
-      padding:28px;
-      margin-bottom:20px
+    .panel {
+      border: 1px solid #ffffff18;
+      border-radius: 22px;
+      background: #ffffff08;
+      padding: 28px;
+      margin-bottom: 20px;
     }
 
-    h1,h2{
-      margin-top:0
+    h1,
+    h2 {
+      margin-top: 0;
     }
 
-    .muted{
-      color:#aaa
+    .muted {
+      color: #aaa;
     }
 
-    label{
-      display:block;
-      margin:16px 0 7px;
-      font-weight:bold
+    label {
+      display: block;
+      margin: 16px 0 7px;
+      font-weight: bold;
     }
 
-    input,textarea,select{
-      width:100%;
-      padding:13px 15px;
-      border:1px solid #ffffff20;
-      border-radius:12px;
-      background:#11111d;
-      color:#fff;
-      font:inherit
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 13px 15px;
+      border: 1px solid #ffffff20;
+      border-radius: 12px;
+      background: #11111d;
+      color: #fff;
+      font: inherit;
     }
 
-    textarea{
-      min-height:130px;
-      resize:vertical
+    textarea {
+      min-height: 130px;
+      resize: vertical;
     }
 
-    input[type="file"]{
-      padding:12px
+    input[type="file"] {
+      padding: 12px;
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
     }
 
-    .button{
-      display:inline-block;
-      border:0;
-      border-radius:25px;
-      padding:12px 20px;
-      background:#fff;
-      color:#080812;
-      font-weight:bold;
-      cursor:pointer;
-      margin-top:18px
+    .button {
+      display: inline-block;
+      border: 0;
+      border-radius: 25px;
+      padding: 12px 20px;
+      background: #fff;
+      color: #080812;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 18px;
     }
 
-    .button:disabled{
-      opacity:.5;
-      cursor:wait
+    .button:disabled {
+      opacity: .5;
+      cursor: wait;
     }
 
-    .status{
-      padding:14px;
-      border-radius:12px;
-      background:#ffffff08;
-      color:#aaa;
-      margin-top:16px
+    .status {
+      padding: 14px;
+      border-radius: 12px;
+      background: #ffffff08;
+      color: #aaa;
+      margin-top: 16px;
     }
 
-    .error{
-      color:#ffb5b5;
-      background:rgba(220,70,70,.12)
+    .error {
+      color: #ffb5b5;
+      background: rgba(220, 70, 70, .12);
     }
 
-    .success{
-      color:#baffca;
-      background:rgba(50,180,80,.12)
+    .success {
+      color: #baffca;
+      background: rgba(50, 180, 80, .12);
     }
 
-    .hidden{
-      display:none!important
+    .warning {
+      color: #ffe3a3;
+      background: rgba(200, 150, 50, .12);
     }
 
-    .small{
-      font-size:13px;
-      color:#888
+    .hidden {
+      display: none !important;
     }
 
-    @media(max-width:650px){
-      header{
-        flex-direction:column;
-        align-items:flex-start
+    .small {
+      font-size: 13px;
+      color: #888;
+    }
+
+    @media (max-width: 650px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
       }
 
-      .grid{
-        grid-template-columns:1fr
+      .grid {
+        grid-template-columns: 1fr;
       }
 
-      .panel{
-        padding:21px
+      .panel {
+        padding: 21px;
       }
     }
   </style>
@@ -226,11 +235,15 @@
 
       </div>
 
+
       <label for="category">
         Category
       </label>
 
-      <select id="category" required>
+      <select
+        id="category"
+        required
+      >
 
         <option value="">
           Choose a category
@@ -256,8 +269,16 @@
           Video
         </option>
 
-        <option value="Digital Content">
+        <option value="Digital">
           Digital Content
+        </option>
+
+        <option value="Writing">
+          Writing
+        </option>
+
+        <option value="Photography">
+          Photography
         </option>
 
         <option value="Other">
@@ -265,6 +286,7 @@
         </option>
 
       </select>
+
 
       <label for="description">
         Description
@@ -277,6 +299,7 @@
         placeholder="Tell buyers what they are getting..."
       ></textarea>
 
+
       <label for="file">
         Digital File
       </label>
@@ -285,11 +308,14 @@
         id="file"
         type="file"
         required
+        accept=".mp3,.wav,.m4a,.mp4,.jpg,.jpeg,.png,.webp,.pdf,.zip"
       >
 
       <p class="small">
-        Upload the actual file buyers will receive.
+        Accepted files include MP3, WAV, M4A, MP4, JPG, JPEG,
+        PNG, WebP, PDF and ZIP.
       </p>
+
 
       <label for="cover">
         Cover Image
@@ -301,8 +327,14 @@
       <input
         id="cover"
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp"
       >
+
+      <p class="small">
+        Cover images must be JPG, PNG or WebP.
+        HEIF/HEIC images are not currently supported.
+      </p>
+
 
       <button
         id="submit"
@@ -311,6 +343,7 @@
       >
         Publish to StarRise Store
       </button>
+
 
       <div
         id="status"
@@ -323,19 +356,23 @@
 
 </main>
 
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-(() => {
+(function () {
 
   'use strict';
+
 
   const SUPABASE_URL =
     'https://rcnikxotdalxtuvpmlvm.supabase.co';
 
+
   const SUPABASE_KEY =
     'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
+
 
   const supabaseClient =
     window.supabase.createClient(
@@ -343,35 +380,49 @@
       SUPABASE_KEY
     );
 
+
   const form =
     document.getElementById('form');
 
+
   const status =
     document.getElementById('status');
+
 
   const submit =
     document.getElementById('submit');
 
 
+  const fileInput =
+    document.getElementById('file');
+
+
+  const coverInput =
+    document.getElementById('cover');
+
+
   function showStatus(
     message,
-    type = ''
-  ){
+    type
+  ) {
 
     status.textContent =
       message;
 
     status.className =
-      'status ' + type;
+      'status ' +
+      (type || '');
 
   }
 
 
   function safeFileName(
     value
-  ){
+  ) {
 
-    return String(value || 'file')
+    return String(
+      value || 'file'
+    )
       .replace(
         /[^a-zA-Z0-9._-]/g,
         '_'
@@ -380,14 +431,137 @@
   }
 
 
+  function getFileMimeType(
+    file
+  ) {
+
+    if (
+      file &&
+      file.type
+    ) {
+
+      return file.type;
+
+    }
+
+    const name =
+      String(
+        file?.name || ''
+      ).toLowerCase();
+
+
+    if (
+      name.endsWith('.mp3')
+    ) {
+      return 'audio/mpeg';
+    }
+
+    if (
+      name.endsWith('.wav')
+    ) {
+      return 'audio/wav';
+    }
+
+    if (
+      name.endsWith('.m4a')
+    ) {
+      return 'audio/mp4';
+    }
+
+    if (
+      name.endsWith('.mp4')
+    ) {
+      return 'video/mp4';
+    }
+
+    if (
+      name.endsWith('.jpg') ||
+      name.endsWith('.jpeg')
+    ) {
+      return 'image/jpeg';
+    }
+
+    if (
+      name.endsWith('.png')
+    ) {
+      return 'image/png';
+    }
+
+    if (
+      name.endsWith('.webp')
+    ) {
+      return 'image/webp';
+    }
+
+    if (
+      name.endsWith('.pdf')
+    ) {
+      return 'application/pdf';
+    }
+
+    if (
+      name.endsWith('.zip')
+    ) {
+      return 'application/zip';
+    }
+
+    return '';
+
+  }
+
+
+  async function uploadFile(
+    file,
+    path
+  ) {
+
+    const mimeType =
+      getFileMimeType(file);
+
+
+    const result =
+      await supabaseClient
+        .storage
+        .from('talent-store')
+        .upload(
+          path,
+          file,
+          {
+            upsert: false,
+            contentType:
+              mimeType || undefined
+          }
+        );
+
+
+    if (result.error) {
+
+      throw new Error(
+        result.error.message ||
+        'The file could not be uploaded.'
+      );
+
+    }
+
+
+    return {
+      path,
+      mimeType
+    };
+
+  }
+
+
   form.addEventListener(
     'submit',
-    async event => {
+    async function (event) {
 
       event.preventDefault();
 
+
       submit.disabled =
         true;
+
 
       try {
 
@@ -402,7 +576,9 @@
             .getUser();
 
 
-        if(userResult.error){
+        if (
+          userResult.error
+        ) {
 
           throw userResult.error;
 
@@ -413,7 +589,7 @@
           userResult.data.user;
 
 
-        if(!user){
+        if (!user) {
 
           throw new Error(
             'Please sign in before selling your work.'
@@ -456,16 +632,6 @@
           );
 
 
-        const fileInput =
-          document
-            .getElementById('file');
-
-
-        const coverInput =
-          document
-            .getElementById('cover');
-
-
         const file =
           fileInput.files[0];
 
@@ -474,7 +640,7 @@
           coverInput.files[0];
 
 
-        if(!title){
+        if (!title) {
 
           throw new Error(
             'Enter a title for your work.'
@@ -483,7 +649,7 @@
         }
 
 
-        if(!category){
+        if (!category) {
 
           throw new Error(
             'Choose a category.'
@@ -492,7 +658,7 @@
         }
 
 
-        if(!description){
+        if (!description) {
 
           throw new Error(
             'Add a description.'
@@ -501,7 +667,7 @@
         }
 
 
-        if(!file){
+        if (!file) {
 
           throw new Error(
             'Choose the digital file buyers will receive.'
@@ -510,14 +676,32 @@
         }
 
 
-        if(
+        if (
           !Number.isFinite(price) ||
           price < 1 ||
           price > 10000
-        ){
+        ) {
 
           throw new Error(
             'Price must be between $1.00 and $10,000.'
+          );
+
+        }
+
+
+        if (
+          cover &&
+          ![
+            'image/jpeg',
+            'image/png',
+            'image/webp'
+          ].includes(
+            getFileMimeType(cover)
+          )
+        ) {
+
+          throw new Error(
+            'The cover image must be JPG, PNG or WebP. HEIF/HEIC is not supported.'
           );
 
         }
@@ -537,36 +721,37 @@
           );
 
 
+        let coverPath =
+          null;
+
+
+        let uploadedPaths =
+          [];
+
+
         showStatus(
           'Uploading your work...'
         );
 
 
-        const uploadResult =
-          await supabaseClient
-            .storage
-            .from('talent-store')
-            .upload(
-              filePath,
-              file,
-              {
-                upsert:false
-              }
-            );
+        const uploaded =
+          await uploadFile(
+            file,
+            filePath
+          );
 
 
-        if(uploadResult.error){
-
-          throw uploadResult.error;
-
-        }
+        uploadedPaths.push(
+          uploaded.path
+        );
 
 
-        let coverPath =
-          null;
+        if (cover) {
 
+          showStatus(
+            'Uploading your cover image...'
+          );
 
-        if(cover){
 
           coverPath =
             user.id +
@@ -578,24 +763,16 @@
             );
 
 
-          const coverResult =
-            await supabaseClient
-              .storage
-              .from('talent-store')
-              .upload(
-                coverPath,
-                cover,
-                {
-                  upsert:false
-                }
-              );
+          const uploadedCover =
+            await uploadFile(
+              cover,
+              coverPath
+            );
 
 
-          if(coverResult.error){
-
-            throw coverResult.error;
-
-          }
+          uploadedPaths.push(
+            uploadedCover.path
+          );
 
         }
 
@@ -605,9 +782,34 @@
         );
 
 
+        /*
+          IMPORTANT DATABASE FIX
+
+          marketplace_items uses:
+
+          seller_id
+          title
+          description
+          category
+          price_cents
+          cover_url
+          preview_url
+          file_path
+          mime_type
+          status
+
+          It does NOT use:
+
+          is_active
+          cover_path
+        */
+
+
         const insertResult =
           await supabaseClient
-            .from('marketplace_items')
+            .from(
+              'marketplace_items'
+            )
             .insert({
 
               seller_id:
@@ -625,47 +827,67 @@
               price_cents:
                 priceCents,
 
+              cover_url:
+                null,
+
+              preview_url:
+                null,
+
               file_path:
                 filePath,
 
-              cover_path:
-                coverPath,
+              mime_type:
+                getFileMimeType(file),
 
-              is_active:
-                true
+              status:
+                'active'
 
             })
-            .select('id')
+            .select(
+              'id'
+            )
             .single();
 
 
-        if(insertResult.error){
+        if (
+          insertResult.error
+        ) {
+
+          console.error(
+            'Marketplace database error:',
+            insertResult.error
+          );
+
 
           /*
-            If the database insert fails after
-            the upload, remove the uploaded files
-            so abandoned files do not pile up.
+            Clean up uploaded files if
+            the database listing fails.
           */
 
-          await supabaseClient
-            .storage
-            .from('talent-store')
-            .remove(
-              [
-                filePath,
-                ...(coverPath
-                  ? [coverPath]
-                  : [])
-              ]
-            );
+          if (
+            uploadedPaths.length
+          ) {
 
-          throw insertResult.error;
+            await supabaseClient
+              .storage
+              .from('talent-store')
+              .remove(
+                uploadedPaths
+              );
+
+          }
+
+
+          throw new Error(
+            insertResult.error.message ||
+            'The Store listing could not be published.'
+          );
 
         }
 
 
         showStatus(
-          'Published! Your work is now available in the StarRise Store.',
+          'Published! Your work is now live in the StarRise Store.',
           'success'
         );
 
@@ -674,7 +896,7 @@
 
 
         setTimeout(
-          () => {
+          function () {
 
             window.location.href =
               'marketplace.html';
@@ -684,10 +906,10 @@
         );
 
 
-      } catch(error){
+      } catch (error) {
 
         console.error(
-          'Marketplace publishing error:',
+          'StarRise Store publishing error:',
           error
         );
 
@@ -707,6 +929,7 @@
     }
 
   );
+
 
 })();
 
