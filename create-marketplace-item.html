@@ -51,8 +51,7 @@
       margin-bottom: 20px;
     }
 
-    h1,
-    h2 {
+    h1 {
       margin-top: 0;
     }
 
@@ -95,14 +94,16 @@
 
     .button {
       display: inline-block;
+      width: 100%;
       border: 0;
       border-radius: 25px;
-      padding: 12px 20px;
+      padding: 14px 20px;
       background: #fff;
       color: #080812;
       font-weight: bold;
+      font-size: 16px;
       cursor: pointer;
-      margin-top: 18px;
+      margin-top: 20px;
     }
 
     .button:disabled {
@@ -116,6 +117,8 @@
       background: #ffffff08;
       color: #aaa;
       margin-top: 16px;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
     .error {
@@ -126,11 +129,6 @@
     .success {
       color: #baffca;
       background: rgba(50, 180, 80, .12);
-    }
-
-    .warning {
-      color: #ffe3a3;
-      background: rgba(200, 150, 50, .12);
     }
 
     .hidden {
@@ -168,28 +166,19 @@
   </a>
 
   <nav>
-    <a href="marketplace.html">
-      Store
-    </a>
-
-    <a href="services.html">
-      Services
-    </a>
-
-    <a href="dashboard.html">
-      Dashboard
-    </a>
+    <a href="marketplace.html">Store</a>
+    <a href="services.html">Services</a>
+    <a href="dashboard.html">Dashboard</a>
   </nav>
 
 </header>
+
 
 <main>
 
   <section class="panel">
 
-    <h1>
-      Sell Your Work
-    </h1>
+    <h1>Sell Your Work</h1>
 
     <p class="muted">
       Put your music, beats, artwork, videos and digital
@@ -214,6 +203,7 @@
           >
 
         </div>
+
 
         <div>
 
@@ -240,10 +230,7 @@
         Category
       </label>
 
-      <select
-        id="category"
-        required
-      >
+      <select id="category" required>
 
         <option value="">
           Choose a category
@@ -312,8 +299,8 @@
       >
 
       <p class="small">
-        Accepted files include MP3, WAV, M4A, MP4, JPG, JPEG,
-        PNG, WebP, PDF and ZIP.
+        Accepted files include MP3, WAV, M4A, MP4, JPG,
+        JPEG, PNG, WebP, PDF and ZIP.
       </p>
 
 
@@ -384,18 +371,14 @@
   const form =
     document.getElementById('form');
 
-
   const status =
     document.getElementById('status');
-
 
   const submit =
     document.getElementById('submit');
 
-
   const fileInput =
     document.getElementById('file');
-
 
   const coverInput =
     document.getElementById('cover');
@@ -444,66 +427,42 @@
 
     }
 
+
     const name =
       String(
         file?.name || ''
       ).toLowerCase();
 
 
-    if (
-      name.endsWith('.mp3')
-    ) {
+    if (name.endsWith('.mp3'))
       return 'audio/mpeg';
-    }
 
-    if (
-      name.endsWith('.wav')
-    ) {
+    if (name.endsWith('.wav'))
       return 'audio/wav';
-    }
 
-    if (
-      name.endsWith('.m4a')
-    ) {
+    if (name.endsWith('.m4a'))
       return 'audio/mp4';
-    }
 
-    if (
-      name.endsWith('.mp4')
-    ) {
+    if (name.endsWith('.mp4'))
       return 'video/mp4';
-    }
 
     if (
       name.endsWith('.jpg') ||
       name.endsWith('.jpeg')
-    ) {
+    )
       return 'image/jpeg';
-    }
 
-    if (
-      name.endsWith('.png')
-    ) {
+    if (name.endsWith('.png'))
       return 'image/png';
-    }
 
-    if (
-      name.endsWith('.webp')
-    ) {
+    if (name.endsWith('.webp'))
       return 'image/webp';
-    }
 
-    if (
-      name.endsWith('.pdf')
-    ) {
+    if (name.endsWith('.pdf'))
       return 'application/pdf';
-    }
 
-    if (
-      name.endsWith('.zip')
-    ) {
+    if (name.endsWith('.zip'))
       return 'application/zip';
-    }
 
     return '';
 
@@ -537,16 +496,16 @@
     if (result.error) {
 
       throw new Error(
-        result.error.message ||
-        'The file could not be uploaded.'
+        'Storage upload failed: ' +
+        result.error.message
       );
 
     }
 
 
     return {
-      path,
-      mimeType
+      path: path,
+      mimeType: mimeType
     };
 
   }
@@ -576,11 +535,12 @@
             .getUser();
 
 
-        if (
-          userResult.error
-        ) {
+        if (userResult.error) {
 
-          throw userResult.error;
+          throw new Error(
+            'Authentication error: ' +
+            userResult.error.message
+          );
 
         }
 
@@ -623,12 +583,6 @@
             document
               .getElementById('price')
               .value
-          );
-
-
-        const priceCents =
-          Math.round(
-            price * 100
           );
 
 
@@ -716,16 +670,10 @@
           '/' +
           timestamp +
           '-' +
-          safeFileName(
-            file.name
-          );
+          safeFileName(file.name);
 
 
-        let coverPath =
-          null;
-
-
-        let uploadedPaths =
+        const uploadedPaths =
           [];
 
 
@@ -744,6 +692,10 @@
         uploadedPaths.push(
           uploaded.path
         );
+
+
+        let coverPath =
+          null;
 
 
         if (cover) {
@@ -778,38 +730,22 @@
 
 
         showStatus(
-          'Publishing your Store listing...'
+          'Creating your Store listing...'
         );
 
 
         /*
-          IMPORTANT DATABASE FIX
+          IMPORTANT:
 
-          marketplace_items uses:
+          Do NOT use .select().single()
+          here.
 
-          seller_id
-          title
-          description
-          category
-          price_cents
-          cover_url
-          preview_url
-          file_path
-          mime_type
-          status
-
-          It does NOT use:
-
-          is_active
-          cover_path
+          We only need the INSERT to succeed.
         */
-
 
         const insertResult =
           await supabaseClient
-            .from(
-              'marketplace_items'
-            )
+            .from('marketplace_items')
             .insert({
 
               seller_id:
@@ -825,7 +761,9 @@
                 category,
 
               price_cents:
-                priceCents,
+                Math.round(
+                  price * 100
+                ),
 
               cover_url:
                 null,
@@ -842,45 +780,79 @@
               status:
                 'active'
 
-            })
-            .select(
-              'id'
-            )
-            .single();
+            });
 
 
-        if (
-          insertResult.error
-        ) {
+        if (insertResult.error) {
 
           console.error(
-            'Marketplace database error:',
+            'FULL MARKETPLACE INSERT ERROR:',
             insertResult.error
           );
 
 
           /*
-            Clean up uploaded files if
-            the database listing fails.
+            Remove uploaded files so
+            failed listings do not leave
+            orphaned files behind.
           */
 
           if (
             uploadedPaths.length
           ) {
 
-            await supabaseClient
-              .storage
-              .from('talent-store')
-              .remove(
-                uploadedPaths
+            try {
+
+              await supabaseClient
+                .storage
+                .from('talent-store')
+                .remove(
+                  uploadedPaths
+                );
+
+            } catch (
+              cleanupError
+            ) {
+
+              console.warn(
+                'Cleanup failed:',
+                cleanupError
               );
+
+            }
 
           }
 
 
+          const dbError =
+            insertResult.error;
+
+
           throw new Error(
-            insertResult.error.message ||
-            'The Store listing could not be published.'
+            'Store listing failed.\n\n' +
+            'Code: ' +
+            (
+              dbError.code ||
+              'unknown'
+            ) +
+            '\n\n' +
+            'Message: ' +
+            (
+              dbError.message ||
+              'Unknown database error'
+            ) +
+            (
+              dbError.details
+                ? '\n\nDetails: ' +
+                  dbError.details
+                : ''
+            ) +
+            (
+              dbError.hint
+                ? '\n\nHint: ' +
+                  dbError.hint
+                : ''
+            )
           );
 
         }
@@ -902,14 +874,14 @@
               'marketplace.html';
 
           },
-          1200
+          1500
         );
 
 
       } catch (error) {
 
         console.error(
-          'StarRise Store publishing error:',
+          'StarRise marketplace error:',
           error
         );
 
