@@ -1,497 +1,965 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sell Your Work | StarRise</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#080812;color:#fff;line-height:1.6}
-header{padding:20px 24px;border-bottom:1px solid #ffffff18;display:flex;justify-content:space-between;align-items:center;gap:18px}
-header a,nav a{color:#fff;text-decoration:none;font-weight:bold}
-nav{display:flex;gap:18px;flex-wrap:wrap}
-main{width:min(850px,calc(100% - 30px));margin:35px auto 60px}
-.panel{border:1px solid #ffffff18;border-radius:22px;background:#ffffff08;padding:28px}
-h1{margin-top:0}
-.muted{color:#aaa}
-label{display:block;margin:16px 0 7px;font-weight:bold}
-input,textarea,select{width:100%;padding:13px 15px;border:1px solid #ffffff20;border-radius:12px;background:#11111d;color:#fff;font:inherit}
-textarea{min-height:130px;resize:vertical}
-input[type=file]{padding:12px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.button{width:100%;border:0;border-radius:25px;padding:14px 20px;background:#fff;color:#080812;font-weight:bold;font-size:16px;cursor:pointer;margin-top:20px}
-.button:disabled{opacity:.5;cursor:wait}
-.status{padding:14px;border-radius:12px;background:#ffffff08;color:#aaa;margin-top:16px;white-space:pre-wrap;word-break:break-word}
-.error{color:#ffb5b5;background:rgba(220,70,70,.12)}
-.success{color:#baffca;background:rgba(50,180,80,.12)}
-.hidden{display:none!important}
-.small{font-size:13px;color:#888}
-.back-link{display:inline-block;margin-bottom:20px;color:#aaa;text-decoration:none}
-@media(max-width:650px){
-header{flex-direction:column;align-items:flex-start}
-.grid{grid-template-columns:1fr}
-.panel{padding:21px}
-}
-</style>
+  <title>Sell Your Work | StarRise</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: #fff;
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #ffffff18;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+    }
+
+    header a,
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    main {
+      width: min(850px, calc(100% - 30px));
+      margin: 35px auto 60px;
+    }
+
+    .panel {
+      border: 1px solid #ffffff18;
+      border-radius: 22px;
+      background: #ffffff08;
+      padding: 28px;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .muted {
+      color: #aaa;
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 7px;
+      font-weight: bold;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 13px 15px;
+      border: 1px solid #ffffff20;
+      border-radius: 12px;
+      background: #11111d;
+      color: #fff;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+    }
+
+    input[type="file"] {
+      padding: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .button {
+      width: 100%;
+      border: 0;
+      border-radius: 25px;
+      padding: 14px 20px;
+      background: #fff;
+      color: #080812;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .button:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
+
+    .status {
+      padding: 14px;
+      border-radius: 12px;
+      background: #ffffff08;
+      color: #aaa;
+      margin-top: 16px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .error {
+      color: #ffb5b5;
+      background: rgba(220, 70, 70, .12);
+    }
+
+    .success {
+      color: #baffca;
+      background: rgba(50, 180, 80, .12);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #888;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #aaa;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      color: #fff;
+    }
+
+    @media (max-width: 650px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        padding: 21px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
 <header>
-<a href="index.html">⭐ StarRise</a>
 
-<nav>
-<a href="index.html">Home</a>
-<a href="members.html">Members</a>
-<a href="ecosystem.html">Ecosystem</a>
-<a href="marketplace.html">Store</a>
-<a href="services.html">Services</a>
-<a href="dashboard.html">Dashboard</a>
-</nav>
+  <a href="index.html">
+    ⭐ StarRise
+  </a>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="members.html">Members</a>
+    <a href="ecosystem.html">Ecosystem</a>
+    <a href="marketplace.html">Store</a>
+    <a href="services.html">Services</a>
+    <a href="dashboard.html">Dashboard</a>
+  </nav>
+
 </header>
 
 <main>
 
-<a class="back-link" href="marketplace.html">
-← Back to StarRise Store
-</a>
+  <a
+    class="back-link"
+    href="marketplace.html"
+  >
+    ← Back to StarRise Store
+  </a>
 
-<section class="panel">
+  <section class="panel">
 
-<h1>Sell Your Work</h1>
+    <h1>Sell Your Work</h1>
 
-<p class="muted">
-Put your music, beats, artwork, videos and digital creations in the StarRise Store.
-</p>
+    <p class="muted">
+      Put your music, beats, artwork, videos and digital creations
+      in the StarRise Store.
+    </p>
 
-<form id="form">
+    <form id="form">
 
-<div class="grid">
+      <div class="grid">
 
-<div>
-<label for="title">Title</label>
-<input id="title" maxlength="160" required placeholder="My New Single">
-</div>
+        <div>
 
-<div>
-<label for="price">Price ($)</label>
-<input id="price" type="number" min="1" max="10000" step="0.01" required placeholder="10.00">
-</div>
+          <label for="title">
+            Title
+          </label>
 
-</div>
+          <input
+            id="title"
+            maxlength="160"
+            required
+            placeholder="My New Single"
+          >
 
-<label for="category">Category</label>
+        </div>
 
-<select id="category" required>
-<option value="">Choose a category</option>
-<option value="Music">Music</option>
-<option value="Beats">Beats</option>
-<option value="Vocals">Vocals</option>
-<option value="Artwork">Artwork</option>
-<option value="Video">Video</option>
-<option value="Digital">Digital Content</option>
-<option value="Writing">Writing</option>
-<option value="Photography">Photography</option>
-<option value="Other">Other</option>
-</select>
+        <div>
 
-<label for="description">Description</label>
+          <label for="price">
+            Price ($)
+          </label>
 
-<textarea id="description" maxlength="4000" required placeholder="Tell buyers what they are getting..."></textarea>
+          <input
+            id="price"
+            type="number"
+            min="1"
+            max="10000"
+            step="0.01"
+            required
+            placeholder="10.00"
+          >
 
-<label for="file">Digital File</label>
+        </div>
 
-<input
-id="file"
-type="file"
-required
-accept=".mp3,.wav,.m4a,.mp4,.jpg,.jpeg,.png,.webp,.pdf,.zip"
->
+      </div>
 
-<p class="small">
-Accepted files include MP3, WAV, M4A, MP4, JPG, JPEG, PNG, WebP, PDF and ZIP.
-</p>
 
-<label for="cover">
-Cover Image <span class="small">Optional</span>
-</label>
+      <label for="category">
+        Category
+      </label>
 
-<input
-id="cover"
-type="file"
-accept="image/jpeg,image/png,image/webp"
->
+      <select
+        id="category"
+        required
+      >
 
-<p class="small">
-Cover images must be JPG, PNG or WebP.
-HEIF/HEIC images are not currently supported.
-</p>
+        <option value="">
+          Choose a category
+        </option>
 
-<button id="submit" class="button" type="submit">
-Publish to StarRise Store
-</button>
+        <option value="Music">
+          Music
+        </option>
 
-<div id="status" class="status hidden"></div>
+        <option value="Beats">
+          Beats
+        </option>
 
-</form>
+        <option value="Vocals">
+          Vocals
+        </option>
 
-</section>
+        <option value="Artwork">
+          Artwork
+        </option>
+
+        <option value="Video">
+          Video
+        </option>
+
+        <option value="Digital">
+          Digital Content
+        </option>
+
+        <option value="Writing">
+          Writing
+        </option>
+
+        <option value="Photography">
+          Photography
+        </option>
+
+        <option value="Other">
+          Other
+        </option>
+
+      </select>
+
+
+      <label for="description">
+        Description
+      </label>
+
+      <textarea
+        id="description"
+        maxlength="4000"
+        required
+        placeholder="Tell buyers what they are getting..."
+      ></textarea>
+
+
+      <label for="file">
+        Digital File
+      </label>
+
+      <input
+        id="file"
+        type="file"
+        required
+        accept=".mp3,.wav,.m4a,.mp4,.jpg,.jpeg,.png,.webp,.pdf,.zip"
+      >
+
+      <p class="small">
+        Accepted files include MP3, WAV, M4A, MP4, JPG,
+        JPEG, PNG, WebP, PDF and ZIP.
+      </p>
+
+
+      <label for="cover">
+        Cover Image
+        <span class="small">
+          Optional
+        </span>
+      </label>
+
+      <input
+        id="cover"
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+      >
+
+      <p class="small">
+        Cover images must be JPG, PNG or WebP.
+        HEIF/HEIC images are not currently supported.
+      </p>
+
+
+      <button
+        id="submit"
+        class="button"
+        type="submit"
+      >
+        Publish to StarRise Store
+      </button>
+
+
+      <div
+        id="status"
+        class="status hidden"
+      ></div>
+
+    </form>
+
+  </section>
+
 </main>
+
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-const SUPABASE_URL =
-'https://rcnikxotdalxtuvpmlvm.supabase.co';
+(function () {
 
-const SUPABASE_KEY =
-'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
+  'use strict';
 
-const supabaseClient =
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
 
-const form =
-document.getElementById('form');
+  const SUPABASE_URL =
+    'https://rcnikxotdalxtuvpmlvm.supabase.co';
 
-const status =
-document.getElementById('status');
 
-const submit =
-document.getElementById('submit');
+  const SUPABASE_KEY =
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
-const fileInput =
-document.getElementById('file');
 
-const coverInput =
-document.getElementById('cover');
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
 
-function showStatus(message,type=''){
+  const form =
+    document.getElementById('form');
 
-status.textContent=message;
+  const status =
+    document.getElementById('status');
 
-status.className='status '+type;
+  const submit =
+    document.getElementById('submit');
 
-status.classList.remove('hidden');
+  const fileInput =
+    document.getElementById('file');
 
-}
+  const coverInput =
+    document.getElementById('cover');
 
 
-function mime(file){
+  function showStatus(
+    message,
+    type = ''
+  ) {
 
-if(file.type)return file.type;
+    status.textContent =
+      message;
 
-const n=file.name.toLowerCase();
+    status.className =
+      'status ' + type;
 
-if(n.endsWith('.mp3'))return'audio/mpeg';
-if(n.endsWith('.wav'))return'audio/wav';
-if(n.endsWith('.m4a'))return'audio/mp4';
-if(n.endsWith('.mp4'))return'video/mp4';
-if(n.endsWith('.jpg')||n.endsWith('.jpeg'))return'image/jpeg';
-if(n.endsWith('.png'))return'image/png';
-if(n.endsWith('.webp'))return'image/webp';
-if(n.endsWith('.pdf'))return'application/pdf';
-if(n.endsWith('.zip'))return'application/zip';
+    status.classList.remove(
+      'hidden'
+    );
 
-return'application/octet-stream';
+  }
 
-}
 
+  function getMimeType(file) {
 
-async function session(){
+    if (
+      file &&
+      file.type
+    ) {
 
-const result =
-await supabaseClient.auth.getSession();
+      return file.type;
 
-if(result.error)
-throw new Error(result.error.message);
+    }
 
-if(!result.data.session)
-throw new Error(
-'Please sign in before selling your work.'
-);
 
-return result.data.session;
+    const name =
+      String(
+        file?.name || ''
+      ).toLowerCase();
 
-}
 
+    if (
+      name.endsWith('.mp3')
+    ) {
+      return 'audio/mpeg';
+    }
 
-async function getUploadUrl(file,cover=false){
 
-const result =
-await supabaseClient.functions.invoke(
-'upload-marketplace-item',
-{
-body:{
-action:'create_upload_url',
-file_name:file.name,
-cover:cover
-}
-}
-);
+    if (
+      name.endsWith('.wav')
+    ) {
+      return 'audio/wav';
+    }
 
-if(result.error){
 
-throw new Error(
-result.error.message ||
-'Could not prepare the file upload.'
-);
+    if (
+      name.endsWith('.m4a')
+    ) {
+      return 'audio/mp4';
+    }
 
-}
 
-if(!result.data?.ok){
+    if (
+      name.endsWith('.mp4')
+    ) {
+      return 'video/mp4';
+    }
 
-throw new Error(
-result.data?.error ||
-'Could not prepare the file upload.'
-);
 
-}
+    if (
+      name.endsWith('.jpg') ||
+      name.endsWith('.jpeg')
+    ) {
+      return 'image/jpeg';
+    }
 
-return result.data;
 
-}
+    if (
+      name.endsWith('.png')
+    ) {
+      return 'image/png';
+    }
 
 
-async function uploadSigned(file,upload){
+    if (
+      name.endsWith('.webp')
+    ) {
+      return 'image/webp';
+    }
 
-const result =
-await supabaseClient
-.storage
-.from('talent-store')
-.uploadToSignedUrl(
-upload.path,
-upload.token,
-file
-);
 
-if(result.error){
+    if (
+      name.endsWith('.pdf')
+    ) {
+      return 'application/pdf';
+    }
 
-throw new Error(
-'Storage upload failed: ' +
-result.error.message
-);
 
-}
+    if (
+      name.endsWith('.zip')
+    ) {
+      return 'application/zip';
+    }
 
-}
 
+    return '';
 
-form.addEventListener(
-'submit',
-async(event)=>{
+  }
 
-event.preventDefault();
 
-submit.disabled=true;
+  async function getValidSession() {
 
-try{
+    const sessionResult =
+      await supabaseClient
+        .auth
+        .getSession();
 
-await session();
 
-const title =
-document.getElementById('title')
-.value.trim();
+    if (
+      sessionResult.error
+    ) {
 
-const price =
-Number(
-document.getElementById('price').value
-);
+      throw new Error(
+        'Authentication error: ' +
+        sessionResult.error.message
+      );
 
-const category =
-document.getElementById('category').value;
+    }
 
-const description =
-document.getElementById('description')
-.value.trim();
 
-const file =
-fileInput.files[0];
+    let session =
+      sessionResult.data.session;
 
-const cover =
-coverInput.files[0];
 
-if(!title)
-throw new Error('Enter a title.');
+    if (!session) {
 
-if(!Number.isFinite(price)||price<1)
-throw new Error('Enter a valid price.');
+      throw new Error(
+        'Please sign in before selling your work.'
+      );
 
-if(!category)
-throw new Error('Choose a category.');
+    }
 
-if(!description)
-throw new Error('Add a description.');
 
-if(!file)
-throw new Error('Choose the digital file.');
+    /*
+      Refresh the session first so an old
+      login token does not sabotage the upload.
+    */
 
-const allowed=[
-'audio/mpeg',
-'audio/wav',
-'audio/x-wav',
-'audio/mp4',
-'video/mp4',
-'image/jpeg',
-'image/png',
-'image/webp',
-'application/pdf',
-'application/zip'
-];
+    const refreshResult =
+      await supabaseClient
+        .auth
+        .refreshSession();
 
-const fileMime=mime(file);
 
-if(!allowed.includes(fileMime))
-throw new Error(
-'This file type is not supported: '+fileMime
-);
+    if (
+      !refreshResult.error &&
+      refreshResult.data.session
+    ) {
 
-if(cover){
+      session =
+        refreshResult.data.session;
 
-const coverMime=mime(cover);
+    }
 
-if(![
-'image/jpeg',
-'image/png',
-'image/webp'
-].includes(coverMime))
-throw new Error(
-'Cover image must be JPG, PNG or WebP.'
-);
 
-}
+    return session;
 
+  }
 
-showStatus(
-'Preparing secure upload...'
-);
 
-const fileUpload =
-await getUploadUrl(file,false);
+  form.addEventListener(
+    'submit',
+    async function (event) {
 
+      event.preventDefault();
 
-showStatus(
-'Uploading your file...'
-);
+      submit.disabled = true;
 
-await uploadSigned(
-file,
-fileUpload
-);
 
+      try {
 
-let coverPath=null;
+        showStatus(
+          'Checking your StarRise account...'
+        );
 
 
-if(cover){
+        const session =
+          await getValidSession();
 
-showStatus(
-'Preparing cover image upload...'
-);
 
-const coverUpload =
-await getUploadUrl(cover,true);
+        const title =
+          document
+            .getElementById('title')
+            .value
+            .trim();
 
-showStatus(
-'Uploading cover image...'
-);
 
-await uploadSigned(
-cover,
-coverUpload
-);
+        const price =
+          Number(
+            document
+              .getElementById('price')
+              .value
+          );
 
-coverPath =
-coverUpload.path;
 
-}
+        const category =
+          document
+            .getElementById('category')
+            .value;
 
 
-showStatus(
-'Publishing your listing...'
-);
+        const description =
+          document
+            .getElementById('description')
+            .value
+            .trim();
 
 
-const publish =
-await supabaseClient.functions.invoke(
-'upload-marketplace-item',
-{
-body:{
-action:'publish',
-title:title,
-description:description,
-category:category,
-price:price,
-file_path:fileUpload.path,
-cover_path:coverPath,
-mime_type:fileMime
-}
-}
-);
+        const file =
+          fileInput.files[0];
 
 
-if(publish.error){
+        const cover =
+          coverInput.files[0];
 
-throw new Error(
-publish.error.message ||
-'Publishing failed.'
-);
 
-}
+        /*
+          Validate listing.
+        */
 
+        if (!title) {
 
-if(!publish.data?.ok){
+          throw new Error(
+            'Enter a title for your work.'
+          );
 
-throw new Error(
-publish.data?.error ||
-'Publishing failed.'
-);
+        }
 
-}
 
+        if (
+          !Number.isFinite(price) ||
+          price < 1 ||
+          price > 10000
+        ) {
 
-showStatus(
-'Published! Your work is now live in the StarRise Store.',
-'success'
-);
+          throw new Error(
+            'Price must be between $1.00 and $10,000.'
+          );
 
+        }
 
-form.reset();
 
+        if (!category) {
 
-setTimeout(
-()=>{
-window.location.href='marketplace.html';
-},
-1500
-);
+          throw new Error(
+            'Choose a category.'
+          );
 
+        }
 
-}catch(error){
 
-console.error(
-'StarRise marketplace:',
-error
-);
+        if (!description) {
 
-showStatus(
-error?.message ||
-'Unable to publish your work.',
-'error'
-);
+          throw new Error(
+            'Add a description.'
+          );
 
-}finally{
+        }
 
-submit.disabled=false;
 
-}
+        if (!file) {
 
-});
+          throw new Error(
+            'Choose the digital file buyers will receive.'
+          );
+
+        }
+
+
+        const fileMime =
+          getMimeType(file);
+
+
+        const allowedFiles = [
+          'audio/mpeg',
+          'audio/wav',
+          'audio/x-wav',
+          'audio/mp4',
+          'video/mp4',
+          'image/jpeg',
+          'image/png',
+          'image/webp',
+          'application/pdf',
+          'application/zip'
+        ];
+
+
+        if (
+          !fileMime ||
+          !allowedFiles.includes(
+            fileMime
+          )
+        ) {
+
+          throw new Error(
+            'This file type is not supported.'
+          );
+
+        }
+
+
+        if (cover) {
+
+          const coverMime =
+            getMimeType(cover);
+
+
+          if (
+            ![
+              'image/jpeg',
+              'image/png',
+              'image/webp'
+            ].includes(
+              coverMime
+            )
+          ) {
+
+            throw new Error(
+              'Cover image must be JPG, PNG or WebP.'
+            );
+
+          }
+
+        }
+
+
+        /*
+          Build multipart form.
+
+          IMPORTANT:
+          The browser is NOT uploading directly
+          to Supabase Storage anymore.
+
+          The Edge Function receives the file,
+          verifies the logged-in StarRise user,
+          and handles Storage server-side.
+        */
+
+        const formData =
+          new FormData();
+
+
+        formData.append(
+          'title',
+          title
+        );
+
+
+        formData.append(
+          'price',
+          String(price)
+        );
+
+
+        formData.append(
+          'category',
+          category
+        );
+
+
+        formData.append(
+          'description',
+          description
+        );
+
+
+        formData.append(
+          'file',
+          file,
+          file.name
+        );
+
+
+        if (cover) {
+
+          formData.append(
+            'cover',
+            cover,
+            cover.name
+          );
+
+        }
+
+
+        showStatus(
+          'Uploading and publishing your work...'
+        );
+
+
+        /*
+          Send directly to the Edge Function.
+
+          Do NOT manually set Content-Type.
+          The browser must create the multipart
+          boundary automatically.
+        */
+
+        const response =
+          await fetch(
+            SUPABASE_URL +
+            '/functions/v1/upload-marketplace-item',
+            {
+              method: 'POST',
+
+              headers: {
+                Authorization:
+                  'Bearer ' +
+                  session.access_token,
+
+                apikey:
+                  SUPABASE_KEY
+              },
+
+              body:
+                formData
+            }
+          );
+
+
+        /*
+          Parse response safely.
+        */
+
+        let data =
+          null;
+
+
+        const responseText =
+          await response.text();
+
+
+        if (responseText) {
+
+          try {
+
+            data =
+              JSON.parse(
+                responseText
+              );
+
+          } catch (_) {
+
+            throw new Error(
+              'StarRise received an invalid server response.'
+            );
+
+          }
+
+        }
+
+
+        if (
+          !response.ok
+        ) {
+
+          throw new Error(
+            data?.error ||
+            'Unable to publish your work.'
+          );
+
+        }
+
+
+        if (
+          !data ||
+          data.ok !== true
+        ) {
+
+          throw new Error(
+            data?.error ||
+            'StarRise could not publish your item.'
+          );
+
+        }
+
+
+        showStatus(
+          data.message ||
+          'Published! Your work is now live in the StarRise Store.',
+          'success'
+        );
+
+
+        form.reset();
+
+
+        setTimeout(
+          function () {
+
+            window.location.href =
+              'marketplace.html';
+
+          },
+          1500
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          'StarRise marketplace upload error:',
+          error
+        );
+
+
+        /*
+          If the browser itself could not reach
+          the Edge Function, this catches the
+          otherwise useless "Failed to fetch".
+        */
+
+        if (
+          error instanceof TypeError &&
+          String(
+            error.message
+          ).toLowerCase().includes(
+            'fetch'
+          )
+        ) {
+
+          showStatus(
+            'StarRise could not reach the upload server. Please refresh the page and try again.',
+            'error'
+          );
+
+        } else {
+
+          showStatus(
+            error?.message ||
+            'Unable to publish your work.',
+            'error'
+          );
+
+        }
+
+
+      } finally {
+
+        submit.disabled =
+          false;
+
+      }
+
+    }
+
+  );
+
+})();
 
 </script>
 
