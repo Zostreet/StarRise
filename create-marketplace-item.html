@@ -25,8 +25,7 @@
       gap: 18px;
     }
 
-    header a,
-    nav a {
+    header a, nav a {
       color: #fff;
       text-decoration: none;
       font-weight: bold;
@@ -51,13 +50,9 @@
       margin-bottom: 20px;
     }
 
-    h1 {
-      margin-top: 0;
-    }
+    h1 { margin-top: 0; }
 
-    .muted {
-      color: #aaa;
-    }
+    .muted { color: #aaa; }
 
     label {
       display: block;
@@ -93,7 +88,6 @@
     }
 
     .button {
-      display: inline-block;
       width: 100%;
       border: 0;
       border-radius: 25px;
@@ -123,12 +117,12 @@
 
     .error {
       color: #ffb5b5;
-      background: rgba(220, 70, 70, .12);
+      background: rgba(220,70,70,.12);
     }
 
     .success {
       color: #baffca;
-      background: rgba(50, 180, 80, .12);
+      background: rgba(50,180,80,.12);
     }
 
     .hidden {
@@ -160,19 +154,14 @@
 <body>
 
 <header>
-
-  <a href="index.html">
-    ⭐ StarRise
-  </a>
+  <a href="index.html">⭐ StarRise</a>
 
   <nav>
     <a href="marketplace.html">Store</a>
     <a href="services.html">Services</a>
     <a href="dashboard.html">Dashboard</a>
   </nav>
-
 </header>
-
 
 <main>
 
@@ -190,10 +179,7 @@
       <div class="grid">
 
         <div>
-
-          <label for="title">
-            Title
-          </label>
+          <label for="title">Title</label>
 
           <input
             id="title"
@@ -201,15 +187,10 @@
             required
             placeholder="My New Single"
           >
-
         </div>
 
-
         <div>
-
-          <label for="price">
-            Price ($)
-          </label>
+          <label for="price">Price ($)</label>
 
           <input
             id="price"
@@ -220,64 +201,26 @@
             required
             placeholder="10.00"
           >
-
         </div>
 
       </div>
 
-
-      <label for="category">
-        Category
-      </label>
+      <label for="category">Category</label>
 
       <select id="category" required>
-
-        <option value="">
-          Choose a category
-        </option>
-
-        <option value="Music">
-          Music
-        </option>
-
-        <option value="Beats">
-          Beats
-        </option>
-
-        <option value="Vocals">
-          Vocals
-        </option>
-
-        <option value="Artwork">
-          Artwork
-        </option>
-
-        <option value="Video">
-          Video
-        </option>
-
-        <option value="Digital">
-          Digital Content
-        </option>
-
-        <option value="Writing">
-          Writing
-        </option>
-
-        <option value="Photography">
-          Photography
-        </option>
-
-        <option value="Other">
-          Other
-        </option>
-
+        <option value="">Choose a category</option>
+        <option value="Music">Music</option>
+        <option value="Beats">Beats</option>
+        <option value="Vocals">Vocals</option>
+        <option value="Artwork">Artwork</option>
+        <option value="Video">Video</option>
+        <option value="Digital">Digital Content</option>
+        <option value="Writing">Writing</option>
+        <option value="Photography">Photography</option>
+        <option value="Other">Other</option>
       </select>
 
-
-      <label for="description">
-        Description
-      </label>
+      <label for="description">Description</label>
 
       <textarea
         id="description"
@@ -286,10 +229,7 @@
         placeholder="Tell buyers what they are getting..."
       ></textarea>
 
-
-      <label for="file">
-        Digital File
-      </label>
+      <label for="file">Digital File</label>
 
       <input
         id="file"
@@ -303,12 +243,9 @@
         JPEG, PNG, WebP, PDF and ZIP.
       </p>
 
-
       <label for="cover">
         Cover Image
-        <span class="small">
-          Optional
-        </span>
+        <span class="small">Optional</span>
       </label>
 
       <input
@@ -322,7 +259,6 @@
         HEIF/HEIC images are not currently supported.
       </p>
 
-
       <button
         id="submit"
         class="button"
@@ -330,7 +266,6 @@
       >
         Publish to StarRise Store
       </button>
-
 
       <div
         id="status"
@@ -343,30 +278,28 @@
 
 </main>
 
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-
 (function () {
 
   'use strict';
 
-
   const SUPABASE_URL =
     'https://rcnikxotdalxtuvpmlvm.supabase.co';
-
 
   const SUPABASE_KEY =
     'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
+  const FUNCTION_URL =
+    SUPABASE_URL +
+    '/functions/v1/upload-marketplace-item';
 
   const supabaseClient =
     window.supabase.createClient(
       SUPABASE_URL,
       SUPABASE_KEY
     );
-
 
   const form =
     document.getElementById('form');
@@ -384,55 +317,24 @@
     document.getElementById('cover');
 
 
-  function showStatus(
-    message,
-    type
-  ) {
+  function showStatus(message, type) {
 
-    status.textContent =
-      message;
+    status.textContent = message;
 
     status.className =
-      'status ' +
-      (type || '');
+      'status ' + (type || '');
 
   }
 
 
-  function safeFileName(
-    value
-  ) {
+  function getMimeType(file) {
 
-    return String(
-      value || 'file'
-    )
-      .replace(
-        /[^a-zA-Z0-9._-]/g,
-        '_'
-      );
-
-  }
-
-
-  function getFileMimeType(
-    file
-  ) {
-
-    if (
-      file &&
-      file.type
-    ) {
-
+    if (file && file.type) {
       return file.type;
-
     }
 
-
     const name =
-      String(
-        file?.name || ''
-      ).toLowerCase();
-
+      String(file?.name || '').toLowerCase();
 
     if (name.endsWith('.mp3'))
       return 'audio/mpeg';
@@ -469,58 +371,13 @@
   }
 
 
-  async function uploadFile(
-    file,
-    path
-  ) {
-
-    const mimeType =
-      getFileMimeType(file);
-
-
-    const result =
-      await supabaseClient
-        .storage
-        .from('talent-store')
-        .upload(
-          path,
-          file,
-          {
-            upsert: false,
-            contentType:
-              mimeType || undefined
-          }
-        );
-
-
-    if (result.error) {
-
-      throw new Error(
-        'Storage upload failed: ' +
-        result.error.message
-      );
-
-    }
-
-
-    return {
-      path: path,
-      mimeType: mimeType
-    };
-
-  }
-
-
   form.addEventListener(
     'submit',
     async function (event) {
 
       event.preventDefault();
 
-
-      submit.disabled =
-        true;
-
+      submit.disabled = true;
 
       try {
 
@@ -528,33 +385,23 @@
           'Checking your StarRise account...'
         );
 
-
         const userResult =
-          await supabaseClient
-            .auth
-            .getUser();
-
+          await supabaseClient.auth.getUser();
 
         if (userResult.error) {
-
           throw new Error(
             'Authentication error: ' +
             userResult.error.message
           );
-
         }
-
 
         const user =
           userResult.data.user;
 
-
         if (!user) {
-
           throw new Error(
             'Please sign in before selling your work.'
           );
-
         }
 
 
@@ -564,20 +411,6 @@
             .value
             .trim();
 
-
-        const description =
-          document
-            .getElementById('description')
-            .value
-            .trim();
-
-
-        const category =
-          document
-            .getElementById('category')
-            .value;
-
-
         const price =
           Number(
             document
@@ -585,274 +418,224 @@
               .value
           );
 
+        const category =
+          document
+            .getElementById('category')
+            .value;
+
+        const description =
+          document
+            .getElementById('description')
+            .value
+            .trim();
 
         const file =
           fileInput.files[0];
-
 
         const cover =
           coverInput.files[0];
 
 
         if (!title) {
-
           throw new Error(
             'Enter a title for your work.'
           );
-
         }
-
-
-        if (!category) {
-
-          throw new Error(
-            'Choose a category.'
-          );
-
-        }
-
-
-        if (!description) {
-
-          throw new Error(
-            'Add a description.'
-          );
-
-        }
-
-
-        if (!file) {
-
-          throw new Error(
-            'Choose the digital file buyers will receive.'
-          );
-
-        }
-
 
         if (
           !Number.isFinite(price) ||
           price < 1 ||
           price > 10000
         ) {
-
           throw new Error(
             'Price must be between $1.00 and $10,000.'
           );
-
         }
 
+        if (!category) {
+          throw new Error(
+            'Choose a category.'
+          );
+        }
+
+        if (!description) {
+          throw new Error(
+            'Add a description.'
+          );
+        }
+
+        if (!file) {
+          throw new Error(
+            'Choose the digital file buyers will receive.'
+          );
+        }
+
+
+        const fileMime =
+          getMimeType(file);
+
+        const allowedFiles = [
+          'audio/mpeg',
+          'audio/wav',
+          'audio/x-wav',
+          'audio/mp4',
+          'video/mp4',
+          'image/jpeg',
+          'image/png',
+          'image/webp',
+          'application/pdf',
+          'application/zip'
+        ];
 
         if (
-          cover &&
-          ![
-            'image/jpeg',
-            'image/png',
-            'image/webp'
-          ].includes(
-            getFileMimeType(cover)
-          )
+          fileMime &&
+          !allowedFiles.includes(fileMime)
         ) {
-
           throw new Error(
-            'The cover image must be JPG, PNG or WebP. HEIF/HEIC is not supported.'
+            'This file type is not supported: ' +
+            fileMime
           );
-
         }
-
-
-        const timestamp =
-          Date.now();
-
-
-        const filePath =
-          user.id +
-          '/' +
-          timestamp +
-          '-' +
-          safeFileName(file.name);
-
-
-        const uploadedPaths =
-          [];
-
-
-        showStatus(
-          'Uploading your work...'
-        );
-
-
-        const uploaded =
-          await uploadFile(
-            file,
-            filePath
-          );
-
-
-        uploadedPaths.push(
-          uploaded.path
-        );
-
-
-        let coverPath =
-          null;
 
 
         if (cover) {
 
-          showStatus(
-            'Uploading your cover image...'
-          );
+          const coverMime =
+            getMimeType(cover);
 
-
-          coverPath =
-            user.id +
-            '/' +
-            timestamp +
-            '-cover-' +
-            safeFileName(
-              cover.name
+          if (
+            ![
+              'image/jpeg',
+              'image/png',
+              'image/webp'
+            ].includes(coverMime)
+          ) {
+            throw new Error(
+              'Cover image must be JPG, PNG or WebP.'
             );
-
-
-          const uploadedCover =
-            await uploadFile(
-              cover,
-              coverPath
-            );
-
-
-          uploadedPaths.push(
-            uploadedCover.path
-          );
+          }
 
         }
 
 
         showStatus(
-          'Creating your Store listing...'
+          'Uploading your work securely...'
         );
 
 
+        const sessionResult =
+          await supabaseClient.auth.getSession();
+
+        if (sessionResult.error) {
+          throw sessionResult.error;
+        }
+
+        const session =
+          sessionResult.data.session;
+
+        if (!session) {
+          throw new Error(
+            'Your login session has expired. Please sign in again.'
+          );
+        }
+
+
         /*
-          IMPORTANT:
+          Send everything to the authenticated
+          Edge Function.
 
-          Do NOT use .select().single()
-          here.
-
-          We only need the INSERT to succeed.
+          The browser no longer uploads directly
+          to the private Storage bucket.
         */
 
-        const insertResult =
-          await supabaseClient
-            .from('marketplace_items')
-            .insert({
+        const formData =
+          new FormData();
 
-              seller_id:
-                user.id,
+        formData.append(
+          'title',
+          title
+        );
 
-              title:
-                title,
+        formData.append(
+          'description',
+          description
+        );
 
-              description:
-                description,
+        formData.append(
+          'category',
+          category
+        );
 
-              category:
-                category,
+        formData.append(
+          'price',
+          String(price)
+        );
 
-              price_cents:
-                Math.round(
-                  price * 100
-                ),
+        formData.append(
+          'file',
+          file,
+          file.name
+        );
 
-              cover_url:
-                null,
-
-              preview_url:
-                null,
-
-              file_path:
-                filePath,
-
-              mime_type:
-                getFileMimeType(file),
-
-              status:
-                'active'
-
-            });
+        if (cover) {
+          formData.append(
+            'cover',
+            cover,
+            cover.name
+          );
+        }
 
 
-        if (insertResult.error) {
+        const response =
+          await fetch(
+            FUNCTION_URL,
+            {
+              method: 'POST',
 
-          console.error(
-            'FULL MARKETPLACE INSERT ERROR:',
-            insertResult.error
+              headers: {
+                'Authorization':
+                  'Bearer ' +
+                  session.access_token,
+
+                'apikey':
+                  SUPABASE_KEY
+              },
+
+              body: formData
+            }
           );
 
 
-          /*
-            Remove uploaded files so
-            failed listings do not leave
-            orphaned files behind.
-          */
+        let data = null;
 
-          if (
-            uploadedPaths.length
-          ) {
-
-            try {
-
-              await supabaseClient
-                .storage
-                .from('talent-store')
-                .remove(
-                  uploadedPaths
-                );
-
-            } catch (
-              cleanupError
-            ) {
-
-              console.warn(
-                'Cleanup failed:',
-                cleanupError
-              );
-
-            }
-
-          }
+        try {
+          data =
+            await response.json();
+        } catch {
+          data = null;
+        }
 
 
-          const dbError =
-            insertResult.error;
+        if (!response.ok) {
 
+          console.error(
+            'Marketplace function error:',
+            data
+          );
 
           throw new Error(
-            'Store listing failed.\n\n' +
-            'Code: ' +
-            (
-              dbError.code ||
-              'unknown'
-            ) +
-            '\n\n' +
-            'Message: ' +
-            (
-              dbError.message ||
-              'Unknown database error'
-            ) +
-            (
-              dbError.details
-                ? '\n\nDetails: ' +
-                  dbError.details
-                : ''
-            ) +
-            (
-              dbError.hint
-                ? '\n\nHint: ' +
-                  dbError.hint
-                : ''
-            )
+            data?.error ||
+            'StarRise could not publish your item.'
+          );
+
+        }
+
+
+        if (!data?.ok) {
+
+          throw new Error(
+            data?.error ||
+            'StarRise could not publish your item.'
           );
 
         }
@@ -885,13 +668,11 @@
           error
         );
 
-
         showStatus(
           error?.message ||
           'Unable to publish your work.',
           'error'
         );
-
 
         submit.disabled =
           false;
@@ -899,12 +680,9 @@
       }
 
     }
-
   );
 
-
 })();
-
 </script>
 
 </body>
