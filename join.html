@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
   <meta charset="UTF-8">
 
   <meta
@@ -18,7 +17,6 @@
   >
 
   <style>
-
     * {
       box-sizing: border-box;
       margin: 0;
@@ -43,15 +41,12 @@
 
     header {
       padding: 24px 8%;
-
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 20px;
-
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-
-      background: rgba(8,8,18,0.96);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(8, 8, 18, 0.96);
     }
 
     .logo {
@@ -98,43 +93,25 @@
     .grid {
       max-width: 1100px;
       margin: 40px auto;
-
       display: grid;
-
-      grid-template-columns:
-        repeat(auto-fit, minmax(240px, 1fr));
-
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 22px;
     }
 
     .card {
       padding: 30px;
-
       border-radius: 18px;
-
-      border: 1px solid
-        rgba(255,255,255,0.12);
-
-      background:
-        rgba(255,255,255,0.04);
-
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
       display: flex;
       flex-direction: column;
-
-      transition:
-        transform .2s ease,
-        border-color .2s ease,
-        background .2s ease;
+      transition: transform .2s ease, border-color .2s ease, background .2s ease;
     }
 
     .card:hover {
       transform: translateY(-4px);
-
-      border-color:
-        rgba(255,255,255,0.35);
-
-      background:
-        rgba(255,255,255,0.07);
+      border-color: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.07);
     }
 
     .icon {
@@ -154,21 +131,12 @@
 
     .button {
       display: inline-block;
-
       padding: 12px 24px;
-
       border-radius: 30px;
-
       background: white;
       color: #080812;
-
-      text-decoration: none;
-
       font-weight: bold;
-
-      transition:
-        transform .2s ease,
-        opacity .2s ease;
+      transition: transform .2s ease, opacity .2s ease;
     }
 
     .button:hover {
@@ -177,17 +145,13 @@
     }
 
     .vendor-card {
-      border-color:
-        rgba(255,255,255,0.22);
-
-      background:
-        rgba(255,255,255,0.06);
+      border-color: rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.06);
     }
 
     .note {
       max-width: 800px;
       margin: 35px auto 0;
-
       color: #aaaaaa;
     }
 
@@ -204,17 +168,12 @@
 
     footer {
       padding: 35px;
-
       text-align: center;
-
       color: #999999;
-
-      border-top: 1px solid
-        rgba(255,255,255,0.1);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     @media (max-width: 650px) {
-
       header {
         flex-direction: column;
         align-items: flex-start;
@@ -231,283 +190,153 @@
       .hero {
         padding: 70px 6% 40px;
       }
-
     }
-
   </style>
-
 </head>
-
 
 <body>
 
-
 <header>
-
-  <a
-    class="logo"
-    href="index.html"
-  >
+  <a class="logo" href="index.html">
     ⭐ StarRise
   </a>
 
-
   <nav>
-
-    <a href="index.html">
-      Home
-    </a>
-
-    <a href="ecosystem.html">
-      Ecosystem
-    </a>
-
-    <a href="members.html">
-      Members
-    </a>
-
-    <a href="marketplace.html">
-      Store
-    </a>
-
-    <a href="login.html">
-      Sign In
-    </a>
-
+    <a href="index.html">Home</a>
+    <a href="members.html">Members</a>
+    <a href="ecosystem.html">Ecosystem</a>
+    <a href="marketplace.html">Store</a>
+    <a href="services.html">Services</a>
+    <a href="opportunities.html">Opportunities</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="login.html">Sign In</a>
   </nav>
-
 </header>
-
 
 <main>
 
-
   <section class="hero">
-
-    <h1>
-      Join StarRise
-    </h1>
+    <h1>Join StarRise</h1>
 
     <p>
-      There's more than one way to be part of
-      StarRise. Choose the role that best fits
-      how you want to create, connect, contribute,
-      grow, support others, or build business.
+      There's more than one way to be part of StarRise.
+      Choose the role that best fits how you want to create,
+      connect, contribute, grow, support others, or build business.
     </p>
-
   </section>
 
-
   <section>
-
     <div class="grid">
 
-
-      <!-- TALENT -->
-
       <div class="card">
-
-        <div class="icon">
-          🎤
-        </div>
-
-        <h2>
-          Talent
-        </h2>
+        <div class="icon">🎤</div>
+        <h2>Talent</h2>
 
         <p>
-          You're an artist, performer, musician,
-          actor, entertainer, or emerging talent
-          looking to build your future.
+          You're an artist, performer, musician, actor,
+          entertainer, or emerging talent looking to
+          build your future.
         </p>
 
-        <a
-          class="button"
-          href="register.html?role=Talent"
-        >
+        <a class="button" href="register.html?role=Talent">
           Join as Talent
         </a>
-
       </div>
 
-
-      <!-- CREATOR -->
-
       <div class="card">
-
-        <div class="icon">
-          ✨
-        </div>
-
-        <h2>
-          Creator
-        </h2>
+        <div class="icon">✨</div>
+        <h2>Creator</h2>
 
         <p>
-          You create music, video, writing,
-          artwork, digital content, projects,
-          or other original work.
+          You create music, video, writing, artwork,
+          digital content, projects, or other original work.
         </p>
 
-        <a
-          class="button"
-          href="register.html?role=Creator"
-        >
+        <a class="button" href="register.html?role=Creator">
           Join as Creator
         </a>
-
       </div>
 
-
-      <!-- SUPPORTER -->
-
       <div class="card">
-
-        <div class="icon">
-          ❤️
-        </div>
-
-        <h2>
-          Supporter
-        </h2>
+        <div class="icon">❤️</div>
+        <h2>Supporter</h2>
 
         <p>
-          You believe in talent and want to
-          discover creators, support projects,
-          attend events, and help people rise.
+          You believe in talent and want to discover creators,
+          support projects, attend events, and help people rise.
         </p>
 
-        <a
-          class="button"
-          href="register.html?role=Supporter"
-        >
+        <a class="button" href="register.html?role=Supporter">
           Join as Supporter
         </a>
-
       </div>
 
-
-      <!-- CLIENT -->
-
       <div class="card">
-
-        <div class="icon">
-          💼
-        </div>
-
-        <h2>
-          Client
-        </h2>
+        <div class="icon">💼</div>
+        <h2>Client</h2>
 
         <p>
-          You need entertainment, creative
-          services, talent, production support,
-          or professionals for a project.
+          You need entertainment, creative services, talent,
+          production support, or professionals for a project.
         </p>
 
-        <a
-          class="button"
-          href="register.html?role=Client"
-        >
+        <a class="button" href="register.html?role=Client">
           Join as Client
         </a>
-
       </div>
-
-
-      <!-- VENDOR -->
 
       <div class="card vendor-card">
-
-        <div class="icon">
-          🛠️
-        </div>
-
-        <h2>
-          Vendor
-        </h2>
+        <div class="icon">🛠️</div>
+        <h2>Vendor</h2>
 
         <p>
-          You provide professional services,
-          products, equipment, spaces,
-          merchandise, or business resources.
+          You provide professional services, products,
+          equipment, spaces, merchandise, or business resources.
         </p>
 
-        <a
-          class="button"
-          href="register.html?role=Vendor"
-        >
+        <a class="button" href="register.html?role=Vendor">
           Join as Vendor
         </a>
-
       </div>
-
-
-      <!-- PARTNER -->
 
       <div class="card">
-
-        <div class="icon">
-          🤝
-        </div>
-
-        <h2>
-          Partner
-        </h2>
+        <div class="icon">🤝</div>
+        <h2>Partner</h2>
 
         <p>
-          You represent a business, organization,
-          program, or community interested in
-          creating opportunities with StarRise.
+          You represent a business, organization, program,
+          or community interested in creating opportunities
+          with StarRise.
         </p>
 
-        <a
-          class="button"
-          href="register.html?role=Partner"
-        >
+        <a class="button" href="register.html?role=Partner">
           Join as Partner
         </a>
-
       </div>
-
 
     </div>
 
-
     <p class="note">
-
       Your StarRise account can become part of a larger
       ecosystem of talent, creators, supporters, clients,
       vendors, and partners. Each role connects you with
-      the tools and opportunities designed for how you
-      participate.
-
+      the tools and opportunities designed for how you participate.
     </p>
 
-
     <p class="signin">
-
       Already have an account?
 
       <a href="login.html">
         Sign in to StarRise
       </a>
-
     </p>
-
   </section>
-
 
 </main>
 
-
 <footer>
-
   ⭐ StarRise — Where Talent Rises.
-
 </footer>
 
-
 </body>
-
 </html>
