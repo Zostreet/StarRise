@@ -3,14 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Opportunities | StarRise</title>
+
+  <title>StarRise Opportunities</title>
+
+  <meta
+    name="description"
+    content="Discover auditions, gigs, collaborations, creative work, and other opportunities on StarRise."
+  >
 
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
       background: #080812;
       color: #fff;
     }
@@ -21,26 +31,22 @@
     }
 
     header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: #080812;
+      padding: 20px 24px;
       border-bottom: 1px solid #ffffff18;
     }
 
     .nav {
-      width: min(1150px, calc(100% - 30px));
-      min-height: 70px;
+      width: min(1150px, 100%);
       margin: auto;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 20px;
+      align-items: center;
+      gap: 18px;
     }
 
     .logo {
-      font-size: 22px;
-      font-weight: 800;
+      font-size: 21px;
+      font-weight: bold;
     }
 
     .nav-links {
@@ -50,8 +56,8 @@
     }
 
     .nav-links a {
-      color: #aaa;
-      font-size: 14px;
+      color: #bbb;
+      font-weight: bold;
     }
 
     .nav-links a:hover {
@@ -60,288 +66,303 @@
 
     main {
       width: min(1150px, calc(100% - 30px));
-      margin: auto;
-      padding: 55px 0 80px;
+      margin: 35px auto 60px;
     }
 
     .hero {
+      padding: 55px 28px;
+      margin-bottom: 20px;
+      border: 1px solid #ffffff18;
+      border-radius: 24px;
+      background: #ffffff08;
       text-align: center;
-      max-width: 800px;
-      margin: 0 auto 45px;
     }
 
-    .hero h1 {
-      font-size: clamp(44px, 8vw, 76px);
-      line-height: 1;
-      margin: 0 0 18px;
+    .eyebrow {
+      color: #999;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    h1 {
+      margin: 8px 0 12px;
+      font-size: clamp(42px, 8vw, 70px);
+      line-height: 1.05;
     }
 
     .hero p {
+      max-width: 760px;
+      margin: auto;
       color: #aaa;
       font-size: 18px;
-      line-height: 1.6;
     }
 
-    .create-button {
-      margin-top: 15px;
-      padding: 13px 24px;
-      border-radius: 30px;
+    .button {
+      display: inline-block;
+      padding: 12px 20px;
       border: 0;
+      border-radius: 25px;
       background: #fff;
       color: #080812;
-      font-weight: 800;
+      font: inherit;
+      font-weight: bold;
+      text-align: center;
       cursor: pointer;
+    }
+
+    .button.secondary {
+      border: 1px solid #ffffff30;
+      background: transparent;
+      color: #fff;
+    }
+
+    .button:hover {
+      opacity: .9;
+    }
+
+    .button:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
     }
 
     .categories {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 12px;
-      margin-bottom: 30px;
-    }
-
-    .category {
-      padding: 18px;
-      border: 1px solid #ffffff18;
-      background: #ffffff08;
-      border-radius: 18px;
-      text-align: center;
-    }
-
-    .category-icon {
-      font-size: 27px;
-    }
-
-    .category strong {
-      display: block;
-      margin-top: 5px;
-    }
-
-    .category span {
-      color: #888;
-      font-size: 12px;
-    }
-
-    .toolbar {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 25px;
+      gap: 9px;
+      margin-bottom: 20px;
     }
 
-    .filter {
-      border: 1px solid #ffffff25;
+    .category-button {
+      padding: 9px 15px;
+      border: 1px solid #ffffff20;
+      border-radius: 22px;
       background: #ffffff08;
-      color: #aaa;
-      padding: 10px 17px;
-      border-radius: 25px;
+      color: #bbb;
+      font: inherit;
+      font-weight: bold;
       cursor: pointer;
     }
 
-    .filter.active {
+    .category-button.active,
+    .category-button:hover {
       background: #fff;
       color: #080812;
     }
 
-    .status {
-      text-align: center;
-      color: #aaa;
-      padding: 25px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
+    .status,
+    .empty {
+      padding: 20px;
       border: 1px solid #ffffff18;
+      border-radius: 15px;
       background: #ffffff08;
-      border-radius: 20px;
-      padding: 23px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 20px;
-      background: #ffffff10;
       color: #aaa;
-      font-size: 11px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
+      text-align: center;
     }
 
-    .card h2 {
+    .status.error {
+      color: #ffb5b5;
+      background: rgba(200, 50, 50, .12);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .opportunities {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .opportunity {
+      padding: 24px;
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+      background: #ffffff08;
+      display: flex;
+      flex-direction: column;
+      transition: .15s;
+    }
+
+    .opportunity:hover {
+      transform: translateY(-2px);
+      border-color: #ffffff35;
+    }
+
+    .type {
+      display: inline-block;
+      width: max-content;
+      padding: 5px 10px;
+      margin-bottom: 12px;
+      border-radius: 20px;
+      background: #ffffff12;
+      color: #bbb;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .opportunity h2 {
       margin: 0 0 8px;
-      font-size: 23px;
+      font-size: 24px;
     }
 
     .description {
-      color: #ccc;
-      margin: 15px 0;
-      line-height: 1.6;
+      color: #aaa;
+      white-space: pre-wrap;
+      flex: 1;
     }
 
     .details {
+      padding-top: 14px;
+      margin-top: 14px;
       border-top: 1px solid #ffffff12;
-      padding-top: 15px;
       color: #999;
-      display: grid;
-      gap: 7px;
       font-size: 14px;
     }
 
-    .card-button,
-    .submit {
-      display: block;
+    .detail {
+      margin: 4px 0;
+    }
+
+    .opportunity-actions {
+      margin-top: 18px;
+    }
+
+    .opportunity-actions .button {
       width: 100%;
-      margin-top: 20px;
-      padding: 13px;
-      border-radius: 25px;
-      border: 0;
-      background: #fff;
-      color: #080812;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    .card-button:disabled,
-    .submit:disabled {
-      opacity: .6;
-      cursor: not-allowed;
-    }
-
-    .empty {
-      grid-column: 1 / -1;
-      padding: 50px 20px;
-      border: 1px solid #ffffff18;
-      border-radius: 20px;
-      text-align: center;
-      color: #aaa;
     }
 
     .modal {
       position: fixed;
       inset: 0;
-      background: #000b;
-      display: none;
-      align-items: center;
-      justify-content: center;
+      z-index: 1000;
       padding: 20px;
-      z-index: 100;
-    }
-
-    .modal.show {
       display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, .8);
     }
 
-    .modal-box {
+    .modal-card {
       width: min(650px, 100%);
       max-height: 90vh;
-      overflow-y: auto;
-      background: #10101c;
-      border: 1px solid #ffffff20;
+      overflow: auto;
+      padding: 26px;
+      border: 1px solid #ffffff25;
       border-radius: 22px;
-      padding: 25px;
+      background: #10101c;
     }
 
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .modal-header h2 {
-      margin: 0;
-    }
-
-    .close {
-      border: 0;
+    .close-button {
+      float: right;
+      width: 38px;
+      height: 38px;
+      border: 1px solid #ffffff25;
+      border-radius: 50%;
       background: transparent;
-      color: #aaa;
-      font-size: 27px;
+      color: #fff;
+      font-size: 20px;
       cursor: pointer;
+    }
+
+    .modal-card h2 {
+      margin-top: 0;
+      padding-right: 45px;
+      font-size: 30px;
     }
 
     label {
       display: block;
       margin: 15px 0 7px;
-      color: #ccc;
-      font-size: 14px;
+      font-weight: bold;
     }
 
     input,
-    textarea,
-    select {
+    select,
+    textarea {
       width: 100%;
-      padding: 13px;
-      border-radius: 10px;
+      padding: 13px 15px;
       border: 1px solid #ffffff20;
-      background: #080812;
+      border-radius: 12px;
+      background: #11111d;
       color: #fff;
-      outline: none;
+      font: inherit;
     }
 
     textarea {
-      min-height: 120px;
+      min-height: 125px;
       resize: vertical;
     }
 
-    .message {
-      display: none;
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 9px;
       margin-top: 15px;
-      padding: 12px;
-      border-radius: 10px;
-      line-height: 1.5;
+      color: #bbb;
     }
 
-    .message.show {
-      display: block;
+    .checkbox input {
+      width: auto;
     }
 
-    .success {
-      background: #16351f;
-      color: #b9f6c8;
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
     }
 
-    .error {
-      background: #351616;
-      color: #ffb8b8;
-    }
-
-    .opportunity-detail {
-      color: #ccc;
-      line-height: 1.7;
-    }
-
-    .opportunity-detail strong {
-      color: #fff;
-    }
-
-    .owner-notice {
-      margin-top: 18px;
-      padding: 14px;
+    .message {
+      padding: 13px;
+      margin-top: 15px;
       border-radius: 12px;
       background: #ffffff08;
       color: #aaa;
     }
 
-    footer {
-      border-top: 1px solid #ffffff18;
-      padding: 30px;
-      text-align: center;
-      color: #888;
+    .message.error {
+      color: #ffb5b5;
+      background: rgba(200, 50, 50, .12);
     }
 
-    @media (max-width: 700px) {
+    .message.success {
+      color: #baffca;
+      background: rgba(50, 200, 100, .10);
+    }
+
+    footer {
+      padding: 30px 15px;
+      border-top: 1px solid #ffffff18;
+      color: #888;
+      text-align: center;
+    }
+
+    @media (max-width: 760px) {
       .nav {
         flex-direction: column;
         align-items: flex-start;
-        padding: 15px 0;
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .form-actions .button {
+        width: 100%;
       }
     }
   </style>
@@ -351,193 +372,130 @@
 
 <header>
   <div class="nav">
-
     <a class="logo" href="index.html">
       ⭐ StarRise
     </a>
 
     <nav class="nav-links">
       <a href="index.html">Home</a>
-      <a href="members.html">Talent</a>
-      <a href="talent-funds.html">Talent Funds</a>
+      <a href="members.html">Members</a>
+      <a href="ecosystem.html">Ecosystem</a>
+      <a href="marketplace.html">Store</a>
+      <a href="services.html">Services</a>
       <a href="opportunities.html">Opportunities</a>
       <a href="dashboard.html">Dashboard</a>
     </nav>
-
   </div>
 </header>
 
 <main>
 
   <section class="hero">
+    <div class="eyebrow">
+      Discover What’s Possible
+    </div>
 
     <h1>Opportunities</h1>
 
     <p>
       Discover auditions, gigs, collaborations,
       creative work, and opportunities that help
-      StarRise talent connect, create and grow.
+      StarRise talent connect, create, and grow.
     </p>
 
-    <button
-      id="openCreate"
-      class="create-button"
-      type="button"
-    >
-      + Create Opportunity
-    </button>
+    <div class="hero-actions">
+      <button
+        id="openCreate"
+        class="button"
+        type="button"
+      >
+        + Create Opportunity
+      </button>
 
+      <a class="button secondary" href="members.html">
+        Explore Talent
+      </a>
+    </div>
   </section>
 
   <section class="categories">
+    <button class="category-button active" data-type="all">
+      All
+    </button>
 
-    <div class="category">
-      <div class="category-icon">🎤</div>
-      <strong>Musicians & Singers</strong>
-      <span>Music & performance</span>
-    </div>
+    <button class="category-button" data-type="Audition">
+      Auditions
+    </button>
 
-    <div class="category">
-      <div class="category-icon">😂</div>
-      <strong>Comedians</strong>
-      <span>Comedy & entertainment</span>
-    </div>
+    <button class="category-button" data-type="Gig">
+      Gigs
+    </button>
 
-    <div class="category">
-      <div class="category-icon">🎬</div>
-      <strong>Content Creators</strong>
-      <span>Digital content</span>
-    </div>
+    <button class="category-button" data-type="Collaboration">
+      Collaborations
+    </button>
 
-    <div class="category">
-      <div class="category-icon">🎭</div>
-      <strong>Actors & Performers</strong>
-      <span>Stage & screen</span>
-    </div>
+    <button class="category-button" data-type="Job">
+      Jobs
+    </button>
 
-    <div class="category">
-      <div class="category-icon">🎨</div>
-      <strong>Creative Artists</strong>
-      <span>Visual creativity</span>
-    </div>
+    <button class="category-button" data-type="Event">
+      Events
+    </button>
 
-    <div class="category">
-      <div class="category-icon">🎧</div>
-      <strong>Producers & DJs</strong>
-      <span>Production & sound</span>
-    </div>
-
+    <button class="category-button" data-type="Other">
+      Other
+    </button>
   </section>
 
-  <div class="toolbar">
-
-    <button
-      class="filter active"
-      data-filter="all"
-      type="button"
-    >
-      All Opportunities
-    </button>
-
-    <button
-      class="filter"
-      data-filter="audition"
-      type="button"
-    >
-      🎭 Auditions
-    </button>
-
-    <button
-      class="filter"
-      data-filter="gig"
-      type="button"
-    >
-      🎵 Gigs
-    </button>
-
-    <button
-      class="filter"
-      data-filter="collaboration"
-      type="button"
-    >
-      🤝 Collaborations
-    </button>
-
-  </div>
-
-  <div
-    id="status"
-    class="status"
-  >
+  <div id="status" class="status">
     Loading StarRise opportunities...
   </div>
 
   <section
-    id="grid"
-    class="grid"
+    id="opportunities"
+    class="opportunities"
   ></section>
 
 </main>
 
-<footer>
-  ⭐ StarRise — Where Talent Rises.
-</footer>
+<div id="createModal" class="modal hidden">
+  <div class="modal-card">
+    <button
+      id="closeCreate"
+      class="close-button"
+      type="button"
+      aria-label="Close"
+    >
+      ×
+    </button>
 
-<!-- CREATE OPPORTUNITY MODAL -->
-
-<div
-  id="createModal"
-  class="modal"
->
-
-  <div class="modal-box">
-
-    <div class="modal-header">
-
-      <h2>Create Opportunity</h2>
-
-      <button
-        id="closeCreate"
-        class="close"
-        type="button"
-      >
-        ×
-      </button>
-
-    </div>
+    <h2>Create an Opportunity</h2>
 
     <form id="opportunityForm">
-
       <label for="title">
         Opportunity Title
       </label>
 
       <input
         id="title"
-        type="text"
-        placeholder="Example: Charlotte Music Video Audition"
+        maxlength="160"
         required
+        placeholder="Example: R&B Singer Needed"
       >
 
       <label for="type">
         Opportunity Type
       </label>
 
-      <select
-        id="type"
-        required
-      >
-        <option value="audition">
-          🎭 Audition
-        </option>
-
-        <option value="gig">
-          🎵 Gig
-        </option>
-
-        <option value="collaboration">
-          🤝 Collaboration
-        </option>
+      <select id="type" required>
+        <option value="">Choose a type</option>
+        <option value="Audition">Audition</option>
+        <option value="Gig">Gig</option>
+        <option value="Collaboration">Collaboration</option>
+        <option value="Job">Job</option>
+        <option value="Event">Event</option>
+        <option value="Other">Other</option>
       </select>
 
       <label for="description">
@@ -546,8 +504,9 @@
 
       <textarea
         id="description"
-        placeholder="Tell StarRise members about this opportunity..."
+        maxlength="4000"
         required
+        placeholder="Tell StarRise members about this opportunity..."
       ></textarea>
 
       <label for="location">
@@ -556,7 +515,7 @@
 
       <input
         id="location"
-        type="text"
+        maxlength="200"
         placeholder="Charlotte, NC"
       >
 
@@ -564,10 +523,7 @@
         Date
       </label>
 
-      <input
-        id="eventDate"
-        type="datetime-local"
-      >
+      <input id="eventDate" type="datetime-local">
 
       <label for="compensation">
         Compensation
@@ -575,1064 +531,617 @@
 
       <input
         id="compensation"
-        type="text"
-        placeholder="Example: $100, paid gig, exposure, etc."
+        maxlength="200"
+        placeholder="Paid, unpaid, negotiable, or amount"
       >
 
-      <label>
-        <input
-          id="remote"
-          type="checkbox"
-          style="width:auto;margin-right:8px;"
-        >
+      <label class="checkbox">
+        <input id="remote" type="checkbox">
         Remote opportunity available
       </label>
 
-      <button
-        id="submitButton"
-        class="submit"
-        type="submit"
-      >
-        Publish Opportunity
-      </button>
+      <div id="formMessage" class="message hidden"></div>
 
-      <div
-        id="formMessage"
-        class="message"
-      ></div>
+      <div class="form-actions">
+        <button
+          id="publishButton"
+          class="button"
+          type="submit"
+        >
+          Publish Opportunity
+        </button>
 
+        <button
+          id="cancelCreate"
+          class="button secondary"
+          type="button"
+        >
+          Cancel
+        </button>
+      </div>
     </form>
-
   </div>
-
 </div>
 
-<!-- OPPORTUNITY DETAILS MODAL -->
-
-<div
-  id="detailModal"
-  class="modal"
->
-
-  <div class="modal-box">
-
-    <div class="modal-header">
-
-      <h2 id="detailTitle">
-        Opportunity
-      </h2>
-
-      <button
-        id="closeDetail"
-        class="close"
-        type="button"
-      >
-        ×
-      </button>
-
-    </div>
-
-    <div
-      id="detailContent"
-      class="opportunity-detail"
-    ></div>
-
+<div id="detailModal" class="modal hidden">
+  <div class="modal-card">
     <button
-      id="applyButton"
-      class="submit"
+      id="closeDetail"
+      class="close-button"
       type="button"
+      aria-label="Close"
     >
-      Apply / Respond
+      ×
     </button>
 
-    <div
+    <div id="detailType" class="type"></div>
+    <h2 id="detailTitle"></h2>
+    <div id="detailDescription" class="description"></div>
+    <div id="detailInformation" class="details"></div>
+
+    <label for="applicationMessage">
+      Application Message
+    </label>
+
+    <textarea
       id="applicationMessage"
-      class="message"
-    ></div>
+      placeholder="Tell the opportunity owner why you're a good fit..."
+    ></textarea>
 
-  </div>
+    <div id="applicationStatus" class="message hidden"></div>
 
-</div>
-
-<!-- APPLICATION MODAL -->
-
-<div
-  id="applicationModal"
-  class="modal"
->
-
-  <div class="modal-box">
-
-    <div class="modal-header">
-
-      <h2>
-        Respond to Opportunity
-      </h2>
-
+    <div class="form-actions">
       <button
-        id="closeApplication"
-        class="close"
+        id="applyButton"
+        class="button"
         type="button"
       >
-        ×
+        Apply Now
       </button>
-
-    </div>
-
-    <form id="applicationForm">
-
-      <label for="applicationMessageInput">
-        Message
-      </label>
-
-      <textarea
-        id="applicationMessageInput"
-        placeholder="Tell the opportunity owner why you're a good fit..."
-        required
-      ></textarea>
 
       <button
-        id="applicationSubmit"
-        class="submit"
-        type="submit"
+        id="cancelDetail"
+        class="button secondary"
+        type="button"
       >
-        Submit Application
+        Close
       </button>
-
-      <div
-        id="applicationFormMessage"
-        class="message"
-      ></div>
-
-    </form>
-
+    </div>
   </div>
-
 </div>
+
+<footer>
+  ⭐ StarRise — Where Talent Rises.
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+(function () {
+  'use strict';
 
-const SUPABASE_URL =
-  "https://rcnikxotdalxtuvpmlvm.supabase.co";
+  const SUPABASE_URL =
+    'https://rcnikxotdalxtuvpmlvm.supabase.co';
 
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+  const SUPABASE_KEY =
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
-
-const grid =
-  document.getElementById("grid");
-
-const status =
-  document.getElementById("status");
-
-const createModal =
-  document.getElementById("createModal");
-
-const detailModal =
-  document.getElementById("detailModal");
-
-const applicationModal =
-  document.getElementById("applicationModal");
-
-const createForm =
-  document.getElementById("opportunityForm");
-
-const applicationForm =
-  document.getElementById("applicationForm");
-
-let opportunities = [];
-
-let currentFilter = "all";
-
-let selectedOpportunity = null;
-
-function escapeHtml(value) {
-
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-
-}
-
-function formatType(type) {
-
-  if (type === "audition") {
-    return "🎭 Audition";
-  }
-
-  if (type === "gig") {
-    return "🎵 Gig";
-  }
-
-  if (type === "collaboration") {
-    return "🤝 Collaboration";
-  }
-
-  return "Opportunity";
-
-}
-
-function formatDate(date) {
-
-  if (!date) {
-    return "Date to be announced";
-  }
-
-  const parsed =
-    new Date(date);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return "Date to be announced";
-  }
-
-  return parsed.toLocaleString(
-    "en-US",
-    {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit"
-    }
-  );
-
-}
-
-function showMessage(
-  element,
-  text,
-  success = false
-) {
-
-  element.textContent =
-    text;
-
-  element.className =
-    "message show " +
-    (
-      success
-        ? "success"
-        : "error"
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
     );
 
-}
+  const status =
+    document.getElementById('status');
 
-function render() {
+  const container =
+    document.getElementById('opportunities');
 
-  const visible =
-    currentFilter === "all"
-      ? opportunities
-      : opportunities.filter(
-          opportunity =>
-            opportunity.type ===
-            currentFilter
-        );
+  const createModal =
+    document.getElementById('createModal');
 
-  if (!visible.length) {
+  const detailModal =
+    document.getElementById('detailModal');
 
-    grid.innerHTML = `
-      <div class="empty">
-        <h2>No opportunities yet</h2>
+  const createForm =
+    document.getElementById('opportunityForm');
 
-        <p>
-          Be one of the first StarRise members
-          to create one.
-        </p>
-      </div>
-    `;
-
-    return;
-  }
-
-  grid.innerHTML =
-    visible
-      .map(
-        opportunity => `
-
-          <article class="card">
-
-            <div class="badge">
-              ${escapeHtml(
-                formatType(
-                  opportunity.type
-                )
-              )}
-            </div>
-
-            <h2>
-              ${escapeHtml(
-                opportunity.title
-              )}
-            </h2>
-
-            <div class="description">
-              ${escapeHtml(
-                opportunity.description
-              )}
-            </div>
-
-            <div class="details">
-
-              <div>
-                📍 ${
-                  escapeHtml(
-                    opportunity.location ||
-                    "Location to be announced"
-                  )
-                }
-              </div>
-
-              <div>
-                ${
-                  opportunity.is_remote
-                    ? "🌎 Remote available"
-                    : "🏢 In-person"
-                }
-              </div>
-
-              <div>
-                📅 ${
-                  escapeHtml(
-                    formatDate(
-                      opportunity.event_date
-                    )
-                  )
-                }
-              </div>
-
-              ${
-                opportunity.compensation
-                  ? `
-                    <div>
-                      💰 ${
-                        escapeHtml(
-                          opportunity.compensation
-                        )
-                      }
-                    </div>
-                  `
-                  : ""
-              }
-
-            </div>
-
-            <button
-              class="card-button"
-              type="button"
-              onclick="viewOpportunity('${opportunity.id}')"
-            >
-              View & Apply
-            </button>
-
-          </article>
-        `
-      )
-      .join("");
-
-}
-
-async function loadOpportunities() {
-
-  status.style.display =
-    "block";
-
-  status.textContent =
-    "Loading StarRise opportunities...";
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from("opportunities")
-      .select(`
-        id,
-        title,
-        type,
-        description,
-        location,
-        is_remote,
-        event_date,
-        compensation,
-        status,
-        creator_id,
-        created_at
-      `)
-      .eq(
-        "status",
-        "active"
-      )
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
-  if (error) {
-
-    console.error(
-      "StarRise opportunities error:",
-      error
-    );
-
-    status.textContent =
-      "We could not load opportunities right now.";
-
-    return;
-  }
-
-  opportunities =
-    data || [];
-
-  status.style.display =
-    "none";
-
-  render();
-
-}
-
-async function viewOpportunity(id) {
-
-  const opportunity =
-    opportunities.find(
-      item =>
-        item.id === id
-    );
-
-  if (!opportunity) {
-    return;
-  }
-
-  selectedOpportunity =
-    opportunity;
-
-  document
-    .getElementById(
-      "detailTitle"
-    )
-    .textContent =
-      opportunity.title;
-
-  const {
-    data
-  } =
-    await supabaseClient
-      .auth
-      .getSession();
-
-  const currentUserId =
-    data &&
-    data.session &&
-    data.session.user
-      ? data.session.user.id
-      : null;
-
-  const isOwner =
-    currentUserId &&
-    opportunity.creator_id ===
-    currentUserId;
-
-  document
-    .getElementById(
-      "detailContent"
-    )
-    .innerHTML = `
-
-      <p>
-        <strong>
-          ${escapeHtml(
-            formatType(
-              opportunity.type
-            )
-          )}
-        </strong>
-      </p>
-
-      <p>
-        ${escapeHtml(
-          opportunity.description
-        )}
-      </p>
-
-      <p>
-        <strong>Location:</strong>
-        ${
-          escapeHtml(
-            opportunity.location ||
-            "To be announced"
-          )
-        }
-      </p>
-
-      <p>
-        <strong>Format:</strong>
-        ${
-          opportunity.is_remote
-            ? "Remote available"
-            : "In-person"
-        }
-      </p>
-
-      <p>
-        <strong>Date:</strong>
-        ${
-          escapeHtml(
-            formatDate(
-              opportunity.event_date
-            )
-          )
-        }
-      </p>
-
-      ${
-        opportunity.compensation
-          ? `
-            <p>
-              <strong>
-                Compensation:
-              </strong>
-              ${
-                escapeHtml(
-                  opportunity.compensation
-                )
-              }
-            </p>
-          `
-          : ""
-      }
-
-      ${
-        isOwner
-          ? `
-            <div class="owner-notice">
-              This is your opportunity.
-              You cannot apply to your own opportunity.
-            </div>
-          `
-          : ""
-      }
-    `;
+  const publishButton =
+    document.getElementById('publishButton');
 
   const applyButton =
-    document.getElementById(
-      "applyButton"
+    document.getElementById('applyButton');
+
+  const formMessage =
+    document.getElementById('formMessage');
+
+  const applicationStatus =
+    document.getElementById('applicationStatus');
+
+  let opportunities = [];
+  let selectedType = 'all';
+  let selectedOpportunity = null;
+  let currentUserId = null;
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function formatDate(value) {
+    if (!value) {
+      return '';
+    }
+
+    const date =
+      new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+
+    return date.toLocaleString(
+      'en-US',
+      {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      }
     );
+  }
 
-  if (isOwner) {
+  function showMessage(element, message, type) {
+    element.textContent = message;
+    element.className =
+      'message ' + (type || '');
+    element.classList.remove('hidden');
+  }
 
-    applyButton.disabled =
-      true;
+  function hideMessage(element) {
+    element.textContent = '';
+    element.className =
+      'message hidden';
+  }
 
-    applyButton.textContent =
-      "Your Opportunity";
+  async function getCurrentUser() {
+    const result =
+      await supabaseClient.auth.getUser();
 
-  } else {
+    currentUserId =
+      result.data.user
+        ? result.data.user.id
+        : null;
 
-    applyButton.disabled =
-      false;
+    return result.data.user || null;
+  }
 
-    applyButton.textContent =
-      "Apply / Respond";
+  async function loadOpportunities() {
+    status.style.display = 'block';
+    status.textContent =
+      'Loading StarRise opportunities...';
+    status.className = 'status';
 
+    try {
+      const result =
+        await supabaseClient
+          .from('opportunities')
+          .select(`
+            id,
+            title,
+            type,
+            description,
+            location,
+            is_remote,
+            event_date,
+            compensation,
+            status,
+            creator_id,
+            created_at
+          `)
+          .eq('status', 'active')
+          .order(
+            'created_at',
+            { ascending: false }
+          );
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      opportunities =
+        result.data || [];
+
+      status.style.display = 'none';
+      render();
+    } catch (error) {
+      console.error(
+        'StarRise opportunities error:',
+        error
+      );
+
+      status.textContent =
+        'We could not load opportunities right now. ' +
+        (
+          error.message ||
+          'Please try again.'
+        );
+
+      status.className =
+        'status error';
+    }
+  }
+
+  function render() {
+    const filtered =
+      selectedType === 'all'
+        ? opportunities
+        : opportunities.filter(
+            opportunity =>
+              opportunity.type === selectedType
+          );
+
+    if (!filtered.length) {
+      container.innerHTML = `
+        <div class="empty">
+          <h2>No opportunities yet</h2>
+
+          <p>
+            Check back soon or create the first opportunity.
+          </p>
+        </div>
+      `;
+
+      return;
+    }
+
+    container.innerHTML =
+      filtered
+        .map(
+          opportunity => `
+            <article class="opportunity">
+              <div class="type">
+                ${escapeHtml(
+                  opportunity.type ||
+                  'Opportunity'
+                )}
+              </div>
+
+              <h2>
+                ${escapeHtml(
+                  opportunity.title ||
+                  'StarRise Opportunity'
+                )}
+              </h2>
+
+              <div class="description">
+                ${escapeHtml(
+                  opportunity.description ||
+                  'No description provided.'
+                )}
+              </div>
+
+              <div class="details">
+                ${
+                  opportunity.location
+                    ? `
+                      <div class="detail">
+                        📍
+                        ${escapeHtml(opportunity.location)}
+                      </div>
+                    `
+                    : ''
+                }
+
+                ${
+                  opportunity.is_remote
+                    ? `
+                      <div class="detail">
+                        🌐 Remote available
+                      </div>
+                    `
+                    : ''
+                }
+
+                ${
+                  opportunity.event_date
+                    ? `
+                      <div class="detail">
+                        📅
+                        ${escapeHtml(
+                          formatDate(
+                            opportunity.event_date
+                          )
+                        )}
+                      </div>
+                    `
+                    : ''
+                }
+
+                ${
+                  opportunity.compensation
+                    ? `
+                      <div class="detail">
+                        💰
+                        ${escapeHtml(
+                          opportunity.compensation
+                        )}
+                      </div>
+                    `
+                    : ''
+                }
+              </div>
+
+              <div class="opportunity-actions">
+                <button
+                  class="button"
+                  type="button"
+                  data-view="${escapeHtml(opportunity.id)}"
+                >
+                  View Opportunity
+                </button>
+              </div>
+            </article>
+          `
+        )
+        .join('');
+  }
+
+  function openOpportunity(opportunity) {
+    selectedOpportunity =
+      opportunity;
+
+    document.getElementById(
+      'detailType'
+    ).textContent =
+      opportunity.type ||
+      'Opportunity';
+
+    document.getElementById(
+      'detailTitle'
+    ).textContent =
+      opportunity.title ||
+      'StarRise Opportunity';
+
+    document.getElementById(
+      'detailDescription'
+    ).textContent =
+      opportunity.description ||
+      'No description provided.';
+
+    const details = [];
+
+    if (opportunity.location) {
+      details.push(
+        '📍 ' + opportunity.location
+      );
+    }
+
+    if (opportunity.is_remote) {
+      details.push('🌐 Remote available');
+    }
+
+    if (opportunity.event_date) {
+      details.push(
+        '📅 ' +
+        formatDate(opportunity.event_date)
+      );
+    }
+
+    if (opportunity.compensation) {
+      details.push(
+        '💰 ' +
+        opportunity.compensation
+      );
+    }
+
+    document.getElementById(
+      'detailInformation'
+    ).innerHTML =
+      details
+        .map(
+          detail =>
+            '<div class="detail">' +
+            escapeHtml(detail) +
+            '</div>'
+        )
+        .join('');
+
+    document.getElementById(
+      'applicationMessage'
+    ).value = '';
+
+    hideMessage(applicationStatus);
+
+    applyButton.disabled = false;
+    applyButton.textContent = 'Apply Now';
+
+    detailModal.classList.remove('hidden');
+  }
+
+  function closeCreateModal() {
+    createModal.classList.add('hidden');
+  }
+
+  function closeDetailModal() {
+    detailModal.classList.add('hidden');
+    selectedOpportunity = null;
   }
 
   document
-    .getElementById(
-      "applicationMessage"
-    )
-    .className =
-      "message";
+    .querySelectorAll('.category-button')
+    .forEach(
+      button => {
+        button.addEventListener(
+          'click',
+          function () {
+            document
+              .querySelectorAll('.category-button')
+              .forEach(
+                item =>
+                  item.classList.remove('active')
+              );
 
-  detailModal.classList.add(
-    "show"
-  );
-
-}
-
-document
-  .getElementById(
-    "applyButton"
-  )
-  .addEventListener(
-    "click",
-    async () => {
-
-      if (!selectedOpportunity) {
-        return;
-      }
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .auth
-          .getSession();
-
-      if (
-        error ||
-        !data.session
-      ) {
-
-        alert(
-          "Please sign in before applying."
-        );
-
-        window.location.href =
-          "dashboard.html";
-
-        return;
-      }
-
-      const currentUserId =
-        data.session.user.id;
-
-      if (
-        String(
-          selectedOpportunity.creator_id
-        ) ===
-        String(currentUserId)
-      ) {
-
-        showMessage(
-          document.getElementById(
-            "applicationMessage"
-          ),
-          "You cannot apply to your own opportunity."
-        );
-
-        return;
-      }
-
-      applicationForm.reset();
-
-      document
-        .getElementById(
-          "applicationFormMessage"
-        )
-        .className =
-          "message";
-
-      detailModal.classList.remove(
-        "show"
-      );
-
-      applicationModal.classList.add(
-        "show"
-      );
-
-    }
-  );
-
-applicationForm
-  .addEventListener(
-    "submit",
-    async event => {
-
-      event.preventDefault();
-
-      const submit =
-        document.getElementById(
-          "applicationSubmit"
-        );
-
-      submit.disabled =
-        true;
-
-      submit.textContent =
-        "Submitting...";
-
-      try {
-
-        const {
-          data,
-          error
-        } =
-          await supabaseClient
-            .auth
-            .getSession();
-
-        if (
-          error ||
-          !data.session
-        ) {
-
-          throw new Error(
-            "Please sign in before applying."
-          );
-
-        }
-
-        if (!selectedOpportunity) {
-
-          throw new Error(
-            "Opportunity could not be found."
-          );
-
-        }
-
-        const currentUserId =
-          data.session.user.id;
-
-        if (
-          String(
-            selectedOpportunity.creator_id
-          ) ===
-          String(currentUserId)
-        ) {
-
-          throw new Error(
-            "You cannot apply to your own opportunity."
-          );
-
-        }
-
-        const applicationMessage =
-          document
-            .getElementById(
-              "applicationMessageInput"
-            )
-            .value
-            .trim();
-
-        if (!applicationMessage) {
-
-          throw new Error(
-            "Please enter a message before submitting your application."
-          );
-
-        }
-
-        const {
-          error: insertError
-        } =
-          await supabaseClient
-            .from(
-              "opportunity_applications"
-            )
-            .insert({
-
-              opportunity_id:
-                selectedOpportunity.id,
-
-              applicant_id:
-                currentUserId,
-
-              message:
-                applicationMessage,
-
-              status:
-                "pending"
-
-            });
-
-        if (insertError) {
-
-          if (
-            insertError.code ===
-            "23505"
-          ) {
-
-            throw new Error(
-              "You have already applied to this opportunity."
-            );
-
+            button.classList.add('active');
+            selectedType = button.dataset.type;
+            render();
           }
-
-          throw insertError;
-
-        }
-
-        showMessage(
-          document.getElementById(
-            "applicationFormMessage"
-          ),
-          "Application submitted successfully!",
-          true
         );
-
-        submit.textContent =
-          "Application Sent";
-
-        setTimeout(
-          () => {
-
-            applicationModal.classList.remove(
-              "show"
-            );
-
-            submit.disabled =
-              false;
-
-            submit.textContent =
-              "Submit Application";
-
-          },
-          1200
-        );
-
-      } catch (error) {
-
-        console.error(
-          "StarRise application error:",
-          error
-        );
-
-        showMessage(
-          document.getElementById(
-            "applicationFormMessage"
-          ),
-          error.message ||
-          "We could not submit your application."
-        );
-
-        submit.disabled =
-          false;
-
-        submit.textContent =
-          "Submit Application";
-
-      }
-
-    }
-  );
-
-document
-  .getElementById(
-    "openCreate"
-  )
-  .addEventListener(
-    "click",
-    async () => {
-
-      const {
-        data
-      } =
-        await supabaseClient
-          .auth
-          .getSession();
-
-      if (!data.session) {
-
-        alert(
-          "Please sign in before creating an opportunity."
-        );
-
-        window.location.href =
-          "dashboard.html";
-
-        return;
-
-      }
-
-      createForm.reset();
-
-      document
-        .getElementById(
-          "formMessage"
-        )
-        .className =
-          "message";
-
-      createModal.classList.add(
-        "show"
-      );
-
-    }
-  );
-
-document
-  .getElementById(
-    "closeCreate"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      createModal.classList.remove(
-        "show"
-      );
-
-    }
-  );
-
-document
-  .getElementById(
-    "closeDetail"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      detailModal.classList.remove(
-        "show"
-      );
-
-    }
-  );
-
-document
-  .getElementById(
-    "closeApplication"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      applicationModal.classList.remove(
-        "show"
-      );
-
-    }
-  );
-
-[
-  createModal,
-  detailModal,
-  applicationModal
-].forEach(
-  modal => {
-
-    modal.addEventListener(
-      "click",
-      event => {
-
-        if (
-          event.target ===
-          modal
-        ) {
-
-          modal.classList.remove(
-            "show"
-          );
-
-        }
-
       }
     );
 
-  }
-);
-
-createForm
-  .addEventListener(
-    "submit",
-    async event => {
-
-      event.preventDefault();
-
+  container.addEventListener(
+    'click',
+    function (event) {
       const button =
-        document.getElementById(
-          "submitButton"
+        event.target.closest('[data-view]');
+
+      if (!button) {
+        return;
+      }
+
+      const opportunity =
+        opportunities.find(
+          item =>
+            String(item.id) ===
+            String(button.dataset.view)
         );
 
-      button.disabled =
-        true;
+      if (opportunity) {
+        openOpportunity(opportunity);
+      }
+    }
+  );
 
-      button.textContent =
-        "Publishing...";
+  document
+    .getElementById('openCreate')
+    .addEventListener(
+      'click',
+      async function () {
+        const user =
+          await getCurrentUser();
+
+        if (!user) {
+          window.location.href =
+            'login.html?redirect=' +
+            encodeURIComponent(
+              'opportunities.html'
+            );
+
+          return;
+        }
+
+        createForm.reset();
+        hideMessage(formMessage);
+        createModal.classList.remove('hidden');
+      }
+    );
+
+  document
+    .getElementById('closeCreate')
+    .addEventListener(
+      'click',
+      closeCreateModal
+    );
+
+  document
+    .getElementById('cancelCreate')
+    .addEventListener(
+      'click',
+      closeCreateModal
+    );
+
+  document
+    .getElementById('closeDetail')
+    .addEventListener(
+      'click',
+      closeDetailModal
+    );
+
+  document
+    .getElementById('cancelDetail')
+    .addEventListener(
+      'click',
+      closeDetailModal
+    );
+
+  createForm.addEventListener(
+    'submit',
+    async function (event) {
+      event.preventDefault();
+
+      publishButton.disabled = true;
+      publishButton.textContent =
+        'Publishing...';
+
+      hideMessage(formMessage);
 
       try {
-
-        const {
-          data,
-          error
-        } =
+        const sessionResult =
           await supabaseClient
             .auth
             .getSession();
 
-        if (
-          error ||
-          !data.session
-        ) {
+        const session =
+          sessionResult.data.session;
 
+        if (!session) {
           throw new Error(
-            "Please sign in before creating an opportunity."
+            'Please sign in before creating an opportunity.'
           );
-
         }
 
         const title =
           document
-            .getElementById(
-              "title"
-            )
+            .getElementById('title')
             .value
             .trim();
 
         const type =
           document
-            .getElementById(
-              "type"
-            )
+            .getElementById('type')
             .value;
 
         const description =
           document
-            .getElementById(
-              "description"
-            )
+            .getElementById('description')
             .value
             .trim();
 
         const location =
           document
-            .getElementById(
-              "location"
-            )
+            .getElementById('location')
             .value
             .trim();
 
         const eventDate =
           document
-            .getElementById(
-              "eventDate"
-            )
+            .getElementById('eventDate')
             .value;
 
         const compensation =
           document
-            .getElementById(
-              "compensation"
-            )
+            .getElementById('compensation')
             .value
             .trim();
 
         const isRemote =
           document
-            .getElementById(
-              "remote"
-            )
+            .getElementById('remote')
             .checked;
 
-        const {
-          error: insertError
-        } =
+        const insertResult =
           await supabaseClient
-            .from(
-              "opportunities"
-            )
+            .from('opportunities')
             .insert({
-
               creator_id:
-                data.session.user.id,
+                session.user.id,
 
               title,
-
               type,
-
               description,
 
               location:
@@ -1648,109 +1157,184 @@ createForm
                 isRemote,
 
               status:
-                "active"
-
+                'active'
             });
 
-        if (insertError) {
-          throw insertError;
+        if (insertResult.error) {
+          throw insertResult.error;
         }
 
         showMessage(
-          document.getElementById(
-            "formMessage"
-          ),
-          "Opportunity published successfully!",
-          true
+          formMessage,
+          'Opportunity published successfully!',
+          'success'
         );
-
-        button.textContent =
-          "Published!";
 
         await loadOpportunities();
 
         setTimeout(
-          () => {
-
-            createModal.classList.remove(
-              "show"
-            );
-
-            button.disabled =
-              false;
-
-            button.textContent =
-              "Publish Opportunity";
-
-          },
-          1000
+          closeCreateModal,
+          800
         );
-
       } catch (error) {
-
         console.error(
-          "StarRise create opportunity error:",
+          'Create opportunity error:',
           error
         );
 
         showMessage(
-          document.getElementById(
-            "formMessage"
-          ),
+          formMessage,
           error.message ||
-          "We could not publish the opportunity."
+          'We could not publish the opportunity.',
+          'error'
         );
+      } finally {
+        publishButton.disabled = false;
+        publishButton.textContent =
+          'Publish Opportunity';
+      }
+    }
+  );
 
-        button.disabled =
-          false;
-
-        button.textContent =
-          "Publish Opportunity";
-
+  applyButton.addEventListener(
+    'click',
+    async function () {
+      if (!selectedOpportunity) {
+        return;
       }
 
-    }
-  );
+      applyButton.disabled = true;
+      applyButton.textContent =
+        'Submitting...';
 
-document
-  .querySelectorAll(
-    ".filter"
-  )
-  .forEach(
-    button => {
+      hideMessage(applicationStatus);
 
-      button.addEventListener(
-        "click",
-        () => {
+      try {
+        const user =
+          await getCurrentUser();
 
-          document
-            .querySelectorAll(
-              ".filter"
-            )
-            .forEach(
-              item =>
-                item.classList.remove(
-                  "active"
-                )
+        if (!user) {
+          window.location.href =
+            'login.html?redirect=' +
+            encodeURIComponent(
+              window.location.href
             );
 
-          button.classList.add(
-            "active"
-          );
-
-          currentFilter =
-            button.dataset.filter;
-
-          render();
-
+          return;
         }
-      );
 
+        if (
+          String(
+            selectedOpportunity.creator_id
+          ) === String(user.id)
+        ) {
+          throw new Error(
+            'You cannot apply to your own opportunity.'
+          );
+        }
+
+        const message =
+          document
+            .getElementById(
+              'applicationMessage'
+            )
+            .value
+            .trim();
+
+        if (!message) {
+          throw new Error(
+            'Please enter a message before submitting your application.'
+          );
+        }
+
+        const insertResult =
+          await supabaseClient
+            .from('opportunity_applications')
+            .insert({
+              opportunity_id:
+                selectedOpportunity.id,
+
+              applicant_id:
+                user.id,
+
+              message,
+
+              status:
+                'pending'
+            });
+
+        if (insertResult.error) {
+          if (
+            insertResult.error.code ===
+            '23505'
+          ) {
+            throw new Error(
+              'You have already applied to this opportunity.'
+            );
+          }
+
+          throw insertResult.error;
+        }
+
+        showMessage(
+          applicationStatus,
+          'Your application was submitted successfully!',
+          'success'
+        );
+
+        applyButton.textContent =
+          'Application Submitted';
+      } catch (error) {
+        console.error(
+          'Application error:',
+          error
+        );
+
+        showMessage(
+          applicationStatus,
+          error.message ||
+          'We could not submit your application.',
+          'error'
+        );
+
+        applyButton.disabled = false;
+        applyButton.textContent =
+          'Apply Now';
+      }
     }
   );
 
-loadOpportunities();
+  createModal.addEventListener(
+    'click',
+    function (event) {
+      if (event.target === createModal) {
+        closeCreateModal();
+      }
+    }
+  );
 
+  detailModal.addEventListener(
+    'click',
+    function (event) {
+      if (event.target === detailModal) {
+        closeDetailModal();
+      }
+    }
+  );
+
+  document.addEventListener(
+    'keydown',
+    function (event) {
+      if (event.key === 'Escape') {
+        closeCreateModal();
+        closeDetailModal();
+      }
+    }
+  );
+
+  getCurrentUser();
+  loadOpportunities();
+})();
 </script>
 
 </body>
