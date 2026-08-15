@@ -1,11 +1,15 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Sell Your Work | StarRise</title>
+
+  <meta
+    name="description"
+    content="Publish music, artwork, videos, writing, and other digital creations in the StarRise Store."
+  >
 
   <style>
     * {
@@ -14,10 +18,16 @@
 
     body {
       margin: 0;
+      min-height: 100vh;
       font-family: Arial, sans-serif;
+      line-height: 1.6;
       background: #080812;
       color: #fff;
-      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
     }
 
     header {
@@ -29,17 +39,25 @@
       gap: 18px;
     }
 
-    header a,
-    nav a {
+    .logo {
       color: #fff;
-      text-decoration: none;
+      font-size: 21px;
       font-weight: bold;
     }
 
     nav {
       display: flex;
-      gap: 18px;
       flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    nav a {
+      color: #bbb;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      color: #fff;
     }
 
     main {
@@ -47,15 +65,35 @@
       margin: 35px auto 60px;
     }
 
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #aaa;
+      font-weight: bold;
+    }
+
+    .back-link:hover {
+      color: #fff;
+    }
+
     .panel {
+      padding: 28px;
       border: 1px solid #ffffff18;
       border-radius: 22px;
       background: #ffffff08;
-      padding: 28px;
+    }
+
+    .eyebrow {
+      color: #999;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: .1em;
     }
 
     h1 {
-      margin-top: 0;
+      margin: 6px 0 8px;
+      font-size: clamp(38px, 7vw, 58px);
     }
 
     .muted {
@@ -80,6 +118,13 @@
       font: inherit;
     }
 
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #ffffff55;
+    }
+
     textarea {
       min-height: 130px;
       resize: vertical;
@@ -95,17 +140,28 @@
       gap: 14px;
     }
 
+    .small {
+      margin: 7px 0 0;
+      color: #888;
+      font-size: 13px;
+    }
+
     .button {
       width: 100%;
+      padding: 14px 20px;
+      margin-top: 20px;
       border: 0;
       border-radius: 25px;
-      padding: 14px 20px;
       background: #fff;
       color: #080812;
-      font-weight: bold;
+      font: inherit;
       font-size: 16px;
+      font-weight: bold;
       cursor: pointer;
-      margin-top: 20px;
+    }
+
+    .button:hover {
+      opacity: .9;
     }
 
     .button:disabled {
@@ -115,62 +171,60 @@
 
     .status {
       padding: 14px;
+      margin-top: 16px;
       border-radius: 12px;
       background: #ffffff08;
       color: #ddd;
-      margin-top: 16px;
       white-space: pre-wrap;
-      word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
-    .error {
+    .status.error {
       color: #ffb5b5;
       background: rgba(220, 70, 70, .12);
     }
 
-    .success {
+    .status.success {
       color: #baffca;
       background: rgba(50, 180, 80, .12);
+    }
+
+    .status.warning {
+      color: #ffe3a3;
+      background: rgba(200, 150, 50, .12);
     }
 
     .hidden {
       display: none !important;
     }
 
-    .small {
-      font-size: 13px;
-      color: #888;
-    }
-
-    .back-link,
     .store-link {
       display: inline-block;
-      color: #aaa;
-      text-decoration: none;
-    }
-
-    .back-link {
-      margin-bottom: 20px;
-    }
-
-    .store-link {
       margin-top: 15px;
-      font-weight: bold;
       color: #fff;
+      font-weight: bold;
     }
 
-    .debug {
-      margin-top: 12px;
-      padding: 12px;
-      border-radius: 10px;
-      background: #00000030;
-      color: #999;
-      font-size: 12px;
-      white-space: pre-wrap;
-      word-break: break-word;
+    .requirements {
+      padding: 18px;
+      margin-bottom: 20px;
+      border: 1px solid #ffffff18;
+      border-radius: 16px;
+      background: #ffffff08;
     }
 
-    @media (max-width: 650px) {
+    .requirements h2 {
+      margin: 0 0 8px;
+      font-size: 19px;
+    }
+
+    .requirements ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+      color: #aaa;
+    }
+
+    @media (max-width: 700px) {
       header {
         flex-direction: column;
         align-items: flex-start;
@@ -190,8 +244,7 @@
 <body>
 
 <header>
-
-  <a href="index.html">
+  <a class="logo" href="index.html">
     ⭐ StarRise
   </a>
 
@@ -201,48 +254,43 @@
     <a href="ecosystem.html">Ecosystem</a>
     <a href="marketplace.html">Store</a>
     <a href="services.html">Services</a>
+    <a href="opportunities.html">Opportunities</a>
     <a href="dashboard.html">Dashboard</a>
   </nav>
-
 </header>
-
 
 <main>
 
-  <a
-    class="back-link"
-    href="marketplace.html"
-  >
+  <a class="back-link" href="marketplace.html">
     ← Back to StarRise Store
   </a>
 
+  <section class="requirements">
+    <h2>Before Publishing</h2>
+
+    <ul>
+      <li>You must be signed into your StarRise account.</li>
+      <li>Add the digital file buyers will receive.</li>
+      <li>Use a clear title, description, category, and price.</li>
+      <li>A cover image is optional but recommended.</li>
+    </ul>
+  </section>
 
   <section class="panel">
+    <div class="eyebrow">
+      StarRise Creator Marketplace
+    </div>
 
     <h1>Sell Your Work</h1>
 
     <p class="muted">
-      Put your music, beats, artwork, videos and digital
-      creations in the StarRise Store.
+      Put your music, beats, artwork, videos,
+      writing, and digital creations in the StarRise Store.
     </p>
 
-
-    <!--
-      IMPORTANT:
-
-      We intentionally do NOT use a <form>.
-
-      This prevents Android/browser form submission
-      from refreshing or clearing the page.
-    -->
-
     <div id="sellerForm">
-
-
       <div class="grid">
-
         <div>
-
           <label for="title">
             Title
           </label>
@@ -251,13 +299,11 @@
             id="title"
             maxlength="160"
             placeholder="My New Single"
+            autocomplete="off"
           >
-
         </div>
 
-
         <div>
-
           <label for="price">
             Price ($)
           </label>
@@ -270,60 +316,28 @@
             step="0.01"
             placeholder="10.00"
           >
-
         </div>
-
       </div>
-
 
       <label for="category">
         Category
       </label>
 
       <select id="category">
-
         <option value="">
           Choose a category
         </option>
 
-        <option value="Music">
-          Music
-        </option>
-
-        <option value="Beats">
-          Beats
-        </option>
-
-        <option value="Vocals">
-          Vocals
-        </option>
-
-        <option value="Artwork">
-          Artwork
-        </option>
-
-        <option value="Video">
-          Video
-        </option>
-
-        <option value="Digital">
-          Digital Content
-        </option>
-
-        <option value="Writing">
-          Writing
-        </option>
-
-        <option value="Photography">
-          Photography
-        </option>
-
-        <option value="Other">
-          Other
-        </option>
-
+        <option value="Music">Music</option>
+        <option value="Beats">Beats</option>
+        <option value="Vocals">Vocals</option>
+        <option value="Artwork">Artwork</option>
+        <option value="Video">Video</option>
+        <option value="Digital">Digital Content</option>
+        <option value="Writing">Writing</option>
+        <option value="Photography">Photography</option>
+        <option value="Other">Other</option>
       </select>
-
 
       <label for="description">
         Description
@@ -332,9 +346,8 @@
       <textarea
         id="description"
         maxlength="4000"
-        placeholder="Tell buyers what they are getting..."
+        placeholder="Tell buyers exactly what they will receive..."
       ></textarea>
-
 
       <label for="file">
         Digital File
@@ -347,16 +360,13 @@
       >
 
       <p class="small">
-        Accepted files include MP3, WAV, M4A, MP4, JPG,
-        JPEG, PNG, WebP, PDF and ZIP.
+        Accepted: MP3, WAV, M4A, MP4, JPG, JPEG,
+        PNG, WebP, PDF, and ZIP.
       </p>
-
 
       <label for="cover">
         Cover Image
-        <span class="small">
-          Optional
-        </span>
+        <span class="small">(Optional)</span>
       </label>
 
       <input
@@ -366,15 +376,9 @@
       >
 
       <p class="small">
-        Cover images must be JPG, PNG or WebP.
-        HEIF/HEIC images are not currently supported.
+        Cover images must be JPG, JPEG, PNG, or WebP.
+        HEIF and HEIC images are not supported.
       </p>
-
-
-      <!--
-        type="button" is intentional.
-        This button CANNOT submit/reload the page.
-      -->
 
       <button
         id="publishButton"
@@ -384,18 +388,12 @@
         Publish to StarRise Store
       </button>
 
-
       <div
         id="status"
         class="status hidden"
+        role="status"
+        aria-live="polite"
       ></div>
-
-
-      <div
-        id="debug"
-        class="debug hidden"
-      ></div>
-
 
       <a
         id="storeLink"
@@ -404,32 +402,22 @@
       >
         View StarRise Store →
       </a>
-
-
     </div>
-
   </section>
 
 </main>
 
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-
 <script>
-
 (function () {
-
   'use strict';
-
 
   const SUPABASE_URL =
     'https://rcnikxotdalxtuvpmlvm.supabase.co';
 
-
   const SUPABASE_KEY =
     'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
-
 
   const supabaseClient =
     window.supabase.createClient(
@@ -437,1153 +425,444 @@
       SUPABASE_KEY
     );
 
-
   const publishButton =
-    document.getElementById(
-      'publishButton'
-    );
-
+    document.getElementById('publishButton');
 
   const statusBox =
-    document.getElementById(
-      'status'
-    );
-
-
-  const debugBox =
-    document.getElementById(
-      'debug'
-    );
-
+    document.getElementById('status');
 
   const storeLink =
-    document.getElementById(
-      'storeLink'
-    );
+    document.getElementById('storeLink');
 
+  const titleInput =
+    document.getElementById('title');
+
+  const priceInput =
+    document.getElementById('price');
+
+  const categoryInput =
+    document.getElementById('category');
+
+  const descriptionInput =
+    document.getElementById('description');
 
   const fileInput =
-    document.getElementById(
-      'file'
-    );
-
+    document.getElementById('file');
 
   const coverInput =
-    document.getElementById(
-      'cover'
-    );
+    document.getElementById('cover');
 
+  const allowedDigitalExtensions =
+    [
+      'mp3',
+      'wav',
+      'm4a',
+      'mp4',
+      'jpg',
+      'jpeg',
+      'png',
+      'webp',
+      'pdf',
+      'zip'
+    ];
 
-  let currentStage =
-    'idle';
+  const allowedCoverExtensions =
+    [
+      'jpg',
+      'jpeg',
+      'png',
+      'webp'
+    ];
 
-
-  function setStage(
-    stage,
-    message
-  ) {
-
-    currentStage =
-      stage;
-
-
-    statusBox.textContent =
-      message;
-
-
-    statusBox.className =
-      'status';
-
-
-    statusBox.classList.remove(
-      'hidden'
-    );
-
-
-    debugBox.textContent =
-      'Stage: ' +
-      stage;
-
-
-    debugBox.classList.remove(
-      'hidden'
-    );
-
-
-    console.log(
-      '[StarRise]',
-      stage,
-      message
-    );
-
-  }
-
-
-  function showError(
-    message
-  ) {
-
-    statusBox.textContent =
-      'FAILED at ' +
-      currentStage +
-      ':\n' +
-      message;
-
-
-    statusBox.className =
-      'status error';
-
-
-    statusBox.classList.remove(
-      'hidden'
-    );
-
-
-    debugBox.textContent =
-      'Failure stage: ' +
-      currentStage +
-      '\n' +
-      message;
-
-
-    debugBox.classList.remove(
-      'hidden'
-    );
-
-  }
-
-
-  function showSuccess(
-    data
-  ) {
-
-    currentStage =
-      'confirmed-success';
-
-
-    statusBox.textContent =
-      '✅ Published successfully!\n\n' +
-      'StarRise confirmed the listing in the database.' +
-      (
-        data?.item_id
-          ? '\nItem ID: ' + data.item_id
-          : ''
-      );
-
-
-    statusBox.className =
-      'status success';
-
-
-    statusBox.classList.remove(
-      'hidden'
-    );
-
-
-    debugBox.textContent =
-      'Stage: confirmed-success' +
-      (
-        data?.item_id
-          ? '\nMarketplace item: ' + data.item_id
-          : ''
-      );
-
-
-    debugBox.classList.remove(
-      'hidden'
-    );
-
-
-    storeLink.classList.remove(
-      'hidden'
-    );
-
-
-    /*
-      IMPORTANT:
-
-      NO form reset.
-      NO page redirect.
-      NO field clearing.
-
-      The user can see the listing data
-      that produced the successful item.
-    */
-
-  }
-
-
-  async function detectMimeType(
-    file
-  ) {
-
+  function extension(file) {
     const name =
-      String(
-        file?.name || ''
-      ).toLowerCase();
+      String(file?.name || '');
 
+    const pieces =
+      name.toLowerCase().split('.');
 
-    const reported =
-      String(
-        file?.type || ''
-      ).toLowerCase();
+    return pieces.length > 1
+      ? pieces.pop()
+      : '';
+  }
 
+  function showStatus(message, type) {
+    statusBox.textContent =
+      message;
 
-    /*
-      Filename / MIME checks.
-    */
+    statusBox.className =
+      'status ' + (type || '');
 
-    if (
-      name.endsWith('.mp3') ||
-      reported === 'audio/mpeg' ||
-      reported === 'audio/mp3' ||
-      reported === 'audio/x-mp3' ||
-      reported === 'audio/mpeg3' ||
-      reported === 'audio/x-mpeg-3'
-    ) {
+    statusBox.classList.remove('hidden');
+  }
 
-      return 'audio/mpeg';
+  function showError(message) {
+    showStatus(
+      'Unable to publish:\n' + message,
+      'error'
+    );
+  }
 
-    }
+  function validateInputs() {
+    const title =
+      titleInput.value.trim();
 
+    const description =
+      descriptionInput.value.trim();
 
-    if (
-      name.endsWith('.wav') ||
-      reported === 'audio/wav' ||
-      reported === 'audio/x-wav' ||
-      reported === 'audio/wave' ||
-      reported === 'audio/x-pn-wav'
-    ) {
+    const category =
+      categoryInput.value;
 
-      return 'audio/wav';
+    const price =
+      Number(priceInput.value);
 
-    }
+    const file =
+      fileInput.files[0];
 
+    const cover =
+      coverInput.files[0];
 
-    if (
-      name.endsWith('.m4a')
-    ) {
-
-      return 'audio/mp4';
-
-    }
-
-
-    if (
-      name.endsWith('.mp4')
-    ) {
-
-      return reported.startsWith(
-        'audio/'
-      )
-        ? 'audio/mp4'
-        : 'video/mp4';
-
-    }
-
-
-    if (
-      name.endsWith('.jpg') ||
-      name.endsWith('.jpeg')
-    ) {
-
-      return 'image/jpeg';
-
-    }
-
-
-    if (
-      name.endsWith('.png')
-    ) {
-
-      return 'image/png';
-
-    }
-
-
-    if (
-      name.endsWith('.webp')
-    ) {
-
-      return 'image/webp';
-
-    }
-
-
-    if (
-      name.endsWith('.pdf')
-    ) {
-
-      return 'application/pdf';
-
-    }
-
-
-    if (
-      name.endsWith('.zip')
-    ) {
-
-      return 'application/zip';
-
-    }
-
-
-    /*
-      Read first 32 bytes.
-    */
-
-    const buffer =
-      await file
-        .slice(
-          0,
-          32
-        )
-        .arrayBuffer();
-
-
-    const bytes =
-      new Uint8Array(
-        buffer
+    if (!title) {
+      throw new Error(
+        'Enter a title for your Store item.'
       );
-
-
-    /*
-      MP3 with ID3 header.
-    */
-
-    if (
-      bytes.length >= 3 &&
-      bytes[0] === 0x49 &&
-      bytes[1] === 0x44 &&
-      bytes[2] === 0x33
-    ) {
-
-      return 'audio/mpeg';
-
     }
 
-
-    /*
-      MP3 MPEG frame sync.
-    */
-
-    if (
-      bytes.length >= 2 &&
-      bytes[0] === 0xFF &&
-      (
-        bytes[1] & 0xE0
-      ) === 0xE0
-    ) {
-
-      return 'audio/mpeg';
-
+    if (title.length > 160) {
+      throw new Error(
+        'The title must be 160 characters or fewer.'
+      );
     }
 
-
-    /*
-      WAV.
-    */
-
-    if (
-      bytes.length >= 12 &&
-
-      bytes[0] === 0x52 &&
-      bytes[1] === 0x49 &&
-      bytes[2] === 0x46 &&
-      bytes[3] === 0x46 &&
-
-      bytes[8] === 0x57 &&
-      bytes[9] === 0x41 &&
-      bytes[10] === 0x56 &&
-      bytes[11] === 0x45
-    ) {
-
-      return 'audio/wav';
-
+    if (!description) {
+      throw new Error(
+        'Enter a description explaining what the buyer will receive.'
+      );
     }
 
-
-    /*
-      JPEG.
-    */
-
-    if (
-      bytes.length >= 3 &&
-      bytes[0] === 0xFF &&
-      bytes[1] === 0xD8 &&
-      bytes[2] === 0xFF
-    ) {
-
-      return 'image/jpeg';
-
+    if (!category) {
+      throw new Error(
+        'Choose a category.'
+      );
     }
 
-
-    /*
-      PNG.
-    */
-
     if (
-      bytes.length >= 8 &&
-      bytes[0] === 0x89 &&
-      bytes[1] === 0x50 &&
-      bytes[2] === 0x4E &&
-      bytes[3] === 0x47
+      !Number.isFinite(price) ||
+      price < 1 ||
+      price > 10000
     ) {
-
-      return 'image/png';
-
+      throw new Error(
+        'Enter a price between $1 and $10,000.'
+      );
     }
 
-
-    /*
-      WebP = RIFF....WEBP.
-    */
-
-    if (
-      bytes.length >= 12 &&
-
-      bytes[0] === 0x52 &&
-      bytes[1] === 0x49 &&
-      bytes[2] === 0x46 &&
-      bytes[3] === 0x46 &&
-
-      bytes[8] === 0x57 &&
-      bytes[9] === 0x45 &&
-      bytes[10] === 0x42 &&
-      bytes[11] === 0x50
-    ) {
-
-      return 'image/webp';
-
+    if (!file) {
+      throw new Error(
+        'Choose the digital file buyers will receive.'
+      );
     }
 
-
-    /*
-      PDF.
-    */
-
     if (
-      bytes.length >= 4 &&
-      bytes[0] === 0x25 &&
-      bytes[1] === 0x50 &&
-      bytes[2] === 0x44 &&
-      bytes[3] === 0x46
+      !allowedDigitalExtensions.includes(
+        extension(file)
+      )
     ) {
-
-      return 'application/pdf';
-
+      throw new Error(
+        'The digital file type is not supported. Use MP3, WAV, M4A, MP4, JPG, JPEG, PNG, WebP, PDF, or ZIP.'
+      );
     }
 
-
-    /*
-      ZIP.
-    */
-
     if (
-      bytes.length >= 4 &&
-      bytes[0] === 0x50 &&
-      bytes[1] === 0x4B
+      cover &&
+      !allowedCoverExtensions.includes(
+        extension(cover)
+      )
     ) {
-
-      return 'application/zip';
-
+      throw new Error(
+        'The cover image must be JPG, JPEG, PNG, or WebP.'
+      );
     }
 
-
-    return reported || '';
-
-  }
-
-
-  function extensionForMime(
-    mime
-  ) {
-
-    const map = {
-
-      'audio/mpeg':
-        '.mp3',
-
-      'audio/wav':
-        '.wav',
-
-      'audio/mp4':
-        '.m4a',
-
-      'video/mp4':
-        '.mp4',
-
-      'image/jpeg':
-        '.jpg',
-
-      'image/png':
-        '.png',
-
-      'image/webp':
-        '.webp',
-
-      'application/pdf':
-        '.pdf',
-
-      'application/zip':
-        '.zip'
-
+    return {
+      title,
+      description,
+      category,
+      price,
+      file,
+      cover
     };
-
-
-    return map[mime] || '';
-
   }
 
-
-  function hasExtension(
-    name
-  ) {
-
-    return /\.[a-z0-9]{2,5}$/i.test(
-      name
-    );
-
-  }
-
-
-  async function getValidSession() {
-
-    setStage(
-      'session-check',
-      '1/6 Checking your StarRise login...'
-    );
-
-
-    const result =
+  async function getFreshSession() {
+    const sessionResult =
       await supabaseClient
         .auth
         .getSession();
 
-
-    if (
-      result.error
-    ) {
-
-      throw new Error(
-        result.error.message
-      );
-
+    if (sessionResult.error) {
+      throw sessionResult.error;
     }
-
 
     let session =
-      result.data.session;
-
+      sessionResult.data.session;
 
     if (!session) {
-
-      throw new Error(
-        'No active StarRise login was found.'
-      );
-
+      return null;
     }
 
+    const expiresSoon =
+      session.expires_at &&
+      (
+        session.expires_at * 1000 -
+        Date.now()
+      ) < 120000;
 
-    setStage(
-      'session-refresh',
-      '2/6 Refreshing your StarRise login...'
-    );
+    if (expiresSoon) {
+      const refreshResult =
+        await supabaseClient
+          .auth
+          .refreshSession();
 
-
-    const refreshed =
-      await supabaseClient
-        .auth
-        .refreshSession();
-
-
-    if (
-      !refreshed.error &&
-      refreshed.data.session
-    ) {
+      if (refreshResult.error) {
+        throw refreshResult.error;
+      }
 
       session =
-        refreshed.data.session;
-
+        refreshResult.data.session;
     }
-
-
-    if (
-      !session.access_token
-    ) {
-
-      throw new Error(
-        'StarRise login token is missing.'
-      );
-
-    }
-
 
     return session;
-
   }
 
+  async function publishItem() {
+    publishButton.disabled =
+      true;
+
+    publishButton.textContent =
+      'Publishing...';
+
+    storeLink.classList.add('hidden');
+
+    try {
+      const values =
+        validateInputs();
+
+      showStatus(
+        'Checking your StarRise account...',
+        ''
+      );
+
+      const session =
+        await getFreshSession();
+
+      if (!session) {
+        showStatus(
+          'Please sign in before selling your work.',
+          'warning'
+        );
+
+        setTimeout(
+          function () {
+            window.location.href =
+              'login.html?redirect=' +
+              encodeURIComponent(
+                'create-marketplace-item.html'
+              );
+          },
+          900
+        );
+
+        return;
+      }
+
+      showStatus(
+        'Uploading your work to StarRise. Keep this page open...',
+        ''
+      );
+
+      const formData =
+        new FormData();
+
+      formData.append(
+        'title',
+        values.title
+      );
+
+      formData.append(
+        'description',
+        values.description
+      );
+
+      formData.append(
+        'category',
+        values.category
+      );
+
+      formData.append(
+        'price',
+        values.price.toFixed(2)
+      );
+
+      formData.append(
+        'price_cents',
+        String(
+          Math.round(
+            values.price * 100
+          )
+        )
+      );
+
+      formData.append(
+        'file',
+        values.file,
+        values.file.name
+      );
+
+      if (values.cover) {
+        formData.append(
+          'cover',
+          values.cover,
+          values.cover.name
+        );
+      }
+
+      const uploadResult =
+        await supabaseClient
+          .functions
+          .invoke(
+            'upload-marketplace-item',
+            {
+              body: formData
+            }
+          );
+
+      if (uploadResult.error) {
+        let errorMessage =
+          uploadResult.error.message ||
+          'The StarRise upload function returned an error.';
+
+        if (uploadResult.error.context) {
+          try {
+            const contextData =
+              await uploadResult.error.context.json();
+
+            errorMessage =
+              contextData?.error ||
+              contextData?.message ||
+              errorMessage;
+          } catch {
+            /* Keep the original message. */
+          }
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const data =
+        uploadResult.data || {};
+
+      if (
+        data.success === false ||
+        data.error
+      ) {
+        throw new Error(
+          data.error ||
+          data.message ||
+          'The Store item could not be published.'
+        );
+      }
+
+      const itemId =
+        data.item_id ||
+        data.id ||
+        data.item?.id ||
+        '';
+
+      showStatus(
+        '✅ Published successfully!\n\n' +
+        'Your work is now connected to the StarRise Store.' +
+        (
+          itemId
+            ? '\nItem ID: ' + itemId
+            : ''
+        ),
+        'success'
+      );
+
+      storeLink.classList.remove('hidden');
+    } catch (error) {
+      console.error(
+        'StarRise Store upload error:',
+        error
+      );
+
+      showError(
+        error.message ||
+        'An unexpected error occurred.'
+      );
+    } finally {
+      publishButton.disabled =
+        false;
+
+      publishButton.textContent =
+        'Publish to StarRise Store';
+    }
+  }
 
   publishButton.addEventListener(
     'click',
-    async function () {
-
-      /*
-        Prevent double taps.
-      */
-
-      if (
-        publishButton.disabled
-      ) {
-
-        return;
-
-      }
-
-
-      publishButton.disabled =
-        true;
-
-
-      storeLink.classList.add(
-        'hidden'
-      );
-
-
-      try {
-
-
-        /*
-          Read values.
-        */
-
-        const title =
-          document
-            .getElementById(
-              'title'
-            )
-            .value
-            .trim();
-
-
-        const price =
-          Number(
-            document
-              .getElementById(
-                'price'
-              )
-              .value
-          );
-
-
-        const category =
-          document
-            .getElementById(
-              'category'
-            )
-            .value;
-
-
-        const description =
-          document
-            .getElementById(
-              'description'
-            )
-            .value
-            .trim();
-
-
-        const file =
-          fileInput.files[0];
-
-
-        const cover =
-          coverInput.files[0];
-
-
-        /*
-          Validate text fields first.
-        */
-
-        setStage(
-          'form-validation',
-          'Checking listing information...'
-        );
-
-
-        if (!title) {
-
-          throw new Error(
-            'Enter a title.'
-          );
-
-        }
-
-
-        if (
-          !Number.isFinite(price) ||
-          price < 1 ||
-          price > 10000
-        ) {
-
-          throw new Error(
-            'Price must be between $1.00 and $10,000.'
-          );
-
-        }
-
-
-        if (!category) {
-
-          throw new Error(
-            'Choose a category.'
-          );
-
-        }
-
-
-        if (!description) {
-
-          throw new Error(
-            'Add a description.'
-          );
-
-        }
-
-
-        if (!file) {
-
-          throw new Error(
-            'Choose your digital file.'
-          );
-
-        }
-
-
-        /*
-          Authenticate.
-        */
-
-        const session =
-          await getValidSession();
-
-
-        /*
-          Detect file.
-        */
-
-        setStage(
-          'file-detection',
-          '3/6 Identifying your digital file...'
-        );
-
-
-        const mime =
-          await detectMimeType(
-            file
-          );
-
-
-        const allowed = [
-          'audio/mpeg',
-          'audio/wav',
-          'audio/mp4',
-          'video/mp4',
-          'image/jpeg',
-          'image/png',
-          'image/webp',
-          'application/pdf',
-          'application/zip'
-        ];
-
-
-        if (
-          !mime ||
-          !allowed.includes(
-            mime
-          )
-        ) {
-
-          throw new Error(
-            'StarRise could not identify this file.\n' +
-            'Name: ' +
-            (
-              file.name ||
-              '(no filename)'
-            ) +
-            '\nBrowser type: ' +
-            (
-              file.type ||
-              '(none)'
-            )
-          );
-
-        }
-
-
-        debugBox.textContent =
-          'Stage: file-detection' +
-          '\nDetected: ' +
-          mime +
-          '\nOriginal name: ' +
-          (
-            file.name ||
-            '(none)'
-          ) +
-          '\nSize: ' +
-          file.size +
-          ' bytes';
-
-
-        if (
-          file.size >
-          500 * 1024 * 1024
-        ) {
-
-          throw new Error(
-            'Digital files must be 500 MB or smaller.'
-          );
-
-        }
-
-
-        /*
-          Give extensionless Android files
-          a proper extension.
-        */
-
-        let uploadName =
-          file.name ||
-          'digital-file';
-
-
-        if (
-          !hasExtension(
-            uploadName
-          )
-        ) {
-
-          uploadName +=
-            extensionForMime(
-              mime
-            );
-
-        }
-
-
-        const normalizedFile =
-          new File(
-            [file],
-            uploadName,
-            {
-              type:
-                mime,
-
-              lastModified:
-                file.lastModified ||
-                Date.now()
-            }
-          );
-
-
-        /*
-          Optional cover.
-        */
-
-        let normalizedCover =
-          null;
-
-
-        if (cover) {
-
-          const coverMime =
-            await detectMimeType(
-              cover
-            );
-
-
-          if (
-            ![
-              'image/jpeg',
-              'image/png',
-              'image/webp'
-            ].includes(
-              coverMime
-            )
-          ) {
-
-            throw new Error(
-              'Cover image must be JPG, PNG or WebP.'
-            );
-
-          }
-
-
-          let coverName =
-            cover.name ||
-            'cover';
-
-
-          if (
-            !hasExtension(
-              coverName
-            )
-          ) {
-
-            coverName +=
-              extensionForMime(
-                coverMime
-              );
-
-          }
-
-
-          normalizedCover =
-            new File(
-              [cover],
-              coverName,
-              {
-                type:
-                  coverMime,
-
-                lastModified:
-                  cover.lastModified ||
-                  Date.now()
-              }
-            );
-
-        }
-
-
-        /*
-          Create request.
-        */
-
-        setStage(
-          'request-build',
-          '4/6 Preparing secure upload...'
-        );
-
-
-        const formData =
-          new FormData();
-
-
-        formData.append(
-          'title',
-          title
-        );
-
-
-        formData.append(
-          'price',
-          String(price)
-        );
-
-
-        formData.append(
-          'category',
-          category
-        );
-
-
-        formData.append(
-          'description',
-          description
-        );
-
-
-        formData.append(
-          'file',
-          normalizedFile,
-          normalizedFile.name
-        );
-
-
-        if (
-          normalizedCover
-        ) {
-
-          formData.append(
-            'cover',
-            normalizedCover,
-            normalizedCover.name
-          );
-
-        }
-
-
-        /*
-          Send request.
-        */
-
-        setStage(
-          'server-upload',
-          '5/6 Uploading to StarRise...'
-        );
-
-
-        const response =
-          await fetch(
-
-            SUPABASE_URL +
-            '/functions/v1/upload-marketplace-item',
-
-            {
-
-              method:
-                'POST',
-
-
-              headers: {
-
-                Authorization:
-                  'Bearer ' +
-                  session.access_token,
-
-
-                apikey:
-                  SUPABASE_KEY
-
-              },
-
-
-              body:
-                formData
-
-            }
-
-          );
-
-
-        /*
-          Server answered.
-        */
-
-        setStage(
-          'server-response',
-          '6/6 StarRise responded. Confirming listing...'
-        );
-
-
-        const raw =
-          await response.text();
-
-
-        let data =
-          null;
-
-
-        try {
-
-          data =
-            raw
-              ? JSON.parse(raw)
-              : null;
-
-        } catch (_) {
-
-          throw new Error(
-            'Server returned invalid data.\n' +
-            raw.slice(
-              0,
-              300
-            )
-          );
-
-        }
-
-
-        debugBox.textContent =
-          'Stage: server-response' +
-          '\nHTTP status: ' +
-          response.status +
-          '\nResponse: ' +
-          raw.slice(
-            0,
-            500
-          );
-
-
-        if (
-          !response.ok
-        ) {
-
-          throw new Error(
-            data?.error ||
-            'Upload server returned HTTP ' +
-            response.status
-          );
-
-        }
-
-
-        if (
-          data?.ok !== true
-        ) {
-
-          throw new Error(
-            data?.error ||
-            'Server did not confirm publication.'
-          );
-
-        }
-
-
-        if (
-          !data.item_id
-        ) {
-
-          throw new Error(
-            'The server responded successfully but did not return a marketplace item ID.'
-          );
-
-        }
-
-
-        /*
-          ONLY THIS COUNTS AS SUCCESS.
-        */
-
-        showSuccess(
-          data
-        );
-
-
-      } catch (error) {
-
-
-        console.error(
-          'StarRise publish failure:',
-          error
-        );
-
-
-        showError(
-          error?.message ||
-          String(error)
-        );
-
-
-      } finally {
-
-
-        publishButton.disabled =
-          false;
-
-
-      }
-
-    }
-
+    publishItem
   );
 
+  fileInput.addEventListener(
+    'change',
+    function () {
+      const file =
+        fileInput.files[0];
 
+      if (!file) {
+        return;
+      }
+
+      if (
+        !allowedDigitalExtensions.includes(
+          extension(file)
+        )
+      ) {
+        showError(
+          'That digital file type is not supported.'
+        );
+
+        fileInput.value = '';
+      }
+    }
+  );
+
+  coverInput.addEventListener(
+    'change',
+    function () {
+      const file =
+        coverInput.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      if (
+        !allowedCoverExtensions.includes(
+          extension(file)
+        )
+      ) {
+        showError(
+          'The cover image must be JPG, JPEG, PNG, or WebP.'
+        );
+
+        coverInput.value = '';
+      }
+    }
+  );
 })();
-
 </script>
 
 </body>
-
 </html>
