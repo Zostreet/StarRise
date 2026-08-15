@@ -6,6 +6,11 @@
 
   <title>StarRise Store</title>
 
+  <meta
+    name="description"
+    content="Discover and purchase music, beats, artwork, videos, writing, and digital creations from StarRise talent."
+  >
+
   <style>
     * {
       box-sizing: border-box;
@@ -35,8 +40,7 @@
     }
 
     .logo {
-      color: #fff;
-      font-size: 20px;
+      font-size: 21px;
       font-weight: bold;
     }
 
@@ -70,7 +74,6 @@
     }
 
     .eyebrow {
-      margin-bottom: 8px;
       color: #999;
       font-size: 12px;
       font-weight: bold;
@@ -79,14 +82,14 @@
     }
 
     h1 {
-      margin: 0;
+      margin: 6px 0 10px;
       font-size: clamp(42px, 7vw, 68px);
       line-height: 1.05;
     }
 
     .hero p {
-      color: #aaa;
       max-width: 760px;
+      color: #aaa;
     }
 
     .hero-actions {
@@ -110,9 +113,9 @@
     }
 
     .button.secondary {
+      border: 1px solid #ffffff30;
       background: transparent;
       color: #fff;
-      border: 1px solid #ffffff30;
     }
 
     .button:hover {
@@ -147,8 +150,38 @@
     }
 
     .results {
-      color: #aaa;
       margin-bottom: 15px;
+      color: #aaa;
+    }
+
+    .status,
+    .empty {
+      padding: 20px;
+      border: 1px solid #ffffff18;
+      border-radius: 15px;
+      background: #ffffff08;
+      color: #aaa;
+      text-align: center;
+    }
+
+    .status.error,
+    .notice.error {
+      color: #ffb5b5;
+      background: rgba(200, 50, 50, .12);
+    }
+
+    .notice.warning {
+      color: #ffe3a3;
+      background: rgba(200, 150, 50, .12);
+    }
+
+    .notice.success {
+      color: #baffca;
+      background: rgba(50, 200, 100, .1);
+    }
+
+    .hidden {
+      display: none !important;
     }
 
     .grid {
@@ -208,6 +241,7 @@
       background: #ffffff12;
       color: #bbb;
       font-size: 12px;
+      font-weight: bold;
       text-transform: uppercase;
       letter-spacing: .08em;
     }
@@ -248,35 +282,6 @@
       flex: 1;
     }
 
-    .status,
-    .empty {
-      padding: 20px;
-      border: 1px solid #ffffff18;
-      border-radius: 15px;
-      background: #ffffff08;
-      color: #aaa;
-      text-align: center;
-    }
-
-    .error {
-      color: #ffb5b5;
-      background: rgba(200, 50, 50, .12);
-    }
-
-    .success {
-      color: #baffca;
-      background: rgba(50, 200, 100, .10);
-    }
-
-    .warning {
-      color: #ffe3a3;
-      background: rgba(200, 150, 50, .12);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
     .modal {
       position: fixed;
       inset: 0;
@@ -285,7 +290,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(0, 0, 0, .78);
+      background: rgba(0, 0, 0, .8);
     }
 
     .modal-card {
@@ -298,8 +303,19 @@
       background: #10101c;
     }
 
+    .close-button {
+      float: right;
+      width: 38px;
+      height: 38px;
+      border: 1px solid #ffffff25;
+      border-radius: 50%;
+      background: transparent;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
     .modal-cover {
-      width: 100%;
       height: 250px;
       overflow: hidden;
       display: flex;
@@ -340,18 +356,6 @@
       margin-top: 20px;
     }
 
-    .close-button {
-      float: right;
-      width: 38px;
-      height: 38px;
-      border: 1px solid #ffffff25;
-      border-radius: 50%;
-      background: transparent;
-      color: #fff;
-      font-size: 20px;
-      cursor: pointer;
-    }
-
     .notice {
       padding: 14px;
       margin-top: 15px;
@@ -360,20 +364,17 @@
       color: #aaa;
     }
 
+    footer {
+      padding: 30px 15px;
+      border-top: 1px solid #ffffff18;
+      color: #888;
+      text-align: center;
+    }
+
     @media (max-width: 760px) {
       header {
         flex-direction: column;
         align-items: flex-start;
-      }
-
-      main {
-        width: calc(100% - 20px);
-        margin-top: 20px;
-      }
-
-      .hero,
-      .panel {
-        padding: 21px;
       }
 
       .controls {
@@ -460,23 +461,25 @@
     </div>
 
     <div class="results">
-      <span id="count">Loading the Store...</span>
+      <span id="count">
+        Loading the Store...
+      </span>
     </div>
 
     <div id="status" class="status">
       Loading StarRise Store...
     </div>
 
-    <section id="grid" class="grid hidden"></section>
+    <section id="storeGrid" class="grid hidden"></section>
     <div id="empty" class="empty hidden"></div>
   </section>
 
 </main>
 
-<div id="item-modal" class="modal hidden">
+<div id="itemModal" class="modal hidden">
   <div class="modal-card">
     <button
-      id="close-modal"
+      id="closeModal"
       class="close-button"
       type="button"
       aria-label="Close"
@@ -484,21 +487,21 @@
       ×
     </button>
 
-    <div id="modal-cover" class="modal-cover"></div>
-    <div id="modal-category" class="tag"></div>
-    <div id="modal-title" class="modal-title"></div>
-    <div id="modal-seller" class="seller"></div>
-    <div id="modal-description" class="modal-description"></div>
-    <div id="modal-price" class="modal-price"></div>
-    <div id="modal-status" class="notice hidden"></div>
+    <div id="modalCover" class="modal-cover"></div>
+    <div id="modalCategory" class="tag"></div>
+    <div id="modalTitle" class="modal-title"></div>
+    <div id="modalSeller" class="seller"></div>
+    <div id="modalDescription" class="modal-description"></div>
+    <div id="modalPrice" class="modal-price"></div>
+    <div id="modalStatus" class="notice hidden"></div>
 
     <div class="modal-actions">
-      <button id="buy-button" class="button" type="button">
+      <button id="buyButton" class="button" type="button">
         Buy Now
       </button>
 
       <button
-        id="modal-close-button"
+        id="continueButton"
         class="button secondary"
         type="button"
       >
@@ -507,6 +510,10 @@
     </div>
   </div>
 </div>
+
+<footer>
+  ⭐ StarRise — Where Talent Rises.
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -520,62 +527,59 @@
   const SUPABASE_KEY =
     'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
-  const FUNCTIONS_URL =
-    SUPABASE_URL + '/functions/v1';
-
   const supabaseClient =
     window.supabase.createClient(
       SUPABASE_URL,
       SUPABASE_KEY
     );
 
-  const search =
+  const searchInput =
     document.getElementById('search');
 
-  const category =
+  const categorySelect =
     document.getElementById('category');
 
-  const sort =
+  const sortSelect =
     document.getElementById('sort');
 
-  const status =
+  const statusBox =
     document.getElementById('status');
 
-  const grid =
-    document.getElementById('grid');
+  const storeGrid =
+    document.getElementById('storeGrid');
 
-  const empty =
+  const emptyBox =
     document.getElementById('empty');
 
-  const count =
+  const countBox =
     document.getElementById('count');
 
-  const modal =
-    document.getElementById('item-modal');
+  const itemModal =
+    document.getElementById('itemModal');
 
   const modalCover =
-    document.getElementById('modal-cover');
+    document.getElementById('modalCover');
 
   const modalCategory =
-    document.getElementById('modal-category');
+    document.getElementById('modalCategory');
 
   const modalTitle =
-    document.getElementById('modal-title');
+    document.getElementById('modalTitle');
 
   const modalSeller =
-    document.getElementById('modal-seller');
+    document.getElementById('modalSeller');
 
   const modalDescription =
-    document.getElementById('modal-description');
+    document.getElementById('modalDescription');
 
   const modalPrice =
-    document.getElementById('modal-price');
+    document.getElementById('modalPrice');
 
   const modalStatus =
-    document.getElementById('modal-status');
+    document.getElementById('modalStatus');
 
   const buyButton =
-    document.getElementById('buy-button');
+    document.getElementById('buyButton');
 
   let items = [];
   let selectedItem = null;
@@ -587,6 +591,12 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  }
+
+  function normalize(value) {
+    return String(value || '')
+      .trim()
+      .toLowerCase();
   }
 
   function money(cents) {
@@ -601,2064 +611,10 @@
     );
   }
 
-  function normalize(value) {
-    return String(value || '')
-      .toLowerCase()
-      .trim();
-  }
-
   function sellerName(item) {
     const profile =
       item.profile || {};
 
     return (
       profile.display_name ||
-      profile.full_name ||
-      profile.name ||
-      'StarRise Talent'
-    );
-  }
-
-  function coverMarkup(item) {
-    if (item.cover_url) {
-      return `
-        <img
-          src="${escapeHtml(item.cover_url)}"
-          alt="${escapeHtml(item.title || 'StarRise work')}"
-          loading="lazy"
-        >
-      `;
-    }
-
-    return `
-      <div class="cover-placeholder">
-        ⭐
-      </div>
-    `;
-  }
-
-  async function loadStore() {
-    try {
-      const result =
-        await supabaseClient
-          .from('marketplace_items')
-          .select(`
-            id,
-            seller_id,
-            title,
-            description,
-            category,
-            price_cents,
-            cover_url,
-            preview_url,
-            mime_type,
-            status,
-            created_at
-          `)
-          .eq('status', 'active')
-          .order(
-            'created_at',
-            { ascending: false }
-          );
-
-      if (result.error) {
-        throw result.error;
-      }
-
-      items =
-        result.data || [];
-
-      let profiles = [];
-
-      try {
-        const profileResult =
-          await supabaseClient
-            .rpc('get_public_members');
-
-        if (!profileResult.error) {
-          profiles =
-            profileResult.data || [];
-        }
-      } catch (profileError) {
-        console.warn(
-          'Public profile lookup failed:',
-          profileError
-        );
-      }
-
-      const profileMap =
-        new Map(
-          profiles.map(
-            profile => [
-              String(profile.id),
-              profile
-            ]
-          )
-        );
-
-      items =
-        items.map(
-          item => ({
-            ...item,
-            profile:
-              profileMap.get(
-                String(item.seller_id)
-              ) || null
-          })
-        );
-
-      buildCategories();
-
-      status.classList.add('hidden');
-      grid.classList.remove('hidden');
-
-      render();
-    } catch (error) {
-      console.error('Store error:', error);
-
-      status.textContent =
-        'Unable to load the StarRise Store. ' +
-        (
-          error.message ||
-          'Please try again.'
-        );
-
-      status.className =
-        'status error';
-    }
-  }
-
-  function buildCategories() {
-    const categories =
-      [
-        ...new Set(
-          items
-            .map(
-              item =>
-                String(
-                  item.category || ''
-                ).trim()
-            )
-            .filter(Boolean)
-        )
-      ].sort(
-        (a, b) =>
-          a.localeCompare(b)
-      );
-
-    category.innerHTML =
-      `
-        <option value="all">
-          All Categories
-        </option>
-      ` +
-      categories
-        .map(
-          value => `
-            <option value="${escapeHtml(value)}">
-              ${escapeHtml(value)}
-            </option>
-          `
-        )
-        .join('');
-  }
-
-  function getResults() {
-    const query =
-      normalize(search.value);
-
-    const selectedCategory =
-      category.value;
-
-    let results =
-      items.filter(
-        item => {
-          const profile =
-            item.profile || {};
-
-          const searchable =
-            [
-              item.title,
-              item.description,
-              item.category,
-              profile.display_name,
-              profile.full_name,
-              profile.name,
-              profile.location
-            ]
-              .map(normalize)
-              .join(' ');
-
-          const matchesSearch =
-            !query ||
-            searchable.includes(query);
-
-          const matchesCategory =
-            selectedCategory === 'all' ||
-            item.category === selectedCategory;
-
-          return (
-            matchesSearch &&
-            matchesCategory
-          );
-        }
-      );
-
-    if (sort.value === 'price-low') {
-      results.sort(
-        (a, b) =>
-          Number(a.price_cents || 0) -
-          Number(b.price_cents || 0)
-      );
-    }
-
-    if (sort.value === 'price-high') {
-      results.sort(
-        (a, b) =>
-          Number(b.price_cents || 0) -
-          Number(a.price_cents || 0)
-      );
-    }
-
-    if (sort.value === 'title') {
-      results.sort(
-        (a, b) =>
-          String(a.title || '')
-            .localeCompare(
-              String(b.title || '')
-            )
-      );
-    }
-
-    if (sort.value === 'newest') {
-      results.sort(
-        (a, b) =>
-          new Date(b.created_at) -
-          new Date(a.created_at)
-      );
-    }
-
-    return results;
-  }
-
-  function render() {
-    const results =
-      getResults();
-
-    count.textContent =
-      results.length +
-      ' item' +
-      (
-        results.length === 1
-          ? ''
-          : 's'
-      );
-
-    if (!results.length) {
-      grid.innerHTML = '';
-
-      empty.textContent =
-        items.length
-          ? 'No Store items match your search.'
-          : 'The StarRise Store is ready for talent. No items have been posted yet.';
-
-      empty.classList.remove('hidden');
-      return;
-    }
-
-    empty.classList.add('hidden');
-
-    grid.innerHTML =
-      results
-        .map(
-          item => `
-            <article class="card">
-              <div class="cover">
-                ${coverMarkup(item)}
-              </div>
-
-              <div class="card-body">
-                ${
-                  item.category
-                    ? `
-                      <span class="tag">
-                        ${escapeHtml(item.category)}
-                      </span>
-                    `
-                    : ''
-                }
-
-                <div class="title">
-                  ${escapeHtml(
-                    item.title ||
-                    'StarRise Creation'
-                  )}
-                </div>
-
-                <div class="description">
-                  ${escapeHtml(
-                    item.description ||
-                    'No description provided.'
-                  )}
-                </div>
-
-                <div class="seller">
-                  Created by
-                  <strong>
-                    ${escapeHtml(
-                      sellerName(item)
-                    )}
-                  </strong>
-                </div>
-
-                <div class="price">
-                  ${money(item.price_cents)}
-                </div>
-
-                <div class="card-actions">
-                  <button
-                    class="button"
-                    type="button"
-                    data-view="${escapeHtml(item.id)}"
-                  >
-                    View
-                  </button>
-
-                  <button
-                    class="button secondary"
-                    type="button"
-                    data-buy="${escapeHtml(item.id)}"
-                  >
-                    Buy Now
-                  </button>
-                </div>
-              </div>
-            </article>
-          `
-        )
-        .join('');
-  }
-
-  function openItem(item) {
-    selectedItem =
-      item;
-
-    modalCover.innerHTML =
-      coverMarkup(item);
-
-    modalCategory.textContent =
-      item.category ||
-      'StarRise Creation';
-
-    modalTitle.textContent =
-      item.title ||
-      'StarRise Creation';
-
-    modalSeller.innerHTML =
-      'Created by <strong>' +
-      escapeHtml(
-        sellerName(item)
-      ) +
-      '</strong>';
-
-    modalDescription.textContent =
-      item.description ||
-      'No description provided.';
-
-    modalPrice.textContent =
-      money(item.price_cents);
-
-    modalStatus.classList.add('hidden');
-
-    buyButton.disabled =
-      false;
-
-    buyButton.textContent =
-      'Buy Now';
-
-    modal.classList.remove('hidden');
-  }
-
-  function closeModal() {
-    modal.classList.add('hidden');
-    selectedItem = null;
-  }
-
-  async function startPurchase() {
-    if (!selectedItem) {
-      return;
-    }
-
-    try {
-      buyButton.disabled =
-        true;
-
-      buyButton.textContent =
-        'Preparing Checkout...';
-
-      modalStatus.className =
-        'notice';
-
-      modalStatus.textContent =
-        'Checking your StarRise account...';
-
-      modalStatus.classList.remove('hidden');
-
-      const userResult =
-        await supabaseClient
-          .auth
-          .getUser();
-
-      if (userResult.error) {
-        throw userResult.error;
-      }
-
-      const user =
-           }
-
-    .button:disabled{
-      opacity:.5;
-      cursor:wait
-    }
-
-    .controls{
-      display:grid;
-      grid-template-columns:2fr 1fr 1fr;
-      gap:12px;
-      margin-bottom:20px
-    }
-
-    .control{
-      width:100%;
-      padding:13px 15px;
-      border:1px solid #ffffff20;
-      border-radius:12px;
-      background:#11111d;
-      color:#fff;
-      font:inherit
-    }
-
-    .control:focus{
-      outline:none;
-      border-color:#ffffff55
-    }
-
-    .results{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      color:#aaa;
-      margin-bottom:15px
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(290px,1fr));
-      gap:18px
-    }
-
-    .card{
-      border:1px solid #ffffff18;
-      border-radius:20px;
-      background:#ffffff08;
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-      min-height:430px;
-      transition:.15s
-    }
-
-    .card:hover{
-      transform:translateY(-2px);
-      border-color:#ffffff35
-    }
-
-    .cover{
-      height:190px;
-      background:linear-gradient(135deg,#17172a,#0d0d17);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden
-    }
-
-    .cover img{
-      width:100%;
-      height:100%;
-      object-fit:cover
-    }
-
-    .cover-placeholder{
-      font-size:55px
-    }
-
-    .card-body{
-      padding:20px;
-      display:flex;
-      flex-direction:column;
-      flex:1
-    }
-
-    .tag{
-      display:inline-block;
-      width:max-content;
-      padding:5px 10px;
-      border-radius:20px;
-      background:#ffffff12;
-      color:#bbb;
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-      margin-bottom:10px
-    }
-
-    .title{
-      font-size:23px;
-      font-weight:bold
-    }
-
-    .description{
-      color:#aaa;
-      white-space:pre-wrap;
-      margin:8px 0 15px;
-      flex:1
-    }
-
-    .seller{
-      color:#999;
-      font-size:14px
-    }
-
-    .seller strong{
-      color:#fff
-    }
-
-    .price{
-      font-size:28px;
-      font-weight:bold;
-      margin:12px 0
-    }
-
-    .card-actions{
-      display:flex;
-      gap:9px
-    }
-
-    .card-actions .button{
-      flex:1;
-      text-align:center
-    }
-
-    .status,
-    .empty{
-      padding:20px;
-      border-radius:15px;
-      background:#ffffff08;
-      border:1px solid #ffffff18;
-      color:#aaa;
-      text-align:center
-    }
-
-    .error{
-      color:#ffb5b5;
-      background:rgba(200,50,50,.12)
-    }
-
-    .success{
-      color:#baffca;
-      background:rgba(50,200,100,.10)
-    }
-
-    .warning{
-      color:#ffe3a3;
-      background:rgba(200,150,50,.12)
-    }
-
-    .hidden{
-      display:none!important
-    }
-
-    .modal{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.78);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-      z-index:1000
-    }
-
-    .modal-card{
-      width:min(620px,100%);
-      max-height:90vh;
-      overflow:auto;
-      border:1px solid #ffffff25;
-      border-radius:22px;
-      background:#10101c;
-      padding:26px
-    }
-
-    .modal-cover{
-      width:100%;
-      height:250px;
-      border-radius:16px;
-      overflow:hidden;
-      background:#17172a;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      margin-bottom:20px
-    }
-
-    .modal-cover img{
-      width:100%;
-      height:100%;
-      object-fit:cover
-    }
-
-    .modal-title{
-      font-size:32px;
-      font-weight:bold
-    }
-
-    .modal-description{
-      color:#bbb;
-      white-space:pre-wrap;
-      margin:12px 0
-    }
-
-    .modal-price{
-      font-size:32px;
-      font-weight:bold;
-      margin:12px 0
-    }
-
-    .modal-actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:20px
-    }
-
-    .close-button{
-      float:right;
-      border:1px solid #ffffff25;
-      background:transparent;
-      color:#fff;
-      width:38px;
-      height:38px;
-      border-radius:50%;
-      cursor:pointer;
-      font-size:20px
-    }
-
-    .notice{
-      padding:14px;
-      border-radius:12px;
-      background:#ffffff08;
-      color:#aaa;
-      margin-top:15px
-    }
-
-    @media(max-width:760px){
-
-      header{
-        flex-direction:column;
-        align-items:flex-start
-      }
-
-      main{
-        width:calc(100% - 20px);
-        margin-top:20px
-      }
-
-      .hero,
-      .panel{
-        padding:21px
-      }
-
-      .controls{
-        grid-template-columns:1fr
-      }
-
-      .results{
-        flex-direction:column;
-        align-items:flex-start;
-        gap:8px
-      }
-
-      .card-actions{
-        flex-direction:column
-      }
-
-      .card-actions .button{
-        width:100%
-      }
-
-      .modal-actions{
-        flex-direction:column
-      }
-
-      .modal-actions .button{
-        width:100%;
-        text-align:center
-      }
-    }
-  </style>
-</head>
-
-<body>
-
-<header>
-
-  <a href="index.html">
-    ⭐ StarRise
-  </a>
-
-  <nav>
-
-    <a href="services.html">
-      Services
-    </a>
-
-    <a href="opportunities.html">
-      Opportunities
-    </a>
-
-    <a href="dashboard.html">
-      Dashboard
-    </a>
-
-  </nav>
-
-</header>
-
-<main>
-
-  <section class="hero">
-
-    <div class="eyebrow">
-      StarRise Talent Marketplace
-    </div>
-
-    <h1>
-      The StarRise Store
-    </h1>
-
-    <p>
-      Discover music, beats, vocals, artwork, videos,
-      digital creations and other work created by
-      StarRise talent.
-    </p>
-
-    <div class="hero-actions">
-
-      <a
-        class="button"
-        href="create-marketplace-item.html"
-      >
-        + Sell Your Work
-      </a>
-
-      <a
-        class="button secondary"
-        href="dashboard.html"
-      >
-        My Dashboard
-      </a>
-
-    </div>
-
-  </section>
-
-
-  <section class="panel">
-
-    <div class="controls">
-
-      <input
-        id="search"
-        class="control"
-        type="search"
-        placeholder="Search music, beats, creators..."
-        autocomplete="off"
-      >
-
-      <select
-        id="category"
-        class="control"
-      >
-
-        <option value="all">
-          All Categories
-        </option>
-
-      </select>
-
-      <select
-        id="sort"
-        class="control"
-      >
-
-        <option value="newest">
-          Newest
-        </option>
-
-        <option value="price-low">
-          Price: Low to High
-        </option>
-
-        <option value="price-high">
-          Price: High to Low
-        </option>
-
-        <option value="title">
-          Name: A to Z
-        </option>
-
-      </select>
-
-    </div>
-
-    <div class="results">
-
-      <span id="count">
-        Loading the Store...
-      </span>
-
-    </div>
-
-    <div
-      id="status"
-      class="status"
-    >
-      Loading StarRise Store...
-    </div>
-
-    <section
-      id="grid"
-      class="grid hidden"
-    ></section>
-
-    <div
-      id="empty"
-      class="empty hidden"
-    ></div>
-
-  </section>
-
-</main>
-
-
-<div
-  id="item-modal"
-  class="modal hidden"
->
-
-  <div class="modal-card">
-
-    <button
-      id="close-modal"
-      class="close-button"
-      type="button"
-    >
-      ×
-    </button>
-
-    <div
-      id="modal-cover"
-      class="modal-cover"
-    ></div>
-
-    <div
-      id="modal-category"
-      class="tag"
-    ></div>
-
-    <div
-      id="modal-title"
-      class="modal-title"
-    ></div>
-
-    <div
-      id="modal-seller"
-      class="seller"
-    ></div>
-
-    <div
-      id="modal-description"
-      class="modal-description"
-    ></div>
-
-    <div
-      id="modal-price"
-      class="modal-price"
-    ></div>
-
-    <div
-      id="modal-status"
-      class="notice hidden"
-    ></div>
-
-    <div class="modal-actions">
-
-      <button
-        id="buy-button"
-        class="button"
-        type="button"
-      >
-        Buy Now
-      </button>
-
-      <button
-        id="modal-close-button"
-        class="button secondary"
-        type="button"
-      >
-        Continue Browsing
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-
-(function(){
-
-'use strict';
-
-
-const SUPABASE_URL =
-  'https://rcnikxotdalxtuvpmlvm.supabase.co';
-
-const SUPABASE_KEY =
-  'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
-
-const FUNCTIONS_URL =
-  SUPABASE_URL +
-  '/functions/v1';
-
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-
-const search =
-  document.getElementById(
-    'search'
-  );
-
-const category =
-  document.getElementById(
-    'category'
-  );
-
-const sort =
-  document.getElementById(
-    'sort'
-  );
-
-const status =
-  document.getElementById(
-    'status'
-  );
-
-const grid =
-  document.getElementById(
-    'grid'
-  );
-
-const empty =
-  document.getElementById(
-    'empty'
-  );
-
-const count =
-  document.getElementById(
-    'count'
-  );
-
-
-const modal =
-  document.getElementById(
-    'item-modal'
-  );
-
-const modalCover =
-  document.getElementById(
-    'modal-cover'
-  );
-
-const modalCategory =
-  document.getElementById(
-    'modal-category'
-  );
-
-const modalTitle =
-  document.getElementById(
-    'modal-title'
-  );
-
-const modalSeller =
-  document.getElementById(
-    'modal-seller'
-  );
-
-const modalDescription =
-  document.getElementById(
-    'modal-description'
-  );
-
-const modalPrice =
-  document.getElementById(
-    'modal-price'
-  );
-
-const modalStatus =
-  document.getElementById(
-    'modal-status'
-  );
-
-const buyButton =
-  document.getElementById(
-    'buy-button'
-  );
-
-
-let items = [];
-let selectedItem = null;
-
-
-function escapeHtml(value){
-
-  return String(value ?? '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
-
-}
-
-
-function money(cents){
-
-  return (
-    Number(cents || 0) /
-    100
-  ).toLocaleString(
-    'en-US',
-    {
-      style:'currency',
-      currency:'USD'
-    }
-  );
-
-}
-
-
-function normalize(value){
-
-  return String(value || '')
-    .toLowerCase()
-    .trim();
-
-}
-
-
-function sellerName(item){
-
-  const profile =
-    item.profile || {};
-
-  return (
-    profile.display_name ||
-    profile.full_name ||
-    profile.name ||
-    'StarRise Talent'
-  );
-
-}
-
-
-function coverMarkup(item){
-
-  if(item.cover_url){
-
-    return `
-      <img
-        src="${escapeHtml(item.cover_url)}"
-        alt="${escapeHtml(item.title || 'StarRise work')}"
-        loading="lazy"
-      >
-    `;
-
-  }
-
-  return `
-    <div class="cover-placeholder">
-      ⭐
-    </div>
-  `;
-
-}
-
-
-/* ==========================================
-LOAD STORE
-========================================== */
-
-async function loadStore(){
-
-  try{
-
-    const result =
-      await supabaseClient
-        .from('marketplace_items')
-        .select(`
-          id,
-          seller_id,
-          title,
-          description,
-          category,
-          price_cents,
-          cover_url,
-          preview_url,
-          mime_type,
-          status,
-          created_at
-        `)
-        .eq(
-          'status',
-          'active'
-        )
-        .order(
-          'created_at',
-          {
-            ascending:false
-          }
-        );
-
-
-    if(result.error){
-
-      throw result.error;
-
-    }
-
-
-    items =
-      result.data || [];
-
-
-    let profiles = [];
-
-
-    try{
-
-      const profileResult =
-        await supabaseClient
-          .rpc(
-            'get_public_members'
-          );
-
-
-      if(
-        !profileResult.error
-      ){
-
-        profiles =
-          profileResult.data || [];
-
-      }
-
-    }catch(error){
-
-      console.warn(
-        'Public profile lookup failed:',
-        error
-      );
-
-    }
-
-
-    const profileMap =
-      new Map(
-        profiles.map(
-          profile => [
-            String(profile.id),
-            profile
-          ]
-        )
-      );
-
-
-    items =
-      items.map(
-        item => ({
-          ...item,
-          profile:
-            profileMap.get(
-              String(
-                item.seller_id
-              )
-            ) || null
-        })
-      );
-
-
-    buildCategories();
-
-
-    status.classList.add(
-      'hidden'
-    );
-
-    grid.classList.remove(
-      'hidden'
-    );
-
-
-    render();
-
-  }catch(error){
-
-    console.error(
-      'Store error:',
-      error
-    );
-
-    status.textContent =
-      'Unable to load the StarRise Store. ' +
-      (
-        error.message ||
-        'Please try again.'
-      );
-
-    status.className =
-      'status error';
-
-  }
-
-}
-
-
-/* ==========================================
-CATEGORIES
-========================================== */
-
-function buildCategories(){
-
-  const categories =
-    [
-      ...new Set(
-        items
-          .map(
-            item =>
-              String(
-                item.category || ''
-              ).trim()
-          )
-          .filter(Boolean)
-      )
-    ]
-    .sort(
-      (a,b) =>
-        a.localeCompare(b)
-    );
-
-
-  category.innerHTML =
-    `
-      <option value="all">
-        All Categories
-      </option>
-    ` +
-    categories
-      .map(
-        value =>
-          `
-            <option value="${escapeHtml(value)}">
-              ${escapeHtml(value)}
-            </option>
-          `
-      )
-      .join('');
-
-}
-
-
-/* ==========================================
-FILTER + SORT
-========================================== */
-
-function getResults(){
-
-  const query =
-    normalize(
-      search.value
-    );
-
-  const selectedCategory =
-    category.value;
-
-
-  let results =
-    items.filter(
-      item => {
-
-        const profile =
-          item.profile || {};
-
-
-        const searchable =
-          [
-            item.title,
-            item.description,
-            item.category,
-            profile.display_name,
-            profile.full_name,
-            profile.name,
-            profile.location
-          ]
-          .map(normalize)
-          .join(' ');
-
-
-        const matchesSearch =
-          !query ||
-          searchable.includes(
-            query
-          );
-
-
-        const matchesCategory =
-          selectedCategory ===
-            'all' ||
-          item.category ===
-            selectedCategory;
-
-
-        return (
-          matchesSearch &&
-          matchesCategory
-        );
-
-      }
-    );
-
-
-  if(sort.value === 'price-low'){
-
-    results.sort(
-      (a,b) =>
-        Number(a.price_cents || 0) -
-        Number(b.price_cents || 0)
-    );
-
-  }
-
-
-  if(sort.value === 'price-high'){
-
-    results.sort(
-      (a,b) =>
-        Number(b.price_cents || 0) -
-        Number(a.price_cents || 0)
-    );
-
-  }
-
-
-  if(sort.value === 'title'){
-
-    results.sort(
-      (a,b) =>
-        String(
-          a.title || ''
-        ).localeCompare(
-          String(
-            b.title || ''
-          )
-        )
-    );
-
-  }
-
-
-  if(sort.value === 'newest'){
-
-    results.sort(
-      (a,b) =>
-        new Date(
-          b.created_at
-        ) -
-        new Date(
-          a.created_at
-        )
-    );
-
-  }
-
-
-  return results;
-
-}
-
-
-/* ==========================================
-RENDER CARDS
-========================================== */
-
-function render(){
-
-  const results =
-    getResults();
-
-
-  count.textContent =
-    results.length +
-    ' item' +
-    (
-      results.length === 1
-        ? ''
-        : 's'
-    );
-
-
-  if(!results.length){
-
-    grid.innerHTML = '';
-
-    empty.textContent =
-      items.length
-        ? 'No Store items match your search.'
-        : 'The StarRise Store is ready for talent. No items have been posted yet.';
-
-    empty.classList.remove(
-      'hidden'
-    );
-
-    return;
-
-  }
-
-
-  empty.classList.add(
-    'hidden'
-  );
-
-
-  grid.innerHTML =
-    results
-      .map(
-        item => {
-
-          const seller =
-            sellerName(item);
-
-
-          return `
-            <article class="card">
-
-              <div class="cover">
-                ${coverMarkup(item)}
-              </div>
-
-              <div class="card-body">
-
-                ${
-                  item.category
-                    ? `
-                      <span class="tag">
-                        ${escapeHtml(
-                          item.category
-                        )}
-                      </span>
-                    `
-                    : ''
-                }
-
-                <div class="title">
-                  ${escapeHtml(
-                    item.title ||
-                    'StarRise Creation'
-                  )}
-                </div>
-
-                <div class="description">
-                  ${escapeHtml(
-                    item.description ||
-                    'No description provided.'
-                  )}
-                </div>
-
-                <div class="seller">
-                  Created by
-                  <strong>
-                    ${escapeHtml(seller)}
-                  </strong>
-                </div>
-
-                <div class="price">
-                  ${money(
-                    item.price_cents
-                  )}
-                </div>
-
-                <div class="card-actions">
-
-                  <button
-                    class="button"
-                    type="button"
-                    data-view="${escapeHtml(item.id)}"
-                  >
-                    View
-                  </button>
-
-                  <button
-                    class="button secondary"
-                    type="button"
-                    data-buy="${escapeHtml(item.id)}"
-                  >
-                    Buy Now
-                  </button>
-
-                </div>
-
-              </div>
-
-            </article>
-          `;
-
-        }
-      )
-      .join('');
-
-}
-
-
-/* ==========================================
-OPEN ITEM
-========================================== */
-
-function openItem(item){
-
-  selectedItem =
-    item;
-
-
-  modalCover.innerHTML =
-    coverMarkup(item);
-
-
-  modalCategory.textContent =
-    item.category ||
-    'StarRise Creation';
-
-
-  modalTitle.textContent =
-    item.title ||
-    'StarRise Creation';
-
-
-  modalSeller.innerHTML =
-    'Created by <strong>' +
-    escapeHtml(
-      sellerName(item)
-    ) +
-    '</strong>';
-
-
-  modalDescription.textContent =
-    item.description ||
-    'No description provided.';
-
-
-  modalPrice.textContent =
-    money(
-      item.price_cents
-    );
-
-
-  modalStatus.classList.add(
-    'hidden'
-  );
-
-
-  buyButton.disabled =
-    false;
-
-  buyButton.textContent =
-    'Buy Now';
-
-
-  modal.classList.remove(
-    'hidden'
-  );
-
-}
-
-
-function closeModal(){
-
-  modal.classList.add(
-    'hidden'
-  );
-
-  selectedItem =
-    null;
-
-}
-
-
-/* ==========================================
-CHECKOUT
-========================================== */
-
-async function startPurchase(){
-
-  if(!selectedItem){
-
-    return;
-
-  }
-
-
-  try{
-
-    buyButton.disabled =
-      true;
-
-    buyButton.textContent =
-      'Preparing Checkout...';
-
-
-    modalStatus.className =
-      'notice';
-
-    modalStatus.textContent =
-      'Checking your StarRise account...';
-
-    modalStatus.classList.remove(
-      'hidden'
-    );
-
-
-    const userResult =
-      await supabaseClient
-        .auth
-        .getUser();
-
-
-    if(userResult.error){
-
-      throw userResult.error;
-
-    }
-
-
-    const user =
-      userResult.data.user;
-
-
-    if(!user){
-
-      modalStatus.className =
-        'notice warning';
-
-      modalStatus.textContent =
-        'Please sign in before purchasing from the StarRise Store.';
-
-
-      buyButton.disabled =
-        false;
-
-      buyButton.textContent =
-        'Sign In to Buy';
-
-
-      buyButton.onclick =
-        function(){
-
-          window.location.href =
-            'login.html?redirect=' +
-            encodeURIComponent(
-              window.location.href
-            );
-
-        };
-
-
-      return;
-
-    }
-
-
-    if(
-      String(
-        selectedItem.seller_id
-      ) ===
-      String(user.id)
-    ){
-
-      throw new Error(
-        'You cannot purchase your own Store item.'
-      );
-
-    }
-
-
-    const sessionResult =
-      await supabaseClient
-        .auth
-        .getSession();
-
-
-    if(sessionResult.error){
-
-      throw sessionResult.error;
-
-    }
-
-
-    const session =
-      sessionResult.data.session;
-
-
-    if(!session){
-
-      throw new Error(
-        'Your login session has expired. Please sign in again.'
-      );
-
-    }
-
-
-    modalStatus.className =
-      'notice';
-
-    modalStatus.textContent =
-      'Creating secure Stripe checkout...';
-
-
-    /*
-      This supports the same StarRise
-      Edge Function pattern used by the
-      service checkout.
-
-      The function can receive the Store
-      item ID and create the Stripe session
-      server-side.
-    */
-
-    const response =
-      await fetch(
-        FUNCTIONS_URL +
-        '/create-marketplace-checkout',
-        {
-          method:'POST',
-
-          headers:{
-            'Authorization':
-              'Bearer ' +
-              session.access_token,
-
-            'apikey':
-              SUPABASE_KEY,
-
-            'Content-Type':
-              'application/json'
-          },
-
-          body:JSON.stringify({
-
-            item_id:
-              selectedItem.id,
-
-            buyer_id:
-              user.id
-
-          })
-
-        }
-      );
-
-
-    let data = null;
-
-
-    try{
-
-      data =
-        await response.json();
-
-    }catch{
-
-      data = null;
-
-    }
-
-
-    if(
-      !response.ok ||
-      !data
-    ){
-
-      throw new Error(
-        data?.error ||
-        'The Store checkout function could not create a Stripe checkout.'
-      );
-
-    }
-
-
-    /*
-      Accept either a direct checkout URL
-      or a Stripe session ID.
-
-      This keeps the front end flexible
-      while the backend is being finalized.
-    */
-
-    if(
-      data.url &&
-      typeof data.url === 'string'
-    ){
-
-      modalStatus.className =
-        'notice success';
-
-      modalStatus.textContent =
-        'Checkout created. Redirecting to Stripe...';
-
-
-      window.location.assign(
-        data.url
-      );
-
-      return;
-
-    }
-
-
-    if(
-      data.session_id &&
-      typeof data.session_id === 'string'
-    ){
-
-      const redirectUrl =
-        FUNCTIONS_URL +
-        '/stripe-redirect?session_id=' +
-        encodeURIComponent(
-          data.session_id
-        );
-
-
-      modalStatus.className =
-        'notice success';
-
-      modalStatus.textContent =
-        'Checkout created. Redirecting to Stripe...';
-
-
-      window.location.assign(
-        redirectUrl
-      );
-
-      return;
-
-    }
-
-
-    throw new Error(
-      'Stripe checkout was created without a checkout URL or session ID.'
-    );
-
-  }catch(error){
-
-    console.error(
-      'Store checkout error:',
-      error
-    );
-
-
-    modalStatus.className =
-      'notice error';
-
-    modalStatus.textContent =
-      error.message ||
-      'Unable to start checkout.';
-
-
-    buyButton.disabled =
-      false;
-
-    buyButton.textContent =
-      'Buy Now';
-
-  }
-
-}
-
-
-/* ==========================================
-EVENTS
-========================================== */
-
-search.addEventListener(
-  'input',
-  render
-);
-
-category.addEventListener(
-  'change',
-  render
-);
-
-sort.addEventListener(
-  'change',
-  render
-);
-
-
-grid.addEventListener(
-  'click',
-  function(event){
-
-    const viewButton =
-      event.target.closest(
-        '[data-view]'
-      );
-
-    const buyButtonElement =
-      event.target.closest(
-        '[data-buy]'
-      );
-
-
-    if(viewButton){
-
-      const item =
-        items.find(
-          value =>
-            String(value.id) ===
-            String(
-              viewButton.dataset.view
-            )
-        );
-
-
-      if(item){
-
-        openItem(item);
-
-      }
-
-      return;
-
-    }
-
-
-    if(buyButtonElement){
-
-      const item =
-        items.find(
-          value =>
-            String(value.id) ===
-            String(
-              buyButtonElement.dataset.buy
-            )
-        );
-
-
-      if(item){
-
-        openItem(item);
-
-        startPurchase();
-
-      }
-
-    }
-
-  }
-);
-
-
-document.getElementById(
-  'close-modal'
-).addEventListener(
-  'click',
-  closeModal
-);
-
-
-document.getElementById(
-  'modal-close-button'
-).addEventListener(
-  'click',
-  closeModal
-);
-
-
-buyButton.addEventListener(
-  'click',
-  startPurchase
-);
-
-
-modal.addEventListener(
-  'click',
-  function(event){
-
-    if(
-      event.target === modal
-    ){
-
-      closeModal();
-
-    }
-
-  }
-);
-
-
-document.addEventListener(
-  'keydown',
-  function(event){
-
-    if(
-      event.key === 'Escape'
-    ){
-
-      closeModal();
-
-    }
-
-  }
-);
-
-
-/* ==========================================
-START
-========================================== */
-
-loadStore();
-
-})();
-
-</script>
-
-</body>
-</html>
+      profile.full_name
