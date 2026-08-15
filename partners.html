@@ -1,141 +1,202 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>StarRise Partners</title>
+  <title>StarRise Partners</title>
 
-<style>
-*{box-sizing:border-box}
+  <meta
+    name="description"
+    content="Learn how businesses, organizations, programs, and community leaders can partner with StarRise."
+  >
 
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#080812;
-  color:#fff;
-  line-height:1.6
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-a{
-  color:inherit;
-  text-decoration:none
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      background: #080812;
+      color: #fff;
+    }
 
-.wrap{
-  width:min(1000px,calc(100% - 30px));
-  margin:auto
-}
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-header{
-  border-bottom:1px solid #ffffff18;
-  padding:20px 0
-}
+    .wrap {
+      width: min(1050px, calc(100% - 30px));
+      margin: auto;
+    }
 
-.nav{
-  display:flex;
-  justify-content:space-between;
-  gap:18px;
-  align-items:center;
-  flex-wrap:wrap
-}
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid #ffffff18;
+    }
 
-.nav a{
-  color:#bbb
-}
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
 
-.logo{
-  font-weight:800;
-  color:#fff!important
-}
+    .logo {
+      color: #fff;
+      font-size: 21px;
+      font-weight: 800;
+    }
 
-.hero{
-  padding:90px 0 55px
-}
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
 
-.eyebrow{
-  color:#aaa;
-  text-transform:uppercase;
-  letter-spacing:3px;
-  font-size:13px;
-  font-weight:700
-}
+    nav a {
+      color: #bbb;
+      font-weight: bold;
+    }
 
-h1{
-  font-size:clamp(48px,9vw,82px);
-  line-height:1;
-  margin:12px 0 20px
-}
+    nav a:hover {
+      color: #fff;
+    }
 
-.lead{
-  max-width:760px;
-  color:#aaa;
-  font-size:19px
-}
+    .hero {
+      padding: 90px 0 55px;
+    }
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:18px;
-  padding:20px 0 70px
-}
+    .eyebrow {
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-size: 13px;
+      font-weight: 700;
+    }
 
-.card{
-  border:1px solid #ffffff18;
-  border-radius:20px;
-  padding:25px;
-  background:#ffffff08
-}
+    h1 {
+      margin: 12px 0 20px;
+      font-size: clamp(48px, 9vw, 82px);
+      line-height: 1;
+    }
 
-.card h2{
-  margin-top:0
-}
+    .lead {
+      max-width: 760px;
+      color: #aaa;
+      font-size: 19px;
+    }
 
-.card p{
-  color:#aaa
-}
+    .button {
+      display: inline-block;
+      padding: 13px 22px;
+      margin-top: 20px;
+      border-radius: 28px;
+      background: #fff;
+      color: #080812;
+      font-weight: 700;
+    }
 
-.button{
-  display:inline-block;
-  margin-top:20px;
-  padding:13px 22px;
-  border-radius:28px;
-  background:#fff;
-  color:#080812;
-  font-weight:700
-}
+    .button:hover {
+      opacity: .9;
+    }
 
-footer{
-  border-top:1px solid #ffffff18;
-  padding:30px 0;
-  color:#888
-}
-</style>
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      padding: 20px 0 70px;
+    }
+
+    .card {
+      padding: 25px;
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+      background: #ffffff08;
+    }
+
+    .card-icon {
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+    }
+
+    .card p {
+      margin: 0;
+      color: #aaa;
+    }
+
+    .cta {
+      padding: 40px 28px;
+      margin-bottom: 70px;
+      border: 1px solid #ffffff18;
+      border-radius: 22px;
+      background: #ffffff08;
+      text-align: center;
+    }
+
+    .cta h2 {
+      margin-top: 0;
+      font-size: 32px;
+    }
+
+    .cta p {
+      max-width: 700px;
+      margin: 0 auto;
+      color: #aaa;
+    }
+
+    footer {
+      padding: 30px 0;
+      border-top: 1px solid #ffffff18;
+      color: #888;
+    }
+
+    @media (max-width: 760px) {
+      .nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .hero {
+        padding-top: 65px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
 <header>
   <div class="wrap nav">
-
     <a class="logo" href="index.html">
       ⭐ StarRise
     </a>
 
-    <div>
-      <a href="members.html">Members</a> ·
-      <a href="vendors.html">Vendors</a> ·
-      <a href="supporters.html">Supporters</a> ·
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="members.html">Members</a>
+      <a href="ecosystem.html">Ecosystem</a>
+      <a href="marketplace.html">Store</a>
+      <a href="services.html">Services</a>
+      <a href="opportunities.html">Opportunities</a>
       <a href="dashboard.html">Dashboard</a>
-    </div>
-
+    </nav>
   </div>
 </header>
 
 <main class="wrap">
 
   <section class="hero">
-
     <div class="eyebrow">
       StarRise Community
     </div>
@@ -148,41 +209,91 @@ footer{
       help create real opportunities for talent and creators.
     </p>
 
-    <a class="button" href="join.html">
+    <a class="button" href="register.html?role=Partner">
       Become a Partner
     </a>
-
   </section>
 
   <section class="grid">
-
     <article class="card">
-      <h2>Create Opportunities</h2>
+      <div class="card-icon">🎤</div>
+      <h2>Talent Development</h2>
+
       <p>
-        Partner with StarRise to provide auditions,
-        jobs, events, showcases, training, and other
-        pathways for emerging talent.
+        Help emerging talent access mentorship,
+        education, resources, training, and
+        professional development.
       </p>
     </article>
 
     <article class="card">
-      <h2>Share Resources</h2>
+      <div class="card-icon">🎭</div>
+      <h2>Opportunities</h2>
+
       <p>
-        Contribute spaces, equipment, services,
-        expertise, mentorship, sponsorship, and
-        professional resources.
+        Provide auditions, gigs, employment,
+        collaborations, showcases, and other
+        meaningful opportunities.
       </p>
     </article>
 
     <article class="card">
-      <h2>Build Together</h2>
+      <div class="card-icon">🏢</div>
+      <h2>Business Partnerships</h2>
+
       <p>
-        Develop long-term collaborations that strengthen
-        the creative community and help promising people
-        move forward.
+        Connect your organization with the
+        StarRise community through programs,
+        services, sponsorships, and campaigns.
       </p>
     </article>
 
+    <article class="card">
+      <div class="card-icon">❤️</div>
+      <h2>Community Impact</h2>
+
+      <p>
+        Work with StarRise to support people,
+        strengthen communities, and help talent
+        overcome barriers to opportunity.
+      </p>
+    </article>
+
+    <article class="card">
+      <div class="card-icon">💡</div>
+      <h2>Creative Collaboration</h2>
+
+      <p>
+        Build original projects, events,
+        programs, media, and experiences
+        with StarRise creators and talent.
+      </p>
+    </article>
+
+    <article class="card">
+      <div class="card-icon">🚀</div>
+      <h2>Help Talent Rise</h2>
+
+      <p>
+        Put knowledge, connections, resources,
+        and opportunity behind people working
+        toward their creative future.
+      </p>
+    </article>
+  </section>
+
+  <section class="cta">
+    <h2>Build Something Meaningful With StarRise</h2>
+
+    <p>
+      Join an ecosystem connecting talent, creativity,
+      opportunity, businesses, organizations, supporters,
+      and community leaders.
+    </p>
+
+    <a class="button" href="register.html?role=Partner">
+      Join as a StarRise Partner
+    </a>
   </section>
 
 </main>
