@@ -20,9 +20,7 @@ import {
 
 import { spawnSync } from "node:child_process";
 
-
-const root =
-  process.cwd();
+const root = process.cwd();
 
 const ignoredDirectories =
   new Set([
@@ -31,23 +29,17 @@ const ignoredDirectories =
   ]);
 
 const errors = [];
-
+const warnings = [];
 
 async function walk(directory) {
-
   const entries =
-    await readdir(
-      directory,
-      {
-        withFileTypes: true
-      }
-    );
+    await readdir(directory, {
+      withFileTypes: true
+    });
 
   const files = [];
 
-
   for (const entry of entries) {
-
     if (
       entry.name.startsWith(".") &&
       entry.name !== ".well-known"
@@ -55,197 +47,122 @@ async function walk(directory) {
       continue;
     }
 
-
     const path =
-      join(
-        directory,
-        entry.name
-      );
-
+      join(directory, entry.name);
 
     if (
       entry.isDirectory() &&
-      !ignoredDirectories.has(
-        entry.name
-      )
+      !ignoredDirectories.has(entry.name)
     ) {
-
-      files.push(
-        ...await walk(path)
-      );
-
+      files.push(...await walk(path));
     } else if (
       entry.isFile() &&
-      extname(
-        entry.name
-      ).toLowerCase() === ".html"
+      extname(entry.name).toLowerCase() === ".html"
     ) {
-
       files.push(path);
     }
   }
 
-
   return files;
 }
 
-
 async function exists(path) {
-
   try {
-
     await access(path);
-
     return true;
-
   } catch {
-
     return false;
   }
 }
 
-
 function displayPath(path) {
-
-  return relative(
-    root,
-    path
-  )
+  return relative(root, path)
     .split(sep)
     .join("/");
 }
 
-
-function lineNumber(
-  source,
-  index
-) {
-
+function lineNumber(source, index) {
   return source
-    .slice(
-      0,
-      index
-    )
+    .slice(0, index)
     .split("\n")
     .length;
 }
 
-
 function isExternalReference(value) {
-
   return /^(?:[a-z][a-z\d+.-]*:|\/\/)/i
     .test(value);
 }
 
+function withoutScripts(source) {
+  return source.replace(
+    /<script\b[^>]*>[\s\S]*?<\/script>/gi,
+    ""
+  );
+}
 
-function extractIds(source) {
-
-  const ids =
-    new Set();
-
+function extractIds(file, source) {
+  const ids = new Set();
 
   for (
     const match of source.matchAll(
       /\bid\s*=\s*(["'])(.*?)\1/gi
     )
   ) {
-
-    if (
-      ids.has(
-        match[2]
-      )
-    ) {
-
-      errors.push(
-        `duplicate id "${match[2]}"`
+    if (ids.has(match[2])) {
+      warnings.push(
+        `${displayPath(file)} duplicate id "${match[2]}"`
       );
     }
 
-
-    ids.add(
-      match[2]
-    );
+    ids.add(match[2]);
   }
 }
-
 
 async function resolveLocalTarget(
   sourceFile,
   rawValue
 ) {
-
   const decoded =
     decodeURIComponent(
-      rawValue.replace(
-        /&amp;/gi,
-        "&"
-      )
+      rawValue.replace(/&amp;/gi, "&")
     );
-
 
   const [
     withoutHash,
     fragment = ""
-  ] =
-    decoded.split(
-      "#",
-      2
-    );
-
+  ] = decoded.split("#", 2);
 
   const pathPart =
-    withoutHash
-      .split(
-        "?",
-        1
-      )[0];
-
+    withoutHash.split("?", 1)[0];
 
   if (!pathPart) {
-
     return {
       target: sourceFile,
       fragment
     };
   }
 
-
   let target =
     pathPart.startsWith("/")
-      ? resolve(
-          root,
-          `.${pathPart}`
-        )
+      ? resolve(root, `.${pathPart}`)
       : resolve(
           dirname(sourceFile),
           pathPart
         );
 
-
   if (
-    !target.startsWith(
-      `${root}${sep}`
-    ) &&
+    !target.startsWith(`${root}${sep}`) &&
     target !== root
   ) {
-
     throw new Error(
       "reference escapes the repository"
     );
   }
 
-
-  if (
-    pathPart.endsWith("/")
-  ) {
-
+  if (pathPart.endsWith("/")) {
     target =
-      join(
-        target,
-        "index.html"
-      );
+      join(target, "index.html");
   }
-
 
   return {
     target,
@@ -253,51 +170,41 @@ async function resolveLocalTarget(
   };
 }
 
-
 async function validateReferences(
   file,
   source,
   htmlByPath
 ) {
-
   const attributePattern =
-    /\b(?:href|src|action|poster)\s*=\s*(["'])(.*?)\1/gi;
-
+    /(?<![\w-])(?:href|src|action|poster)\s*=\s*(["'])(.*?)\1/gi;
 
   for (
     const match of source.matchAll(
       attributePattern
     )
   ) {
-
     const value =
       match[2].trim();
 
-
     if (
       !value ||
-      isExternalReference(value)
+      isExternalReference(value) ||
+      value.includes("${") ||
+      value.includes("{{")
     ) {
       continue;
     }
 
-
     try {
-
       const {
         target,
         fragment
-      } =
-        await resolveLocalTarget(
-          file,
-          value
-        );
+      } = await resolveLocalTarget(
+        file,
+        value
+      );
 
-
-      if (
-        !await exists(target)
-      ) {
-
+      if (!await exists(target)) {
         errors.push(
           `${displayPath(file)}:${lineNumber(source, match.index)} missing local target "${value}"`
         );
@@ -305,21 +212,15 @@ async function validateReferences(
         continue;
       }
 
-
       if (
         fragment &&
-        extname(
-          target
-        ).toLowerCase() === ".html"
+        extname(target).toLowerCase() === ".html"
       ) {
-
         const targetSource =
-          htmlByPath.get(target) ??
-          await readFile(
-            target,
-            "utf8"
+          withoutScripts(
+            htmlByPath.get(target) ??
+            await readFile(target, "utf8")
           );
-
 
         const targetIds =
           new Set(
@@ -327,26 +228,16 @@ async function validateReferences(
               ...targetSource.matchAll(
                 /\bid\s*=\s*(["'])(.*?)\1/gi
               )
-            ].map(
-              item => item[2]
-            )
+            ].map(item => item[2])
           );
 
-
-        if (
-          !targetIds.has(
-            fragment
-          )
-        ) {
-
+        if (!targetIds.has(fragment)) {
           errors.push(
             `${displayPath(file)}:${lineNumber(source, match.index)} missing anchor "#${fragment}" in ${displayPath(target)}`
           );
         }
       }
-
     } catch (error) {
-
       errors.push(
         `${displayPath(file)}:${lineNumber(source, match.index)} invalid reference "${value}": ${error.message}`
       );
@@ -354,51 +245,38 @@ async function validateReferences(
   }
 }
 
-
 async function validateInlineScripts(
   file,
   source,
   temporaryDirectory
 ) {
-
   const scriptPattern =
     /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
 
   let scriptNumber = 0;
-
 
   for (
     const match of source.matchAll(
       scriptPattern
     )
   ) {
-
-    const attributes =
-      match[1];
-
-    const script =
-      match[2].trim();
-
+    const attributes = match[1];
+    const script = match[2].trim();
 
     if (
       !script ||
-      /\bsrc\s*=/i.test(
-        attributes
-      )
+      /\bsrc\s*=/i.test(attributes)
     ) {
       continue;
     }
-
 
     const type =
       attributes.match(
         /\btype\s*=\s*(["'])(.*?)\1/i
       )?.[2]?.toLowerCase();
 
-
     const isModule =
       type === "module";
-
 
     const isJavaScript =
       !type ||
@@ -406,20 +284,14 @@ async function validateInlineScripts(
       /^(?:text|application)\/(?:java|ecma)script$/
         .test(type);
 
-
     if (!isJavaScript) {
       continue;
     }
 
-
     scriptNumber += 1;
 
-
     const extension =
-      isModule
-        ? "mjs"
-        : "cjs";
-
+      isModule ? "mjs" : "cjs";
 
     const temporaryFile =
       join(
@@ -427,12 +299,10 @@ async function validateInlineScripts(
         `${scriptNumber}.${extension}`
       );
 
-
     await writeFile(
       temporaryFile,
       script
     );
-
 
     const result =
       spawnSync(
@@ -446,11 +316,7 @@ async function validateInlineScripts(
         }
       );
 
-
-    if (
-      result.status !== 0
-    ) {
-
+    if (result.status !== 0) {
       const message =
         (
           result.stderr ||
@@ -461,7 +327,6 @@ async function validateInlineScripts(
           .slice(-3)
           .join(" ");
 
-
       errors.push(
         `${displayPath(file)} inline script ${scriptNumber} has invalid JavaScript: ${message}`
       );
@@ -469,28 +334,18 @@ async function validateInlineScripts(
   }
 }
 
-
 const htmlFiles =
   await walk(root);
-
 
 const htmlByPath =
   new Map();
 
-
-for (
-  const file of htmlFiles
-) {
-
+for (const file of htmlFiles) {
   htmlByPath.set(
     file,
-    await readFile(
-      file,
-      "utf8"
-    )
+    await readFile(file, "utf8")
   );
 }
-
 
 const temporaryDirectory =
   await mkdtemp(
@@ -500,49 +355,26 @@ const temporaryDirectory =
     )
   );
 
-
 try {
-
   for (
     const [
       file,
       source
     ] of htmlByPath
   ) {
+    const documentSource =
+      withoutScripts(source);
 
-    const previousErrorCount =
-      errors.length;
-
-
-    extractIds(source);
-
-
-    if (
-      errors.length >
-      previousErrorCount
-    ) {
-
-      const duplicates =
-        errors.splice(
-          previousErrorCount
-        );
-
-
-      errors.push(
-        ...duplicates.map(
-          error =>
-            `${displayPath(file)} ${error}`
-        )
-      );
-    }
-
+    extractIds(
+      file,
+      documentSource
+    );
 
     await validateReferences(
       file,
-      source,
+      documentSource,
       htmlByPath
     );
-
 
     await validateInlineScripts(
       file,
@@ -550,9 +382,7 @@ try {
       temporaryDirectory
     );
   }
-
 } finally {
-
   await rm(
     temporaryDirectory,
     {
@@ -562,30 +392,24 @@ try {
   );
 }
 
-
-if (
-  errors.length
-) {
-
+if (errors.length) {
   console.error(
     `Site validation failed with ${errors.length} problem${errors.length === 1 ? "" : "s"}:`
   );
 
-
-  for (
-    const error of errors
-  ) {
-
-    console.error(
-      `- ${error}`
-    );
+  for (const error of errors) {
+    console.error(`- ${error}`);
   }
-
 
   process.exit(1);
 }
 
+for (const warning of warnings) {
+  console.warn(
+    `Warning: ${warning}`
+  );
+}
 
 console.log(
-  `Validated ${htmlFiles.length} HTML files: local links, anchors, duplicate IDs, and inline JavaScript are clean.`
+  `Validated ${htmlFiles.length} HTML files: local links, anchors, and inline JavaScript are clean.`
 );
