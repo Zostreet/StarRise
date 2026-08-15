@@ -1,280 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>StarRise Members</title>
+
+  <meta
+    name="description"
+    content="Discover artists, creators, vendors, partners, supporters, and other members of the StarRise community."
+  >
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background: #080812;
+      color: #fff;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #ffffff18;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .logo {
+      font-size: 21px;
+      font-weight: bold;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    nav a {
+      color: #bbb;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      color: #fff;
+    }
+
+    main {
+      width: min(1150px, calc(100% - 30px));
+      margin: 35px auto 60px;
+    }
+
+    .hero {
+      padding: 55px 28px;
+      margin-bottom: 20px;
+      border: 1px solid #ffffff18;
+      border-radius: 24px;
+      background: #ffffff08;
+      text-align: center;
+    }
+
+    .eyebrow {
+      color: #999;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    h1 {
+      margin: 8px 0 12px;
+      font-size: clamp(42px, 8vw, 70px);
+      line-height: 1.05;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: auto;
+      color: #aaa;
       font-size: 18px;
+    }
+
+    .marketplace-bar {
+      padding: 22px;
+      margin-bottom: 20px;
+      border: 1px solid #ffffff18;
+      border-radius: 18px;
+      background: #ffffff08;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .marketplace-title {
+      font-size: 20px;
       font-weight: bold;
     }
 
     .marketplace-subtitle {
       color: #999;
-      font-size: 13px;
+      font-size: 14px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 12px 20px;
+      border: 0;
+      border-radius: 25px;
+      background: #fff;
+      color: #080812;
+      font: inherit;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .button.secondary {
+      border: 1px solid #ffffff30;
+      background: transparent;
+      color: #fff;
+    }
+
+    .button:hover {
+      opacity: .9;
     }
 
     .controls {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 25px;
+      grid-template-columns: 2fr 1fr 1fr auto;
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
-    input,
-    select {
+    .control {
       width: 100%;
-      padding: 14px 15px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,.2);
+      padding: 13px 15px;
+      border: 1px solid #ffffff20;
+      border-radius: 12px;
       background: #11111d;
       color: #fff;
-      font-size: 16px;
+      font: inherit;
+    }
+
+    .control:focus {
       outline: none;
-    }
-
-    input:focus,
-    select:focus {
-      border-color: rgba(255,255,255,.5);
-    }
-
-    select option {
-      background: #11111d;
-      color: #fff;
+      border-color: #ffffff55;
     }
 
     .results-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       color: #aaa;
-      font-size: 14px;
     }
 
-    .clear-button {
-      border: 0;
-      background: transparent;
-      color: #fff;
-      cursor: pointer;
-      text-decoration: underline;
-      font-size: 14px;
+    .status {
+      padding: 18px;
+      margin-bottom: 18px;
+      border: 1px solid #ffffff18;
+      border-radius: 14px;
+      background: #ffffff08;
+      color: #aaa;
+      text-align: center;
     }
 
-    .grid {
+    .status:empty {
+      display: none;
+    }
+
+    .status.error {
+      color: #ffb5b5;
+      background: rgba(200, 50, 50, .12);
+    }
+
+    .members {
       display: grid;
-      grid-template-columns:
-        repeat(auto-fit, minmax(275px, 1fr));
-      gap: 22px;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 18px;
     }
 
     .member {
-      position: relative;
-      padding: 28px;
+      padding: 24px;
+      border: 1px solid #ffffff18;
       border-radius: 20px;
-      border: 1px solid rgba(255,255,255,.12);
-      background:
-        linear-gradient(
-          145deg,
-          rgba(255,255,255,.07),
-          rgba(255,255,255,.025)
-        );
-      transition:
-        transform .2s,
-        border-color .2s,
-        box-shadow .2s;
-      overflow: hidden;
+      background: #ffffff08;
+      display: flex;
+      flex-direction: column;
     }
 
     .member:hover {
-      transform: translateY(-4px);
-      border-color: rgba(255,255,255,.25);
-      box-shadow: 0 15px 45px rgba(0,0,0,.25);
+      border-color: #ffffff35;
+      transform: translateY(-2px);
     }
 
     .member-top {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 15px;
+      gap: 12px;
     }
 
     .avatar {
       width: 78px;
       height: 78px;
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.15);
-      font-size: 30px;
       overflow: hidden;
-      flex-shrink: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid #ffffff20;
+      border-radius: 50%;
+      background: #17172a;
+      font-size: 30px;
+      font-weight: bold;
     }
 
     .avatar img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block;
     }
 
     .verified {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 9px;
+      padding: 5px 10px;
       border-radius: 20px;
-      background: rgba(255,255,255,.08);
-      color: #ddd;
+      background: rgba(50, 180, 90, .14);
+      color: #baffca;
       font-size: 12px;
-      white-space: nowrap;
+      font-weight: bold;
     }
 
     .member h2 {
-      margin-bottom: 4px;
-      font-size: 23px;
+      margin: 16px 0 4px;
+      font-size: 24px;
     }
 
     .role {
-      display: inline-block;
-      margin-bottom: 5px;
       color: #ddd;
-      font-size: 14px;
       font-weight: bold;
     }
 
     .location {
-      color: #999;
+      margin-top: 3px;
+      color: #888;
       font-size: 14px;
-      margin-bottom: 14px;
     }
 
     .member p {
-      color: #bbb;
-      margin-bottom: 18px;
-      min-height: 50px;
+      color: #aaa;
+      flex: 1;
     }
 
     .stats {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 20px;
+      margin: 12px 0 18px;
     }
 
     .stat {
       padding: 6px 10px;
       border-radius: 20px;
-      background: rgba(255,255,255,.06);
+      background: #ffffff0c;
       color: #bbb;
       font-size: 12px;
     }
 
     .actions {
       display: flex;
-      gap: 10px;
+      gap: 9px;
     }
 
-    .button {
-      flex: 1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 42px;
-      padding: 10px 16px;
-      border-radius: 25px;
-      background: #fff;
-      color: #080812;
-      text-decoration: none;
-      font-weight: bold;
-      border: 0;
-      cursor: pointer;
-      transition: .2s;
-    }
-
-    .button:hover {
-      opacity: .85;
-      transform: translateY(-1px);
-    }
-
-    .button.secondary {
-      background: rgba(255,255,255,.08);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,.15);
-    }
-
-    .status {
-      text-align: center;
-      padding: 30px;
-      color: #aaa;
-    }
-
-    .error {
-      color: #ffaaaa;
-    }
-
-    .notice {
-      margin-top: 35px;
-      padding: 18px;
-      border-radius: 14px;
-      background: rgba(255,255,255,.05);
-      color: #aaa;
-      text-align: center;
-    }
-
-    footer {
-      padding: 35px;
-      text-align: center;
-      color: #999;
-      border-top: 1px solid rgba(255,255,255,.1);
-      margin-top: 40px;
+    .actions .button {
+      width: 100%;
     }
 
     .empty-state {
       grid-column: 1 / -1;
-      padding: 55px 25px;
+      padding: 45px 20px;
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+      background: #ffffff08;
       text-align: center;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.1);
-      background: rgba(255,255,255,.03);
-    }
-
-    .empty-state h2 {
-      margin-bottom: 8px;
     }
 
     .empty-state p {
       color: #999;
     }
 
-    @media (max-width: 850px) {
-      .controls {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .controls input {
-        grid-column: 1 / -1;
-      }
+    .join-panel {
+      padding: 38px 25px;
+      margin-top: 28px;
+      border: 1px solid #ffffff18;
+      border-radius: 22px;
+      background: #ffffff08;
+      text-align: center;
     }
 
-    @media (max-width: 650px) {
+    .join-panel h2 {
+      margin-top: 0;
+      font-size: 32px;
+    }
 
+    .join-panel p {
+      max-width: 650px;
+      margin: 0 auto 20px;
+      color: #aaa;
+    }
+
+    footer {
+      padding: 30px 15px;
+      border-top: 1px solid #ffffff18;
+      color: #888;
+      text-align: center;
+    }
+
+    @media (max-width: 800px) {
       header {
         flex-direction: column;
-        gap: 15px;
-      }
-
-      nav {
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      nav a {
-        margin: 0;
+        align-items: flex-start;
       }
 
       .controls {
         grid-template-columns: 1fr;
-      }
-
-      .controls input {
-        grid-column: auto;
       }
 
       .marketplace-bar {
@@ -282,18 +341,8 @@
         align-items: flex-start;
       }
 
-      .results-bar {
-        align-items: flex-start;
-        gap: 10px;
-        flex-direction: column;
-      }
-
-      main {
-        padding: 45px 5%;
-      }
-
-      .actions {
-        flex-direction: column;
+      .marketplace-bar .button {
+        width: 100%;
       }
     }
   </style>
@@ -302,23 +351,27 @@
 <body>
 
 <header>
-
-  <div class="logo">
+  <a class="logo" href="index.html">
     ⭐ StarRise
-  </div>
+  </a>
 
   <nav>
     <a href="index.html">Home</a>
+    <a href="members.html">Members</a>
     <a href="ecosystem.html">Ecosystem</a>
-    <a href="join.html">Join</a>
+    <a href="marketplace.html">Store</a>
+    <a href="services.html">Services</a>
+    <a href="opportunities.html">Opportunities</a>
+    <a href="dashboard.html">Dashboard</a>
   </nav>
-
 </header>
-
 
 <main>
 
   <section class="hero">
+    <div class="eyebrow">
+      StarRise Community
+    </div>
 
     <h1>StarRise Members</h1>
 
@@ -327,794 +380,541 @@
       Talent, creators, supporters, clients, vendors, and partners
       all have a place here.
     </p>
-
   </section>
 
-
-  <div class="marketplace-bar">
-
+  <section class="marketplace-bar">
     <div>
       <div class="marketplace-title">
         Find Your StarRise Connection
       </div>
 
       <div class="marketplace-subtitle">
-        Discover members and explore their profiles.
+        Discover members, explore profiles, and connect with talent.
       </div>
     </div>
 
-  </div>
-
+    <a class="button" href="join.html">
+      Join StarRise
+    </a>
+  </section>
 
   <section class="controls">
-
     <input
-      type="search"
       id="search"
-      placeholder="Search by name, talent, bio, or location..."
+      class="control"
+      type="search"
+      placeholder="Search members, roles, bios, or locations..."
       autocomplete="off"
     >
 
-    <select id="roleFilter">
-
-      <option value="all">
-        All Roles
-      </option>
-
-      <option value="Talent">
-        Talent
-      </option>
-
-      <option value="Creator">
-        Creator
-      </option>
-
-      <option value="Supporter">
-        Supporter
-      </option>
-
-      <option value="Client">
-        Client
-      </option>
-
-      <option value="Vendor">
-        Vendor
-      </option>
-
-      <option value="Partner">
-        Partner
-      </option>
-
+    <select id="roleFilter" class="control">
+      <option value="all">All Roles</option>
+      <option value="Artist">Artists</option>
+      <option value="Creator">Creators</option>
+      <option value="Talent">Talent</option>
+      <option value="Vendor">Vendors</option>
+      <option value="Partner">Partners</option>
+      <option value="Supporter">Supporters</option>
+      <option value="Client">Clients</option>
+      <option value="Member">Members</option>
     </select>
 
-
-    <select id="sortFilter">
-
-      <option value="name">
-        Sort: Name
-      </option>
-
-      <option value="rating">
-        Sort: Rating
-      </option>
-
-      <option value="services">
-        Sort: Services
-      </option>
-
+    <select id="sortFilter" class="control">
+      <option value="name">Name: A to Z</option>
+      <option value="rating">Highest Rated</option>
+      <option value="services">Most Services</option>
     </select>
 
+    <button
+      id="clearFilters"
+      class="button secondary"
+      type="button"
+    >
+      Clear
+    </button>
   </section>
 
-
   <div class="results-bar">
-
     <span id="resultCount">
       Loading members...
     </span>
-
-    <button
-      type="button"
-      class="clear-button"
-      id="clearFilters"
-    >
-      Clear Filters
-    </button>
-
   </div>
 
-
-  <section
-    class="grid"
-    id="members"
-  ></section>
-
-
-  <div
-    id="status"
-    class="status"
-  >
+  <div id="status" class="status">
     Loading StarRise members...
   </div>
 
+  <section id="members" class="members"></section>
 
-  <div class="notice">
+  <section class="join-panel">
+    <h2>Your Place in StarRise</h2>
 
-    StarRise members can choose what information
-    they make publicly available.
+    <p>
+      Join as talent, a creator, vendor, partner, supporter,
+      client, or community member and become part of an
+      ecosystem designed to help people rise.
+    </p>
 
-  </div>
+    <a class="button" href="join.html">
+      Create Your StarRise Account
+    </a>
+  </section>
 
 </main>
 
-
 <footer>
-
   ⭐ StarRise — Where Talent Rises.
-
 </footer>
-
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-
 <script>
+(function () {
+  'use strict';
 
-const starRiseSupabase =
-  window.supabase.createClient(
-    'https://rcnikxotdalxtuvpmlvm.supabase.co',
-    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
-  );
+  const SUPABASE_URL =
+    'https://rcnikxotdalxtuvpmlvm.supabase.co';
 
+  const SUPABASE_KEY =
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
-const membersContainer =
-  document.getElementById('members');
+  const starRiseSupabase =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
-const status =
-  document.getElementById('status');
+  const status =
+    document.getElementById('status');
 
-const resultCount =
-  document.getElementById('resultCount');
+  const membersContainer =
+    document.getElementById('members');
 
-const searchInput =
-  document.getElementById('search');
+  const resultCount =
+    document.getElementById('resultCount');
 
-const roleFilter =
-  document.getElementById('roleFilter');
+  const searchInput =
+    document.getElementById('search');
 
-const sortFilter =
-  document.getElementById('sortFilter');
+  const roleFilter =
+    document.getElementById('roleFilter');
 
-const clearFilters =
-  document.getElementById('clearFilters');
+  const sortFilter =
+    document.getElementById('sortFilter');
 
+  const clearFilters =
+    document.getElementById('clearFilters');
 
-let allMembers = [];
+  let allMembers = [];
 
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
 
-/*
-  ESCAPE HTML
-*/
+  function getNumber(member, fields) {
+    for (const field of fields) {
+      const value =
+        Number(member[field]);
 
-function escapeHtml(value) {
-
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-
-}
-
-
-/*
-  GET OPTIONAL VALUE
-  Allows this page to work even if
-  some optional RPC fields aren't present.
-*/
-
-function getNumber(member, fields) {
-
-  for (const field of fields) {
-
-    const value =
-      Number(member[field]);
-
-    if (
-      Number.isFinite(value)
-    ) {
-
-      return value;
-
+      if (Number.isFinite(value)) {
+        return value;
+      }
     }
 
+    return 0;
   }
 
-  return 0;
-
-}
-
-
-/*
-  RATING DISPLAY
-*/
-
-function getRating(member) {
-
-  const rating =
-    getNumber(
-      member,
-      [
-        'average_rating',
-        'rating',
-        'avg_rating'
-      ]
-    );
-
-  if (!rating) {
-
-    return 'No rating yet';
-
-  }
-
-  return `${rating.toFixed(1)} ★`;
-
-}
-
-
-/*
-  SERVICE COUNT
-*/
-
-function getServiceCount(member) {
-
-  return getNumber(
-    member,
-    [
-      'completed_services',
-      'completed_service_count',
-      'services_completed'
-    ]
-  );
-
-}
-
-
-/*
-  VERIFIED STATUS
-*/
-
-function isVerified(member) {
-
-  return Boolean(
-    member.verified ||
-    member.is_verified ||
-    member.verified_member
-  );
-
-}
-
-
-/*
-  LOAD PUBLIC MEMBERS
-*/
-
-async function loadMembers() {
-
-  status.textContent =
-    'Loading StarRise members...';
-
-  status.className =
-    'status';
-
-  membersContainer.innerHTML = '';
-
-  resultCount.textContent =
-    'Loading members...';
-
-
-  const {
-    data,
-    error
-  } =
-    await starRiseSupabase.rpc(
-      'get_public_members'
-    );
-
-
-  if (error) {
-
-    console.error(
-      'Public members error:',
-      error
-    );
-
-    status.textContent =
-      'We could not load the StarRise members.';
-
-    status.className =
-      'status error';
-
-    resultCount.textContent =
-      'Unable to load members';
-
-    return;
-
-  }
-
-
-  allMembers =
-    Array.isArray(data)
-      ? data
-      : [];
-
-
-  renderMembers();
-
-}
-
-
-/*
-  RENDER MEMBERS
-*/
-
-function renderMembers() {
-
-  const search =
-    searchInput.value
-      .trim()
-      .toLowerCase();
-
-
-  const selectedRole =
-    roleFilter.value;
-
-
-  const selectedSort =
-    sortFilter.value;
-
-
-  let filteredMembers =
-    allMembers.filter(member => {
-
-      const name =
-        String(
-          member.display_name || ''
-        ).toLowerCase();
-
-
-      const bio =
-        String(
-          member.bio || ''
-        ).toLowerCase();
-
-
-      const location =
-        String(
-          member.location || ''
-        ).toLowerCase();
-
-
-      const role =
-        String(
-          member.role || ''
-        ).toLowerCase();
-
-
-      const matchesSearch =
-
-        !search ||
-
-        name.includes(search) ||
-
-        bio.includes(search) ||
-
-        location.includes(search) ||
-
-        role.includes(search);
-
-
-      const matchesRole =
-
-        selectedRole === 'all' ||
-
-        String(member.role || '') === selectedRole;
-
-
-      return (
-        matchesSearch &&
-        matchesRole
+  function getRating(member) {
+    const rating =
+      getNumber(
+        member,
+        [
+          'average_rating',
+          'rating',
+          'avg_rating'
+        ]
       );
 
-    });
-
-
-  /*
-    SORT
-  */
-
-  filteredMembers.sort(
-    (a, b) => {
-
-      if (
-        selectedSort === 'rating'
-      ) {
-
-        return (
-          getNumber(
-            b,
-            [
-              'average_rating',
-              'rating',
-              'avg_rating'
-            ]
-          )
-          -
-          getNumber(
-            a,
-            [
-              'average_rating',
-              'rating',
-              'avg_rating'
-            ]
-          )
-        );
-
-      }
-
-
-      if (
-        selectedSort === 'services'
-      ) {
-
-        return (
-          getServiceCount(b)
-          -
-          getServiceCount(a)
-        );
-
-      }
-
-
-      const nameA =
-        String(
-          a.display_name || ''
-        ).toLowerCase();
-
-
-      const nameB =
-        String(
-          b.display_name || ''
-        ).toLowerCase();
-
-
-      return nameA.localeCompare(nameB);
-
+    if (!rating) {
+      return 'No rating yet';
     }
-  );
 
+    return rating.toFixed(1) + ' ★';
+  }
 
-  membersContainer.innerHTML = '';
-
-
-  /*
-    RESULT COUNT
-  */
-
-  const count =
-    filteredMembers.length;
-
-
-  resultCount.textContent =
-
-    `${count} StarRise member` +
-
-    (
-      count === 1
-        ? ''
-        : 's'
+  function getServiceCount(member) {
+    return getNumber(
+      member,
+      [
+        'completed_services',
+        'completed_service_count',
+        'services_completed'
+      ]
     );
+  }
 
+  function isVerified(member) {
+    return Boolean(
+      member.verified ||
+      member.is_verified ||
+      member.verified_member
+    );
+  }
 
-  /*
-    NO RESULTS
-  */
+  function memberName(member) {
+    return (
+      member.display_name ||
+      member.full_name ||
+      member.name ||
+      'StarRise Member'
+    );
+  }
 
-  if (count === 0) {
+  function memberRole(member) {
+    return (
+      member.role ||
+      member.primary_role ||
+      'Member'
+    );
+  }
 
+  async function loadMembers() {
     status.textContent =
-
-      allMembers.length === 0
-
-        ?
-
-        'No public StarRise members yet.'
-
-        :
-
-        'No members matched your search.';
-
+      'Loading StarRise members...';
 
     status.className =
       'status';
 
-
-    membersContainer.innerHTML = `
-
-      <div class="empty-state">
-
-        <h2>
-          No members found
-        </h2>
-
-        <p>
-          Try changing your search or filters.
-        </p>
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  status.textContent = '';
-
-  status.className = 'status';
-
-
-  /*
-    CREATE MEMBER CARDS
-  */
-
-  filteredMembers.forEach(
-    member => {
-
-      const card =
-        document.createElement(
-          'article'
-        );
-
-
-      card.className =
-        'member';
-
-
-      const displayName =
-        member.display_name ||
-        'StarRise Member';
-
-
-      const initial =
-        displayName
-          .charAt(0)
-          .toUpperCase();
-
-
-      const role =
-        member.role ||
-        'Member';
-
-
-      const rating =
-        getRating(member);
-
-
-      const services =
-        getServiceCount(member);
-
-
-      const verified =
-        isVerified(member);
-
-
-      const avatarHtml =
-
-        member.avatar_url
-
-          ?
-
-          `
-            <img
-              src="${escapeHtml(
-                member.avatar_url
-              )}"
-              alt="${escapeHtml(
-                displayName
-              )}"
-              loading="lazy"
-              onerror="this.style.display='none';"
-            >
-          `
-
-          :
-
-          escapeHtml(initial);
-
-
-      const locationHtml =
-
-        member.location
-
-          ?
-
-          `
-            <div class="location">
-              ${escapeHtml(
-                member.location
-              )}
-            </div>
-          `
-
-          :
-
-          '';
-
-
-      const verifiedHtml =
-
-        verified
-
-          ?
-
-          `
-            <span class="verified">
-              ✓ Verified
-            </span>
-          `
-
-          :
-
-          '';
-
-
-      const serviceText =
-
-        services === 1
-
-          ?
-
-          '1 completed service'
-
-          :
-
-          `${services} completed services`;
-
-
-      card.innerHTML = `
-
-        <div class="member-top">
-
-          <div class="avatar">
-            ${avatarHtml}
-          </div>
-
-          ${verifiedHtml}
-
-        </div>
-
-
-        <h2>
-          ${escapeHtml(
-            displayName
-          )}
-        </h2>
-
-
-        <div class="role">
-          ${escapeHtml(role)}
-        </div>
-
-
-        ${locationHtml}
-
-
-        <p>
-          ${escapeHtml(
-            member.bio ||
-            'This member has not added a bio yet.'
-          )}
-        </p>
-
-
-        <div class="stats">
-
-          <span class="stat">
-            ${escapeHtml(rating)}
-          </span>
-
-          <span class="stat">
-            ${escapeHtml(serviceText)}
-          </span>
-
-        </div>
-
-
-        <div class="actions">
-
-          <a
-            class="button"
-            href="profile.html?id=${encodeURIComponent(
-              member.id
-            )}"
-          >
-            View Profile
-          </a>
-
-        </div>
-
-      `;
-
-
-      membersContainer.appendChild(
-        card
+    membersContainer.innerHTML = '';
+
+    resultCount.textContent =
+      'Loading members...';
+
+    try {
+      const result =
+        await starRiseSupabase
+          .rpc('get_public_members');
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      allMembers =
+        Array.isArray(result.data)
+          ? result.data
+          : [];
+
+      buildRoleOptions();
+      renderMembers();
+    } catch (error) {
+      console.error(
+        'Public members error:',
+        error
       );
 
+      status.textContent =
+        'We could not load the StarRise members. ' +
+        (
+          error.message ||
+          'Please try again.'
+        );
+
+      status.className =
+        'status error';
+
+      resultCount.textContent =
+        'Unable to load members';
+    }
+  }
+
+  function buildRoleOptions() {
+    const roles =
+      [
+        ...new Set(
+          allMembers
+            .map(memberRole)
+            .filter(Boolean)
+        )
+      ].sort(
+        (a, b) =>
+          a.localeCompare(b)
+      );
+
+    roleFilter.innerHTML =
+      '<option value="all">All Roles</option>' +
+      roles
+        .map(
+          role => `
+            <option value="${escapeHtml(role)}">
+              ${escapeHtml(role)}
+            </option>
+          `
+        )
+        .join('');
+  }
+
+  function renderMembers() {
+    const search =
+      searchInput.value
+        .trim()
+        .toLowerCase();
+
+    const selectedRole =
+      roleFilter.value;
+
+    const selectedSort =
+      sortFilter.value;
+
+    let filteredMembers =
+      allMembers.filter(
+        member => {
+          const searchable =
+            [
+              memberName(member),
+              member.bio,
+              member.about,
+              member.location,
+              memberRole(member)
+            ]
+              .map(
+                value =>
+                  String(value || '')
+                    .toLowerCase()
+              )
+              .join(' ');
+
+          const matchesSearch =
+            !search ||
+            searchable.includes(search);
+
+          const matchesRole =
+            selectedRole === 'all' ||
+            memberRole(member) === selectedRole;
+
+          return (
+            matchesSearch &&
+            matchesRole
+          );
+        }
+      );
+
+    filteredMembers.sort(
+      (a, b) => {
+        if (selectedSort === 'rating') {
+          return (
+            getNumber(
+              b,
+              [
+                'average_rating',
+                'rating',
+                'avg_rating'
+              ]
+            ) -
+            getNumber(
+              a,
+              [
+                'average_rating',
+                'rating',
+                'avg_rating'
+              ]
+            )
+          );
+        }
+
+        if (selectedSort === 'services') {
+          return (
+            getServiceCount(b) -
+            getServiceCount(a)
+          );
+        }
+
+        return memberName(a)
+          .localeCompare(memberName(b));
+      }
+    );
+
+    const count =
+      filteredMembers.length;
+
+    resultCount.textContent =
+      count +
+      ' StarRise member' +
+      (
+        count === 1
+          ? ''
+          : 's'
+      );
+
+    membersContainer.innerHTML = '';
+
+    if (!count) {
+      status.textContent =
+        allMembers.length
+          ? 'No members matched your search.'
+          : 'No public StarRise members yet.';
+
+      membersContainer.innerHTML = `
+        <div class="empty-state">
+          <h2>No members found</h2>
+
+          <p>
+            Try changing your search or filters.
+          </p>
+        </div>
+      `;
+
+      return;
+    }
+
+    status.textContent = '';
+
+    filteredMembers.forEach(
+      member => {
+        const card =
+          document.createElement('article');
+
+        card.className =
+          'member';
+
+        const displayName =
+          memberName(member);
+
+        const initial =
+          displayName
+            .charAt(0)
+            .toUpperCase();
+
+        const role =
+          memberRole(member);
+
+        const rating =
+          getRating(member);
+
+        const services =
+          getServiceCount(member);
+
+        const verified =
+          isVerified(member);
+
+        const avatarHtml =
+          member.avatar_url
+            ? `
+              <img
+                src="${escapeHtml(member.avatar_url)}"
+                alt="${escapeHtml(displayName)}"
+                loading="lazy"
+                onerror="this.style.display='none'"
+              >
+            `
+            : escapeHtml(initial);
+
+        const locationHtml =
+          member.location
+            ? `
+              <div class="location">
+                ${escapeHtml(member.location)}
+              </div>
+            `
+            : '';
+
+        const verifiedHtml =
+          verified
+            ? `
+              <span class="verified">
+                ✓ Verified
+              </span>
+            `
+            : '';
+
+        const serviceText =
+          services === 1
+            ? '1 completed service'
+            : services + ' completed services';
+
+        card.innerHTML = `
+          <div class="member-top">
+            <div class="avatar">
+              ${avatarHtml}
+            </div>
+
+            ${verifiedHtml}
+          </div>
+
+          <h2>
+            ${escapeHtml(displayName)}
+          </h2>
+
+          <div class="role">
+            ${escapeHtml(role)}
+          </div>
+
+          ${locationHtml}
+
+          <p>
+            ${escapeHtml(
+              member.bio ||
+              member.about ||
+              'This member has not added a bio yet.'
+            )}
+          </p>
+
+          <div class="stats">
+            <span class="stat">
+              ${escapeHtml(rating)}
+            </span>
+
+            <span class="stat">
+              ${escapeHtml(serviceText)}
+            </span>
+          </div>
+
+          <div class="actions">
+            <a
+              class="button"
+              href="profile.html?id=${encodeURIComponent(member.id)}"
+            >
+              View Profile
+            </a>
+          </div>
+        `;
+
+        membersContainer.appendChild(card);
+      }
+    );
+  }
+
+  searchInput.addEventListener(
+    'input',
+    renderMembers
+  );
+
+  roleFilter.addEventListener(
+    'change',
+    renderMembers
+  );
+
+  sortFilter.addEventListener(
+    'change',
+    renderMembers
+  );
+
+  clearFilters.addEventListener(
+    'click',
+    function () {
+      searchInput.value = '';
+      roleFilter.value = 'all';
+      sortFilter.value = 'name';
+      renderMembers();
     }
   );
 
-}
-
-
-/*
-  SEARCH
-*/
-
-searchInput.addEventListener(
-  'input',
-  renderMembers
-);
-
-
-/*
-  ROLE FILTER
-*/
-
-roleFilter.addEventListener(
-  'change',
-  renderMembers
-);
-
-
-/*
-  SORT
-*/
-
-sortFilter.addEventListener(
-  'change',
-  renderMembers
-);
-
-
-/*
-  CLEAR FILTERS
-*/
-
-clearFilters.addEventListener(
-  'click',
-  () => {
-
-    searchInput.value = '';
-
-    roleFilter.value = 'all';
-
-    sortFilter.value = 'name';
-
-    renderMembers();
-
-  }
-);
-
-
-/*
-  START
-*/
-
-loadMembers();
-
+  loadMembers();
+})();
 </script>
 
 </body>
