@@ -1,139 +1,459 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Purchase Complete | StarRise</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-  <style>
-    * { box-sizing: border-box; }
+<title>Purchase Complete | StarRise</title>
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
-      background: #080812;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
+<style>
+*{box-sizing:border-box}
 
-    .card {
-      width: min(700px, 100%);
-      padding: 36px;
-      border: 1px solid #ffffff18;
-      border-radius: 24px;
-      background: #ffffff08;
-      text-align: center;
-    }
+body{
+margin:0;
+min-height:100vh;
+padding:20px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-family:Arial,sans-serif;
+line-height:1.6;
+background:#080812;
+color:#fff
+}
 
-    .check {
-      width: 75px;
-      height: 75px;
-      margin: 0 auto 20px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 40px;
-      background: rgba(50, 200, 100, .12);
-    }
+.card{
+width:min(700px,100%);
+padding:36px;
+border:1px solid #ffffff18;
+border-radius:24px;
+background:#ffffff08;
+text-align:center
+}
 
-    h1 {
-      font-size: clamp(36px, 7vw, 54px);
-      margin: 0 0 12px;
-    }
+.check{
+width:75px;
+height:75px;
+margin:0 auto 20px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:40px;
+background:#32c8641f
+}
 
-    p {
-      color: #bbb;
-      font-size: 18px;
-      line-height: 1.6;
-    }
+h1{
+margin:0 0 12px;
+font-size:clamp(36px,7vw,54px)
+}
 
-    .reference {
-      margin: 25px 0;
-      padding: 15px;
-      background: #ffffff08;
-      border: 1px solid #ffffff18;
-      border-radius: 14px;
-      color: #aaa;
-      overflow-wrap: anywhere;
-    }
+p{
+color:#bbb;
+font-size:18px
+}
 
-    .buttons {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 25px;
-    }
+.status{
+margin:24px 0;
+padding:16px;
+border:1px solid #ffffff18;
+border-radius:14px;
+background:#ffffff08;
+color:#aaa;
+overflow-wrap:anywhere
+}
 
-    a {
-      padding: 12px 22px;
-      border-radius: 25px;
-      text-decoration: none;
-      font-weight: bold;
-    }
+.status.success{
+color:#baffca;
+background:#32c8641a
+}
 
-    .primary {
-      background: white;
-      color: #080812;
-    }
+.status.error{
+color:#ffb5b5;
+background:#c832321f
+}
 
-    .secondary {
-      color: white;
-      border: 1px solid #ffffff30;
-    }
-  </style>
+.status.warning{
+color:#ffe3a3;
+background:#c896321f
+}
+
+.reference{
+margin:18px 0;
+padding:13px;
+border-radius:12px;
+background:#ffffff08;
+color:#888;
+font-size:13px;
+overflow-wrap:anywhere
+}
+
+.buttons{
+display:flex;
+gap:12px;
+justify-content:center;
+flex-wrap:wrap;
+margin-top:25px
+}
+
+.button{
+padding:12px 22px;
+border:0;
+border-radius:25px;
+font:inherit;
+font-weight:700;
+text-decoration:none;
+cursor:pointer
+}
+
+.primary{
+background:#fff;
+color:#080812
+}
+
+.secondary{
+color:#fff;
+background:transparent;
+border:1px solid #ffffff30
+}
+
+.download{
+background:#fff;
+color:#080812;
+font-size:17px
+}
+
+.button:disabled{
+opacity:.5;
+cursor:wait
+}
+
+.hidden{
+display:none!important
+}
+
+.small{
+color:#888;
+font-size:13px
+}
+
+@media(max-width:600px){
+.card{padding:28px 20px}
+.buttons{flex-direction:column}
+.button{width:100%}
+}
+</style>
 </head>
 
 <body>
 
-<div class="card">
+<main class="card">
 
-  <div class="check">✓</div>
+<div class="check">✓</div>
 
-  <h1>Checkout Complete</h1>
+<h1>Checkout Complete</h1>
 
-  <p>
-    Stripe returned you to StarRise successfully.
-    Your purchase is being finalized and should appear
-    in your account once payment confirmation is processed.
-  </p>
+<p id="message">
+StarRise is verifying your payment and preparing your purchase.
+</p>
 
-  <div id="reference" class="reference" hidden>
-    Checkout reference:<br>
-    <strong id="session"></strong>
-  </div>
-
-  <div class="buttons">
-    <a class="primary" href="dashboard.html">
-      View My Dashboard
-    </a>
-
-    <a class="secondary" href="marketplace.html">
-      Back to Store
-    </a>
-  </div>
-
+<div id="status" class="status">
+Finalizing your Store order...
 </div>
 
+<div id="purchase" class="hidden">
+<h2 id="itemTitle">Your Purchase</h2>
+
+<p>
+Your payment is confirmed and your file is ready.
+</p>
+
+<button
+id="downloadButton"
+class="button download"
+type="button"
+>
+Download Purchase
+</button>
+
+<p class="small">
+The secure download link expires after a limited time.
+You can return to your StarRise account for a new link.
+</p>
+</div>
+
+<div id="reference" class="reference hidden">
+Checkout reference:<br>
+<strong id="session"></strong>
+</div>
+
+<div class="buttons">
+<a class="button primary" href="dashboard.html">
+View My Dashboard
+</a>
+
+<a class="button secondary" href="marketplace.html">
+Back to Store
+</a>
+</div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-  const params =
-    new URLSearchParams(window.location.search);
+(function(){
+'use strict';
 
-  const sessionId =
-    params.get("session_id");
+const URL=
+'https://rcnikxotdalxtuvpmlvm.supabase.co';
 
-  if (sessionId) {
-    document.getElementById("session").textContent =
-      sessionId;
+const KEY=
+'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
-    document.getElementById("reference").hidden =
-      false;
-  }
+const client=
+window.supabase.createClient(
+URL,
+KEY
+);
+
+const params=
+new URLSearchParams(
+window.location.search
+);
+
+const sessionId=
+params.get('session_id');
+
+const statusBox=
+document.getElementById('status');
+
+const message=
+document.getElementById('message');
+
+const purchase=
+document.getElementById('purchase');
+
+const itemTitle=
+document.getElementById('itemTitle');
+
+const downloadButton=
+document.getElementById('downloadButton');
+
+const reference=
+document.getElementById('reference');
+
+const sessionElement=
+document.getElementById('session');
+
+let downloadUrl=null;
+
+function showStatus(text,type){
+statusBox.textContent=text;
+statusBox.className=
+'status '+(type||'');
+}
+
+async function getSession(){
+const result=
+await client.auth.getSession();
+
+if(result.error){
+throw result.error;
+}
+
+let session=
+result.data.session;
+
+if(!session){
+return null;
+}
+
+const expiresSoon=
+session.expires_at&&
+(
+session.expires_at*1000-
+Date.now()
+)<120000;
+
+if(expiresSoon){
+const refreshed=
+await client.auth.refreshSession();
+
+if(refreshed.error){
+throw refreshed.error;
+}
+
+session=
+refreshed.data.session;
+}
+
+return session;
+}
+
+async function finalizePurchase(){
+if(!sessionId){
+showStatus(
+'The Stripe checkout reference is missing. Return to your dashboard or contact StarRise support.',
+'error'
+);
+
+message.textContent=
+'StarRise could not identify this purchase.';
+
+return;
+}
+
+sessionElement.textContent=
+sessionId;
+
+reference.classList.remove(
+'hidden'
+);
+
+try{
+const session=
+await getSession();
+
+if(!session){
+showStatus(
+'Please sign in with the same StarRise account used for this purchase.',
+'warning'
+);
+
+message.textContent=
+'Your payment may be complete, but StarRise must verify your account before releasing the file.';
+
+return;
+}
+
+showStatus(
+'Verifying payment with Stripe...',
+''
+);
+
+const result=
+await client.functions.invoke(
+'finalize-marketplace-order',
+{
+body:{
+session_id:sessionId
+}
+}
+);
+
+if(result.error){
+let errorMessage=
+result.error.message||
+'The order could not be finalized.';
+
+if(result.error.context){
+try{
+const details=
+await result.error.context.json();
+
+errorMessage=
+details?.error||
+details?.message||
+errorMessage;
+}catch(_){}
+}
+
+throw new Error(
+errorMessage
+);
+}
+
+const data=
+result.data||{};
+
+if(
+data.paid===false
+){
+showStatus(
+data.message||
+'Stripe has not confirmed the payment yet. Refresh this page in a moment.',
+'warning'
+);
+
+return;
+}
+
+if(
+!data.ok||
+!data.paid
+){
+throw new Error(
+data.error||
+'StarRise could not confirm this purchase.'
+);
+}
+
+downloadUrl=
+data.download_url||
+null;
+
+itemTitle.textContent=
+data.title||
+'Your StarRise Purchase';
+
+message.textContent=
+'Your Store purchase is complete.';
+
+showStatus(
+'Payment confirmed. Your purchase is ready.',
+'success'
+);
+
+purchase.classList.remove(
+'hidden'
+);
+
+if(!downloadUrl){
+downloadButton.disabled=
+true;
+
+downloadButton.textContent=
+'Preparing Download...';
+
+showStatus(
+'Payment confirmed, but the secure download is still being prepared. Open your dashboard shortly.',
+'warning'
+);
+}
+}catch(error){
+console.error(
+'Marketplace finalization error:',
+error
+);
+
+showStatus(
+error.message||
+'Unable to finalize your Store purchase.',
+'error'
+);
+
+message.textContent=
+'Your checkout returned successfully, but StarRise needs another moment to prepare delivery.';
+}
+}
+
+downloadButton.addEventListener(
+'click',
+function(){
+if(!downloadUrl){
+return;
+}
+
+window.location.assign(
+downloadUrl
+);
+}
+);
+
+finalizePurchase();
+
+})();
 </script>
 
 </body>
