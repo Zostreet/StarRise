@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
   <meta charset="UTF-8">
 
   <meta
@@ -18,7 +17,6 @@
   >
 
   <style>
-
     * {
       box-sizing: border-box;
       margin: 0;
@@ -41,7 +39,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .logo {
@@ -96,15 +94,296 @@
     .grid {
       max-width: 1100px;
       margin: 40px auto 0;
-
       display: grid;
-
-      grid-template-columns:
-        repeat(auto-fit, minmax(240px, 1fr));
-
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 22px;
     }
 
+    .card {
+      padding: 30px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    .card h3 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      color: #bbbbbb;
+    }
+
+    .button {
+      display: inline-block;
+      margin-top: 25px;
+      padding: 14px 28px;
+      border-radius: 30px;
+      background: white;
+      color: #080812;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .button:hover {
+      opacity: 0.85;
+    }
+
+    .highlight {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    footer {
+      padding: 35px;
+      text-align: center;
+      color: #999999;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    @media (max-width: 650px) {
+      header {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      nav {
+        text-align: center;
+      }
+
+      nav a {
+        display: inline-block;
+        margin: 5px 7px;
+      }
+
+      section {
+        padding: 55px 6%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">⭐ StarRise</div>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="members.html">Members</a>
+    <a href="ecosystem.html">Ecosystem</a>
+    <a href="marketplace.html">Store</a>
+    <a href="services.html">Services</a>
+    <a href="opportunities.html">Opportunities</a>
+    <a href="dashboard.html">Dashboard</a>
+  </nav>
+</header>
+
+<main>
+
+  <section class="hero">
+    <h1>The StarRise Ecosystem</h1>
+
+    <p>
+      One community connecting talent, creativity,
+      opportunity, resources, and people who believe
+      in helping others rise.
+    </p>
+  </section>
+
+  <section id="talent">
+    <h2>Talent &amp; Creators</h2>
+
+    <p class="intro">
+      StarRise is built around people. Artists, musicians,
+      performers, creators, writers, producers, entrepreneurs,
+      and emerging talent all have a place here.
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="icon">🎤</div>
+        <h3>Artists</h3>
+
+        <p>
+          Showcase your music, performances,
+          projects, and creative identity.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">🎬</div>
+        <h3>Creators</h3>
+
+        <p>
+          Build and share original creative
+          work with the StarRise community.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">🌟</div>
+        <h3>Emerging Talent</h3>
+
+        <p>
+          Discover pathways to develop your
+          skills and connect with opportunities.
+        </p>
+      </div>
+    </div>
+
+    <a class="button" href="members.html">
+      Explore Members
+    </a>
+  </section>
+
+  <section class="highlight" id="talentfund">
+    <h2>TalentFund</h2>
+
+    <p class="intro">
+      Talent should not be limited simply because someone
+      lacks access to resources. TalentFund helps promising
+      people access support, resources, development,
+      and opportunity.
+    </p>
+
+    <a class="button" href="talent-funds.html">
+      Explore TalentFund
+    </a>
+  </section>
+
+  <section id="opportunities">
+    <h2>Opportunities</h2>
+
+    <p class="intro">
+      Connect people with meaningful opportunities
+      to perform, create, collaborate, work,
+      learn, and grow.
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="icon">🎭</div>
+        <h3>Auditions</h3>
+
+        <p>
+          Discover casting calls and performance opportunities.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">🎵</div>
+        <h3>Gigs</h3>
+
+        <p>
+          Find performance, music, entertainment,
+          and creative gigs.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">🤝</div>
+        <h3>Collaborations</h3>
+
+        <p>
+          Connect with people who can help turn
+          creative ideas into real projects.
+        </p>
+      </div>
+    </div>
+
+    <a class="button" href="opportunities.html">
+      View Opportunities
+    </a>
+  </section>
+
+  <section class="highlight" id="community">
+    <h2>Community</h2>
+
+    <p class="intro">
+      StarRise isn't only about the people on stage.
+      It's also about the people behind the scenes and
+      the supporters who help make everything possible.
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="icon">❤️</div>
+        <h3>Members</h3>
+
+        <p>
+          People who participate in and contribute
+          to the StarRise community.
+        </p>
+
+        <a class="button" href="members.html">Explore Members</a>
+      </div>
+
+      <div class="card">
+        <div class="icon">🛠️</div>
+        <h3>Vendors</h3>
+
+        <p>
+          Businesses and professionals who provide
+          services, products, and creative resources.
+        </p>
+
+        <a class="button" href="vendors.html">Explore Vendors</a>
+      </div>
+
+      <div class="card">
+        <div class="icon">🏢</div>
+        <h3>Partners</h3>
+
+        <p>
+          Organizations and individuals working with
+          StarRise to create opportunities.
+        </p>
+
+        <a class="button" href="partners.html">Explore Partners</a>
+      </div>
+
+      <div class="card">
+        <div class="icon">🙌</div>
+        <h3>Supporters</h3>
+
+        <p>
+          People who believe in talent and help others rise.
+        </p>
+
+        <a class="button" href="supporters.html">Explore Supporters</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Your Place in StarRise</h2>
+
+    <p class="intro">
+      Whether you're talent, a creator, supporter, client,
+      vendor, partner, or simply someone who believes in
+      opportunity, there's a place for you in StarRise.
+    </p>
+
+    <a class="button" href="join.html">
+      Join StarRise
+    </a>
+  </section>
+
+</main>
+
+<footer>
+  ⭐ StarRise — Where Talent Rises.
+</footer>
+
+</body>
+</html>
     .card {
       padding: 30px;
       border-radius: 18px;
