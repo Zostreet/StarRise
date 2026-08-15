@@ -1,141 +1,214 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>StarRise Supporters</title>
+  <title>StarRise Supporters</title>
 
-<style>
-*{box-sizing:border-box}
+  <meta
+    name="description"
+    content="Join StarRise as a supporter and help talented people access resources, opportunities, audiences, and community."
+  >
 
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#080812;
-  color:#fff;
-  line-height:1.6
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-a{
-  color:inherit;
-  text-decoration:none
-}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+      background: #080812;
+      color: #fff;
+    }
 
-.wrap{
-  width:min(1000px,calc(100% - 30px));
-  margin:auto
-}
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-header{
-  border-bottom:1px solid #ffffff18;
-  padding:20px 0
-}
+    .wrap {
+      width: min(1050px, calc(100% - 30px));
+      margin: auto;
+    }
 
-.nav{
-  display:flex;
-  justify-content:space-between;
-  gap:18px;
-  align-items:center;
-  flex-wrap:wrap
-}
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid #ffffff18;
+    }
 
-.nav a{color:#bbb}
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
 
-.logo{
-  font-weight:800;
-  color:#fff!important
-}
+    .logo {
+      color: #fff;
+      font-size: 21px;
+      font-weight: 800;
+    }
 
-.hero{
-  padding:90px 0 55px
-}
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
 
-.eyebrow{
-  color:#aaa;
-  text-transform:uppercase;
-  letter-spacing:3px;
-  font-size:13px;
-  font-weight:700
-}
+    nav a {
+      color: #bbb;
+      font-weight: bold;
+    }
 
-h1{
-  font-size:clamp(48px,9vw,82px);
-  line-height:1;
-  margin:12px 0 20px
-}
+    nav a:hover {
+      color: #fff;
+    }
 
-.lead{
-  max-width:760px;
-  color:#aaa;
-  font-size:19px
-}
+    .hero {
+      padding: 90px 0 55px;
+    }
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:18px;
-  padding:20px 0 70px
-}
+    .eyebrow {
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      font-size: 13px;
+      font-weight: 700;
+    }
 
-.card{
-  border:1px solid #ffffff18;
-  border-radius:20px;
-  padding:25px;
-  background:#ffffff08
-}
+    h1 {
+      margin: 12px 0 20px;
+      font-size: clamp(48px, 9vw, 82px);
+      line-height: 1;
+    }
 
-.card h2{margin-top:0}
-.card p{color:#aaa}
+    .lead {
+      max-width: 760px;
+      color: #aaa;
+      font-size: 19px;
+    }
 
-.button{
-  display:inline-block;
-  margin-top:20px;
-  padding:13px 22px;
-  border-radius:28px;
-  background:#fff;
-  color:#080812;
-  font-weight:700
-}
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
 
-.secondary{
-  margin-left:8px;
-  background:#ffffff08;
-  color:#fff;
-  border:1px solid #ffffff25
-}
+    .button {
+      display: inline-block;
+      padding: 13px 22px;
+      border-radius: 28px;
+      background: #fff;
+      color: #080812;
+      font-weight: 700;
+    }
 
-footer{
-  border-top:1px solid #ffffff18;
-  padding:30px 0;
-  color:#888
-}
-</style>
+    .button.secondary {
+      border: 1px solid #ffffff30;
+      background: #ffffff08;
+      color: #fff;
+    }
+
+    .button:hover {
+      opacity: .9;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      padding: 20px 0 70px;
+    }
+
+    .card {
+      padding: 25px;
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+      background: #ffffff08;
+    }
+
+    .card-icon {
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+    }
+
+    .card p {
+      margin: 0;
+      color: #aaa;
+    }
+
+    .cta {
+      padding: 40px 28px;
+      margin-bottom: 70px;
+      border: 1px solid #ffffff18;
+      border-radius: 22px;
+      background: #ffffff08;
+      text-align: center;
+    }
+
+    .cta h2 {
+      margin-top: 0;
+      font-size: 32px;
+    }
+
+    .cta p {
+      max-width: 700px;
+      margin: 0 auto 20px;
+      color: #aaa;
+    }
+
+    footer {
+      padding: 30px 0;
+      border-top: 1px solid #ffffff18;
+      color: #888;
+    }
+
+    @media (max-width: 760px) {
+      .nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .hero {
+        padding-top: 65px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
 <header>
   <div class="wrap nav">
-
     <a class="logo" href="index.html">
       ⭐ StarRise
     </a>
 
-    <div>
-      <a href="members.html">Members</a> ·
-      <a href="vendors.html">Vendors</a> ·
-      <a href="partners.html">Partners</a> ·
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="members.html">Members</a>
+      <a href="ecosystem.html">Ecosystem</a>
+      <a href="marketplace.html">Store</a>
+      <a href="services.html">Services</a>
+      <a href="opportunities.html">Opportunities</a>
       <a href="dashboard.html">Dashboard</a>
-    </div>
-
+    </nav>
   </div>
 </header>
 
 <main class="wrap">
 
   <section class="hero">
-
     <div class="eyebrow">
       StarRise Community
     </div>
@@ -149,37 +222,44 @@ footer{
       in giving talented people a real chance.
     </p>
 
-    <a class="button" href="join.html">
-      Join as a Supporter
-    </a>
+    <div class="hero-actions">
+      <a class="button" href="register.html?role=Supporter">
+        Join as a Supporter
+      </a>
 
-    <a class="button secondary" href="talent-funds.html">
-      Support Talent
-    </a>
-
+      <a class="button secondary" href="talent-funds.html">
+        Support Talent
+      </a>
+    </div>
   </section>
 
   <section class="grid">
-
     <article class="card">
+      <div class="card-icon">🌟</div>
       <h2>Discover Talent</h2>
+
       <p>
-        Find artists, creators, performers, entrepreneurs,
-        and emerging talent throughout the StarRise community.
+        Find artists, creators, performers,
+        entrepreneurs, and emerging talent
+        throughout the StarRise community.
       </p>
     </article>
 
     <article class="card">
+      <div class="card-icon">❤️</div>
       <h2>Fund Dreams</h2>
+
       <p>
-        Support TalentFund campaigns that help people
-        access equipment, production, development,
-        resources, and opportunities.
+        Support TalentFund campaigns that help
+        people access equipment, production,
+        development, resources, and opportunities.
       </p>
     </article>
 
     <article class="card">
+      <div class="card-icon">📣</div>
       <h2>Show Support</h2>
+
       <p>
         Follow projects, attend events, share talent,
         purchase services, and help creators reach
@@ -188,7 +268,9 @@ footer{
     </article>
 
     <article class="card">
+      <div class="card-icon">🚀</div>
       <h2>Help People Rise</h2>
+
       <p>
         Every connection, contribution, referral,
         purchase, and opportunity can help move
@@ -196,6 +278,48 @@ footer{
       </p>
     </article>
 
+    <article class="card">
+      <div class="card-icon">🎟️</div>
+      <h2>Attend Events</h2>
+
+      <p>
+        Show up for performances, showcases,
+        community gatherings, launches, and
+        other StarRise experiences.
+      </p>
+    </article>
+
+    <article class="card">
+      <div class="card-icon">🤝</div>
+      <h2>Build Community</h2>
+
+      <p>
+        Encourage creators, connect people,
+        share resources, and help make StarRise
+        a place where everyone can grow.
+      </p>
+    </article>
+  </section>
+
+  <section class="cta">
+    <h2>Help Talent Rise</h2>
+
+    <p>
+      Join the StarRise community and become part
+      of a support system connecting talented people
+      with audiences, resources, encouragement,
+      and meaningful opportunities.
+    </p>
+
+    <div class="hero-actions" style="justify-content:center">
+      <a class="button" href="register.html?role=Supporter">
+        Become a Supporter
+      </a>
+
+      <a class="button secondary" href="members.html">
+        Discover Members
+      </a>
+    </div>
   </section>
 
 </main>
