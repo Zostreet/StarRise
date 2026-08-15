@@ -2,109 +2,1121 @@
 <html lang="en">
 
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8">
 
-<title>StarRise Vendors | Grow Your Business</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
 
-<meta
-  name="description"
-  content="Join the StarRise vendor network and connect your services, products, spaces, equipment, and resources with artists and creators."
->
+  <title>StarRise Vendors | Grow Your Business</title>
 
-<style>
+  <meta
+    name="description"
+    content="Join the StarRise vendor network and connect your services, products, spaces, equipment, and resources with artists and creators."
+  >
 
-*{
-  box-sizing:border-box;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-html{
-  scroll-behavior:smooth;
-}
+    html {
+      scroll-behavior: smooth;
+    }
 
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#080812;
-  color:#fff;
-  line-height:1.6;
-}
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #080812;
+      color: #fff;
+      line-height: 1.6;
+    }
 
-a{
-  color:inherit;
-  text-decoration:none;
-}
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-.wrap{
-  width:min(1100px,calc(100% - 30px));
-  margin:auto;
-}
+    button {
+      font-family: inherit;
+    }
 
-/* HEADER */
+    .wrap {
+      width: min(1100px, calc(100% - 30px));
+      margin: auto;
+    }
 
-header{
-  position:sticky;
-  top:0;
-  z-index:100;
-  background:rgba(8,8,18,.96);
-  backdrop-filter:blur(10px);
-  border-bottom:1px solid #ffffff18;
-}
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
 
-.nav{
-  min-height:72px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:20px;
-}
+      background: rgba(8, 8, 18, .96);
+      backdrop-filter: blur(10px);
 
-.logo{
-  font-size:22px;
-  font-weight:800;
-}
+      border-bottom: 1px solid #ffffff18;
+    }
 
-.nav-links{
-  display:flex;
-  flex-wrap:wrap;
-  gap:18px;
-}
+    .nav {
+      min-height: 72px;
 
-.nav-links a{
-  color:#aaa;
-}
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
 
-.nav-links a:hover{
-  color:#fff;
-}
+      gap: 20px;
+    }
 
-/* HERO */
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
 
-.hero{
-  padding:100px 0 70px;
-  text-align:center;
-}
+    .nav-links {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
 
-.eyebrow{
-  color:#aaa;
-  text-transform:uppercase;
-  letter-spacing:3px;
-  font-size:13px;
-  font-weight:700;
-}
+      gap: 16px;
+    }
 
-.hero h1{
-  font-size:clamp(50px,9vw,90px);
-  line-height:1;
-  margin:15px 0 25px;
-}
+    .nav-links a,
+    .nav-button {
+      color: #aaa;
+    }
 
-.hero p{
-  max-width:760px;
-  margin:auto;
-  color:#aaa;
-  font-size:19px;
-}
+    .nav-links a:hover,
+    .nav-button:hover {
+      color: #fff;
+    }
+
+    .nav-button {
+      padding: 8px 14px;
+
+      border: 1px solid #ffffff25;
+      border-radius: 22px;
+
+      background: transparent;
+
+      cursor: pointer;
+    }
+
+    .hero {
+      padding: 100px 0 70px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      color: #aaa;
+
+      text-transform: uppercase;
+
+      letter-spacing: 3px;
+
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .hero h1 {
+      font-size: clamp(50px, 9vw, 90px);
+      line-height: 1;
+
+      margin: 15px 0 25px;
+    }
+
+    .hero p {
+      max-width: 760px;
+
+      margin: auto;
+
+      color: #aaa;
+
+      font-size: 19px;
+    }
+
+    .account-status {
+      display: none;
+
+      max-width: 720px;
+
+      margin: 25px auto 0;
+
+      padding: 14px 18px;
+
+      border: 1px solid #ffffff18;
+      border-radius: 14px;
+
+      background: #ffffff08;
+
+      color: #bbb;
+    }
+
+    .account-status.show {
+      display: block;
+    }
+
+    .account-status.vendor {
+      color: #baffca;
+
+      background: rgba(50, 180, 100, .10);
+    }
+
+    .actions {
+      margin-top: 30px;
+
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+
+      gap: 12px;
+    }
+
+    .button {
+      display: inline-block;
+
+      padding: 14px 24px;
+
+      border: 1px solid #ffffff25;
+      border-radius: 30px;
+
+      font-weight: 700;
+
+      transition:
+        transform .2s ease,
+        background .2s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .button.primary {
+      background: #fff;
+      color: #080812;
+    }
+
+    .button.secondary {
+      background: #ffffff08;
+      color: #fff;
+    }
+
+    section {
+      padding: 70px 0;
+    }
+
+    .heading {
+      max-width: 760px;
+
+      margin-bottom: 35px;
+    }
+
+    .heading h2 {
+      font-size: clamp(34px, 6vw, 52px);
+
+      margin: 0 0 12px;
+    }
+
+    .heading p {
+      margin: 0;
+
+      color: #aaa;
+
+      font-size: 17px;
+    }
+
+    .grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(auto-fit, minmax(230px, 1fr));
+
+      gap: 18px;
+    }
+
+    .card {
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+
+      padding: 26px;
+
+      background: #ffffff08;
+    }
+
+    .card-icon {
+      font-size: 32px;
+
+      margin-bottom: 12px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+
+      font-size: 22px;
+    }
+
+    .card p {
+      margin: 0;
+
+      color: #aaa;
+    }
+
+    .vendor-type {
+      transition:
+        transform .2s ease,
+        border-color .2s ease,
+        background .2s ease;
+    }
+
+    .vendor-type:hover {
+      transform: translateY(-4px);
+
+      border-color: #ffffff40;
+
+      background: #ffffff10;
+    }
+
+    .step-number {
+      width: 42px;
+      height: 42px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 50%;
+
+      background: #fff;
+      color: #080812;
+
+      font-weight: 800;
+
+      margin-bottom: 18px;
+    }
+
+    .vendor-cta {
+      margin: 60px 0 90px;
+
+      border: 1px solid #ffffff20;
+      border-radius: 28px;
+
+      padding: 50px 30px;
+
+      text-align: center;
+
+      background: #ffffff08;
+    }
+
+    .vendor-cta h2 {
+      font-size: clamp(34px, 6vw, 55px);
+
+      margin: 0 0 15px;
+    }
+
+    .vendor-cta p {
+      max-width: 700px;
+
+      margin: auto;
+
+      color: #aaa;
+
+      font-size: 17px;
+    }
+
+    footer {
+      border-top: 1px solid #ffffff18;
+
+      padding: 30px 15px;
+
+      text-align: center;
+
+      color: #888;
+    }
+
+    @media (max-width: 700px) {
+      .nav {
+        padding: 15px 0;
+
+        align-items: flex-start;
+
+        flex-direction: column;
+      }
+
+      .hero {
+        padding-top: 70px;
+      }
+    }
+  </style>
+
+</head>
+
+
+<body>
+
+<header>
+
+  <div class="wrap nav">
+
+    <a
+      class="logo"
+      href="index.html"
+    >
+      ⭐ StarRise
+    </a>
+
+
+    <nav class="nav-links">
+
+      <a href="members.html">
+        Members
+      </a>
+
+      <a href="vendors.html">
+        Vendors
+      </a>
+
+      <a href="partners.html">
+        Partners
+      </a>
+
+      <a href="supporters.html">
+        Supporters
+      </a>
+
+      <a href="marketplace.html">
+        Store
+      </a>
+
+      <a
+        id="dashboardLink"
+        href="dashboard.html"
+      >
+        Dashboard
+      </a>
+
+      <a
+        id="loginLink"
+        href="login.html"
+      >
+        Sign In
+      </a>
+
+      <button
+        id="signoutButton"
+        class="nav-button"
+        type="button"
+        style="display:none"
+      >
+        Sign Out
+      </button>
+
+    </nav>
+
+  </div>
+
+</header>
+
+
+<main class="wrap">
+
+
+  <!-- HERO -->
+
+  <section class="hero">
+
+    <div class="eyebrow">
+      StarRise Business Network
+    </div>
+
+    <h1>
+      Grow With<br>
+      StarRise.
+    </h1>
+
+    <p>
+      Connect your business, services, products,
+      equipment, spaces, and professional skills
+      with artists, creators, organizations,
+      events, and customers throughout StarRise.
+    </p>
+
+
+    <div
+      id="accountStatus"
+      class="account-status"
+    ></div>
+
+
+    <div class="actions">
+
+      <a
+        id="primaryVendorButton"
+        class="button primary"
+        href="register.html?role=Vendor"
+      >
+        Become a Vendor
+      </a>
+
+      <a
+        class="button secondary"
+        href="marketplace.html"
+      >
+        Browse Marketplace
+      </a>
+
+    </div>
+
+  </section>
+
+
+  <!-- BUILD BUSINESS -->
+
+  <section>
+
+    <div class="heading">
+
+      <h2>
+        Build Your Business
+      </h2>
+
+      <p>
+        StarRise vendors become part of the
+        ecosystem supporting talent,
+        creative projects, events,
+        and organizations.
+      </p>
+
+    </div>
+
+
+    <div class="grid">
+
+      <article class="card">
+
+        <div class="card-icon">
+          🛠️
+        </div>
+
+        <h3>
+          Offer Services
+        </h3>
+
+        <p>
+          Provide professional services
+          directly to artists, creators,
+          organizations, events, and
+          other StarRise members.
+        </p>
+
+      </article>
+
+
+      <article class="card">
+
+        <div class="card-icon">
+          🛍️
+        </div>
+
+        <h3>
+          Sell Products
+        </h3>
+
+        <p>
+          List equipment, merchandise,
+          supplies, creative resources,
+          and products through the
+          StarRise marketplace.
+        </p>
+
+      </article>
+
+
+      <article class="card">
+
+        <div class="card-icon">
+          🏢
+        </div>
+
+        <h3>
+          Offer Spaces
+        </h3>
+
+        <p>
+          Connect studios, venues,
+          rehearsal spaces, event
+          locations, and creative
+          facilities with customers.
+        </p>
+
+      </article>
+
+
+      <article class="card">
+
+        <div class="card-icon">
+          🤝
+        </div>
+
+        <h3>
+          Find Customers
+        </h3>
+
+        <p>
+          Build relationships with
+          creators and organizations
+          already looking for resources
+          and professional help.
+        </p>
+
+      </article>
+
+    </div>
+
+  </section>
+
+
+  <!-- VENDOR TYPES -->
+
+  <section>
+
+    <div class="heading">
+
+      <h2>
+        Who Can Become a Vendor?
+      </h2>
+
+      <p>
+        If your business can help talent
+        create, perform, grow, promote,
+        operate, or succeed, there may
+        be a place for you here.
+      </p>
+
+    </div>
+
+
+    <div class="grid">
+
+      <article class="card vendor-type">
+
+        <div class="card-icon">
+          🎚️
+        </div>
+
+        <h3>
+          Studios & Engineers
+        </h3>
+
+        <p>
+          Recording, mixing, mastering,
+          rehearsal, and production services.
+        </p>
+
+      </article>
+
+
+      <article class="card vendor-type">
+
+        <div class="card-icon">
+          📸
+        </div>
+
+        <h3>
+          Media Professionals
+        </h3>
+
+        <p>
+          Photographers, videographers,
+          designers, editors, and
+          content teams.
+        </p>
+
+      </article>
+
+
+      <article class="card vendor-type">
+
+        <div class="card-icon">
+          🎪
+        </div>
+
+        <h3>
+          Venues & Events
+        </h3>
+
+        <p>
+          Venues, event companies,
+          promoters, production crews,
+          and event services.
+        </p>
+
+      </article>
+
+
+      <article class="card vendor-type">
+
+        <div class="card-icon">
+          👕
+        </div>
+
+        <h3>
+          Merchandise & Products
+        </h3>
+
+        <p>
+          Apparel, printing, equipment,
+          supplies, merchandise,
+          and products.
+        </p>
+
+      </article>
+
+
+      <article class="card vendor-type">
+
+        <div class="card-icon">
+          📣
+        </div>
+
+        <h3>
+          Marketing & Promotion
+        </h3>
+
+        <p>
+          Marketing, branding, publicity,
+          advertising, and promotional
+          services.
+        </p>
+
+      </article>
+
+
+      <article class="card vendor-type">
+
+        <div class="card-icon">
+          💼
+        </div>
+
+        <h3>
+          Professional Services
+        </h3>
+
+        <p>
+          Business, consulting,
+          management, administrative,
+          and creative services.
+        </p>
+
+      </article>
+
+    </div>
+
+  </section>
+
+
+  <!-- HOW IT WORKS -->
+
+  <section>
+
+    <div class="heading">
+
+      <h2>
+        How It Works
+      </h2>
+
+      <p>
+        One StarRise account connects
+        your vendor identity, services,
+        marketplace products, orders,
+        and payouts.
+      </p>
+
+    </div>
+
+
+    <div class="grid">
+
+      <article class="card">
+
+        <div class="step-number">
+          1
+        </div>
+
+        <h3>
+          Create Your Account
+        </h3>
+
+        <p>
+          Register with StarRise
+          and choose the Vendor role.
+        </p>
+
+      </article>
+
+
+      <article class="card">
+
+        <div class="step-number">
+          2
+        </div>
+
+        <h3>
+          Build Your Business Profile
+        </h3>
+
+        <p>
+          Add your business name,
+          category, location, contact
+          details, and description.
+        </p>
+
+      </article>
+
+
+      <article class="card">
+
+        <div class="step-number">
+          3
+        </div>
+
+        <h3>
+          List What You Offer
+        </h3>
+
+        <p>
+          Add professional services
+          and marketplace products
+          for customers to discover.
+        </p>
+
+      </article>
+
+
+      <article class="card">
+
+        <div class="step-number">
+          4
+        </div>
+
+        <h3>
+          Sell & Grow
+        </h3>
+
+        <p>
+          Receive orders, manage
+          customers, track revenue,
+          and connect your payouts.
+        </p>
+
+      </article>
+
+    </div>
+
+  </section>
+
+
+  <!-- CTA -->
+
+  <section class="vendor-cta">
+
+    <h2 id="ctaTitle">
+      Ready to Become a StarRise Vendor?
+    </h2>
+
+    <p id="ctaDescription">
+      Create your vendor account,
+      build your profile, list services
+      or products, and become part of
+      the network helping talent rise.
+    </p>
+
+
+    <div class="actions">
+
+      <a
+        id="ctaPrimary"
+        class="button primary"
+        href="register.html?role=Vendor"
+      >
+        Create Vendor Account
+      </a>
+
+      <a
+        id="serviceButton"
+        class="button secondary"
+        href="create-service.html"
+      >
+        List a Service
+      </a>
+
+      <a
+        id="productButton"
+        class="button secondary"
+        href="create-marketplace-item.html"
+      >
+        List a Product
+      </a>
+
+    </div>
+
+  </section>
+
+
+</main>
+
+
+<footer>
+  ⭐ StarRise — Where Talent Rises.
+</footer>
+
+
+<script
+  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<script>
+
+  const starRiseSupabase =
+    window.supabase.createClient(
+      "https://rcnikxotdalxtuvpmlvm.supabase.co",
+      "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+    );
+
+
+  const primaryVendorButton =
+    document.getElementById(
+      "primaryVendorButton"
+    );
+
+  const ctaPrimary =
+    document.getElementById(
+      "ctaPrimary"
+    );
+
+  const ctaTitle =
+    document.getElementById(
+      "ctaTitle"
+    );
+
+  const ctaDescription =
+    document.getElementById(
+      "ctaDescription"
+    );
+
+  const accountStatus =
+    document.getElementById(
+      "accountStatus"
+    );
+
+  const dashboardLink =
+    document.getElementById(
+      "dashboardLink"
+    );
+
+  const loginLink =
+    document.getElementById(
+      "loginLink"
+    );
+
+  const signoutButton =
+    document.getElementById(
+      "signoutButton"
+    );
+
+
+  function showStatus(
+    text,
+    vendor = false
+  ) {
+
+    accountStatus.textContent =
+      text;
+
+    accountStatus.className =
+      vendor
+        ? "account-status show vendor"
+        : "account-status show";
+
+  }
+
+
+  async function checkAccount() {
+
+    try {
+
+      const {
+        data: {
+          user
+        }
+      } =
+        await starRiseSupabase
+          .auth
+          .getUser();
+
+
+      if (!user) {
+
+        primaryVendorButton.href =
+          "register.html?role=Vendor";
+
+        ctaPrimary.href =
+          "register.html?role=Vendor";
+
+        return;
+
+      }
+
+
+      loginLink.style.display =
+        "none";
+
+      signoutButton.style.display =
+        "inline-block";
+
+
+      const {
+        data: roles,
+        error
+      } =
+        await starRiseSupabase
+
+          .from(
+            "member_roles"
+          )
+
+          .select(
+            "role"
+          )
+
+          .eq(
+            "user_id",
+            user.id
+          );
+
+
+      if (error) {
+
+        console.error(
+          "Role lookup failed:",
+          error
+        );
+
+        showStatus(
+          "You're signed in to StarRise. Open your dashboard to manage your account."
+        );
+
+        return;
+
+      }
+
+
+      const roleNames =
+        (roles || [])
+          .map(
+            item => item.role
+          );
+
+
+      const isVendor =
+        roleNames.includes(
+          "Vendor"
+        );
+
+
+      if (isVendor) {
+
+        primaryVendorButton.href =
+          "vendor-dashboard.html";
+
+        primaryVendorButton.textContent =
+          "Open Vendor Dashboard";
+
+
+        ctaPrimary.href =
+          "vendor-dashboard.html";
+
+        ctaPrimary.textContent =
+          "Manage My Vendor Business";
+
+
+        dashboardLink.href =
+          "vendor-dashboard.html";
+
+        dashboardLink.textContent =
+          "Vendor Dashboard";
+
+
+        ctaTitle.textContent =
+          "Your Vendor Business Is Ready";
+
+
+        ctaDescription.textContent =
+          "Manage your business profile, add services and products, review orders, track seller revenue, and monitor your payout setup.";
+
+
+        showStatus(
+          "You're signed in as a StarRise Vendor.",
+          true
+        );
+
+      } else {
+
+        primaryVendorButton.href =
+          "register.html?role=Vendor";
+
+        primaryVendorButton.textContent =
+          "Become a Vendor";
+
+
+        ctaPrimary.href =
+          "register.html?role=Vendor";
+
+        ctaPrimary.textContent =
+          "Add Vendor Membership";
+
+
+        showStatus(
+          "You're signed in to StarRise, but this account does not currently have the Vendor role."
+        );
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Vendor page account check:",
+        error
+      );
+
+    }
+
+  }
+
+
+  signoutButton.addEventListener(
+    "click",
+    async function() {
+
+      await starRiseSupabase
+        .auth
+        .signOut();
+
+
+      window.location.reload();
+
+    }
+  );
+
+
+  checkAccount();
+
+</script>
+
+
+</body>
+</html>}
 
 .actions{
   margin-top:30px;
