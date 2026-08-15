@@ -1,9 +1,14 @@
-name: Deploy StarRise to GitHub Pages
+name: Validate and deploy StarRise
 
 on:
   push:
     branches:
       - main
+
+  pull_request:
+    branches:
+      - main
+
   workflow_dispatch:
 
 permissions:
@@ -12,11 +17,36 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: starrise-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  validate:
+    name: Validate static site
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check links, anchors, IDs, and JavaScript
+        run: node scripts/validate-site.mjs
+
   deploy:
+    name: Deploy GitHub Pages
+    needs:
+      - validate
+
+    if: >
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/main'
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -27,14 +57,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages
+      - name: Set up GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload site
+      - name: Upload StarRise site
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy StarRise
         id: deployment
         uses: actions/deploy-pages@v4
