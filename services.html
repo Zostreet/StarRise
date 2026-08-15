@@ -4,7 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Browse Services | StarRise</title>
+  <title>StarRise Services</title>
+
+  <meta
+    name="description"
+    content="Browse creative, entertainment, business, and professional services offered by StarRise members."
+  >
 
   <style>
     * {
@@ -13,11 +18,16 @@
 
     body {
       margin: 0;
+      min-height: 100vh;
       font-family: Arial, sans-serif;
+      line-height: 1.6;
       background: #080812;
       color: #fff;
-      min-height: 100vh;
-      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
     }
 
     header {
@@ -26,20 +36,27 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 20px;
+      gap: 18px;
     }
 
-    header a,
-    nav a {
-      color: #fff;
-      text-decoration: none;
+    .logo {
+      font-size: 21px;
       font-weight: bold;
     }
 
     nav {
       display: flex;
-      gap: 18px;
       flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    nav a {
+      color: #bbb;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      color: #fff;
     }
 
     main {
@@ -47,36 +64,65 @@
       margin: 35px auto 60px;
     }
 
-    .hero,
-    .panel {
-      border: 1px solid #ffffff18;
-      border-radius: 22px;
-      background: #ffffff08;
-      padding: 28px;
+    .hero {
+      padding: 55px 28px;
       margin-bottom: 20px;
+      border: 1px solid #ffffff18;
+      border-radius: 24px;
+      background: #ffffff08;
+      text-align: center;
     }
 
     .eyebrow {
       color: #999;
       font-size: 12px;
+      font-weight: bold;
       text-transform: uppercase;
-      letter-spacing: .1em;
-      margin-bottom: 8px;
+      letter-spacing: .12em;
     }
 
     h1 {
-      margin: 0;
-      font-size: clamp(38px, 7vw, 64px);
+      margin: 8px 0 12px;
+      font-size: clamp(42px, 8vw, 70px);
       line-height: 1.05;
     }
 
-    h2 {
-      margin-top: 0;
+    .hero p {
+      max-width: 760px;
+      margin: auto;
+      color: #aaa;
+      font-size: 18px;
     }
 
-    .hero p {
-      color: #aaa;
-      margin-bottom: 0;
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 12px 20px;
+      border: 0;
+      border-radius: 25px;
+      background: #fff;
+      color: #080812;
+      font: inherit;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .button.secondary {
+      border: 1px solid #ffffff30;
+      background: transparent;
+      color: #fff;
+    }
+
+    .button:hover {
+      opacity: .9;
     }
 
     .controls {
@@ -102,141 +148,21 @@
     }
 
     .results-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       margin-bottom: 15px;
       color: #aaa;
     }
 
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-      gap: 18px;
-    }
-
-    .service-card {
-      border: 1px solid #ffffff18;
-      border-radius: 20px;
-      background: #ffffff08;
-      padding: 22px;
-      display: flex;
-      flex-direction: column;
-      min-height: 400px;
-      transition: .15s ease;
-    }
-
-    .service-card:hover {
-      transform: translateY(-2px);
-      border-color: #ffffff35;
-      background: #ffffff0c;
-    }
-
-    .category {
-      display: inline-block;
-      width: fit-content;
-      padding: 6px 11px;
-      border-radius: 20px;
-      background: #ffffff12;
-      color: #bbb;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      margin-bottom: 12px;
-    }
-
-    .service-title {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-
-    .description {
-      color: #bbb;
-      white-space: pre-wrap;
+    .status {
+      padding: 18px;
       margin-bottom: 18px;
-      flex: 1;
-    }
-
-    .price {
-      font-size: 28px;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-
-    .provider {
-      color: #999;
-      font-size: 14px;
-      margin-bottom: 15px;
-    }
-
-    .provider strong {
-      color: #fff;
-    }
-
-    .location {
-      color: #777;
-      margin-top: 3px;
-    }
-
-    .rating {
-      margin: 10px 0 15px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #00000020;
-    }
-
-    .rating-stars {
-      color: #ffd84d;
-      font-size: 20px;
-      letter-spacing: 2px;
-    }
-
-    .rating-text {
-      color: #999;
-      font-size: 13px;
-      margin-top: 2px;
-    }
-
-    .service-actions {
-      display: flex;
-      gap: 9px;
-    }
-
-    .service-button {
-      flex: 1;
-      display: block;
-      padding: 12px 15px;
-      border-radius: 25px;
-      text-align: center;
-      text-decoration: none;
-      font-weight: bold;
-      border: 1px solid #ffffff25;
-      color: #fff;
-      background: transparent;
-    }
-
-    .service-button.primary {
-      background: #fff;
-      color: #080812;
-      border-color: #fff;
-    }
-
-    .service-button:hover {
-      opacity: .88;
-    }
-
-    .status,
-    .empty {
-      padding: 20px;
-      border-radius: 15px;
-      background: #ffffff08;
       border: 1px solid #ffffff18;
+      border-radius: 14px;
+      background: #ffffff08;
       color: #aaa;
       text-align: center;
     }
 
-    .error {
+    .status.error {
       color: #ffb5b5;
       background: rgba(200, 50, 50, .12);
     }
@@ -245,38 +171,127 @@
       display: none !important;
     }
 
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+      gap: 18px;
+    }
+
+    .service-card {
+      padding: 24px;
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+      background: #ffffff08;
+      display: flex;
+      flex-direction: column;
+      transition: .15s;
+    }
+
+    .service-card:hover {
+      transform: translateY(-2px);
+      border-color: #ffffff35;
+    }
+
+    .category {
+      display: inline-block;
+      width: max-content;
+      padding: 5px 10px;
+      margin-bottom: 12px;
+      border-radius: 20px;
+      background: #ffffff12;
+      color: #bbb;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .service-title {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .description {
+      margin: 10px 0;
+      color: #aaa;
+      white-space: pre-wrap;
+      flex: 1;
+    }
+
+    .price {
+      margin: 12px 0;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .provider {
+      padding-top: 12px;
+      border-top: 1px solid #ffffff12;
+      color: #999;
+      font-size: 14px;
+    }
+
+    .provider strong {
+      color: #fff;
+    }
+
+    .location {
+      margin-top: 3px;
+      color: #888;
+    }
+
+    .rating {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 14px 0;
+      color: #aaa;
+      font-size: 13px;
+    }
+
+    .rating-stars {
+      color: #fff;
+      letter-spacing: 2px;
+    }
+
+    .service-actions {
+      display: flex;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .service-actions .button {
+      width: 100%;
+    }
+
+    .empty {
+      padding: 45px 20px;
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+      background: #ffffff08;
+      color: #999;
+      text-align: center;
+    }
+
+    footer {
+      padding: 30px 15px;
+      border-top: 1px solid #ffffff18;
+      color: #888;
+      text-align: center;
+    }
+
     @media (max-width: 760px) {
       header {
         flex-direction: column;
         align-items: flex-start;
       }
 
-      main {
-        width: calc(100% - 20px);
-        margin-top: 20px;
-      }
-
-      .hero,
-      .panel {
-        padding: 21px;
-      }
-
       .controls {
         grid-template-columns: 1fr;
       }
 
-      .results-bar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-      }
-
       .service-actions {
         flex-direction: column;
-      }
-
-      .service-button {
-        width: 100%;
       }
     }
   </style>
@@ -285,30 +300,29 @@
 <body>
 
 <header>
-
-  <a href="index.html">
+  <a class="logo" href="index.html">
     ⭐ StarRise
   </a>
 
   <nav>
-    <a href="services.html">Browse Services</a>
-    <a href="members.html">Find Members</a>
+    <a href="index.html">Home</a>
+    <a href="members.html">Members</a>
+    <a href="ecosystem.html">Ecosystem</a>
+    <a href="marketplace.html">Store</a>
+    <a href="services.html">Services</a>
+    <a href="opportunities.html">Opportunities</a>
     <a href="dashboard.html">Dashboard</a>
   </nav>
-
 </header>
 
 <main>
 
   <section class="hero">
-
     <div class="eyebrow">
-      StarRise Marketplace
+      StarRise Service Marketplace
     </div>
 
-    <h1>
-      Browse Services
-    </h1>
+    <h1>Browse Services</h1>
 
     <p>
       Discover services offered by StarRise members,
@@ -316,11 +330,18 @@
       that fits what you need.
     </p>
 
+    <div class="hero-actions">
+      <a class="button" href="create-service.html">
+        + Offer a Service
+      </a>
+
+      <a class="button secondary" href="members.html">
+        Find Members
+      </a>
+    </div>
   </section>
 
-
   <section class="controls">
-
     <input
       id="search"
       class="control"
@@ -330,65 +351,35 @@
     >
 
     <select id="category" class="control">
-      <option value="all">
-        All Categories
-      </option>
+      <option value="all">All Categories</option>
     </select>
 
     <select id="sort" class="control">
-
-      <option value="newest">
-        Newest
-      </option>
-
-      <option value="price-low">
-        Price: Low to High
-      </option>
-
-      <option value="price-high">
-        Price: High to Low
-      </option>
-
-      <option value="rating">
-        Highest Rated
-      </option>
-
-      <option value="title">
-        Name: A to Z
-      </option>
-
+      <option value="newest">Newest</option>
+      <option value="price-low">Price: Low to High</option>
+      <option value="price-high">Price: High to Low</option>
+      <option value="rating">Highest Rated</option>
+      <option value="title">Name: A to Z</option>
     </select>
-
   </section>
 
-
   <div class="results-bar">
-
     <div id="results-count">
       Loading services...
     </div>
-
   </div>
-
 
   <div id="status" class="status">
     Loading StarRise services...
   </div>
-
 
   <section
     id="services"
     class="services-grid hidden"
   ></section>
 
-
-  <div
-    id="empty"
-    class="empty hidden"
-  >
-    <h2>
-      No services found
-    </h2>
+  <div id="empty" class="empty hidden">
+    <h2>No services found</h2>
 
     <p>
       Try another search or category.
@@ -397,13 +388,14 @@
 
 </main>
 
+<footer>
+  ⭐ StarRise — Where Talent Rises.
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-
 (function () {
-
   'use strict';
 
   const SUPABASE_URL =
@@ -417,7 +409,6 @@
       SUPABASE_URL,
       SUPABASE_KEY
     );
-
 
   const searchInput =
     document.getElementById('search');
@@ -440,24 +431,18 @@
   const resultsCount =
     document.getElementById('results-count');
 
-
   let allServices = [];
 
-
   function escapeHtml(value) {
-
     return String(value ?? '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
-
   }
 
-
   function money(cents) {
-
     return (
       Number(cents || 0) / 100
     ).toLocaleString(
@@ -467,42 +452,43 @@
         currency: 'USD'
       }
     );
-
   }
 
-
   function normalize(value) {
-
     return String(value || '')
       .trim()
       .toLowerCase();
-
   }
 
-
   function stars(rating) {
-
     const value =
       Number(rating || 0);
 
     let output = '';
 
-    for (let i = 1; i <= 5; i++) {
-
+    for (let index = 1; index <= 5; index++) {
       output +=
-        i <= Math.round(value)
+        index <= Math.round(value)
           ? '★'
           : '☆';
-
     }
 
     return output;
-
   }
 
+  function providerName(service) {
+    const profile =
+      service.profile || {};
+
+    return (
+      profile.display_name ||
+      profile.full_name ||
+      profile.name ||
+      'StarRise Member'
+    );
+  }
 
   async function loadServices() {
-
     statusElement.textContent =
       'Loading StarRise services...';
 
@@ -512,7 +498,6 @@
     servicesElement.innerHTML = '';
 
     try {
-
       const result =
         await supabaseClient
           .from('star_rise_services')
@@ -526,15 +511,10 @@
             is_active,
             created_at
           `)
-          .eq(
-            'is_active',
-            true
-          )
+          .eq('is_active', true)
           .order(
             'created_at',
-            {
-              ascending: false
-            }
+            { ascending: false }
           );
 
       if (result.error) {
@@ -544,21 +524,12 @@
       allServices =
         result.data || [];
 
-
       if (!allServices.length) {
-
-        statusElement.classList.add(
-          'hidden'
-        );
-
-        emptyElement.classList.remove(
-          'hidden'
-        );
+        statusElement.classList.add('hidden');
+        emptyElement.classList.remove('hidden');
 
         emptyElement.innerHTML = `
-          <h2>
-            No services available yet
-          </h2>
+          <h2>No services available yet</h2>
 
           <p>
             StarRise members have not published
@@ -570,9 +541,7 @@
           '0 services';
 
         return;
-
       }
-
 
       const providerIds =
         [
@@ -584,55 +553,37 @@
           )
         ];
 
-
       let profiles = [];
 
-
-      if (providerIds.length) {
-
+      try {
         const profileResult =
           await supabaseClient
-            .from('Profiles')
-            .select(`
-              id,
-              display_name,
-              full_name,
-              name,
-              location
-            `)
-            .in(
-              'id',
-              providerIds
-            );
+            .rpc('get_public_members');
 
-        if (
-          !profileResult.error
-        ) {
-
+        if (!profileResult.error) {
           profiles =
             profileResult.data || [];
-
         }
-
+      } catch (profileError) {
+        console.warn(
+          'Profile lookup failed:',
+          profileError
+        );
       }
-
 
       const profileMap =
         new Map(
           profiles.map(
             profile => [
-              profile.id,
+              String(profile.id),
               profile
             ]
           )
         );
 
-
       let reviews = [];
 
-
       if (providerIds.length) {
-
         const reviewResult =
           await supabaseClient
             .from('service_reviews')
@@ -640,120 +591,93 @@
               seller_id,
               rating
             `)
-            .in(
-              'seller_id',
-              providerIds
-            );
+            .in('seller_id', providerIds);
 
-        if (
-          !reviewResult.error
-        ) {
-
+        if (!reviewResult.error) {
           reviews =
             reviewResult.data || [];
-
         }
-
       }
 
-
-      const ratingMap =
-        {};
-
+      const ratingMap = {};
 
       reviews.forEach(
-        function (review) {
-
+        review => {
           const sellerId =
-            review.seller_id;
+            String(review.seller_id);
 
-          if (
-            !ratingMap[sellerId]
-          ) {
-
+          if (!ratingMap[sellerId]) {
             ratingMap[sellerId] = {
               total: 0,
               count: 0
             };
-
           }
 
           ratingMap[sellerId].total +=
             Number(review.rating || 0);
 
           ratingMap[sellerId].count += 1;
-
         }
       );
 
-
       allServices =
         allServices.map(
-          function (service) {
-
-            const profile =
-              profileMap.get(
-                service.user_id
-              ) || null;
+          service => {
+            const sellerId =
+              String(service.user_id);
 
             const ratingData =
-              ratingMap[
-                service.user_id
-              ] || {
+              ratingMap[sellerId] || {
                 total: 0,
                 count: 0
               };
 
-            const average =
-              ratingData.count
-                ? ratingData.total /
-                  ratingData.count
-                : 0;
-
             return {
               ...service,
-              profile: profile,
-              averageRating: average,
+
+              profile:
+                profileMap.get(sellerId) ||
+                null,
+
+              averageRating:
+                ratingData.count
+                  ? ratingData.total /
+                    ratingData.count
+                  : 0,
+
               reviewCount:
                 ratingData.count
             };
-
           }
         );
 
-
       buildCategories();
 
-      statusElement.classList.add(
-        'hidden'
-      );
+      statusElement.classList.add('hidden');
+      servicesElement.classList.remove('hidden');
 
       renderServices();
-
     } catch (error) {
-
       console.error(
         'Services error:',
         error
       );
 
       statusElement.textContent =
-        'Unable to load services: ' +
-        error.message;
+        'Unable to load services. ' +
+        (
+          error.message ||
+          'Please try again.'
+        );
 
       statusElement.className =
         'status error';
 
-      resultsCount.textContent =
-        '';
-
+      resultsCount.textContent = '';
     }
-
   }
 
-
   function buildCategories() {
-
     const categories =
       [
         ...new Set(
@@ -767,26 +691,17 @@
             .filter(Boolean)
         )
       ].sort(
-        function (a, b) {
-          return a.localeCompare(b);
-        }
+        (a, b) =>
+          a.localeCompare(b)
       );
 
-
-    categorySelect.innerHTML = `
-      <option value="all">
-        All Categories
-      </option>
-    `;
-
+    categorySelect.innerHTML =
+      '<option value="all">All Categories</option>';
 
     categories.forEach(
-      function (category) {
-
+      category => {
         const option =
-          document.createElement(
-            'option'
-          );
+          document.createElement('option');
 
         option.value =
           category;
@@ -794,57 +709,26 @@
         option.textContent =
           category;
 
-        categorySelect.appendChild(
-          option
-        );
-
+        categorySelect.appendChild(option);
       }
     );
-
   }
-
-
-  function getProviderName(service) {
-
-    const profile =
-      service.profile;
-
-    if (!profile) {
-      return 'StarRise Member';
-    }
-
-    return (
-      profile.display_name ||
-      profile.full_name ||
-      profile.name ||
-      'StarRise Member'
-    );
-
-  }
-
 
   function renderServices() {
-
     const search =
-      normalize(
-        searchInput.value
-      );
+      normalize(searchInput.value);
 
-    const category =
+    const selectedCategory =
       categorySelect.value;
 
-    const sort =
+    const selectedSort =
       sortSelect.value;
-
 
     let filtered =
       allServices.filter(
-        function (service) {
-
+        service => {
           const provider =
-            getProviderName(
-              service
-            );
+            providerName(service);
 
           const location =
             service.profile
@@ -862,279 +746,210 @@
               .join(' ')
               .toLowerCase();
 
-
           const matchesSearch =
             !search ||
-            searchText.includes(
-              search
-            );
-
+            searchText.includes(search);
 
           const matchesCategory =
-            category === 'all' ||
+            selectedCategory === 'all' ||
             String(
               service.category || ''
-            ).trim() === category;
-
+            ).trim() === selectedCategory;
 
           return (
             matchesSearch &&
             matchesCategory
           );
-
         }
       );
 
-
     filtered.sort(
-      function (a, b) {
-
-        if (sort === 'price-low') {
-
+      (a, b) => {
+        if (selectedSort === 'price-low') {
           return (
             Number(a.price_cents || 0) -
             Number(b.price_cents || 0)
           );
-
         }
 
-        if (sort === 'price-high') {
-
+        if (selectedSort === 'price-high') {
           return (
             Number(b.price_cents || 0) -
             Number(a.price_cents || 0)
           );
-
         }
 
-        if (sort === 'rating') {
-
+        if (selectedSort === 'rating') {
           return (
             Number(b.averageRating || 0) -
             Number(a.averageRating || 0)
           );
-
         }
 
-        if (sort === 'title') {
-
-          return String(
-            a.title || ''
-          ).localeCompare(
-            String(b.title || '')
-          );
-
+        if (selectedSort === 'title') {
+          return String(a.title || '')
+            .localeCompare(
+              String(b.title || '')
+            );
         }
 
         return (
           new Date(b.created_at) -
           new Date(a.created_at)
         );
-
       }
     );
-
 
     resultsCount.textContent =
       filtered.length === 1
         ? '1 service'
-        : filtered.length +
-          ' services';
-
+        : filtered.length + ' services';
 
     if (!filtered.length) {
-
-      servicesElement.classList.add(
-        'hidden'
-      );
-
-      emptyElement.classList.remove(
-        'hidden'
-      );
-
+      servicesElement.classList.add('hidden');
+      emptyElement.classList.remove('hidden');
       return;
-
     }
 
-
-    emptyElement.classList.add(
-      'hidden'
-    );
-
-    servicesElement.classList.remove(
-      'hidden'
-    );
-
+    emptyElement.classList.add('hidden');
+    servicesElement.classList.remove('hidden');
 
     servicesElement.innerHTML =
-      filtered.map(
-        function (service) {
+      filtered
+        .map(
+          service => {
+            const provider =
+              providerName(service);
 
-          const provider =
-            getProviderName(
-              service
-            );
+            const location =
+              service.profile
+                ? service.profile.location || ''
+                : '';
 
-          const location =
-            service.profile
-              ? service.profile.location || ''
-              : '';
+            const rating =
+              Number(
+                service.averageRating || 0
+              );
 
-          const rating =
-            Number(
-              service.averageRating || 0
-            );
+            const reviewCount =
+              Number(
+                service.reviewCount || 0
+              );
 
-          const reviewCount =
-            Number(
-              service.reviewCount || 0
-            );
+            const category =
+              service.category
+                ? `
+                  <div class="category">
+                    ${escapeHtml(service.category)}
+                  </div>
+                `
+                : '';
 
-          const category =
-            service.category
-              ? `
-                <div class="category">
+            const ratingBlock =
+              reviewCount
+                ? `
+                  <div class="rating">
+                    <div class="rating-stars">
+                      ${stars(rating)}
+                    </div>
+
+                    <div>
+                      ${rating.toFixed(1)}
+                      ·
+                      ${reviewCount}
+                      ${
+                        reviewCount === 1
+                          ? 'review'
+                          : 'reviews'
+                      }
+                    </div>
+                  </div>
+                `
+                : `
+                  <div class="rating">
+                    <div class="rating-stars">
+                      ☆☆☆☆☆
+                    </div>
+
+                    <div>No reviews yet</div>
+                  </div>
+                `;
+
+            return `
+              <article class="service-card">
+                ${category}
+
+                <div class="service-title">
                   ${escapeHtml(
-                    service.category
+                    service.title ||
+                    'StarRise Service'
                   )}
                 </div>
-              `
-              : '';
 
-
-          const ratingBlock =
-            reviewCount
-              ? `
-                <div class="rating">
-
-                  <div class="rating-stars">
-                    ${stars(rating)}
-                  </div>
-
-                  <div class="rating-text">
-                    ${rating.toFixed(1)}
-                    ·
-                    ${reviewCount}
-                    ${
-                      reviewCount === 1
-                        ? 'review'
-                        : 'reviews'
-                    }
-                  </div>
-
-                </div>
-              `
-              : `
-                <div class="rating">
-
-                  <div class="rating-stars">
-                    ☆☆☆☆☆
-                  </div>
-
-                  <div class="rating-text">
-                    No reviews yet
-                  </div>
-
-                </div>
-              `;
-
-
-          return `
-            <article class="service-card">
-
-              ${category}
-
-              <div class="service-title">
-                ${escapeHtml(
-                  service.title ||
-                  'StarRise Service'
-                )}
-              </div>
-
-              <div class="description">
-                ${escapeHtml(
-                  service.description ||
-                  'No description provided.'
-                )}
-              </div>
-
-              <div class="price">
-                ${escapeHtml(
-                  money(
-                    service.price_cents
-                  )
-                )}
-              </div>
-
-              <div class="provider">
-
-                Provider:
-                <strong>
+                <div class="description">
                   ${escapeHtml(
-                    provider
+                    service.description ||
+                    'No description provided.'
                   )}
-                </strong>
+                </div>
 
-                ${
-                  location
-                    ? `
-                      <div class="location">
-                        ${escapeHtml(
-                          location
-                        )}
-                      </div>
-                    `
-                    : ''
-                }
+                <div class="price">
+                  ${escapeHtml(
+                    money(service.price_cents)
+                  )}
+                </div>
 
-              </div>
+                <div class="provider">
+                  Provider:
+                  <strong>
+                    ${escapeHtml(provider)}
+                  </strong>
 
-              ${ratingBlock}
+                  ${
+                    location
+                      ? `
+                        <div class="location">
+                          ${escapeHtml(location)}
+                        </div>
+                      `
+                      : ''
+                  }
+                </div>
 
-              <div class="service-actions">
+                ${ratingBlock}
 
-                <a
-                  class="service-button primary"
-                  href="service.html?id=${encodeURIComponent(
-                    service.id
-                  )}"
-                >
-                  View Service
-                </a>
-
-              </div>
-
-            </article>
-          `;
-
-        }
-      ).join('');
-
+                <div class="service-actions">
+                  <a
+                    class="button"
+                    href="service.html?id=${encodeURIComponent(service.id)}"
+                  >
+                    View Service
+                  </a>
+                </div>
+              </article>
+            `;
+          }
+        )
+        .join('');
   }
-
 
   searchInput.addEventListener(
     'input',
     renderServices
   );
 
-
   categorySelect.addEventListener(
     'change',
     renderServices
   );
-
 
   sortSelect.addEventListener(
     'change',
     renderServices
   );
 
-
   loadServices();
-
 })();
-
 </script>
 
 </body>
