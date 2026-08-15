@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seller Orders | StarRise</title>
+  <meta name="description" content="Manage incoming StarRise service orders from request through completion and payout.">
+  <style>
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:#080812;color:#fff;line-height:1.6}a{color:inherit;text-decoration:none}button{font:inherit;color:inherit}header{position:sticky;top:0;z-index:100;border-bottom:1px solid #ffffff18;background:rgba(8,8,18,.95);backdrop-filter:blur(12px)}.nav{width:min(1180px,calc(100% - 30px));min-height:72px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:18px}.logo{font-size:22px;font-weight:800}.nav-actions,.button-row,.badges,.filters{display:flex;align-items:center;flex-wrap:wrap;gap:10px}.nav-link,.button,.filter{padding:10px 16px;border:1px solid #ffffff25;border-radius:24px;background:#ffffff08;color:#ddd;cursor:pointer;font-weight:700}.nav-link:hover,.button:hover,.filter:hover,.filter.active{background:#fff;color:#080812;transform:translateY(-1px)}.button.primary{background:#fff;color:#080812}.button.danger{border-color:rgba(255,110,110,.45);color:#ffc0c0}.button:disabled{opacity:.48;cursor:not-allowed;transform:none}main{width:min(1180px,calc(100% - 30px));margin:34px auto 70px}.hero,.stat,.panel,.order-card{border:1px solid #ffffff18;background:#ffffff08}.hero{padding:34px;border-radius:24px;margin-bottom:20px}.eyebrow{color:#aaa;font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase}.hero h1{margin:7px 0 10px;font-size:clamp(38px,7vw,64px);line-height:1}.hero p{max-width:760px;margin:0;color:#aaa;font-size:17px}.status{margin-top:18px;padding:14px 16px;border-radius:14px;background:#ffffff08;color:#aaa}.status.success{background:rgba(50,180,100,.13);color:#baffca}.status.warning{background:rgba(220,160,50,.13);color:#ffe0a3}.status.error{background:rgba(220,60,60,.13);color:#ffb5b5}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:20px}.stat{padding:20px;border-radius:18px}.stat-label{display:block;color:#999;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.stat-value{display:block;margin-top:5px;font-size:28px;font-weight:900}.panel{padding:24px;border-radius:22px}.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px}.panel h2{margin:0;font-size:28px}.panel-description{margin:5px 0 20px;color:#999}.filters{margin-bottom:18px}.filter{padding:8px 13px;font-size:13px}.orders{display:grid;gap:15px}.order-card{padding:20px;border-radius:18px}.order-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.order-head h3{margin:0;font-size:21px}.order-price{font-size:22px;font-weight:900;white-space:nowrap}.meta{color:#999;font-size:13px}.badge{display:inline-block;padding:5px 10px;border-radius:20px;background:#ffffff10;color:#ddd;font-size:12px;text-transform:capitalize}.badge.good{background:rgba(50,180,100,.14);color:#baffca}.badge.waiting{background:rgba(220,160,50,.14);color:#ffe0a3}.badge.bad{background:rgba(220,60,60,.14);color:#ffb5b5}.badge.info{background:rgba(90,140,255,.15);color:#bfd2ff}.order-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}.detail{padding:11px;border-radius:12px;background:#00000022}.detail span{display:block;color:#888;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.detail strong{display:block;margin-top:3px;font-size:14px}.request{margin:14px 0;padding:14px;border-left:3px solid #ffffff35;border-radius:0 12px 12px 0;background:#00000020;color:#ddd}.request-label{display:block;margin-bottom:4px;color:#888;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.order-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:15px}.order-note{color:#aaa;font-size:13px}.empty{padding:45px 15px;text-align:center;color:#888}.hidden{display:none!important}.loading{opacity:.65;pointer-events:none}footer{padding:34px 15px;border-top:1px solid #ffffff18;text-align:center;color:#888}@media(max-width:850px){.order-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.nav{padding:14px 0;align-items:flex-start;flex-direction:column}.hero,.panel,.order-card{padding:21px}.panel-head,.order-head{flex-direction:column}.order-grid{grid-template-columns:1fr}.order-price{white-space:normal}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="logo" href="index.html">⭐ StarRise</a>
+    <div class="nav-actions">
+      <a class="nav-link" href="dashboard.html">Dashboard</a>
+      <a class="nav-link" href="vendor-dashboard.html">Vendor Dashboard</a>
+      <a class="nav-link" href="services.html">Services</a>
+      <button class="nav-link" id="signout" type="button">Sign Out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="eyebrow">Seller Workspace</div>
+    <h1>Service Orders</h1>
+    <p>Review customer requests, accept paid work, track services in progress, complete delivery, and monitor payout status.</p>
+    <div class="status" id="pageStatus" role="status" aria-live="polite">Loading your service orders...</div>
+  </section>
+
+  <section class="stats" aria-label="Service order summary">
+    <article class="stat"><span class="stat-label">Needs Action</span><span class="stat-value" id="needsActionCount">—</span></article>
+    <article class="stat"><span class="stat-label">In Progress</span><span class="stat-value" id="inProgressCount">—</span></article>
+    <article class="stat"><span class="stat-label">Completed</span><span class="stat-value" id="completedCount">—</span></article>
+    <article class="stat"><span class="stat-label">Completed Revenue</span><span class="stat-value" id="completedRevenue">—</span></article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div><h2>Customer Requests</h2><p class="panel-description">Only paid orders can move into active work or completion.</p></div>
+      <button class="button" id="refreshOrders" type="button">Refresh Orders</button>
+    </div>
+
+    <div class="filters" aria-label="Filter seller orders">
+      <button class="filter active" type="button" data-filter="active">Active</button>
+      <button class="filter" type="button" data-filter="pending">Needs Action</button>
+      <button class="filter" type="button" data-filter="in_progress">In Progress</button>
+      <button class="filter" type="button" data-filter="completed">Completed</button>
+      <button class="filter" type="button" data-filter="all">All</button>
+    </div>
+
+    <div class="orders" id="orders"><div class="empty">Loading orders...</div></div>
+  </section>
+</main>
+
+<footer>⭐ StarRise — Where Talent Rises.</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const starRiseSupabase = window.supabase.createClient(
+    "https://rcnikxotdalxtuvpmlvm.supabase.co",
+    "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+  );
+
+  const byId = id => document.getElementById(id);
+  let currentUser = null;
+  let orders = [];
+  let services = new Map();
+  let customers = new Map();
+  let currentFilter = "active";
+
+  function setStatus(message, type = "") {
+    const element = byId("pageStatus");
+    element.textContent = message;
+    element.className = "status" + (type ? " " + type : "");
+  }
+
+  function money(cents) {
+    return (Number(cents || 0) / 100).toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD"
+    });
+  }
+
+  function dateText(value) {
+    if (!value) return "Unknown date";
+    return new Date(value).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
+    });
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function label(value) {
+    return String(value || "pending").replaceAll("_", " ");
+  }
+
+  function badgeClass(value) {
+    const status = String(value || "pending").toLowerCase();
+    if (["paid", "completed", "accepted", "paid_out"].includes(status)) return "good";
+    if (["declined", "cancelled", "failed", "refunded"].includes(status)) return "bad";
+    if (status === "in_progress") return "info";
+    return "waiting";
+  }
+
+  function customerName(profile) {
+    if (!profile) return "StarRise customer";
+    return profile.display_name || profile.full_name || "StarRise customer";
+  }
+
+  function allowedByFilter(order) {
+    if (currentFilter === "all") return true;
+    if (currentFilter === "active") {
+      return ["pending", "accepted", "in_progress"].includes(order.status);
+    }
+    if (currentFilter === "pending") return order.status === "pending";
+    return order.status === currentFilter;
+  }
+
+  async function requireUser() {
+    const { data: { user }, error } = await starRiseSupabase.auth.getUser();
+
+    if (error || !user || user.is_anonymous) {
+      if (user && user.is_anonymous) await starRiseSupabase.auth.signOut();
+      window.location.href = "login.html";
+      return false;
+    }
+
+    currentUser = user;
+    return true;
+  }
+
+  async function loadOrders() {
+    setStatus("Loading your service orders...");
+    byId("orders").classList.add("loading");
+
+    const { data, error } = await starRiseSupabase
+      .from("service_orders")
+      .select("id,service_id,buyer_id,seller_id,amount_cents,provider_amount_cents,platform_fee_cents,request_message,status,payment_status,payout_status,created_at,updated_at")
+      .eq("seller_id", currentUser.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      byId("orders").classList.remove("loading");
+      byId("orders").innerHTML = '<div class="empty">Orders could not be loaded.</div>';
+      setStatus("Your seller orders could not be loaded. Please try again.", "error");
+      return;
+    }
+
+    orders = data || [];
+    await loadRelatedData();
+    renderStats();
+    renderOrders();
+    byId("orders").classList.remove("loading");
+
+    setStatus(
+      orders.length
+        ? "Seller orders are up to date."
+        : "No customer service orders yet.",
+      orders.length ? "success" : ""
+    );
+  }
+
+  async function loadRelatedData() {
+    const serviceIds = [
+      ...new Set(orders.map(order => order.service_id).filter(Boolean))
+    ];
+
+    const buyerIds = [
+      ...new Set(orders.map(order => order.buyer_id).filter(Boolean))
+    ];
+
+    const [serviceResult, profileResult] = await Promise.all([
+      serviceIds.length
+        ? starRiseSupabase
+            .from("star_rise_services")
+            .select("id,title,category,price_cents")
+            .in("id", serviceIds)
+        : Promise.resolve({ data: [], error: null }),
+
+      buyerIds.length
+        ? starRiseSupabase
+            .from("Profiles")
+            .select("id,display_name,full_name,avatar_url")
+            .in("id", buyerIds)
+        : Promise.resolve({ data: [], error: null })
+    ]);
+
+    if (serviceResult.error) console.error(serviceResult.error);
+    if (profileResult.error) console.error(profileResult.error);
+
+    services = new Map(
+      (serviceResult.data || []).map(service => [service.id, service])
+    );
+
+    customers = new Map(
+      (profileResult.data || []).map(profile => [profile.id, profile])
+    );
+  }
+
+  function renderStats() {
+    const needsAction = orders.filter(
+      order => order.status === "pending"
+    ).length;
+
+    const inProgress = orders.filter(
+      order => ["accepted", "in_progress"].includes(order.status)
+    ).length;
+
+    const completed = orders.filter(
+      order => order.status === "completed"
+    );
+
+    const completedTotal = completed
+      .filter(order => order.payment_status === "paid")
+      .reduce(
+        (sum, order) =>
+          sum + Number(order.provider_amount_cents || 0),
+        0
+      );
+
+    byId("needsActionCount").textContent = String(needsAction);
+    byId("inProgressCount").textContent = String(inProgress);
+    byId("completedCount").textContent = String(completed.length);
+    byId("completedRevenue").textContent = money(completedTotal);
+  }
+
+  function actionMarkup(order) {
+    const paid = order.payment_status === "paid";
+
+    if (order.status === "pending") {
+      if (paid) {
+        return '<button class="button primary" type="button" data-action="accepted" data-order-id="' +
+          escapeHtml(order.id) +
+          '">Accept Request</button><span class="order-note">Payment confirmed. Accept when you are ready to take the work.</span>';
+      }
+
+      return '<button class="button" type="button" disabled>Awaiting Payment</button><button class="button danger" type="button" data-action="declined" data-order-id="' +
+        escapeHtml(order.id) +
+        '">Decline Unpaid Request</button>';
+    }
+
+    if (order.status === "accepted") {
+      return paid
+        ? '<button class="button primary" type="button" data-action="in_progress" data-order-id="' +
+            escapeHtml(order.id) +
+            '">Start Service</button>'
+        : '<button class="button" type="button" disabled>Payment Required Before Starting</button>';
+    }
+
+    if (order.status === "in_progress") {
+      return paid
+        ? '<button class="button primary" type="button" data-action="completed" data-order-id="' +
+            escapeHtml(order.id) +
+            '">Complete Service &amp; Process Payout</button>'
+        : '<button class="button" type="button" disabled>Payment Required Before Completion</button>';
+    }
+
+    if (order.status === "completed") {
+      return '<span class="order-note">Service completed. Payout status: <strong>' +
+        escapeHtml(label(order.payout_status)) +
+        "</strong>.</span>";
+    }
+
+    return '<span class="order-note">No seller action is available for this order.</span>';
+  }
+
+  function renderOrders() {
+    const visible = orders.filter(allowedByFilter);
+
+    if (!visible.length) {
+      byId("orders").innerHTML =
+        '<div class="empty">No orders match this filter.</div>';
+      return;
+    }
+
+    byId("orders").innerHTML = visible.map(order => {
+      const service = services.get(order.service_id);
+      const customer = customers.get(order.buyer_id);
+      const title = service ? service.title : "StarRise service";
+      const orderNumber = String(order.id).slice(0, 8).toUpperCase();
+
+      const request =
+        String(order.request_message || "").trim() ||
+        "No customer instructions were included.";
+
+      return `
+        <article class="order-card" data-order-card="${escapeHtml(order.id)}">
+          <div class="order-head">
+            <div>
+              <h3>${escapeHtml(title)}</h3>
+              <div class="meta">
+                Order #${escapeHtml(orderNumber)} · ${dateText(order.created_at)}
+              </div>
+            </div>
+            <div class="order-price">${money(order.amount_cents)}</div>
+          </div>
+
+          <div class="badges">
+            <span class="badge ${badgeClass(order.status)}">
+              ${escapeHtml(label(order.status))}
+            </span>
+            <span class="badge ${badgeClass(order.payment_status)}">
+              Payment: ${escapeHtml(label(order.payment_status))}
+            </span>
+            <span class="badge ${badgeClass(order.payout_status)}">
+              Payout: ${escapeHtml(label(order.payout_status))}
+            </span>
+          </div>
+
+          <div class="order-grid">
+            <div class="detail">
+              <span>Customer</span>
+              <strong>${escapeHtml(customerName(customer))}</strong>
+            </div>
+            <div class="detail">
+              <span>Seller Share</span>
+              <strong>${money(order.provider_amount_cents)}</strong>
+            </div>
+            <div class="detail">
+              <span>Platform Fee</span>
+              <strong>${money(order.platform_fee_cents)}</strong>
+            </div>
+            <div class="detail">
+              <span>Last Updated</span>
+              <strong>${dateText(order.updated_at || order.created_at)}</strong>
+            </div>
+          </div>
+
+          <div class="request">
+            <span class="request-label">Customer Request</span>
+            ${escapeHtml(request)}
+          </div>
+
+          <div class="order-actions">
+            ${actionMarkup(order)}
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
+
+  async function updateStatus(order, newStatus) {
+    const { data, error } = await starRiseSupabase
+      .from("service_orders")
+      .update({
+        status: newStatus,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", order.id)
+      .eq("seller_id", currentUser.id)
+      .eq("status", order.status)
+      .select("id")
+      .single();
+
+    if (error) throw error;
+
+    if (!data) {
+      throw new Error(
+        "The order changed before this update was saved."
+      );
+    }
+  }
+
+  async function completeOrder(order) {
+    const { data, error } =
+      await starRiseSupabase.functions.invoke(
+        "complete-service-order",
+        {
+          body: {
+            order_id: order.id
+          }
+        }
+      );
+
+    if (error) throw error;
+    if (data && data.error) throw new Error(data.error);
+    return data;
+  }
+
+  async function handleOrderAction(button) {
+    const order = orders.find(
+      item => item.id === button.dataset.orderId
+    );
+
+    const action = button.dataset.action;
+
+    if (!order) {
+      throw new Error("Order not found.");
+    }
+
+    if (
+      action === "declined" &&
+      !window.confirm("Decline this unpaid service request?")
+    ) {
+      return;
+    }
+
+    if (
+      action === "completed" &&
+      !window.confirm(
+        "Confirm the service is complete and process the seller payout?"
+      )
+    ) {
+      return;
+    }
+
+    const card = button.closest("[data-order-card]");
+    const cardButtons = card
+      ? card.querySelectorAll("button")
+      : [button];
+
+    cardButtons.forEach(item => {
+      item.disabled = true;
+    });
+
+    setStatus(
+      action === "completed"
+        ? "Completing the service and checking payout eligibility..."
+        : "Updating the service order..."
+    );
+
+    try {
+      if (action === "completed") {
+        const result = await completeOrder(order);
+
+        setStatus(
+          result && result.message
+            ? result.message
+            : "Service completed.",
+          "success"
+        );
+      } else {
+        await updateStatus(order, action);
+
+        setStatus(
+          "Service order updated to " + label(action) + ".",
+          "success"
+        );
+      }
+
+      await loadOrders();
+    } catch (error) {
+      console.error(error);
+
+      cardButtons.forEach(item => {
+        item.disabled = false;
+      });
+
+      setStatus(
+        "Unable to update this order: " +
+          (error.message || "Unknown error"),
+        "error"
+      );
+    }
+  }
+
+  document.addEventListener("click", event => {
+    const filter = event.target.closest("[data-filter]");
+
+    if (filter) {
+      currentFilter = filter.dataset.filter;
+
+      document
+        .querySelectorAll("[data-filter]")
+        .forEach(item => {
+          item.classList.toggle("active", item === filter);
+        });
+
+      renderOrders();
+      return;
+    }
+
+    const action = event.target.closest(
+      "[data-action][data-order-id]"
+    );
+
+    if (action) {
+      handleOrderAction(action);
+    }
+  });
+
+  byId("refreshOrders").addEventListener("click", async () => {
+    const button = byId("refreshOrders");
+    button.disabled = true;
+    button.textContent = "Refreshing...";
+
+    await loadOrders();
+
+    button.di
