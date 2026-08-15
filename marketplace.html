@@ -1,620 +1,476 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StarRise Store</title>
 
-  <title>StarRise Store</title>
-
-  <meta
-    name="description"
-    content="Discover and purchase music, beats, artwork, videos, writing, and digital creations from StarRise talent."
-  >
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      background: #080812;
-      color: #fff;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    header {
-      padding: 20px 24px;
-      border-bottom: 1px solid #ffffff18;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 18px;
-    }
-
-    .logo {
-      font-size: 21px;
-      font-weight: bold;
-    }
-
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 18px;
-    }
-
-    nav a {
-      color: #bbb;
-      font-weight: bold;
-    }
-
-    nav a:hover {
-      color: #fff;
-    }
-
-    main {
-      width: min(1150px, calc(100% - 30px));
-      margin: 35px auto 60px;
-    }
-
-    .hero,
-    .panel {
-      padding: 28px;
-      margin-bottom: 20px;
-      border: 1px solid #ffffff18;
-      border-radius: 22px;
-      background: #ffffff08;
-    }
-
-    .eyebrow {
-      color: #999;
-      font-size: 12px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-    }
-
-    h1 {
-      margin: 6px 0 10px;
-      font-size: clamp(42px, 7vw, 68px);
-      line-height: 1.05;
-    }
-
-    .hero p {
-      max-width: 760px;
-      color: #aaa;
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .button {
-      display: inline-block;
-      padding: 12px 20px;
-      border: 0;
-      border-radius: 25px;
-      background: #fff;
-      color: #080812;
-      font: inherit;
-      font-weight: bold;
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .button.secondary {
-      border: 1px solid #ffffff30;
-      background: transparent;
-      color: #fff;
-    }
-
-    .button:hover {
-      opacity: .9;
-    }
-
-    .button:disabled {
-      opacity: .5;
-      cursor: wait;
-    }
-
-    .controls {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .control {
-      width: 100%;
-      padding: 13px 15px;
-      border: 1px solid #ffffff20;
-      border-radius: 12px;
-      background: #11111d;
-      color: #fff;
-      font: inherit;
-    }
-
-    .control:focus {
-      outline: none;
-      border-color: #ffffff55;
-    }
-
-    .results {
-      margin-bottom: 15px;
-      color: #aaa;
-    }
-
-    .status,
-    .empty {
-      padding: 20px;
-      border: 1px solid #ffffff18;
-      border-radius: 15px;
-      background: #ffffff08;
-      color: #aaa;
-      text-align: center;
-    }
-
-    .status.error,
-    .notice.error {
-      color: #ffb5b5;
-      background: rgba(200, 50, 50, .12);
-    }
-
-    .notice.warning {
-      color: #ffe3a3;
-      background: rgba(200, 150, 50, .12);
-    }
-
-    .notice.success {
-      color: #baffca;
-      background: rgba(50, 200, 100, .1);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-      gap: 18px;
-    }
-
-    .card {
-      min-height: 430px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      border: 1px solid #ffffff18;
-      border-radius: 20px;
-      background: #ffffff08;
-      transition: .15s;
-    }
-
-    .card:hover {
-      transform: translateY(-2px);
-      border-color: #ffffff35;
-    }
-
-    .cover {
-      height: 190px;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #17172a, #0d0d17);
-    }
-
-    .cover img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .cover-placeholder {
-      font-size: 55px;
-    }
-
-    .card-body {
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-
-    .tag {
-      display: inline-block;
-      width: max-content;
-      padding: 5px 10px;
-      margin-bottom: 10px;
-      border-radius: 20px;
-      background: #ffffff12;
-      color: #bbb;
-      font-size: 12px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-    }
-
-    .title {
-      font-size: 23px;
-      font-weight: bold;
-    }
-
-    .description {
-      margin: 8px 0 15px;
-      color: #aaa;
-      white-space: pre-wrap;
-      flex: 1;
-    }
-
-    .seller {
-      color: #999;
-      font-size: 14px;
-    }
-
-    .seller strong {
-      color: #fff;
-    }
-
-    .price {
-      margin: 12px 0;
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .card-actions {
-      display: flex;
-      gap: 9px;
-    }
-
-    .card-actions .button {
-      flex: 1;
-    }
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 0, 0, .8);
-    }
-
-    .modal-card {
-      width: min(620px, 100%);
-      max-height: 90vh;
-      overflow: auto;
-      padding: 26px;
-      border: 1px solid #ffffff25;
-      border-radius: 22px;
-      background: #10101c;
-    }
-
-    .close-button {
-      float: right;
-      width: 38px;
-      height: 38px;
-      border: 1px solid #ffffff25;
-      border-radius: 50%;
-      background: transparent;
-      color: #fff;
-      font-size: 20px;
-      cursor: pointer;
-    }
-
-    .modal-cover {
-      height: 250px;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      border-radius: 16px;
-      background: #17172a;
-    }
-
-    .modal-cover img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .modal-title {
-      font-size: 32px;
-      font-weight: bold;
-    }
-
-    .modal-description {
-      margin: 12px 0;
-      color: #bbb;
-      white-space: pre-wrap;
-    }
-
-    .modal-price {
-      margin: 12px 0;
-      font-size: 32px;
-      font-weight: bold;
-    }
-
-    .modal-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .notice {
-      padding: 14px;
-      margin-top: 15px;
-      border-radius: 12px;
-      background: #ffffff08;
-      color: #aaa;
-    }
-
-    footer {
-      padding: 30px 15px;
-      border-top: 1px solid #ffffff18;
-      color: #888;
-      text-align: center;
-    }
-
-    @media (max-width: 760px) {
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .controls {
-        grid-template-columns: 1fr;
-      }
-
-      .card-actions,
-      .modal-actions {
-        flex-direction: column;
-      }
-
-      .card-actions .button,
-      .modal-actions .button {
-        width: 100%;
-      }
-    }
-  </style>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080812;color:#fff;font-family:Arial,sans-serif;line-height:1.6}
+a{color:inherit;text-decoration:none}
+header{padding:20px 24px;border-bottom:1px solid #ffffff18;display:flex;justify-content:space-between;align-items:center;gap:18px}
+.logo{font-size:21px;font-weight:800}
+nav{display:flex;flex-wrap:wrap;gap:18px}
+nav a{color:#bbb;font-weight:700}
+nav a:hover{color:#fff}
+main{width:min(1150px,calc(100% - 30px));margin:35px auto 60px}
+.hero,.panel{padding:28px;margin-bottom:20px;border:1px solid #ffffff18;border-radius:22px;background:#ffffff08}
+.eyebrow{color:#999;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+h1{margin:6px 0 10px;font-size:clamp(42px,7vw,68px);line-height:1.05}
+.hero p{max-width:760px;color:#aaa}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.button{display:inline-block;padding:12px 20px;border:0;border-radius:25px;background:#fff;color:#080812;font:inherit;font-weight:700;text-align:center;cursor:pointer}
+.button.secondary{border:1px solid #ffffff30;background:transparent;color:#fff}
+.button:disabled{opacity:.5;cursor:wait}
+.controls{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:20px}
+.control{width:100%;padding:13px 15px;border:1px solid #ffffff20;border-radius:12px;background:#11111d;color:#fff;font:inherit}
+.results{margin-bottom:15px;color:#aaa}
+.status,.empty{padding:20px;border:1px solid #ffffff18;border-radius:15px;background:#ffffff08;color:#aaa;text-align:center}
+.error{color:#ffb5b5;background:#c832321f}
+.warning{color:#ffe3a3;background:#c896321f}
+.success{color:#baffca;background:#32c8641a}
+.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.card{overflow:hidden;display:flex;flex-direction:column;border:1px solid #ffffff18;border-radius:20px;background:#ffffff08}
+.cover{height:190px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(135deg,#17172a,#0d0d17);font-size:55px}
+.cover img{width:100%;height:100%;object-fit:cover}
+.card-body{padding:20px;display:flex;flex-direction:column;flex:1}
+.tag{width:max-content;padding:5px 10px;margin-bottom:10px;border-radius:20px;background:#ffffff12;color:#bbb;font-size:12px;text-transform:uppercase}
+.title{font-size:23px;font-weight:700}
+.description{margin:8px 0 15px;color:#aaa;white-space:pre-wrap;flex:1}
+.seller{color:#999;font-size:14px}
+.seller strong{color:#fff}
+.price{margin:12px 0;font-size:28px;font-weight:700}
+.card-actions{display:flex;gap:9px}
+.card-actions .button{flex:1}
+.modal{position:fixed;inset:0;z-index:1000;padding:20px;display:flex;align-items:center;justify-content:center;background:#000c}
+.modal-card{width:min(620px,100%);max-height:90vh;overflow:auto;padding:26px;border:1px solid #ffffff25;border-radius:22px;background:#10101c}
+.close{float:right;width:38px;height:38px;border:1px solid #ffffff25;border-radius:50%;background:transparent;color:#fff;font-size:20px;cursor:pointer}
+.modal-cover{height:240px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:18px;border-radius:16px;background:#17172a;font-size:55px}
+.modal-cover img{width:100%;height:100%;object-fit:cover}
+.modal-title{font-size:30px;font-weight:700}
+.modal-description{margin:12px 0;color:#bbb;white-space:pre-wrap}
+.modal-price{margin:12px 0;font-size:30px;font-weight:700}
+.notice{padding:14px;margin-top:15px;border-radius:12px;background:#ffffff08;color:#aaa}
+footer{padding:30px;border-top:1px solid #ffffff18;color:#888;text-align:center}
+@media(max-width:760px){
+header{flex-direction:column;align-items:flex-start}
+.controls{grid-template-columns:1fr}
+.card-actions,.modal .actions{flex-direction:column}
+.card-actions .button,.modal .button{width:100%}
+}
+</style>
 </head>
 
 <body>
 
 <header>
-  <a class="logo" href="index.html">
-    ⭐ StarRise
-  </a>
-
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="members.html">Members</a>
-    <a href="ecosystem.html">Ecosystem</a>
-    <a href="marketplace.html">Store</a>
-    <a href="services.html">Services</a>
-    <a href="opportunities.html">Opportunities</a>
-    <a href="dashboard.html">Dashboard</a>
-  </nav>
+<a class="logo" href="index.html">⭐ StarRise</a>
+<nav>
+<a href="index.html">Home</a>
+<a href="members.html">Members</a>
+<a href="ecosystem.html">Ecosystem</a>
+<a href="marketplace.html">Store</a>
+<a href="services.html">Services</a>
+<a href="opportunities.html">Opportunities</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
 </header>
 
 <main>
+<section class="hero">
+<div class="eyebrow">StarRise Talent Marketplace</div>
+<h1>The StarRise Store</h1>
+<p>Discover music, beats, vocals, artwork, videos, digital creations, and other work created by StarRise talent.</p>
 
-  <section class="hero">
-    <div class="eyebrow">
-      StarRise Talent Marketplace
-    </div>
+<div class="actions">
+<a class="button" href="create-marketplace-item.html">+ Sell Your Work</a>
+<a class="button secondary" href="dashboard.html">My Dashboard</a>
+</div>
+</section>
 
-    <h1>The StarRise Store</h1>
+<section class="panel">
+<div class="controls">
+<input id="search" class="control" type="search" placeholder="Search music, beats, creators...">
 
-    <p>
-      Discover music, beats, vocals, artwork, videos,
-      digital creations, and other work created by
-      StarRise talent.
-    </p>
+<select id="category" class="control">
+<option value="all">All Categories</option>
+</select>
 
-    <div class="hero-actions">
-      <a class="button" href="create-marketplace-item.html">
-        + Sell Your Work
-      </a>
-
-      <a class="button secondary" href="dashboard.html">
-        My Dashboard
-      </a>
-    </div>
-  </section>
-
-  <section class="panel">
-    <div class="controls">
-      <input
-        id="search"
-        class="control"
-        type="search"
-        placeholder="Search music, beats, creators..."
-        autocomplete="off"
-      >
-
-      <select id="category" class="control">
-        <option value="all">All Categories</option>
-      </select>
-
-      <select id="sort" class="control">
-        <option value="newest">Newest</option>
-        <option value="price-low">Price: Low to High</option>
-        <option value="price-high">Price: High to Low</option>
-        <option value="title">Name: A to Z</option>
-      </select>
-    </div>
-
-    <div class="results">
-      <span id="count">
-        Loading the Store...
-      </span>
-    </div>
-
-    <div id="status" class="status">
-      Loading StarRise Store...
-    </div>
-
-    <section id="storeGrid" class="grid hidden"></section>
-    <div id="empty" class="empty hidden"></div>
-  </section>
-
-</main>
-
-<div id="itemModal" class="modal hidden">
-  <div class="modal-card">
-    <button
-      id="closeModal"
-      class="close-button"
-      type="button"
-      aria-label="Close"
-    >
-      ×
-    </button>
-
-    <div id="modalCover" class="modal-cover"></div>
-    <div id="modalCategory" class="tag"></div>
-    <div id="modalTitle" class="modal-title"></div>
-    <div id="modalSeller" class="seller"></div>
-    <div id="modalDescription" class="modal-description"></div>
-    <div id="modalPrice" class="modal-price"></div>
-    <div id="modalStatus" class="notice hidden"></div>
-
-    <div class="modal-actions">
-      <button id="buyButton" class="button" type="button">
-        Buy Now
-      </button>
-
-      <button
-        id="continueButton"
-        class="button secondary"
-        type="button"
-      >
-        Continue Browsing
-      </button>
-    </div>
-  </div>
+<select id="sort" class="control">
+<option value="newest">Newest</option>
+<option value="price-low">Price: Low to High</option>
+<option value="price-high">Price: High to Low</option>
+<option value="title">Name: A to Z</option>
+</select>
 </div>
 
-<footer>
-  ⭐ StarRise — Where Talent Rises.
-</footer>
+<div id="count" class="results">Loading the Store...</div>
+<div id="status" class="status">Loading StarRise Store...</div>
+<section id="storeGrid" class="grid hidden"></section>
+<div id="empty" class="empty hidden"></div>
+</section>
+</main>
+
+<div id="modal" class="modal hidden">
+<div class="modal-card">
+<button id="closeModal" class="close" type="button">×</button>
+<div id="modalCover" class="modal-cover">⭐</div>
+<div id="modalCategory" class="tag"></div>
+<div id="modalTitle" class="modal-title"></div>
+<div id="modalSeller" class="seller"></div>
+<div id="modalDescription" class="modal-description"></div>
+<div id="modalPrice" class="modal-price"></div>
+<div id="modalStatus" class="notice hidden"></div>
+
+<div class="actions">
+<button id="buyButton" class="button" type="button">Buy Now</button>
+<button id="continueButton" class="button secondary" type="button">Continue Browsing</button>
+</div>
+</div>
+</div>
+
+<footer>⭐ StarRise — Where Talent Rises.</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-(function () {
-  'use strict';
+(function(){
+'use strict';
 
-  const SUPABASE_URL =
-    'https://rcnikxotdalxtuvpmlvm.supabase.co';
+const URL='https://rcnikxotdalxtuvpmlvm.supabase.co';
+const KEY='sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
-  const SUPABASE_KEY =
-    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
+const client=window.supabase.createClient(URL,KEY);
 
-  const supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
+const search=document.getElementById('search');
+const category=document.getElementById('category');
+const sort=document.getElementById('sort');
+const status=document.getElementById('status');
+const grid=document.getElementById('storeGrid');
+const empty=document.getElementById('empty');
+const count=document.getElementById('count');
+const modal=document.getElementById('modal');
+const modalCover=document.getElementById('modalCover');
+const modalCategory=document.getElementById('modalCategory');
+const modalTitle=document.getElementById('modalTitle');
+const modalSeller=document.getElementById('modalSeller');
+const modalDescription=document.getElementById('modalDescription');
+const modalPrice=document.getElementById('modalPrice');
+const modalStatus=document.getElementById('modalStatus');
+const buyButton=document.getElementById('buyButton');
 
-  const searchInput =
-    document.getElementById('search');
+let items=[];
+let selected=null;
 
-  const categorySelect =
-    document.getElementById('category');
+function escapeHtml(value){
+return String(value??'')
+.replace(/&/g,'&amp;')
+.replace(/</g,'&lt;')
+.replace(/>/g,'&gt;')
+.replace(/"/g,'&quot;')
+.replace(/'/g,'&#039;');
+}
 
-  const sortSelect =
-    document.getElementById('sort');
+function normalize(value){
+return String(value||'').trim().toLowerCase();
+}
 
-  const statusBox =
-    document.getElementById('status');
+function money(cents){
+return (Number(cents||0)/100).toLocaleString(
+'en-US',
+{style:'currency',currency:'USD'}
+);
+}
 
-  const storeGrid =
-    document.getElementById('storeGrid');
+function sellerName(item){
+const profile=item.profile||{};
+return profile.display_name||
+profile.full_name||
+profile.name||
+'StarRise Talent';
+}
 
-  const emptyBox =
-    document.getElementById('empty');
+function cover(item){
+if(item.cover_url){
+return '<img src="'+
+escapeHtml(item.cover_url)+
+'" alt="'+
+escapeHtml(item.title||'StarRise creation')+
+'">';
+}
+return '⭐';
+}
 
-  const countBox =
-    document.getElementById('count');
+async function loadStore(){
+try{
+const itemResult=await client
+.from('marketplace_items')
+.select('id,seller_id,title,description,category,price_cents,cover_url,status,created_at')
+.eq('status','active')
+.order('created_at',{ascending:false});
 
-  const itemModal =
-    document.getElementById('itemModal');
+if(itemResult.error)throw itemResult.error;
 
-  const modalCover =
-    document.getElementById('modalCover');
+items=itemResult.data||[];
 
-  const modalCategory =
-    document.getElementById('modalCategory');
+const profileResult=await client.rpc('get_public_members');
+const profiles=profileResult.error?[]:(profileResult.data||[]);
+const profileMap=new Map(
+profiles.map(profile=>[String(profile.id),profile])
+);
 
-  const modalTitle =
-    document.getElementById('modalTitle');
+items=items.map(item=>({
+...item,
+profile:profileMap.get(String(item.seller_id))||null
+}));
 
-  const modalSeller =
-    document.getElementById('modalSeller');
+buildCategories();
+status.classList.add('hidden');
+grid.classList.remove('hidden');
+render();
+}catch(error){
+console.error('Store error:',error);
+status.textContent='Unable to load the StarRise Store: '+
+(error.message||'Please try again.');
+status.className='status error';
+count.textContent='';
+}
+}
 
-  const modalDescription =
-    document.getElementById('modalDescription');
+function buildCategories(){
+const values=[...new Set(
+items.map(item=>String(item.category||'').trim()).filter(Boolean)
+)].sort();
 
-  const modalPrice =
-    document.getElementById('modalPrice');
+category.innerHTML='<option value="all">All Categories</option>';
 
-  const modalStatus =
-    document.getElementById('modalStatus');
+values.forEach(value=>{
+const option=document.createElement('option');
+option.value=value;
+option.textContent=value;
+category.appendChild(option);
+});
+}
 
-  const buyButton =
-    document.getElementById('buyButton');
+function results(){
+const query=normalize(search.value);
+const selectedCategory=category.value;
+const selectedSort=sort.value;
 
-  let items = [];
-  let selectedItem = null;
+const filtered=items.filter(item=>{
+const profile=item.profile||{};
+const text=[
+item.title,
+item.description,
+item.category,
+profile.display_name,
+profile.full_name,
+profile.name,
+profile.location
+].map(normalize).join(' ');
 
-  function escapeHtml(value) {
-    return String(value ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
+return (!query||text.includes(query))&&
+(selectedCategory==='all'||item.category===selectedCategory);
+});
 
-  function normalize(value) {
-    return String(value || '')
-      .trim()
-      .toLowerCase();
-  }
+filtered.sort((a,b)=>{
+if(selectedSort==='price-low'){
+return Number(a.price_cents||0)-Number(b.price_cents||0);
+}
+if(selectedSort==='price-high'){
+return Number(b.price_cents||0)-Number(a.price_cents||0);
+}
+if(selectedSort==='title'){
+return String(a.title||'').localeCompare(String(b.title||''));
+}
+return new Date(b.created_at)-new Date(a.created_at);
+});
 
-  function money(cents) {
-    return (
-      Number(cents || 0) / 100
-    ).toLocaleString(
-      'en-US',
-      {
-        style: 'currency',
-        currency: 'USD'
-      }
-    );
-  }
+return filtered;
+}
 
-  function sellerName(item) {
-    const profile =
-      item.profile || {};
+function render(){
+const visible=results();
 
-    return (
-      profile.display_name ||
-      profile.full_name
+count.textContent=visible.length+
+' item'+
+(visible.length===1?'':'s');
+
+if(!visible.length){
+grid.innerHTML='';
+empty.textContent=items.length
+?'No Store items match your search.'
+:'The StarRise Store is ready for talent. No items have been posted yet.';
+empty.classList.remove('hidden');
+return;
+}
+
+empty.classList.add('hidden');
+
+grid.innerHTML=visible.map(item=>`
+<article class="card">
+<div class="cover">${cover(item)}</div>
+<div class="card-body">
+${item.category?`<span class="tag">${escapeHtml(item.category)}</span>`:''}
+<div class="title">${escapeHtml(item.title||'StarRise Creation')}</div>
+<div class="description">${escapeHtml(item.description||'No description provided.')}</div>
+<div class="seller">Created by <strong>${escapeHtml(sellerName(item))}</strong></div>
+<div class="price">${money(item.price_cents)}</div>
+<div class="card-actions">
+<button class="button" type="button" data-view="${escapeHtml(item.id)}">View</button>
+<button class="button secondary" type="button" data-buy="${escapeHtml(item.id)}">Buy Now</button>
+</div>
+</div>
+</article>
+`).join('');
+}
+
+function openItem(item){
+selected=item;
+modalCover.innerHTML=cover(item);
+modalCategory.textContent=item.category||'StarRise Creation';
+modalTitle.textContent=item.title||'StarRise Creation';
+modalSeller.innerHTML='Created by <strong>'+
+escapeHtml(sellerName(item))+
+'</strong>';
+modalDescription.textContent=item.description||'No description provided.';
+modalPrice.textContent=money(item.price_cents);
+modalStatus.classList.add('hidden');
+buyButton.disabled=false;
+buyButton.textContent='Buy Now';
+modal.classList.remove('hidden');
+}
+
+function closeItem(){
+modal.classList.add('hidden');
+selected=null;
+}
+
+async function purchase(){
+if(!selected)return;
+
+try{
+buyButton.disabled=true;
+buyButton.textContent='Preparing Checkout...';
+modalStatus.className='notice';
+modalStatus.textContent='Checking your StarRise account...';
+modalStatus.classList.remove('hidden');
+
+const userResult=await client.auth.getUser();
+if(userResult.error)throw userResult.error;
+
+const user=userResult.data.user;
+
+if(!user){
+modalStatus.className='notice warning';
+modalStatus.textContent='Please sign in before purchasing.';
+buyButton.disabled=false;
+buyButton.textContent='Sign In to Buy';
+buyButton.onclick=()=>{
+location.href='login.html?redirect='+
+encodeURIComponent(location.href);
+};
+return;
+}
+
+if(String(selected.seller_id)===String(user.id)){
+throw new Error('You cannot purchase your own Store item.');
+}
+
+const sessionResult=await client.auth.getSession();
+if(sessionResult.error)throw sessionResult.error;
+
+const session=sessionResult.data.session;
+if(!session)throw new Error('Your login session expired.');
+
+modalStatus.textContent='Creating secure Stripe checkout...';
+
+const response=await fetch(
+URL+'/functions/v1/create-marketplace-checkout',
+{
+method:'POST',
+headers:{
+Authorization:'Bearer '+session.access_token,
+apikey:KEY,
+'Content-Type':'application/json'
+},
+body:JSON.stringify({
+item_id:selected.id,
+buyer_id:user.id
+})
+}
+);
+
+const data=await response.json().catch(()=>null);
+
+if(!response.ok||!data){
+throw new Error(
+data?.error||
+data?.message||
+'Unable to create checkout.'
+);
+}
+
+const checkoutUrl=data.url||data.checkout_url;
+
+if(checkoutUrl){
+location.assign(checkoutUrl);
+return;
+}
+
+if(data.session_id){
+location.assign(
+URL+
+'/functions/v1/stripe-redirect?session_id='+
+encodeURIComponent(data.session_id)
+);
+return;
+}
+
+throw new Error('Checkout did not return a Stripe URL.');
+}catch(error){
+console.error('Checkout error:',error);
+modalStatus.className='notice error';
+modalStatus.textContent=error.message||'Unable to start checkout.';
+buyButton.disabled=false;
+buyButton.textContent='Buy Now';
+}
+}
+
+search.addEventListener('input',render);
+category.addEventListener('change',render);
+sort.addEventListener('change',render);
+
+grid.addEventListener('click',event=>{
+const view=event.target.closest('[data-view]');
+const buy=event.target.closest('[data-buy]');
+const id=view?.dataset.view||buy?.dataset.buy;
+if(!id)return;
+
+const item=items.find(value=>String(value.id)===String(id));
+if(!item)return;
+
+openItem(item);
+if(buy)purchase();
+});
+
+document.getElementById('closeModal').addEventListener('click',closeItem);
+document.getElementById('continueButton').addEventListener('click',closeItem);
+buyButton.addEventListener('click',purchase);
+
+modal.addEventListener('click',event=>{
+if(event.target===modal)closeItem();
+});
+
+document.addEventListener('keydown',event=>{
+if(event.key==='Escape')closeItem();
+});
+
+loadStore();
+})();
+</script>
+
+</body>
+</html>
