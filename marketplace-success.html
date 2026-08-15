@@ -178,7 +178,7 @@ Download Purchase
 
 <p class="small">
 The secure download link expires after a limited time.
-You can return to your StarRise account for a new link.
+You can return to My Purchases for a new link.
 </p>
 </div>
 
@@ -188,13 +188,19 @@ Checkout reference:<br>
 </div>
 
 <div class="buttons">
-<a class="button primary" href="dashboard.html">
-View My Dashboard
+
+<a class="button primary" href="purchases.html">
+My Purchases
+</a>
+
+<a class="button secondary" href="dashboard.html">
+My Dashboard
 </a>
 
 <a class="button secondary" href="marketplace.html">
 Back to Store
 </a>
+
 </div>
 
 </main>
@@ -250,6 +256,7 @@ let downloadUrl=null;
 
 function showStatus(text,type){
 statusBox.textContent=text;
+
 statusBox.className=
 'status '+(type||'');
 }
@@ -294,7 +301,7 @@ return session;
 async function finalizePurchase(){
 if(!sessionId){
 showStatus(
-'The Stripe checkout reference is missing. Return to your dashboard or contact StarRise support.',
+'The Stripe checkout reference is missing. Return to My Purchases or contact StarRise support.',
 'error'
 );
 
@@ -367,9 +374,7 @@ errorMessage
 const data=
 result.data||{};
 
-if(
-data.paid===false
-){
+if(data.paid===false){
 showStatus(
 data.message||
 'Stripe has not confirmed the payment yet. Refresh this page in a moment.',
@@ -417,7 +422,7 @@ downloadButton.textContent=
 'Preparing Download...';
 
 showStatus(
-'Payment confirmed, but the secure download is still being prepared. Open your dashboard shortly.',
+'Payment confirmed, but the secure download is still being prepared. Open My Purchases shortly.',
 'warning'
 );
 }
