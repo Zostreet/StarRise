@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Contact &amp; Support | StarRise</title>
+  <meta name="description" content="Get secure StarRise help with accounts, orders, payments, refunds, payouts, safety, and technical problems.">
+  <style>
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:#080812;color:#fff;line-height:1.6}a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit;color:inherit}header{position:sticky;top:0;z-index:100;border-bottom:1px solid #ffffff18;background:rgba(8,8,18,.95);backdrop-filter:blur(12px)}.nav{width:min(1120px,calc(100% - 30px));min-height:72px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:18px}.logo{font-size:22px;font-weight:900}.nav-links,.footer-links,.actions,.badges{display:flex;align-items:center;flex-wrap:wrap;gap:12px}.nav-links a{color:#bbb;font-weight:700}.nav-links a:hover,.footer-links a:hover{color:#fff}main{width:min(1120px,calc(100% - 30px));margin:38px auto 70px}.hero,.card,.request{border:1px solid #ffffff18;background:#ffffff08}.hero{padding:36px;border-radius:25px;margin-bottom:18px}.eyebrow{color:#aaa;font-size:12px;font-weight:900;letter-spacing:3px;text-transform:uppercase}.hero h1{margin:8px 0 10px;font-size:clamp(40px,8vw,68px);line-height:1}.hero p{max-width:780px;margin:0;color:#aaa;font-size:17px}.status{margin-top:18px;padding:13px 15px;border-radius:14px;background:#ffffff08;color:#aaa}.status.success{background:rgba(50,180,100,.14);color:#baffca}.status.error{background:rgba(220,60,60,.14);color:#ffb5b5}.quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:18px}.quick{padding:20px;border:1px solid #ffffff18;border-radius:18px;background:#ffffff08}.quick:hover{background:#ffffff10;border-color:#ffffff35}.quick strong{display:block;margin-bottom:5px}.quick span{color:#aaa;font-size:13px}.layout{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}.card{padding:26px;border-radius:23px;min-width:0}.card h2{margin:0 0 5px;font-size:29px}.muted{margin:0 0 20px;color:#999}.field{margin-bottom:16px}.field label{display:block;margin-bottom:7px;font-weight:800}.field input,.field select,.field textarea{width:100%;padding:12px 14px;border:1px solid #ffffff25;border-radius:13px;background:#05050d;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:#ffffff80}.field textarea{min-height:160px;resize:vertical}.help{margin-top:5px;color:#888;font-size:12px}.button{display:inline-block;padding:11px 18px;border:1px solid #ffffff25;border-radius:25px;background:#ffffff08;color:#fff;cursor:pointer;font-weight:900}.button.primary{background:#fff;color:#080812}.button:disabled{opacity:.5;cursor:not-allowed}.auth-box{padding:22px;border-radius:16px;background:#ffffff08}.request-list{display:grid;gap:12px}.request{padding:17px;border-radius:16px}.request-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.request h3{margin:0;font-size:17px}.meta{color:#999;font-size:12px}.request-message{margin:10px 0;color:#ccc;white-space:pre-wrap}.badge{display:inline-block;padding:5px 9px;border-radius:18px;background:#ffffff10;color:#ddd;font-size:11px;font-weight:800;text-transform:capitalize}.badge.open{background:rgba(220,160,50,.14);color:#ffe0a3}.badge.in_progress{background:rgba(90,140,255,.15);color:#bfd2ff}.badge.resolved{background:rgba(50,180,100,.14);color:#baffca}.badge.closed{color:#aaa}.empty{padding:38px 12px;text-align:center;color:#888}.safety{margin-top:18px;padding:16px;border-left:4px solid #ff6262;border-radius:12px;background:rgba(220,60,60,.1);color:#ffc0c0}footer{padding:32px 15px;border-top:1px solid #ffffff18;color:#888}.footer-inner{width:min(1120px,calc(100% - 30px));margin:auto;display:flex;align-items:center;justify-content:space-between;gap:18px}.footer-links a{font-size:13px}@media(max-width:900px){.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:1fr}}@media(max-width:650px){.nav,.footer-inner{padding:14px 0;align-items:flex-start;flex-direction:column}.hero,.card{padding:22px}.quick-grid{grid-template-columns:1fr}.request-head{flex-direction:column}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="logo" href="index.html">⭐ StarRise</a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="dashboard.html">Dashboard</a><a href="purchases.html">Purchases</a><a href="transactions.html">Transactions</a><a href="refund-policy.html">Refund Policy</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="eyebrow">Member Help</div>
+    <h1>Contact &amp; Support</h1>
+    <p>Send a secure request for help with your account, an order, payment, refund, payout, safety concern, or technical problem.</p>
+    <div class="status" id="pageStatus" role="status" aria-live="polite">Checking your StarRise account...</div>
+  </section>
+
+  <section class="quick-grid" aria-label="Quick help links">
+    <a class="quick" href="dashboard.html"><strong>Account &amp; Profile</strong><span>Manage your profile, roles, services, and notifications.</span></a>
+    <a class="quick" href="purchases.html"><strong>Orders &amp; Refunds</strong><span>Review purchases, deliveries, cancellations, and refund status.</span></a>
+    <a class="quick" href="transactions.html"><strong>Payments &amp; Receipts</strong><span>Find payment references, earnings, support, and printable receipts.</span></a>
+    <a class="quick" href="seller-orders.html"><strong>Seller Help</strong><span>Manage service delivery, completion, and payout progress.</span></a>
+  </section>
+
+  <div class="layout">
+    <section class="card">
+      <h2>Submit a request</h2>
+      <p class="muted">Requests are securely connected to your signed-in StarRise account.</p>
+
+      <div class="auth-box" id="authBox">
+        Please sign in before submitting a secure support request.
+        <div class="actions"><a class="button primary" href="login.html">Sign In</a><a class="button" href="register.html">Create Account</a></div>
+      </div>
+
+      <form id="supportForm" hidden>
+        <div class="field">
+          <label for="category">What do you need help with?</label>
+          <select id="category" required>
+            <option value="account">Account &amp; Privacy</option>
+            <option value="payments">Payments</option>
+            <option value="orders">Orders &amp; Delivery</option>
+            <option value="refunds">Refunds</option>
+            <option value="payouts">Seller Payouts</option>
+            <option value="safety">Safety Concern</option>
+            <option value="technical">Technical Problem</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="subject">Subject</label>
+          <input id="subject" type="text" minlength="5" maxlength="160" required placeholder="Briefly describe the issue">
+        </div>
+
+        <div class="field">
+          <label for="orderReference">Order or transaction reference <span class="meta">(optional)</span></label>
+          <input id="orderReference" type="text" maxlength="120" placeholder="Paste the reference from Purchases or Transactions">
+        </div>
+
+        <div class="field">
+          <label for="message">Details</label>
+          <textarea id="message" minlength="10" maxlength="4000" required placeholder="Tell us what happened, what you expected, and any steps you already tried."></textarea>
+          <div class="help">Do not include passwords, complete payment-card numbers, government IDs, or other unnecessary sensitive information.</div>
+        </div>
+
+        <button class="button primary" id="submitButton" type="submit">Send Secure Request</button>
+        <p class="help">Submitting a request is subject to the <a href="terms.html"><u>Terms</u></a> and <a href="privacy.html"><u>Privacy Policy</u></a>.</p>
+      </form>
+
+      <div class="safety"><strong>Emergency notice:</strong> StarRise support is not an emergency service. If someone is in immediate danger, contact local emergency services.</div>
+    </section>
+
+    <section class="card">
+      <h2>Your requests</h2>
+      <p class="muted">Track recent requests and their current status.</p>
+      <div class="request-list" id="requestList"><div class="empty">Sign in to view support history.</div></div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <span>⭐ StarRise — Where Talent Rises.</span>
+    <nav class="footer-links" aria-label="Legal navigation">
+      <a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="refund-policy.html">Refunds</a><a href="support.html">Contact &amp; Support</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const starRiseSupabase = window.supabase.createClient(
+    "https://rcnikxotdalxtuvpmlvm.supabase.co",
+    "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+  );
+
+  const byId = id => document.getElementById(id);
+  let currentUser = null;
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function label(value) {
+    return String(value || "unknown").replaceAll("_", " ");
+  }
+
+  function dateText(value) {
+    if (!value) return "Unknown date";
+    return new Date(value).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+  }
+
+  function setStatus(message, type = "") {
+    const element = byId("pageStatus");
+    element.textContent = message;
+    element.className = "status" + (type ? " " + type : "");
+  }
+
+  async function loadRequests() {
+    const { data, error } = await starRiseSupabase
+      .from("support_requests")
+      .select("id,category,subject,message,order_reference,status,created_at,updated_at")
+      .eq("user_id", currentUser.id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (error) throw error;
+    renderRequests(data || []);
+  }
+
+  function renderRequests(requests) {
+    if (!requests.length) {
+      byId("requestList").innerHTML = '<div class="empty">You have not submitted any support requests.</div>';
+      return;
+    }
+
+    byId("requestList").innerHTML = requests.map(request => `
+      <article class="request">
+        <div class="request-head">
+          <div><h3>${escapeHtml(request.subject)}</h3><div class="meta">${escapeHtml(label(request.category))} · Request #${escapeHtml(String(request.id).slice(0, 8).toUpperCase())}</div></div>
+          <span class="badge ${escapeHtml(request.status)}">${escapeHtml(label(request.status))}</span>
+        </div>
+        <div class="request-message">${escapeHtml(request.message)}</div>
+        ${request.order_reference ? '<div class="meta">Reference: ' + escapeHtml(request.order_reference) + '</div>' : ''}
+        <div class="meta">Submitted ${escapeHtml(dateText(request.created_at))}${request.updated_at !== request.created_at ? ' · Updated ' + escapeHtml(dateText(request.updated_at)) : ''}</div>
+      </article>
+    `).join("");
+  }
+
+  byId("supportForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!currentUser) return;
+
+    const button = byId("submitButton");
+    button.disabled = true;
+    button.textContent = "Sending...";
+
+    try {
+      const category = byId("category").value;
+      const subject = byId("subject").value.trim();
+      const orderReference = byId("orderReference").value.trim();
+      const message = byId("message").value.trim();
+
+      const { error } = await starRiseSupabase.from("support_requests").insert({
+        user_id: currentUser.id,
+        category,
+        subject,
+        order_reference: orderReference || null,
+        message
+      });
+
+      if (error) throw error;
+      event.target.reset();
+      setStatus("Your secure support request was sent. The platform owner was notified.", "success");
+      await loadRequests();
+    } catch (error) {
+      console.error(error);
+      setStatus(error.message || "Unable to send your support request.", "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = "Send Secure Request";
+    }
+  });
+
+  (async function start() {
+    const { data: { user }, error } = await starRiseSupabase.auth.getUser();
+    if (error || !user || user.is_anonymous) {
+      byId("authBox").hidden = false;
+      byId("supportForm").hidden = true;
+      setStatus("Sign in to submit and track a secure support request.");
+      return;
+    }
+
+    currentUser = user;
+    byId("authBox").hidden = true;
+    byId("supportForm").hidden = false;
+    setStatus("Secure support is ready for your StarRise account.", "success");
+
+    try {
+      await loadRequests();
+    } catch (requestError) {
+      console.error(requestError);
+      byId("requestList").innerHTML = '<div class="empty">Support history could not be loaded.</div>';
+      setStatus(requestError.message || "Unable to load support history.", "error");
+    }
+  })();
+</script>
+</body>
+</html>
