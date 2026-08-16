@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Transactions & Receipts | StarRise</title>
+  <meta name="description" content="Review StarRise purchases, support, seller earnings, payouts, refunds, and printable receipts.">
+  <style>
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:#080812;color:#fff;line-height:1.55}a{color:inherit;text-decoration:none}button,input{font:inherit}button{color:inherit}header{position:sticky;top:0;z-index:100;border-bottom:1px solid #ffffff18;background:rgba(8,8,18,.94);backdrop-filter:blur(12px)}.nav{width:min(1180px,calc(100% - 30px));min-height:72px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:18px}.logo{font-size:22px;font-weight:900}.nav-actions,.filters,.actions,.badges{display:flex;align-items:center;flex-wrap:wrap;gap:9px}.nav-link,.button,.filter{padding:9px 15px;border:1px solid #ffffff25;border-radius:24px;background:#ffffff08;color:#ddd;cursor:pointer;font-weight:800}.nav-link:hover,.button:hover,.filter:hover,.filter.active{background:#fff;color:#080812}.button.primary{background:#fff;color:#080812}.button:disabled{opacity:.5;cursor:not-allowed}main{width:min(1180px,calc(100% - 30px));margin:34px auto 70px}.hero,.stat,.panel,.transaction{border:1px solid #ffffff18;background:#ffffff08}.hero{padding:34px;border-radius:24px;margin-bottom:18px}.eyebrow{color:#aaa;font-size:12px;font-weight:900;letter-spacing:3px;text-transform:uppercase}.hero h1{margin:7px 0 10px;font-size:clamp(38px,7vw,64px);line-height:1}.hero p{max-width:780px;margin:0;color:#aaa;font-size:17px}.status{margin-top:18px;padding:13px 15px;border-radius:14px;background:#ffffff08;color:#aaa}.status.success{background:rgba(50,180,100,.13);color:#baffca}.status.error{background:rgba(220,60,60,.13);color:#ffb5b5}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:18px}.stat{padding:20px;border-radius:18px}.stat span{display:block;color:#999;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.stat strong{display:block;margin-top:5px;font-size:27px}.panel{padding:24px;border-radius:22px}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}.panel h2{margin:0;font-size:29px}.muted{margin:4px 0 0;color:#999}.toolbar{display:grid;grid-template-columns:1fr auto;gap:12px;margin-bottom:18px}.search{width:100%;padding:12px 15px;border:1px solid #ffffff22;border-radius:14px;background:#00000035;color:#fff;outline:none}.search:focus{border-color:#ffffff66}.filter{padding:8px 13px;font-size:13px}.transactions{display:grid;gap:13px}.transaction{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;padding:19px;border-radius:17px}.transaction h3{margin:0 0 3px;font-size:19px}.transaction-meta{color:#999;font-size:13px}.transaction-detail{margin-top:10px;color:#ccc}.amount{text-align:right;font-size:22px;font-weight:900;white-space:nowrap}.amount.incoming{color:#baffca}.amount.outgoing{color:#fff}.badge{display:inline-block;padding:5px 9px;border-radius:18px;background:#ffffff10;color:#ddd;font-size:11px;font-weight:800;text-transform:capitalize}.badge.good{background:rgba(50,180,100,.14);color:#baffca}.badge.waiting{background:rgba(220,160,50,.14);color:#ffe0a3}.badge.bad{background:rgba(220,60,60,.14);color:#ffb5b5}.badge.info{background:rgba(90,140,255,.15);color:#bfd2ff}.actions{margin-top:13px}.empty{padding:45px 15px;text-align:center;color:#888}.receipt-overlay{position:fixed;inset:0;z-index:500;display:none;align-items:flex-start;justify-content:center;padding:28px 15px;overflow:auto;background:rgba(0,0,0,.86)}.receipt-overlay.open{display:flex}.receipt{width:min(680px,100%);padding:34px;border-radius:22px;background:#fff;color:#111;box-shadow:0 24px 80px #000}.receipt-head{display:flex;justify-content:space-between;gap:20px;padding-bottom:20px;border-bottom:2px solid #111}.receipt-brand{font-size:25px;font-weight:950}.receipt-title{text-align:right}.receipt-title strong{display:block;font-size:22px}.receipt-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin:24px 0}.receipt-line{padding:12px;border-radius:10px;background:#f3f3f5}.receipt-line span{display:block;color:#666;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.receipt-line strong{display:block;margin-top:3px;overflow-wrap:anywhere}.receipt-total{display:flex;align-items:center;justify-content:space-between;padding:18px 0;border-top:2px solid #111;border-bottom:2px solid #111;font-size:24px;font-weight:950}.receipt-note{margin:20px 0;color:#555;font-size:13px}.receipt-actions{display:flex;justify-content:flex-end;gap:10px}.receipt .button{border-color:#222;background:#fff;color:#111}.receipt .button.primary{background:#111;color:#fff}footer{padding:34px 15px;border-top:1px solid #ffffff18;text-align:center;color:#888}@media(max-width:850px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.nav{padding:14px 0;align-items:flex-start;flex-direction:column}.hero,.panel{padding:21px}.panel-head,.transaction{grid-template-columns:1fr}.panel-head{display:grid}.toolbar{grid-template-columns:1fr}.amount{text-align:left}.receipt{padding:23px}.receipt-grid{grid-template-columns:1fr}.receipt-head{display:block}.receipt-title{margin-top:14px;text-align:left}}@media print{body>*:not(.receipt-overlay){display:none!important}.receipt-overlay{position:static;display:block!important;padding:0;background:#fff}.receipt{width:100%;padding:24px;border-radius:0;box-shadow:none}.receipt-actions{display:none!important}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="logo" href="index.html">⭐ StarRise</a>
+    <nav class="nav-actions" aria-label="Account navigation">
+      <a class="nav-link" href="dashboard.html">Dashboard</a>
+      <a class="nav-link" href="marketplace.html">Store</a>
+      <a class="nav-link" href="services.html">Services</a>
+      <a class="nav-link" href="seller-orders.html">Seller Orders</a>
+      <button class="nav-link" id="signout" type="button">Sign Out</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="eyebrow">Member Account</div>
+    <h1>Transactions &amp; Receipts</h1>
+    <p>Track service payments, marketplace purchases, Talent Fund support, seller earnings, payouts, and refunds from one place.</p>
+    <div class="status" id="pageStatus" role="status" aria-live="polite">Loading your StarRise transactions...</div>
+  </section>
+
+  <section class="stats" aria-label="Transaction summary">
+    <article class="stat"><span>Total Spent</span><strong id="totalSpent">—</strong></article>
+    <article class="stat"><span>Refunded</span><strong id="totalRefunded">—</strong></article>
+    <article class="stat"><span>Earnings</span><strong id="totalEarned">—</strong></article>
+    <article class="stat"><span>Pending Earnings</span><strong id="pendingEarnings">—</strong></article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div><h2>Account Activity</h2><p class="muted">Receipts are available for paid purchases and support transactions.</p></div>
+      <button class="button" id="refresh" type="button">Refresh</button>
+    </div>
+
+    <div class="toolbar">
+      <input class="search" id="search" type="search" placeholder="Search transactions, titles, or references..." aria-label="Search transactions">
+      <div class="filters" aria-label="Filter transactions">
+        <button class="filter active" type="button" data-filter="all">All</button>
+        <button class="filter" type="button" data-filter="purchases">Purchases</button>
+        <button class="filter" type="button" data-filter="earnings">Earnings</button>
+        <button class="filter" type="button" data-filter="refunds">Refunds</button>
+      </div>
+    </div>
+
+    <div class="transactions" id="transactions"><div class="empty">Loading transactions...</div></div>
+  </section>
+</main>
+
+<div class="receipt-overlay" id="receiptOverlay" role="dialog" aria-modal="true" aria-labelledby="receiptHeading">
+  <article class="receipt" id="receipt"></article>
+</div>
+
+<footer>⭐ StarRise — Where Talent Rises.</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const starRiseSupabase = window.supabase.createClient(
+    "https://rcnikxotdalxtuvpmlvm.supabase.co",
+    "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+  );
+
+  const byId = id => document.getElementById(id);
+  let currentUser = null;
+  let accountName = "StarRise Member";
+  let allTransactions = [];
+  let currentFilter = "all";
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function money(cents) {
+    return (Number(cents || 0) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" });
+  }
+
+  function dateText(value) {
+    if (!value) return "Unknown date";
+    return new Date(value).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+  }
+
+  function statusLabel(value) {
+    return String(value || "unknown").replaceAll("_", " ");
+  }
+
+  function shortReference(value) {
+    const text = String(value || "");
+    if (!text) return "Not available";
+    return text.length > 22 ? text.slice(0, 10) + "…" + text.slice(-8) : text;
+  }
+
+  function setStatus(message, type = "") {
+    const element = byId("pageStatus");
+    element.textContent = message;
+    element.className = "status" + (type ? " " + type : "");
+  }
+
+  function badgeClass(value) {
+    const status = String(value || "").toLowerCase();
+    if (["paid", "completed", "available", "paid_out", "succeeded", "refunded", "eligible"].includes(status)) return "good";
+    if (["failed", "declined", "cancelled", "canceled"].includes(status)) return "bad";
+    if (["in_progress", "refund_pending", "requires_action"].includes(status)) return "info";
+    return "waiting";
+  }
+
+  async function requireUser() {
+    const { data: { user }, error } = await starRiseSupabase.auth.getUser();
+    if (error || !user || user.is_anonymous) {
+      if (user && user.is_anonymous) await starRiseSupabase.auth.signOut();
+      window.location.href = "login.html";
+      return false;
+    }
+    currentUser = user;
+
+    const { data: profile } = await starRiseSupabase
+      .from("Profiles")
+      .select("display_name,full_name")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    accountName = profile?.display_name || profile?.full_name || user.email || "StarRise Member";
+    return true;
+  }
+
+  async function loadTransactions() {
+    setStatus("Loading your StarRise transactions...");
+    byId("transactions").innerHTML = '<div class="empty">Loading transactions...</div>';
+
+    const uid = currentUser.id;
+    const [serviceResult, marketplaceResult, contributionResult] = await Promise.all([
+      starRiseSupabase.from("service_orders").select("*").or("buyer_id.eq." + uid + ",seller_id.eq." + uid).order("created_at", { ascending: false }),
+      starRiseSupabase.from("marketplace_orders").select("*").or("buyer_id.eq." + uid + ",seller_id.eq." + uid).order("created_at", { ascending: false }),
+      starRiseSupabase.from("talent_fund_contributions").select("*").order("created_at", { ascending: false })
+    ]);
+
+    if (serviceResult.error) throw serviceResult.error;
+    if (marketplaceResult.error) throw marketplaceResult.error;
+    if (contributionResult.error) throw contributionResult.error;
+
+    const serviceOrders = serviceResult.data || [];
+    const marketplaceOrders = marketplaceResult.data || [];
+    const contributions = contributionResult.data || [];
+    const serviceIds = [...new Set(serviceOrders.map(row => row.service_id).filter(Boolean))];
+    const itemIds = [...new Set(marketplaceOrders.map(row => row.item_id).filter(Boolean))];
+    const fundIds = [...new Set(contributions.map(row => row.fund_id).filter(Boolean))];
+
+    const [servicesResult, itemsResult, fundsResult] = await Promise.all([
+      serviceIds.length ? starRiseSupabase.from("star_rise_services").select("id,title,category").in("id", serviceIds) : Promise.resolve({ data: [], error: null }),
+      itemIds.length ? starRiseSupabase.from("marketplace_items").select("id,title,category").in("id", itemIds) : Promise.resolve({ data: [], error: null }),
+      fundIds.length ? starRiseSupabase.from("talent_funds").select("id,title,talent_id,status").in("id", fundIds) : Promise.resolve({ data: [], error: null })
+    ]);
+
+    if (servicesResult.error) console.error(servicesResult.error);
+    if (itemsResult.error) console.error(itemsResult.error);
+    if (fundsResult.error) console.error(fundsResult.error);
+
+    const services = new Map((servicesResult.data || []).map(row => [row.id, row]));
+    const items = new Map((itemsResult.data || []).map(row => [row.id, row]));
+    const funds = new Map((fundsResult.data || []).map(row => [row.id, row]));
+    const transactions = [];
+
+    serviceOrders.forEach(order => {
+      const service = services.get(order.service_id);
+      const title = service?.title || "StarRise Service";
+      const stripeReference = order.stripe_payment_intent_id || order.stripe_session_id;
+
+      if (order.buyer_id === uid) {
+        transactions.push({
+          key: "service-purchase-" + order.id,
+          id: order.id,
+          kind: "Service Purchase",
+          title,
+          detail: order.status === "cancelled" ? "Cancelled service order" : "Service ordered from a StarRise provider",
+          direction: "outgoing",
+          amount: Number(order.amount_cents || 0),
+          status: order.payment_status,
+          secondaryStatus: order.status,
+          date: order.refunded_at || order.updated_at || order.created_at,
+          originalDate: order.created_at,
+          stripeReference,
+          refundId: order.stripe_refund_id,
+          refundStatus: order.refund_status,
+          receipt: ["paid", "refunded", "refund_pending"].includes(order.payment_status),
+          isRefund: ["refunded", "refund_pending"].includes(order.payment_status)
+        });
+      }
+
+      if (order.seller_id === uid) {
+        transactions.push({
+          key: "service-earning-" + order.id,
+          id: order.id,
+          kind: "Service Earning",
+          title,
+          detail: "Provider share from a StarRise service order",
+          direction: "incoming",
+          amount: Number(order.provider_amount_cents || 0),
+          status: order.payout_status,
+          secondaryStatus: order.status,
+          date: order.updated_at || order.created_at,
+          originalDate: order.created_at,
+          stripeReference: order.stripe_payment_intent_id,
+          receipt: false,
+          isRefund: false
+        });
+      }
+    });
+
+    marketplaceOrders.forEach(order => {
+      const item = items.get(order.item_id);
+      const title = item?.title || "Marketplace Purchase";
+
+      if (order.buyer_id === uid) {
+        transactions.push({
+          key: "market-purchase-" + order.id,
+          id: order.id,
+          kind: "Marketplace Purchase",
+          title,
+          detail: "Digital marketplace order",
+          direction: "outgoing",
+          amount: Number(order.amount_cents || 0),
+          status: order.payment_status,
+          secondaryStatus: order.fulfillment_status,
+          date: order.updated_at || order.created_at,
+          originalDate: order.created_at,
+          stripeReference: order.stripe_payment_intent_id || order.stripe_session_id,
+          receipt: order.payment_status === "paid",
+          isRefund: false
+        });
+      }
+
+      if (order.seller_id === uid) {
+        transactions.push({
+          key: "market-earning-" + order.id,
+          id: order.id,
+          kind: "Marketplace Earning",
+          title,
+          detail: "Seller share from a marketplace order",
+          direction: "incoming",
+          amount: Number(order.seller_amount_cents || 0),
+          status: order.stripe_transfer_id ? "paid_out" : order.payment_status,
+          secondaryStatus: order.fulfillment_status,
+          date: order.updated_at || order.created_at,
+          originalDate: order.created_at,
+          stripeReference: order.stripe_transfer_id || order.stripe_payment_intent_id,
+          receipt: false,
+          isRefund: false
+        });
+      }
+    });
+
+    contributions.forEach(contribution => {
+      const fund = funds.get(contribution.fund_id);
+      const title = fund?.title || "Talent Fund Support";
+
+      if (contribution.supporter_id === uid) {
+        transactions.push({
+          key: "fund-support-" + contribution.id,
+          id: contribution.id,
+          kind: "Talent Fund Support",
+          title,
+          detail: "Support contributed to StarRise talent",
+          direction: "outgoing",
+          amount: Number(contribution.amount_cents || 0),
+          status: contribution.payment_status,
+          secondaryStatus: contribution.payout_status,
+          date: contribution.updated_at || contribution.created_at,
+          originalDate: contribution.created_at,
+          stripeReference: contribution.stripe_payment_intent_id || contribution.stripe_session_id,
+          receipt: contribution.payment_status === "paid",
+          isRefund: false
+        });
+      }
+
+      if (fund?.talent_id === uid && contribution.supporter_id !== uid) {
+        transactions.push({
+          key: "fund-earning-" + contribution.id,
+          id: contribution.id,
+          kind: "Talent Fund Support Received",
+          title,
+          detail: "Talent share from a supporter contribution",
+          direction: "incoming",
+          amount: Number(contribution.talent_amount_cents || 0),
+          status: contribution.payout_status,
+          secondaryStatus: contribution.payment_status,
+          date: contribution.updated_at || contribution.created_at,
+          originalDate: contribution.created_at,
+          stripeReference: contribution.stripe_payment_intent_id,
+          receipt: false,
+          isRefund: false
+        });
+      }
+    });
+
+    allTransactions = transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    renderSummary();
+    renderTransactions();
+    setStatus(allTransactions.length ? allTransactions.length + " account transactions loaded." : "No financial activity yet.", allTransactions.length ? "success" : "");
+  }
+
+  function renderSummary() {
+    const spent = allTransactions
+      .filter(item => item.direction === "outgoing" && ["paid", "refunded", "refund_pending"].includes(item.status))
+      .reduce((sum, item) => sum + item.amount, 0);
+    const refunded = allTransactions
+      .filter(item => item.direction === "outgoing" && item.status === "refunded")
+      .reduce((sum, item) => sum + item.amount, 0);
+    const earned = allTransactions
+      .filter(item => item.direction === "incoming" && ["paid", "paid_out", "completed"].includes(item.status))
+      .reduce((sum, item) => sum + item.amount, 0);
+    const pending = allTransactions
+      .filter(item => item.direction === "incoming" && !["paid", "paid_out", "completed", "failed", "cancelled", "not_applicable"].includes(item.status))
+      .reduce((sum, item) => sum + item.amount, 0);
+
+    byId("totalSpent").textContent = money(spent);
+    byId("totalRefunded").textContent = money(refunded);
+    byId("totalEarned").textContent = money(earned);
+    byId("pendingEarnings").textContent = money(pending);
+  }
+
+  function matchesFilter(item) {
+    if (currentFilter === "purchases" && item.direction !== "outgoing") return false;
+    if (currentFilter === "earnings" && item.direction !== "incoming") return false;
+    if (currentFilter === "refunds" && !item.isRefund) return false;
+    const query = byId("search").value.trim().toLowerCase();
+    if (!query) return true;
+    return [item.id, item.kind, item.title, item.detail, item.status, item.secondaryStatus, item.stripeReference]
+      .some(value => String(value || "").toLowerCase().includes(query));
+  }
+
+  function renderTransactions() {
+    const visible = allTransactions.filter(matchesFilter);
+    if (!visible.length) {
+      byId("transactions").innerHTML = '<div class="empty">No transactions match this view.</div>';
+      return;
+    }
+
+    byId("transactions").innerHTML = visible.map(item => `
+      <article class="transaction">
+        <div>
+          <h3>${escapeHtml(item.title)}</h3>
+          <div class="transaction-meta">${escapeHtml(item.kind)} · ${escapeHtml(dateText(item.date))} · Ref #${escapeHtml(String(item.id).slice(0, 8).toUpperCase())}</div>
+          <div class="badges">
+            <span class="badge ${badgeClass(item.status)}">${escapeHtml(statusLabel(item.status))}</span>
+            <span class="badge ${badgeClass(item.secondaryStatus)}">${escapeHtml(statusLabel(item.secondaryStatus))}</span>
+          </div>
+          <div class="transaction-detail">${escapeHtml(item.detail)}</div>
+          <div class="actions">
+            ${item.receipt ? '<button class="button" type="button" data-receipt="' + escapeHtml(item.key) + '">View Receipt</button>' : ''}
+          </div>
+        </div>
+        <div class="amount ${item.direction}">${item.direction === "incoming" ? "+" : "−"}${escapeHtml(money(item.amount))}</div>
+      </article>
+    `).join("");
+  }
+
+  function openReceipt(item) {
+    const refundDetails = item.isRefund ? `
+      <div class="receipt-line"><span>Refund Status</span><strong>${escapeHtml(statusLabel(item.refundStatus || item.status))}</strong></div>
+      <div class="receipt-line"><span>Refund Reference</span><strong>${escapeHtml(shortReference(item.refundId))}</strong></div>
+    ` : "";
+
+    byId("receipt").innerHTML = `
+      <div class="receipt-head">
+        <div><div class="receipt-brand">⭐ StarRise</div><div>starrisebyfament.com</div></div>
+        <div class="receipt-title"><strong id="receiptHeading">Transaction Receipt</strong><span>Ref #${escapeHtml(String(item.id).slice(0, 8).toUpperCase())}</span></div>
+      </div>
+      <div class="receipt-grid">
+        <div class="receipt-line"><span>Account</span><strong>${escapeHtml(accountName)}</strong></div>
+        <div class="receipt-line"><span>Transaction Type</span><strong>${escapeHtml(item.kind)}</strong></div>
+        <div class="receipt-line"><span>Description</span><strong>${escapeHtml(item.title)}</strong></div>
+        <div class="receipt-line"><span>Payment Status</span><strong>${escapeHtml(statusLabel(item.status))}</strong></div>
+        <div class="receipt-line"><span>Purchase Date</span><strong>${escapeHtml(dateText(item.originalDate))}</strong></div>
+        <div class="receipt-line"><span>Stripe Reference</span><strong>${escapeHtml(shortReference(item.stripeReference))}</strong></div>
+        ${refundDetails}
+      </div>
+      <div class="receipt-total"><span>Total</span><span>${escapeHtml(money(item.amount))}</span></div>
+      <p class="receipt-note">This StarRise account receipt reflects the transaction status stored for your account. Card refunds can take additional time to appear at your bank after Stripe marks the refund complete.</p>
+      <div class="receipt-actions">
+        <button class="button" type="button" data-close-receipt>Close</button>
+        <button class="button primary" type="button" data-print-receipt>Print / Save PDF</button>
+      </div>
+    `;
+    byId("receiptOverlay").classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeReceipt() {
+    byId("receiptOverlay").classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  document.addEventListener("click", event => {
+    const filter = event.target.closest("[data-filter]");
+    if (filter) {
+      currentFilter = filter.dataset.filter;
+      document.querySelectorAll("[data-filter]").forEach(item => item.classList.toggle("active", item === filter));
+      renderTransactions();
+      return;
+    }
+
+    const receiptButton = event.target.closest("[data-receipt]");
+    if (receiptButton) {
+      const item = allTransactions.find(transaction => transaction.key === receiptButton.dataset.receipt);
+      if (item) openReceipt(item);
+      return;
+    }
+
+    if (event.target.closest("[data-close-receipt]")) closeReceipt();
+    if (event.target.closest("[data-print-receipt]")) window.print();
+    if (event.target === byId("receiptOverlay")) closeReceipt();
+  });
+
+  byId("search").addEventListener("input", renderTransactions);
+  byId("refresh").addEventListener("click", async () => {
+    const button = byId("refresh");
+    button.disabled = true;
+    button.textContent = "Refreshing...";
+    try {
+      await loadTransactions();
+    } catch (error) {
+      console.error(error);
+      setStatus("Transactions could not be refreshed: " + (error.message || "Unknown error"), "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = "Refresh";
+    }
+  });
+
+  byId("signout").addEventListener("click", async () => {
+    await starRiseSupabase.auth.signOut();
+    window.location.href = "login.html";
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeReceipt();
+  });
+
+  (async function start() {
+    const allowed = await requireUser();
+    if (!allowed) return;
+    try {
+      await loadTransactions();
+    } catch (error) {
+      console.error(error);
+      byId("transactions").innerHTML = '<div class="empty">Transactions could not be loaded.</div>';
+      setStatus("Your transactions could not be loaded: " + (error.message || "Unknown error"), "error");
+    }
+  })();
+</script>
+</body>
+</html>
