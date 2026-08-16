@@ -1998,6 +1998,7 @@ let actions='';
 
 if(options.provider){
 if(order.status==='pending'){
+if(order.payment_status==='paid'){
 actions=`
 <div class="order-actions">
 
@@ -2009,19 +2010,34 @@ data-order-id="${escapeHtml(order.id)}"
 Accept Request
 </button>
 
+</div>
+`;
+}else{
+actions=`
+<div class="order-actions">
+
+<button
+class="order-button"
+disabled
+>
+Awaiting Payment
+</button>
+
 <button
 class="order-button decline-button"
 data-order-action="declined"
 data-order-id="${escapeHtml(order.id)}"
 >
-Decline Request
+Decline Unpaid Request
 </button>
 
 </div>
 `;
 }
+}
 
 if(order.status==='accepted'){
+if(order.payment_status==='paid'){
 actions=`
 <div class="order-actions">
 
@@ -2035,9 +2051,19 @@ Start Service
 
 </div>
 `;
+}else{
+actions=`
+<div class="order-actions">
+<button class="order-button" disabled>
+Payment Required Before Starting
+</button>
+</div>
+`;
+}
 }
 
 if(order.status==='in_progress'){
+if(order.payment_status==='paid'){
 actions=`
 <div class="order-actions">
 
@@ -2046,11 +2072,20 @@ class="order-button"
 data-order-action="completed"
 data-order-id="${escapeHtml(order.id)}"
 >
-Mark Completed
+Complete Service &amp; Process Payout
 </button>
 
 </div>
 `;
+}else{
+actions=`
+<div class="order-actions">
+<button class="order-button" disabled>
+Payment Required Before Completion
+</button>
+</div>
+`;
+}
 }
 }
 
@@ -2540,6 +2575,37 @@ if(!currentUser){
 throw new Error(
 'You must be signed in.'
 );
+}
+
+if(newStatus==='completed'){
+const completionResult=
+await supabaseClient
+.functions
+.invoke(
+'complete-service-order',
+{
+body:{
+order_id:orderId
+}
+}
+);
+
+if(
+completionResult.error||
+(
+completionResult.data&&
+completionResult.data.error
+)
+){
+throw new Error(
+completionResult.data&&
+completionResult.data.error
+?completionResult.data.error
+:completionResult.error.message
+);
+}
+
+return completionResult.data;
 }
 
 const result=
