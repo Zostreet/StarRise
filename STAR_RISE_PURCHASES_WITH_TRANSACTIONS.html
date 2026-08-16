@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>My Store Purchases | StarRise</title>
+
+<meta
+name="description"
+content="Access and securely download your StarRise Store purchases."
+>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+margin:0;
+min-height:100vh;
+font-family:Arial,sans-serif;
+line-height:1.6;
+background:#080812;
+color:#fff
+}
+
+a{
+color:inherit;
+text-decoration:none
+}
+
+header{
+padding:20px 24px;
+border-bottom:1px solid #ffffff18;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:18px
+}
+
+.logo{
+font-size:21px;
+font-weight:800
+}
+
+nav{
+display:flex;
+flex-wrap:wrap;
+gap:18px
+}
+
+nav a{
+color:#bbb;
+font-weight:700
+}
+
+nav a:hover{
+color:#fff
+}
+
+main{
+width:min(1000px,calc(100% - 30px));
+margin:35px auto 70px
+}
+
+.hero{
+padding:42px 28px;
+margin-bottom:20px;
+border:1px solid #ffffff18;
+border-radius:22px;
+background:#ffffff08
+}
+
+.eyebrow{
+color:#999;
+font-size:12px;
+font-weight:700;
+text-transform:uppercase;
+letter-spacing:.1em
+}
+
+h1{
+margin:7px 0 10px;
+font-size:clamp(38px,7vw,58px)
+}
+
+.hero p{
+max-width:720px;
+margin:0;
+color:#aaa;
+font-size:17px
+}
+
+.status,
+.empty{
+padding:20px;
+border:1px solid #ffffff18;
+border-radius:15px;
+background:#ffffff08;
+color:#aaa;
+text-align:center
+}
+
+.status.error{
+color:#ffb5b5;
+background:#c832321f
+}
+
+.status.warning{
+color:#ffe3a3;
+background:#c896321f
+}
+
+.status.success{
+color:#baffca;
+background:#32c8641a
+}
+
+.hidden{
+display:none!important
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+gap:18px;
+margin-top:20px
+}
+
+.purchase{
+padding:24px;
+border:1px solid #ffffff18;
+border-radius:20px;
+background:#ffffff08;
+display:flex;
+flex-direction:column
+}
+
+.badge{
+display:inline-block;
+width:max-content;
+padding:5px 10px;
+margin-bottom:12px;
+border-radius:20px;
+background:#ffffff12;
+color:#bbb;
+font-size:12px;
+font-weight:700;
+text-transform:uppercase
+}
+
+.badge.available{
+color:#baffca;
+background:#32c8641a
+}
+
+.badge.pending{
+color:#ffe3a3;
+background:#c896321f
+}
+
+.purchase h2{
+margin:0 0 8px;
+font-size:23px
+}
+
+.meta{
+color:#999;
+font-size:14px
+}
+
+.price{
+margin:15px 0;
+font-size:25px;
+font-weight:700
+}
+
+.button{
+display:inline-block;
+width:100%;
+padding:12px 20px;
+margin-top:auto;
+border:0;
+border-radius:25px;
+background:#fff;
+color:#080812;
+font:inherit;
+font-weight:700;
+text-align:center;
+cursor:pointer
+}
+
+.button.secondary{
+border:1px solid #ffffff30;
+background:transparent;
+color:#fff
+}
+
+.button:disabled{
+opacity:.5;
+cursor:wait
+}
+
+.item-message{
+padding:11px;
+margin:12px 0;
+border-radius:10px;
+background:#ffffff08;
+color:#aaa;
+font-size:13px
+}
+
+.item-message.error{
+color:#ffb5b5;
+background:#c832321f
+}
+
+.item-message.success{
+color:#baffca;
+background:#32c8641a
+}
+
+.actions{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-top:20px
+}
+
+.actions .button{
+width:auto;
+margin-top:0
+}
+
+footer{
+padding:30px;
+border-top:1px solid #ffffff18;
+color:#888;
+text-align:center
+}
+
+@media(max-width:760px){
+header{
+flex-direction:column;
+align-items:flex-start
+}
+
+.actions{
+flex-direction:column
+}
+
+.actions .button{
+width:100%
+}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<a class="logo" href="index.html">
+⭐ StarRise
+</a>
+
+<nav>
+<a href="index.html">Home</a>
+<a href="members.html">Members</a>
+<a href="ecosystem.html">Ecosystem</a>
+<a href="marketplace.html">Store</a>
+<a href="services.html">Services</a>
+<a href="opportunities.html">Opportunities</a>
+<a href="transactions.html">Transactions</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
+</header>
+
+<main>
+
+<section class="hero">
+<div class="eyebrow">
+StarRise Buyer Library
+</div>
+
+<h1>My Store Purchases</h1>
+
+<p>
+Access digital products purchased through the StarRise Store.
+Every download is protected and only available to the account
+that completed the purchase.
+</p>
+
+<div class="actions">
+<a class="button secondary" href="marketplace.html">
+Browse Store
+</a>
+
+<a class="button secondary" href="dashboard.html">
+Back to Dashboard
+</a>
+</div>
+</section>
+
+<div id="status" class="status">
+Loading your Store purchases...
+</div>
+
+<section id="purchases" class="grid hidden"></section>
+
+<div id="empty" class="empty hidden">
+<h2>No Store purchases yet</h2>
+
+<p>
+Products you purchase through the StarRise Store
+will appear here.
+</p>
+
+<a class="button" href="marketplace.html">
+Visit the StarRise Store
+</a>
+</div>
+
+</main>
+
+<footer>
+⭐ StarRise — Where Talent Rises.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+(function(){
+'use strict';
+
+const URL=
+'https://rcnikxotdalxtuvpmlvm.supabase.co';
+
+const KEY=
+'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
+
+const client=
+window.supabase.createClient(
+URL,
+KEY
+);
+
+const statusBox=
+document.getElementById('status');
+
+const purchasesBox=
+document.getElementById('purchases');
+
+const emptyBox=
+document.getElementById('empty');
+
+let orders=[];
+
+function escapeHtml(value){
+return String(value??'')
+.replace(/&/g,'&amp;')
+.replace(/</g,'&lt;')
+.replace(/>/g,'&gt;')
+.replace(/"/g,'&quot;')
+.replace(/'/g,'&#039;');
+}
+
+function money(cents){
+return (Number(cents||0)/100).toLocaleString(
+'en-US',
+{
+style:'currency',
+currency:'USD'
+}
+);
+}
+
+function date(value){
+if(!value)return '';
+
+const parsed=
+new Date(value);
+
+if(Number.isNaN(parsed.getTime())){
+return '';
+}
+
+return parsed.toLocaleDateString(
+'en-US',
+{
+year:'numeric',
+month:'short',
+day:'numeric'
+}
+);
+}
+
+function showStatus(message,type){
+statusBox.textContent=
+message;
+
+statusBox.className=
+'status '+(type||'');
+
+statusBox.classList.remove(
+'hidden'
+);
+}
+
+async function getSession(){
+const result=
+await client.auth.getSession();
+
+if(result.error){
+throw result.error;
+}
+
+let session=
+result.data.session;
+
+if(!session){
+return null;
+}
+
+const expiresSoon=
+session.expires_at&&
+(
+session.expires_at*1000-
+Date.now()
+)<120000;
+
+if(expiresSoon){
+const refreshed=
+await client.auth.refreshSession();
+
+if(refreshed.error){
+throw refreshed.error;
+}
+
+session=
+refreshed.data.session;
+}
+
+return session;
+}
+
+async function loadPurchases(){
+try{
+const session=
+await getSession();
+
+if(!session){
+showStatus(
+'Please sign in to view your Store purchases.',
+'warning'
+);
+
+setTimeout(
+function(){
+window.location.href=
+'login.html?redirect='+
+encodeURIComponent(
+'purchases.html'
+);
+},
+900
+);
+
+return;
+}
+
+const orderResult=
+await client
+.from('marketplace_orders')
+.select(
+'id,item_id,buyer_id,amount_cents,payment_status,fulfillment_status,created_at'
+)
+.eq(
+'buyer_id',
+session.user.id
+)
+.order(
+'created_at',
+{
+ascending:false
+}
+);
+
+if(orderResult.error){
+throw orderResult.error;
+}
+
+orders=
+orderResult.data||[];
+
+if(!orders.length){
+statusBox.classList.add(
+'hidden'
+);
+
+emptyBox.classList.remove(
+'hidden'
+);
+
+return;
+}
+
+const itemIds=
+[
+...new Set(
+orders.map(
+order=>order.item_id
+)
+)
+];
+
+const itemResult=
+await client
+.from('marketplace_items')
+.select(
+'id,title,category,cover_url'
+)
+.in(
+'id',
+itemIds
+);
+
+if(itemResult.error){
+throw itemResult.error;
+}
+
+const itemMap=
+new Map(
+(itemResult.data||[]).map(
+item=>[
+String(item.id),
+item
+]
+)
+);
+
+orders=
+orders.map(
+order=>({
+...order,
+item:
+itemMap.get(
+String(order.item_id)
+)||
+null
+})
+);
+
+statusBox.classList.add(
+'hidden'
+);
+
+purchasesBox.classList.remove(
+'hidden'
+);
+
+render();
+}catch(error){
+console.error(
+'Store purchases error:',
+error
+);
+
+showStatus(
+'Unable to load your Store purchases: '+
+(
+error.message||
+'Please try again.'
+),
+'error'
+);
+}
+}
+
+function render(){
+purchasesBox.innerHTML=
+orders.map(
+order=>{
+const item=
+order.item||{};
+
+const available=
+order.payment_status==='paid'&&
+[
+'available',
+'downloaded'
+].includes(
+order.fulfillment_status
+);
+
+const statusText=
+available
+?'Available'
+:order.payment_status==='paid'
+?'Preparing'
+:'Payment Pending';
+
+return `
+<article class="purchase">
+
+<span class="badge ${available?'available':'pending'}">
+${escapeHtml(statusText)}
+</span>
+
+<h2>
+${escapeHtml(
+item.title||
+'StarRise Store Purchase'
+)}
+</h2>
+
+<div class="meta">
+${escapeHtml(
+item.category||
+'Digital Product'
+)}
+</div>
+
+<div class="meta">
+Purchased ${escapeHtml(
+date(order.created_at)
+)}
+</div>
+
+<div class="price">
+${escapeHtml(
+money(order.amount_cents)
+)}
+</div>
+
+<div
+id="message-${escapeHtml(order.id)}"
+class="item-message hidden"
+></div>
+
+<button
+class="button"
+type="button"
+data-download="${escapeHtml(order.id)}"
+${available?'':'disabled'}
+>
+${available?'Download Purchase':'Not Available Yet'}
+</button>
+
+</article>
+`;
+}
+).join('');
+}
+
+async function download(orderId,button){
+const messageBox=
+document.getElementById(
+'message-'+orderId
+);
+
+button.disabled=
+true;
+
+button.textContent=
+'Preparing Download...';
+
+messageBox.textContent=
+'Creating a secure download link...';
+
+messageBox.className=
+'item-message';
+
+messageBox.classList.remove(
+'hidden'
+);
+
+try{
+const result=
+await client.functions.invoke(
+'get-marketplace-download',
+{
+body:{
+order_id:orderId
+}
+}
+);
+
+if(result.error){
+let errorMessage=
+result.error.message||
+'Unable to prepare the download.';
+
+if(result.error.context){
+try{
+const details=
+await result.error.context.json();
+
+errorMessage=
+details?.error||
+details?.message||
+errorMessage;
+}catch(_){}
+}
+
+throw new Error(
+errorMessage
+);
+}
+
+const data=
+result.data||{};
+
+if(
+!data.ok||
+!data.download_url
+){
+throw new Error(
+data.error||
+'The secure download link was not returned.'
+);
+}
+
+messageBox.textContent=
+'Download ready. Opening your purchase...';
+
+messageBox.className=
+'item-message success';
+
+window.location.assign(
+data.download_url
+);
+}catch(error){
+console.error(
+'Purchase download error:',
+error
+);
+
+messageBox.textContent=
+error.message||
+'Unable to download this purchase.';
+
+messageBox.className=
+'item-message error';
+
+button.disabled=
+false;
+
+button.textContent=
+'Try Download Again';
+}
+}
+
+purchasesBox.addEventListener(
+'click',
+function(event){
+const button=
+event.target.closest(
+'[data-download]'
+);
+
+if(!button){
+return;
+}
+
+download(
+button.dataset.download,
+button
+);
+}
+);
+
+loadPurchases();
+
+})();
+</script>
+
+</body>
+  </html>
