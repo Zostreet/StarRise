@@ -26,7 +26,7 @@
   <section class="hero">
     <div class="eyebrow">Seller Workspace</div>
     <h1>Service Orders</h1>
-    <p>Review customer requests, accept paid work, track services in progress, complete delivery, and monitor payout status.</p>
+    <p>Review customer requests, accept paid work, track services in progress, complete delivery, safely refund cancellations, and monitor payout status.</p>
     <div class="status" id="pageStatus" role="status" aria-live="polite">Loading your service orders...</div>
   </section>
 
@@ -77,21 +77,12 @@
   }
 
   function money(cents) {
-    return (Number(cents || 0) / 100).toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD"
-    });
+    return (Number(cents || 0) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" });
   }
 
   function dateText(value) {
     if (!value) return "Unknown date";
-    return new Date(value).toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit"
-    });
+    return new Date(value).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
   }
 
   function escapeHtml(value) {
@@ -109,9 +100,9 @@
 
   function badgeClass(value) {
     const status = String(value || "pending").toLowerCase();
-    if (["paid", "completed", "accepted", "paid_out"].includes(status)) return "good";
-    if (["declined", "cancelled", "failed", "refunded"].includes(status)) return "bad";
-    if (status === "in_progress") return "info";
+    if (["paid", "completed", "accepted", "paid_out", "refunded", "succeeded"].includes(status)) return "good";
+    if (["declined", "cancelled", "failed", "canceled"].includes(status)) return "bad";
+    if (["in_progress", "refund_pending", "requires_action"].includes(status)) return "info";
     return "waiting";
   }
 
@@ -122,22 +113,18 @@
 
   function allowedByFilter(order) {
     if (currentFilter === "all") return true;
-    if (currentFilter === "active") {
-      return ["pending", "accepted", "in_progress"].includes(order.status);
-    }
+    if (currentFilter === "active") return ["pending", "accepted", "in_progress"].includes(order.status);
     if (currentFilter === "pending") return order.status === "pending";
     return order.status === currentFilter;
   }
 
   async function requireUser() {
     const { data: { user }, error } = await starRiseSupabase.auth.getUser();
-
     if (error || !user || user.is_anonymous) {
       if (user && user.is_anonymous) await starRiseSupabase.auth.signOut();
       window.location.href = "login.html";
       return false;
     }
-
     currentUser = user;
     return true;
   }
@@ -148,7 +135,7 @@
 
     const { data, error } = await starRiseSupabase
       .from("service_orders")
-      .select("id,service_id,buyer_id,seller_id,amount_cents,provider_amount_cents,platform_fee_cents,request_message,status,payment_status,payout_status,created_at,updated_at")
+      .select("id,service_id,buyer_id,seller_id,amount_cents,provider_amount_cents,platform_fee_cents,request_message,status,payment_status,payout_status,stripe_refund_id,refund_status,refunded_at,created_at,updated_at")
       .eq("seller_id", currentUser.id)
       .order("created_at", { ascending: false });
 
@@ -165,72 +152,35 @@
     renderStats();
     renderOrders();
     byId("orders").classList.remove("loading");
-
-    setStatus(
-      orders.length
-        ? "Seller orders are up to date."
-        : "No customer service orders yet.",
-      orders.length ? "success" : ""
-    );
+    setStatus(orders.length ? "Seller orders are up to date." : "No customer service orders yet.", orders.length ? "success" : "");
   }
 
   async function loadRelatedData() {
-    const serviceIds = [
-      ...new Set(orders.map(order => order.service_id).filter(Boolean))
-    ];
-
-    const buyerIds = [
-      ...new Set(orders.map(order => order.buyer_id).filter(Boolean))
-    ];
+    const serviceIds = [...new Set(orders.map(order => order.service_id).filter(Boolean))];
+    const buyerIds = [...new Set(orders.map(order => order.buyer_id).filter(Boolean))];
 
     const [serviceResult, profileResult] = await Promise.all([
       serviceIds.length
-        ? starRiseSupabase
-            .from("star_rise_services")
-            .select("id,title,category,price_cents")
-            .in("id", serviceIds)
+        ? starRiseSupabase.from("star_rise_services").select("id,title,category,price_cents").in("id", serviceIds)
         : Promise.resolve({ data: [], error: null }),
-
       buyerIds.length
-        ? starRiseSupabase
-            .from("Profiles")
-            .select("id,display_name,full_name,avatar_url")
-            .in("id", buyerIds)
+        ? starRiseSupabase.from("Profiles").select("id,display_name,full_name,avatar_url").in("id", buyerIds)
         : Promise.resolve({ data: [], error: null })
     ]);
 
     if (serviceResult.error) console.error(serviceResult.error);
     if (profileResult.error) console.error(profileResult.error);
-
-    services = new Map(
-      (serviceResult.data || []).map(service => [service.id, service])
-    );
-
-    customers = new Map(
-      (profileResult.data || []).map(profile => [profile.id, profile])
-    );
+    services = new Map((serviceResult.data || []).map(service => [service.id, service]));
+    customers = new Map((profileResult.data || []).map(profile => [profile.id, profile]));
   }
 
   function renderStats() {
-    const needsAction = orders.filter(
-      order => order.status === "pending"
-    ).length;
-
-    const inProgress = orders.filter(
-      order => ["accepted", "in_progress"].includes(order.status)
-    ).length;
-
-    const completed = orders.filter(
-      order => order.status === "completed"
-    );
-
+    const needsAction = orders.filter(order => order.status === "pending").length;
+    const inProgress = orders.filter(order => ["accepted", "in_progress"].includes(order.status)).length;
+    const completed = orders.filter(order => order.status === "completed");
     const completedTotal = completed
       .filter(order => order.payment_status === "paid")
-      .reduce(
-        (sum, order) =>
-          sum + Number(order.provider_amount_cents || 0),
-        0
-      );
+      .reduce((sum, order) => sum + Number(order.provider_amount_cents || 0), 0);
 
     byId("needsActionCount").textContent = String(needsAction);
     byId("inProgressCount").textContent = String(inProgress);
@@ -243,36 +193,34 @@
 
     if (order.status === "pending") {
       if (paid) {
-        return '<button class="button primary" type="button" data-action="accepted" data-order-id="' +
-          escapeHtml(order.id) +
-          '">Accept Request</button><span class="order-note">Payment confirmed. Accept when you are ready to take the work.</span>';
+        return '<button class="button primary" type="button" data-action="accepted" data-order-id="' + escapeHtml(order.id) + '">Accept Request</button><button class="button danger" type="button" data-action="refund" data-order-id="' + escapeHtml(order.id) + '">Cancel &amp; Refund</button><span class="order-note">Payment confirmed. Accept the work or return the customer payment.</span>';
       }
-
-      return '<button class="button" type="button" disabled>Awaiting Payment</button><button class="button danger" type="button" data-action="declined" data-order-id="' +
-        escapeHtml(order.id) +
-        '">Decline Unpaid Request</button>';
+      return '<button class="button" type="button" disabled>Awaiting Payment</button><button class="button danger" type="button" data-action="declined" data-order-id="' + escapeHtml(order.id) + '">Decline Unpaid Request</button>';
     }
 
     if (order.status === "accepted") {
       return paid
-        ? '<button class="button primary" type="button" data-action="in_progress" data-order-id="' +
-            escapeHtml(order.id) +
-            '">Start Service</button>'
+        ? '<button class="button primary" type="button" data-action="in_progress" data-order-id="' + escapeHtml(order.id) + '">Start Service</button><button class="button danger" type="button" data-action="refund" data-order-id="' + escapeHtml(order.id) + '">Cancel &amp; Refund</button>'
         : '<button class="button" type="button" disabled>Payment Required Before Starting</button>';
     }
 
     if (order.status === "in_progress") {
       return paid
-        ? '<button class="button primary" type="button" data-action="completed" data-order-id="' +
-            escapeHtml(order.id) +
-            '">Complete Service &amp; Process Payout</button>'
+        ? '<button class="button primary" type="button" data-action="completed" data-order-id="' + escapeHtml(order.id) + '">Complete Service &amp; Process Payout</button><button class="button danger" type="button" data-action="refund" data-order-id="' + escapeHtml(order.id) + '">Cancel &amp; Refund</button>'
         : '<button class="button" type="button" disabled>Payment Required Before Completion</button>';
     }
 
     if (order.status === "completed") {
-      return '<span class="order-note">Service completed. Payout status: <strong>' +
-        escapeHtml(label(order.payout_status)) +
-        "</strong>.</span>";
+      return '<span class="order-note">Service completed. Payout status: <strong>' + escapeHtml(label(order.payout_status)) + '</strong>.</span>';
+    }
+
+    if (order.status === "cancelled") {
+      if (order.payment_status === "paid" && ["failed", "canceled"].includes(order.refund_status)) {
+        return '<button class="button danger" type="button" data-action="refund" data-order-id="' + escapeHtml(order.id) + '">Retry Refund</button><span class="order-note">The previous Stripe refund did not complete.</span>';
+      }
+      if (["refunded", "refund_pending"].includes(order.payment_status)) {
+        return '<span class="order-note">Order cancelled. Stripe refund status: <strong>' + escapeHtml(label(order.refund_status || order.payment_status)) + '</strong>.</span>';
+      }
     }
 
     return '<span class="order-note">No seller action is available for this order.</span>';
@@ -280,10 +228,8 @@
 
   function renderOrders() {
     const visible = orders.filter(allowedByFilter);
-
     if (!visible.length) {
-      byId("orders").innerHTML =
-        '<div class="empty">No orders match this filter.</div>';
+      byId("orders").innerHTML = '<div class="empty">No orders match this filter.</div>';
       return;
     }
 
@@ -292,62 +238,27 @@
       const customer = customers.get(order.buyer_id);
       const title = service ? service.title : "StarRise service";
       const orderNumber = String(order.id).slice(0, 8).toUpperCase();
-
-      const request =
-        String(order.request_message || "").trim() ||
-        "No customer instructions were included.";
+      const request = String(order.request_message || "").trim() || "No customer instructions were included.";
 
       return `
         <article class="order-card" data-order-card="${escapeHtml(order.id)}">
           <div class="order-head">
-            <div>
-              <h3>${escapeHtml(title)}</h3>
-              <div class="meta">
-                Order #${escapeHtml(orderNumber)} · ${dateText(order.created_at)}
-              </div>
-            </div>
+            <div><h3>${escapeHtml(title)}</h3><div class="meta">Order #${escapeHtml(orderNumber)} · ${dateText(order.created_at)}</div></div>
             <div class="order-price">${money(order.amount_cents)}</div>
           </div>
-
           <div class="badges">
-            <span class="badge ${badgeClass(order.status)}">
-              ${escapeHtml(label(order.status))}
-            </span>
-            <span class="badge ${badgeClass(order.payment_status)}">
-              Payment: ${escapeHtml(label(order.payment_status))}
-            </span>
-            <span class="badge ${badgeClass(order.payout_status)}">
-              Payout: ${escapeHtml(label(order.payout_status))}
-            </span>
+            <span class="badge ${badgeClass(order.status)}">${escapeHtml(label(order.status))}</span>
+            <span class="badge ${badgeClass(order.payment_status)}">Payment: ${escapeHtml(label(order.payment_status))}</span>
+            <span class="badge ${badgeClass(order.payout_status)}">Payout: ${escapeHtml(label(order.payout_status))}</span>
           </div>
-
           <div class="order-grid">
-            <div class="detail">
-              <span>Customer</span>
-              <strong>${escapeHtml(customerName(customer))}</strong>
-            </div>
-            <div class="detail">
-              <span>Seller Share</span>
-              <strong>${money(order.provider_amount_cents)}</strong>
-            </div>
-            <div class="detail">
-              <span>Platform Fee</span>
-              <strong>${money(order.platform_fee_cents)}</strong>
-            </div>
-            <div class="detail">
-              <span>Last Updated</span>
-              <strong>${dateText(order.updated_at || order.created_at)}</strong>
-            </div>
+            <div class="detail"><span>Customer</span><strong>${escapeHtml(customerName(customer))}</strong></div>
+            <div class="detail"><span>Seller Share</span><strong>${money(order.provider_amount_cents)}</strong></div>
+            <div class="detail"><span>Platform Fee</span><strong>${money(order.platform_fee_cents)}</strong></div>
+            <div class="detail"><span>Last Updated</span><strong>${dateText(order.updated_at || order.created_at)}</strong></div>
           </div>
-
-          <div class="request">
-            <span class="request-label">Customer Request</span>
-            ${escapeHtml(request)}
-          </div>
-
-          <div class="order-actions">
-            ${actionMarkup(order)}
-          </div>
+          <div class="request"><span class="request-label">Customer Request</span>${escapeHtml(request)}</div>
+          <div class="order-actions">${actionMarkup(order)}</div>
         </article>
       `;
     }).join("");
@@ -356,10 +267,7 @@
   async function updateStatus(order, newStatus) {
     const { data, error } = await starRiseSupabase
       .from("service_orders")
-      .update({
-        status: newStatus,
-        updated_at: new Date().toISOString()
-      })
+      .update({ status: newStatus, updated_at: new Date().toISOString() })
       .eq("id", order.id)
       .eq("seller_id", currentUser.id)
       .eq("status", order.status)
@@ -367,137 +275,97 @@
       .single();
 
     if (error) throw error;
-
-    if (!data) {
-      throw new Error(
-        "The order changed before this update was saved."
-      );
-    }
+    if (!data) throw new Error("The order changed before this update was saved.");
   }
 
   async function completeOrder(order) {
-    const { data, error } =
-      await starRiseSupabase.functions.invoke(
-        "complete-service-order",
-        {
-          body: {
-            order_id: order.id
-          }
-        }
-      );
+    const { data, error } = await starRiseSupabase.functions.invoke("complete-service-order", {
+      body: { order_id: order.id }
+    });
+    if (error) throw error;
+    if (data && data.error) throw new Error(data.error);
+    return data;
+  }
 
+  async function refundOrder(order) {
+    const { data, error } = await starRiseSupabase.functions.invoke("refund-service-order", {
+      body: { order_id: order.id }
+    });
     if (error) throw error;
     if (data && data.error) throw new Error(data.error);
     return data;
   }
 
   async function handleOrderAction(button) {
-    const order = orders.find(
-      item => item.id === button.dataset.orderId
-    );
-
+    const order = orders.find(item => item.id === button.dataset.orderId);
     const action = button.dataset.action;
+    if (!order) throw new Error("Order not found.");
 
-    if (!order) {
-      throw new Error("Order not found.");
-    }
-
-    if (
-      action === "declined" &&
-      !window.confirm("Decline this unpaid service request?")
-    ) {
-      return;
-    }
-
-    if (
-      action === "completed" &&
-      !window.confirm(
-        "Confirm the service is complete and process the seller payout?"
-      )
-    ) {
-      return;
-    }
+    if (action === "declined" && !window.confirm("Decline this unpaid service request?")) return;
+    if (action === "completed" && !window.confirm("Confirm the service is complete and process the seller payout?")) return;
+    if (action === "refund" && !window.confirm("Cancel this paid service order and refund the customer through Stripe? This cannot be undone.")) return;
 
     const card = button.closest("[data-order-card]");
-    const cardButtons = card
-      ? card.querySelectorAll("button")
-      : [button];
-
-    cardButtons.forEach(item => {
-      item.disabled = true;
-    });
-
+    const cardButtons = card ? card.querySelectorAll("button") : [button];
+    cardButtons.forEach(item => { item.disabled = true; });
     setStatus(
       action === "completed"
         ? "Completing the service and checking payout eligibility..."
-        : "Updating the service order..."
+        : action === "refund"
+          ? "Cancelling the order and starting the Stripe refund..."
+          : "Updating the service order..."
     );
 
     try {
       if (action === "completed") {
         const result = await completeOrder(order);
-
-        setStatus(
-          result && result.message
-            ? result.message
-            : "Service completed.",
-          "success"
-        );
+        setStatus(result && result.message ? result.message : "Service completed.", "success");
+      } else if (action === "refund") {
+        const result = await refundOrder(order);
+        setStatus(result && result.message ? result.message : "Order cancelled and refund started.", "success");
       } else {
         await updateStatus(order, action);
-
-        setStatus(
-          "Service order updated to " + label(action) + ".",
-          "success"
-        );
+        setStatus("Service order updated to " + label(action) + ".", "success");
       }
-
       await loadOrders();
     } catch (error) {
       console.error(error);
-
-      cardButtons.forEach(item => {
-        item.disabled = false;
-      });
-
-      setStatus(
-        "Unable to update this order: " +
-          (error.message || "Unknown error"),
-        "error"
-      );
+      cardButtons.forEach(item => { item.disabled = false; });
+      setStatus("Unable to update this order: " + (error.message || "Unknown error"), "error");
     }
   }
 
   document.addEventListener("click", event => {
     const filter = event.target.closest("[data-filter]");
-
     if (filter) {
       currentFilter = filter.dataset.filter;
-
-      document
-        .querySelectorAll("[data-filter]")
-        .forEach(item => {
-          item.classList.toggle("active", item === filter);
-        });
-
+      document.querySelectorAll("[data-filter]").forEach(item => item.classList.toggle("active", item === filter));
       renderOrders();
       return;
     }
 
-    const action = event.target.closest(
-      "[data-action][data-order-id]"
-    );
-
-    if (action) {
-      handleOrderAction(action);
-    }
+    const action = event.target.closest("[data-action][data-order-id]");
+    if (action) handleOrderAction(action);
   });
 
   byId("refreshOrders").addEventListener("click", async () => {
     const button = byId("refreshOrders");
     button.disabled = true;
     button.textContent = "Refreshing...";
-
     await loadOrders();
+    button.disabled = false;
+    button.textContent = "Refresh Orders";
+  });
 
-    button.di
+  byId("signout").addEventListener("click", async () => {
+    await starRiseSupabase.auth.signOut();
+    window.location.href = "login.html";
+  });
+
+  (async function start() {
+    const allowed = await requireUser();
+    if (allowed) await loadOrders();
+  })();
+</script>
+</body>
+</html>
