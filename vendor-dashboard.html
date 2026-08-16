@@ -16,6 +16,7 @@
     <div class="nav-actions">
       <a class="nav-link" href="dashboard.html">Main Dashboard</a>
       <a class="nav-link" href="marketplace.html">Marketplace</a>
+      <a class="nav-link" href="seller-orders.html">Seller Orders</a>
       <a class="nav-link" href="vendors.html">Vendors</a>
       <button class="nav-button" id="signout" type="button">Sign Out</button>
     </div>
@@ -41,25 +42,61 @@
     <section class="panel full">
       <h2>Business Profile</h2>
       <p class="panel-description">This information powers your public StarRise vendor identity.</p>
+
       <form id="vendorForm">
         <div class="form-grid">
-          <div class="form-group"><label for="businessName">Business Name</label><input id="businessName" type="text" maxlength="120" required></div>
+          <div class="form-group">
+            <label for="businessName">Business Name</label>
+            <input id="businessName" type="text" maxlength="120" required>
+          </div>
+
           <div class="form-group">
             <label for="category">Category</label>
             <select id="category" required>
               <option value="">Choose a category</option>
-              <option>Studio &amp; Audio</option><option>Photography &amp; Video</option><option>Venue &amp; Events</option>
-              <option>Merchandise &amp; Products</option><option>Marketing &amp; Promotion</option><option>Design &amp; Creative</option>
-              <option>Business Services</option><option>Equipment &amp; Resources</option><option>Other</option>
+              <option>Studio &amp; Audio</option>
+              <option>Photography &amp; Video</option>
+              <option>Venue &amp; Events</option>
+              <option>Merchandise &amp; Products</option>
+              <option>Marketing &amp; Promotion</option>
+              <option>Design &amp; Creative</option>
+              <option>Business Services</option>
+              <option>Equipment &amp; Resources</option>
+              <option>Other</option>
             </select>
           </div>
-          <div class="form-group full"><label for="description">Business Description</label><textarea id="description" maxlength="2000" placeholder="Tell StarRise members what your business offers."></textarea></div>
-          <div class="form-group"><label for="location">Location / Service Area</label><input id="location" type="text" maxlength="160" placeholder="Charlotte, NC"></div>
-          <div class="form-group"><label for="website">Website</label><input id="website" type="url" maxlength="500" placeholder="https://"></div>
-          <div class="form-group"><label for="contactEmail">Contact Email</label><input id="contactEmail" type="email" maxlength="320"></div>
-          <div class="form-group"><label for="phone">Phone</label><input id="phone" type="tel" maxlength="40"></div>
+
+          <div class="form-group full">
+            <label for="description">Business Description</label>
+            <textarea id="description" maxlength="2000" placeholder="Tell StarRise members what your business offers."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="location">Location / Service Area</label>
+            <input id="location" type="text" maxlength="160" placeholder="Charlotte, NC">
+          </div>
+
+          <div class="form-group">
+            <label for="website">Website</label>
+            <input id="website" type="url" maxlength="500" placeholder="https://">
+          </div>
+
+          <div class="form-group">
+            <label for="contactEmail">Contact Email</label>
+            <input id="contactEmail" type="email" maxlength="320">
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input id="phone" type="tel" maxlength="40">
+          </div>
         </div>
-        <div class="checkbox-row"><input id="isActive" type="checkbox"><label for="isActive">Show my vendor profile publicly</label></div>
+
+        <div class="checkbox-row">
+          <input id="isActive" type="checkbox">
+          <label for="isActive">Show my vendor profile publicly</label>
+        </div>
+
         <button class="button primary" id="saveVendor" type="submit">Save Business Profile</button>
       </form>
     </section>
@@ -67,47 +104,96 @@
     <section class="panel half">
       <h2>Services</h2>
       <p class="panel-description">Professional services you offer through StarRise.</p>
-      <div class="button-row"><a class="button primary" href="create-service.html">+ Add Service</a><a class="button" href="services.html">Browse Services</a></div>
-      <div class="list" id="serviceList"><div class="empty">Loading services...</div></div>
+
+      <div class="button-row">
+        <a class="button primary" href="create-service.html">+ Add Service</a>
+        <a class="button" href="services.html">Browse Services</a>
+      </div>
+
+      <div class="list" id="serviceList">
+        <div class="empty">Loading services...</div>
+      </div>
     </section>
 
     <section class="panel half">
       <h2>Marketplace Products</h2>
       <p class="panel-description">Digital products your customers can purchase and download.</p>
-      <div class="button-row"><a class="button primary" href="create-marketplace-item.html">+ Add Product</a><a class="button" href="marketplace.html">Open Store</a></div>
-      <div class="list" id="productList"><div class="empty">Loading products...</div></div>
+
+      <div class="button-row">
+        <a class="button primary" href="create-marketplace-item.html">+ Add Product</a>
+        <a class="button" href="marketplace.html">Open Store</a>
+      </div>
+
+      <div class="list" id="productList">
+        <div class="empty">Loading products...</div>
+      </div>
     </section>
 
     <section class="panel full">
       <div class="section-head">
-        <div><h2>Marketplace Sales</h2><p class="panel-description">Payment and secure digital-delivery status for your product orders.</p></div>
+        <div>
+          <h2>Marketplace Sales</h2>
+          <p class="panel-description">Payment and secure digital-delivery status for your product orders.</p>
+        </div>
+
         <button class="button small" id="refreshOrders" type="button">Refresh Sales</button>
       </div>
+
       <p class="notice">Paid digital products are released automatically through a secure buyer download. You do not need to email files or expose a storage link.</p>
-      <div id="marketplaceOrderList"><div class="empty">Loading marketplace sales...</div></div>
+
+      <div id="marketplaceOrderList">
+        <div class="empty">Loading marketplace sales...</div>
+      </div>
     </section>
 
     <section class="panel half">
       <h2>Service Orders</h2>
       <p class="panel-description">Recent customer requests for your professional services.</p>
-      <div id="serviceOrderList"><div class="empty">Loading service orders...</div></div>
+
+      <div class="button-row">
+        <a class="button primary" href="seller-orders.html">Manage Service Orders</a>
+      </div>
+
+      <div id="serviceOrderList">
+        <div class="empty">Loading service orders...</div>
+      </div>
     </section>
 
     <section class="panel half">
       <h2>Payouts</h2>
       <p class="panel-description">Your Stripe Connect readiness for receiving seller payments.</p>
+
       <div class="payout-box">
-        <div class="payout-line"><span>Stripe Account</span><strong id="stripeAccount">Checking...</strong></div>
-        <div class="payout-line"><span>Charges Enabled</span><strong id="chargesEnabled">—</strong></div>
-        <div class="payout-line"><span>Payouts Enabled</span><strong id="payoutsEnabled">—</strong></div>
-        <div class="payout-line"><span>Details Submitted</span><strong id="detailsSubmitted">—</strong></div>
+        <div class="payout-line">
+          <span>Stripe Account</span>
+          <strong id="stripeAccount">Checking...</strong>
+        </div>
+
+        <div class="payout-line">
+          <span>Charges Enabled</span>
+          <strong id="chargesEnabled">—</strong>
+        </div>
+
+        <div class="payout-line">
+          <span>Payouts Enabled</span>
+          <strong id="payoutsEnabled">—</strong>
+        </div>
+
+        <div class="payout-line">
+          <span>Details Submitted</span>
+          <strong id="detailsSubmitted">—</strong>
+        </div>
       </div>
-      <div class="button-row" style="margin-top:18px"><a class="button primary" href="dashboard.html">Manage Payout Setup</a></div>
+
+      <div class="button-row" style="margin-top:18px">
+        <a class="button primary" href="dashboard.html">Manage Payout Setup</a>
+      </div>
     </section>
   </div>
 </main>
 
 <footer>⭐ StarRise — Where Talent Rises.</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const starRiseSupabase = window.supabase.createClient(
@@ -131,12 +217,28 @@
   }
 
   function money(cents) {
-    return (Number(cents || 0) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" });
+    return (Number(cents || 0) / 100).toLocaleString(
+      "en-US",
+      {
+        style: "currency",
+        currency: "USD"
+      }
+    );
   }
 
   function dateText(value) {
     if (!value) return "Unknown date";
-    return new Date(value).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+
+    return new Date(value).toLocaleString(
+      "en-US",
+      {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      }
+    );
   }
 
   function escapeHtml(value) {
@@ -150,9 +252,36 @@
 
   function safeStatus(value) {
     const status = String(value || "pending").toLowerCase();
-    if (["paid", "available", "downloaded", "completed", "accepted", "active"].includes(status)) return "good";
-    if (["failed", "refunded", "cancelled", "declined", "inactive"].includes(status)) return "bad";
-    if (["in_progress"].includes(status)) return "info";
+
+    if (
+      [
+        "paid",
+        "available",
+        "downloaded",
+        "completed",
+        "accepted",
+        "active"
+      ].includes(status)
+    ) {
+      return "good";
+    }
+
+    if (
+      [
+        "failed",
+        "refunded",
+        "cancelled",
+        "declined",
+        "inactive"
+      ].includes(status)
+    ) {
+      return "bad";
+    }
+
+    if (["in_progress"].includes(status)) {
+      return "info";
+    }
+
     return "waiting";
   }
 
@@ -161,56 +290,161 @@
   }
 
   function deliveryLabel(order) {
-    if (order.payment_status !== "paid") return "Waiting for payment";
-    if (order.fulfillment_status === "downloaded") return "Downloaded by buyer";
-    if (order.fulfillment_status === "available") return "Ready for buyer";
+    if (order.payment_status !== "paid") {
+      return "Waiting for payment";
+    }
+
+    if (order.fulfillment_status === "downloaded") {
+      return "Downloaded by buyer";
+    }
+
+    if (order.fulfillment_status === "available") {
+      return "Ready for buyer";
+    }
+
     return "Delivery pending";
   }
 
   async function requireVendor() {
-    const { data: { user }, error } = await starRiseSupabase.auth.getUser();
-    if (error || !user || user.is_anonymous) {
-      if (user && user.is_anonymous) await starRiseSupabase.auth.signOut();
+    const {
+      data: {
+        user
+      },
+      error
+    } = await starRiseSupabase.auth.getUser();
+
+    if (
+      error ||
+      !user ||
+      user.is_anonymous
+    ) {
+      if (
+        user &&
+        user.is_anonymous
+      ) {
+        await starRiseSupabase.auth.signOut();
+      }
+
       window.location.href = "login.html";
       return false;
     }
+
     currentUser = user;
 
-    const { data: roles, error: roleError } = await starRiseSupabase
+    const {
+      data: roles,
+      error: roleError
+    } = await starRiseSupabase
       .from("member_roles")
       .select("role")
       .eq("user_id", user.id);
 
     if (roleError) {
       console.error(roleError);
-      setStatus("We couldn't verify your StarRise role.", "error");
+      setStatus(
+        "We couldn't verify your StarRise role.",
+        "error"
+      );
       return false;
     }
 
-    const isVendor = (roles || []).some(row => row.role === "Vendor");
+    const isVendor = (roles || []).some(
+      row => row.role === "Vendor"
+    );
+
     if (!isVendor) {
-      setStatus("This dashboard is for StarRise vendors. Add the Vendor role from your main dashboard first.", "warning");
-      setTimeout(() => { window.location.href = "dashboard.html"; }, 1800);
+      setStatus(
+        "This dashboard is for StarRise vendors. Add the Vendor role from your main dashboard first.",
+        "warning"
+      );
+
+      setTimeout(
+        () => {
+          window.location.href = "dashboard.html";
+        },
+        1800
+      );
+
       return false;
     }
+
     return true;
   }
 
   async function loadDashboard() {
     setStatus("Loading your vendor account...");
 
-    const [profileResult, serviceResult, productResult, serviceOrderResult, marketplaceOrderResult, payoutResult] = await Promise.all([
-      starRiseSupabase.from("vendor_profiles").select("user_id,business_name,category,description,location,website,contact_email,phone,is_active").eq("user_id", currentUser.id).maybeSingle(),
-      starRiseSupabase.from("star_rise_services").select("id,title,category,price_cents,is_active,created_at").eq("user_id", currentUser.id).order("created_at", { ascending: false }),
-      starRiseSupabase.from("marketplace_items").select("id,title,category,price_cents,status,file_path,mime_type,created_at").eq("seller_id", currentUser.id).order("created_at", { ascending: false }),
-      starRiseSupabase.from("service_orders").select("id,service_id,amount_cents,provider_amount_cents,status,payment_status,payout_status,request_message,created_at").eq("seller_id", currentUser.id).order("created_at", { ascending: false }).limit(20),
-      starRiseSupabase.from("marketplace_orders").select("id,item_id,amount_cents,platform_fee_cents,seller_amount_cents,payment_status,fulfillment_status,created_at").eq("seller_id", currentUser.id).order("created_at", { ascending: false }).limit(50),
-      starRiseSupabase.from("stripe_connected_accounts").select("stripe_account_id,charges_enabled,payouts_enabled,details_submitted").eq("user_id", currentUser.id).maybeSingle()
+    const [
+      profileResult,
+      serviceResult,
+      productResult,
+      serviceOrderResult,
+      marketplaceOrderResult,
+      payoutResult
+    ] = await Promise.all([
+      starRiseSupabase
+        .from("vendor_profiles")
+        .select("user_id,business_name,category,description,location,website,contact_email,phone,is_active")
+        .eq("user_id", currentUser.id)
+        .maybeSingle(),
+
+      starRiseSupabase
+        .from("star_rise_services")
+        .select("id,title,category,price_cents,is_active,created_at")
+        .eq("user_id", currentUser.id)
+        .order("created_at", {
+          ascending: false
+        }),
+
+      starRiseSupabase
+        .from("marketplace_items")
+        .select("id,title,category,price_cents,status,file_path,mime_type,created_at")
+        .eq("seller_id", currentUser.id)
+        .order("created_at", {
+          ascending: false
+        }),
+
+      starRiseSupabase
+        .from("service_orders")
+        .select("id,service_id,amount_cents,provider_amount_cents,status,payment_status,payout_status,request_message,created_at")
+        .eq("seller_id", currentUser.id)
+        .order("created_at", {
+          ascending: false
+        })
+        .limit(20),
+
+      starRiseSupabase
+        .from("marketplace_orders")
+        .select("id,item_id,amount_cents,platform_fee_cents,seller_amount_cents,payment_status,fulfillment_status,created_at")
+        .eq("seller_id", currentUser.id)
+        .order("created_at", {
+          ascending: false
+        })
+        .limit(50),
+
+      starRiseSupabase
+        .from("stripe_connected_accounts")
+        .select("stripe_account_id,charges_enabled,payouts_enabled,details_submitted")
+        .eq("user_id", currentUser.id)
+        .maybeSingle()
     ]);
 
-    const results = [profileResult, serviceResult, productResult, serviceOrderResult, marketplaceOrderResult, payoutResult];
-    const errors = results.map(result => result.error).filter(Boolean);
-    errors.forEach(error => console.error(error));
+    const results = [
+      profileResult,
+      serviceResult,
+      productResult,
+      serviceOrderResult,
+      marketplaceOrderResult,
+      payoutResult
+    ];
+
+    const errors = results
+      .map(result => result.error)
+      .filter(Boolean);
+
+    errors.forEach(error => {
+      console.error(error);
+    });
 
     currentProfile = profileResult.data || null;
     services = serviceResult.data || [];
@@ -227,178 +461,659 @@
     renderStats();
 
     if (errors.length) {
-      setStatus("Most vendor data loaded, but one section could not be refreshed. Try Refresh Sales or reload the page.", "warning");
+      setStatus(
+        "Most vendor data loaded, but one section could not be refreshed. Try Refresh Sales or reload the page.",
+        "warning"
+      );
     } else {
-      setStatus("Vendor dashboard ready. Marketplace payment and delivery status are live.", "success");
+      setStatus(
+        "Vendor dashboard ready. Marketplace payment and delivery status are live.",
+        "success"
+      );
     }
   }
 
   function fillProfile() {
     const profile = currentProfile || {};
-    byId("businessName").value = profile.business_name || "";
-    byId("category").value = profile.category || "";
-    byId("description").value = profile.description || "";
-    byId("location").value = profile.location || "";
-    byId("website").value = profile.website || "";
-    byId("contactEmail").value = profile.contact_email || currentUser.email || "";
-    byId("phone").value = profile.phone || "";
-    byId("isActive").checked = profile.is_active !== false;
-    byId("welcomeTitle").textContent = profile.business_name || "Your StarRise Business";
+
+    byId("businessName").value =
+      profile.business_name || "";
+
+    byId("category").value =
+      profile.category || "";
+
+    byId("description").value =
+      profile.description || "";
+
+    byId("location").value =
+      profile.location || "";
+
+    byId("website").value =
+      profile.website || "";
+
+    byId("contactEmail").value =
+      profile.contact_email ||
+      currentUser.email ||
+      "";
+
+    byId("phone").value =
+      profile.phone || "";
+
+    byId("isActive").checked =
+      profile.is_active !== false;
+
+    byId("welcomeTitle").textContent =
+      profile.business_name ||
+      "Your StarRise Business";
   }
 
   function renderStats() {
-    const paidMarketplace = marketplaceOrders.filter(order => order.payment_status === "paid");
-    const marketplaceRevenue = paidMarketplace.reduce((sum, order) => sum + Number(order.seller_amount_cents || 0), 0);
-    const serviceRevenue = serviceOrders
-      .filter(order => order.payment_status === "paid")
-      .reduce((sum, order) => sum + Number(order.provider_amount_cents || 0), 0);
+    const paidMarketplace =
+      marketplaceOrders.filter(
+        order =>
+          order.payment_status === "paid"
+      );
 
-    byId("serviceCount").textContent = String(services.length);
-    byId("productCount").textContent = String(products.length);
-    byId("saleCount").textContent = String(paidMarketplace.length);
-    byId("revenueTotal").textContent = money(marketplaceRevenue + serviceRevenue);
+    const marketplaceRevenue =
+      paidMarketplace.reduce(
+        (sum, order) =>
+          sum +
+          Number(
+            order.seller_amount_cents ||
+            0
+          ),
+        0
+      );
+
+    const serviceRevenue =
+      serviceOrders
+        .filter(
+          order =>
+            order.payment_status ===
+            "paid"
+        )
+        .reduce(
+          (sum, order) =>
+            sum +
+            Number(
+              order.provider_amount_cents ||
+              0
+            ),
+          0
+        );
+
+    byId("serviceCount").textContent =
+      String(services.length);
+
+    byId("productCount").textContent =
+      String(products.length);
+
+    byId("saleCount").textContent =
+      String(paidMarketplace.length);
+
+    byId("revenueTotal").textContent =
+      money(
+        marketplaceRevenue +
+        serviceRevenue
+      );
   }
 
   function renderServices(error) {
     const target = byId("serviceList");
+
     if (error) {
-      target.innerHTML = '<div class="empty error-text">Services could not be loaded.</div>';
+      target.innerHTML =
+        '<div class="empty error-text">Services could not be loaded.</div>';
       return;
     }
+
     if (!services.length) {
-      target.innerHTML = '<div class="empty">No services yet. Add your first service above.</div>';
+      target.innerHTML =
+        '<div class="empty">No services yet. Add your first service above.</div>';
       return;
     }
-    target.innerHTML = services.slice(0, 6).map(service => `
-      <article class="listing">
-        <div class="listing-top">
-          <div><h3>${escapeHtml(service.title)}</h3><div class="listing-meta">${escapeHtml(service.category)} · ${dateText(service.created_at)}</div></div>
-          <div class="listing-price">${money(service.price_cents)}</div>
-        </div>
-        <span class="badge ${service.is_active ? "good" : "waiting"}">${service.is_active ? "Active" : "Inactive"}</span>
-      </article>
-    `).join("");
+
+    target.innerHTML =
+      services
+        .slice(0, 6)
+        .map(
+          service => `
+            <article class="listing">
+              <div class="listing-top">
+                <div>
+                  <h3>${escapeHtml(service.title)}</h3>
+                  <div class="listing-meta">
+                    ${escapeHtml(service.category)} ·
+                    ${dateText(service.created_at)}
+                  </div>
+                </div>
+
+                <div class="listing-price">
+                  ${money(service.price_cents)}
+                </div>
+              </div>
+
+              <span class="badge ${service.is_active ? "good" : "waiting"}">
+                ${service.is_active ? "Active" : "Inactive"}
+              </span>
+            </article>
+          `
+        )
+        .join("");
   }
 
   function renderProducts(error) {
     const target = byId("productList");
+
     if (error) {
-      target.innerHTML = '<div class="empty error-text">Products could not be loaded.</div>';
+      target.innerHTML =
+        '<div class="empty error-text">Products could not be loaded.</div>';
       return;
     }
+
     if (!products.length) {
-      target.innerHTML = '<div class="empty">No products yet. Upload your first digital product above.</div>';
+      target.innerHTML =
+        '<div class="empty">No products yet. Upload your first digital product above.</div>';
       return;
     }
-    target.innerHTML = products.slice(0, 6).map(product => `
-      <article class="listing">
-        <div class="listing-top">
-          <div><h3>${escapeHtml(product.title)}</h3><div class="listing-meta">${escapeHtml(product.category)} · ${product.file_path ? "File ready" : "File missing"}</div></div>
-          <div class="listing-price">${money(product.price_cents)}</div>
-        </div>
-        <div class="status-row"><span class="badge ${safeStatus(product.status)}">${escapeHtml(label(product.status))}</span><span class="badge ${product.file_path ? "good" : "bad"}">${product.file_path ? "Delivery ready" : "Needs file"}</span></div>
-      </article>
-    `).join("");
+
+    target.innerHTML =
+      products
+        .slice(0, 6)
+        .map(
+          product => `
+            <article class="listing">
+              <div class="listing-top">
+                <div>
+                  <h3>${escapeHtml(product.title)}</h3>
+                  <div class="listing-meta">
+                    ${escapeHtml(product.category)} ·
+                    ${product.file_path ? "File ready" : "File missing"}
+                  </div>
+                </div>
+
+                <div class="listing-price">
+                  ${money(product.price_cents)}
+                </div>
+              </div>
+
+              <div class="status-row">
+                <span class="badge ${safeStatus(product.status)}">
+                  ${escapeHtml(label(product.status))}
+                </span>
+
+                <span class="badge ${product.file_path ? "good" : "bad"}">
+                  ${product.file_path ? "Delivery ready" : "Needs file"}
+                </span>
+              </div>
+            </article>
+          `
+        )
+        .join("");
   }
 
   function renderMarketplaceOrders(error) {
-    const target = byId("marketplaceOrderList");
+    const target =
+      byId("marketplaceOrderList");
+
     if (error) {
-      target.innerHTML = '<div class="empty error-text">Marketplace sales could not be loaded.</div>';
-      return;
-    }
-    if (!marketplaceOrders.length) {
-      target.innerHTML = '<div class="empty">No marketplace sales yet. Your paid product orders will appear here automatically.</div>';
+      target.innerHTML =
+        '<div class="empty error-text">Marketplace sales could not be loaded.</div>';
       return;
     }
 
-    const productMap = new Map(products.map(product => [product.id, product]));
-    target.innerHTML = marketplaceOrders.map(order => {
-      const product = productMap.get(order.item_id);
-      const title = product ? product.title : "Marketplace product";
-      const orderNumber = String(order.id).slice(0, 8).toUpperCase();
-      const delivery = deliveryLabel(order);
-      const deliveryClass = order.fulfillment_status === "downloaded" || order.fulfillment_status === "available" ? "good" : "waiting";
-      return `
-        <article class="order-card">
-          <div class="order-title">
-            <div><h3>${escapeHtml(title)}</h3><div class="listing-meta">Order #${escapeHtml(orderNumber)} · ${dateText(order.created_at)}</div></div>
-            <div class="order-money">${money(order.amount_cents)}</div>
-          </div>
-          <div class="order-grid">
-            <div class="order-detail"><span>Payment</span><strong><span class="badge ${safeStatus(order.payment_status)}">${escapeHtml(label(order.payment_status))}</span></strong></div>
-            <div class="order-detail"><span>Delivery</span><strong><span class="badge ${deliveryClass}">${escapeHtml(delivery)}</span></strong></div>
-            <div class="order-detail"><span>Seller Share</span><strong>${money(order.seller_amount_cents)}</strong></div>
-            <div class="order-detail"><span>Platform Fee</span><strong>${money(order.platform_fee_cents)}</strong></div>
-          </div>
-        </article>
-      `;
-    }).join("");
+    if (!marketplaceOrders.length) {
+      target.innerHTML =
+        '<div class="empty">No marketplace sales yet. Your paid product orders will appear here automatically.</div>';
+      return;
+    }
+
+    const productMap = new Map(
+      products.map(
+        product => [
+          product.id,
+          product
+        ]
+      )
+    );
+
+    target.innerHTML =
+      marketplaceOrders
+        .map(
+          order => {
+            const product =
+              productMap.get(
+                order.item_id
+              );
+
+            const title =
+              product
+                ? product.title
+                : "Marketplace product";
+
+            const orderNumber =
+              String(order.id)
+                .slice(0, 8)
+                .toUpperCase();
+
+            const delivery =
+              deliveryLabel(order);
+
+            const deliveryClass =
+              order.fulfillment_status ===
+                "downloaded" ||
+              order.fulfillment_status ===
+                "available"
+                ? "good"
+                : "waiting";
+
+            return `
+              <article class="order-card">
+                <div class="order-title">
+                  <div>
+                    <h3>${escapeHtml(title)}</h3>
+
+                    <div class="listing-meta">
+                      Order #${escapeHtml(orderNumber)} ·
+                      ${dateText(order.created_at)}
+                    </div>
+                  </div>
+
+                  <div class="order-money">
+                    ${money(order.amount_cents)}
+                  </div>
+                </div>
+
+                <div class="order-grid">
+                  <div class="order-detail">
+                    <span>Payment</span>
+                    <strong>
+                      <span class="badge ${safeStatus(order.payment_status)}">
+                        ${escapeHtml(label(order.payment_status))}
+                      </span>
+                    </strong>
+                  </div>
+
+                  <div class="order-detail">
+                    <span>Delivery</span>
+                    <strong>
+                      <span class="badge ${deliveryClass}">
+                        ${escapeHtml(delivery)}
+                      </span>
+                    </strong>
+                  </div>
+
+                  <div class="order-detail">
+                    <span>Seller Share</span>
+                    <strong>
+                      ${money(order.seller_amount_cents)}
+                    </strong>
+                  </div>
+
+                  <div class="order-detail">
+                    <span>Platform Fee</span>
+                    <strong>
+                      ${money(order.platform_fee_cents)}
+                    </strong>
+                  </div>
+                </div>
+              </article>
+            `;
+          }
+        )
+        .join("");
   }
 
   function renderServiceOrders(error) {
-    const target = byId("serviceOrderList");
+    const target =
+      byId("serviceOrderList");
+
     if (error) {
-      target.innerHTML = '<div class="empty error-text">Service orders could not be loaded.</div>';
-      return;
-    }
-    if (!serviceOrders.length) {
-      target.innerHTML = '<div class="empty">No service orders yet.</div>';
+      target.innerHTML =
+        '<div class="empty error-text">Service orders could not be loaded.</div>';
       return;
     }
 
-    const serviceMap = new Map(services.map(service => [service.id, service]));
-    target.innerHTML = serviceOrders.slice(0, 8).map(order => {
-      const service = serviceMap.get(order.service_id);
-      return `
-        <article class="listing">
-          <div class="listing-top">
-            <div><h3>${escapeHtml(service ? service.title : "Service order")}</h3><div class="listing-meta">${dateText(order.created_at)}${order.request_message ? " · Customer note received" : ""}</div></div>
-            <div class="listing-price">${money(order.amount_cents)}</div>
-          </div>
-          <div class="status-row"><span class="badge ${safeStatus(order.status)}">${escapeHtml(label(order.status))}</span><span class="badge ${safeStatus(order.payment_status)}">Payment: ${escapeHtml(label(order.payment_status))}</span><span class="badge ${safeStatus(order.payout_status)}">Payout: ${escapeHtml(label(order.payout_status))}</span></div>
-        </article>
-      `;
-    }).join("");
+    if (!serviceOrders.length) {
+      target.innerHTML =
+        '<div class="empty">No service orders yet.</div>';
+      return;
+    }
+
+    const serviceMap =
+      new Map(
+        services.map(
+          service => [
+            service.id,
+            service
+          ]
+        )
+      );
+
+    target.innerHTML =
+      serviceOrders
+        .slice(0, 8)
+        .map(
+          order => {
+            const service =
+              serviceMap.get(
+                order.service_id
+              );
+
+            return `
+              <article class="listing">
+                <div class="listing-top">
+                  <div>
+                    <h3>
+                      ${escapeHtml(
+                        service
+                          ? service.title
+                          : "Service order"
+                      )}
+                    </h3>
+
+                    <div class="listing-meta">
+                      ${dateText(order.created_at)}
+                      ${
+                        order.request_message
+                          ? " · Customer note received"
+                          : ""
+                      }
+                    </div>
+                  </div>
+
+                  <div class="listing-price">
+                    ${money(order.amount_cents)}
+                  </div>
+                </div>
+
+                <div class="status-row">
+                  <span class="badge ${safeStatus(order.status)}">
+                    ${escapeHtml(label(order.status))}
+                  </span>
+
+                  <span class="badge ${safeStatus(order.payment_status)}">
+                    Payment:
+                    ${escapeHtml(label(order.payment_status))}
+                  </span>
+
+                  <span class="badge ${safeStatus(order.payout_status)}">
+                    Payout:
+                    ${escapeHtml(label(order.payout_status))}
+                  </span>
+                </div>
+              </article>
+            `;
+          }
+        )
+        .join("");
   }
 
   function renderPayout(account, error) {
     if (error) {
       console.error(error);
-      byId("stripeAccount").textContent = "Unavailable";
-      byId("stripeAccount").className = "bad-text";
-      return;
-    }
-    if (!account) {
-      byId("stripeAccount").textContent = "Not connected";
-      byId("stripeAccount").className = "bad-text";
-      byId("chargesEnabled").textContent = "No";
-      byId("payoutsEnabled").textContent = "No";
-      byId("detailsSubmitted").textContent = "No";
+
+      byId("stripeAccount").textContent =
+        "Unavailable";
+
+      byId("stripeAccount").className =
+        "bad-text";
+
       return;
     }
 
-    const accountId = String(account.stripe_account_id || "");
-    byId("stripeAccount").textContent = accountId ? "Connected · …" + accountId.slice(-6) : "Connected";
-    byId("stripeAccount").className = "good-text";
-    setBooleanStatus("chargesEnabled", account.charges_enabled);
-    setBooleanStatus("payoutsEnabled", account.payouts_enabled);
-    setBooleanStatus("detailsSubmitted", account.details_submitted);
+    if (!account) {
+      byId("stripeAccount").textContent =
+        "Not connected";
+
+      byId("stripeAccount").className =
+        "bad-text";
+
+      byId("chargesEnabled").textContent =
+        "No";
+
+      byId("payoutsEnabled").textContent =
+        "No";
+
+      byId("detailsSubmitted").textContent =
+        "No";
+
+      return;
+    }
+
+    const accountId =
+      String(
+        account.stripe_account_id ||
+        ""
+      );
+
+    byId("stripeAccount").textContent =
+      accountId
+        ? "Connected · …" +
+          accountId.slice(-6)
+        : "Connected";
+
+    byId("stripeAccount").className =
+      "good-text";
+
+    setBooleanStatus(
+      "chargesEnabled",
+      account.charges_enabled
+    );
+
+    setBooleanStatus(
+      "payoutsEnabled",
+      account.payouts_enabled
+    );
+
+    setBooleanStatus(
+      "detailsSubmitted",
+      account.details_submitted
+    );
   }
 
   function setBooleanStatus(id, value) {
     const element = byId(id);
-    element.textContent = value ? "Yes" : "No";
-    element.className = value ? "good-text" : "bad-text";
+
+    element.textContent =
+      value
+        ? "Yes"
+        : "No";
+
+    element.className =
+      value
+        ? "good-text"
+        : "bad-text";
   }
 
-  byId("vendorForm").addEventListener("submit", async event => {
-    event.preventDefault();
-    const button = byId("saveVendor");
-    button.disabled = true;
-    button.textContent = "Saving...";
+  byId("vendorForm")
+    .addEventListener(
+      "submit",
+      async event => {
+        event.preventDefault();
 
-    const payload = {
-      user_id: currentUser.id,
-      business_name: byId("businessName").value.trim(),
-      category: byId("category").
+        const button =
+          byId("saveVendor");
+
+        button.disabled = true;
+        button.textContent = "Saving...";
+
+        const payload = {
+          user_id:
+            currentUser.id,
+
+          business_name:
+            byId("businessName")
+              .value
+              .trim(),
+
+          category:
+            byId("category")
+              .value,
+
+          description:
+            byId("description")
+              .value
+              .trim() ||
+            null,
+
+          location:
+            byId("location")
+              .value
+              .trim() ||
+            null,
+
+          website:
+            byId("website")
+              .value
+              .trim() ||
+            null,
+
+          contact_email:
+            byId("contactEmail")
+              .value
+              .trim() ||
+            null,
+
+          phone:
+            byId("phone")
+              .value
+              .trim() ||
+            null,
+
+          is_active:
+            byId("isActive")
+              .checked,
+
+          updated_at:
+            new Date()
+              .toISOString()
+        };
+
+        const {
+          error
+        } =
+          await starRiseSupabase
+            .from("vendor_profiles")
+            .upsert(
+              payload,
+              {
+                onConflict:
+                  "user_id"
+              }
+            );
+
+        button.disabled = false;
+
+        button.textContent =
+          "Save Business Profile";
+
+        if (error) {
+          console.error(error);
+
+          setStatus(
+            "Your business profile could not be saved. Please check the fields and try again.",
+            "error"
+          );
+
+          return;
+        }
+
+        currentProfile =
+          payload;
+
+        byId("welcomeTitle")
+          .textContent =
+          payload.business_name;
+
+        setStatus(
+          "Business profile saved.",
+          "success"
+        );
+      }
+    );
+
+  byId("refreshOrders")
+    .addEventListener(
+      "click",
+      async () => {
+        const button =
+          byId("refreshOrders");
+
+        button.disabled = true;
+
+        button.textContent =
+          "Refreshing...";
+
+        const {
+          data,
+          error
+        } =
+          await starRiseSupabase
+            .from("marketplace_orders")
+            .select("id,item_id,amount_cents,platform_fee_cents,seller_amount_cents,payment_status,fulfillment_status,created_at")
+            .eq(
+              "seller_id",
+              currentUser.id
+            )
+            .order(
+              "created_at",
+              {
+                ascending:
+                  false
+              }
+            )
+            .limit(50);
+
+        if (!error) {
+          marketplaceOrders =
+            data || [];
+        }
+
+        renderMarketplaceOrders(
+          error
+        );
+
+        renderStats();
+
+        button.disabled =
+          false;
+
+        button.textContent =
+          "Refresh Sales";
+
+        setStatus(
+          error
+            ? "Marketplace sales could not be refreshed."
+            : "Marketplace sales refreshed.",
+          error
+            ? "error"
+            : "success"
+        );
+      }
+    );
+
+  byId("signout")
+    .addEventListener(
+      "click",
+      async () => {
+        await starRiseSupabase
+          .auth
+          .signOut();
+
+        window.location.href =
+          "login.html";
+      }
+    );
+
+  (async function start() {
+    const allowed =
+      await requireVendor();
+
+    if (allowed) {
+      await loadDashboard();
+    }
+  })();
+</script>
+</body>
+</html>
