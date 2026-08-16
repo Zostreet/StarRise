@@ -1,0 +1,3343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StarRise Dashboard</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#080812;
+color:#fff;
+min-height:100vh;
+line-height:1.6
+}
+
+header{
+padding:18px 24px;
+border-bottom:1px solid #ffffff18;
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:15px;
+position:sticky;
+top:0;
+z-index:20;
+background:#080812ee;
+backdrop-filter:blur(12px)
+}
+
+header a{
+color:#fff;
+text-decoration:none;
+font-weight:bold
+}
+
+.header-actions{
+display:flex;
+align-items:center;
+gap:10px
+}
+
+button{
+font-family:inherit
+}
+
+#signout,
+.header-button{
+border:1px solid #ffffff33;
+background:transparent;
+color:#fff;
+padding:9px 15px;
+border-radius:20px;
+cursor:pointer
+}
+
+#signout:hover,
+.header-button:hover{
+background:#ffffff10
+}
+
+main{
+width:min(950px,calc(100% - 30px));
+margin:30px auto 60px
+}
+
+.hero,
+.panel{
+border:1px solid #ffffff18;
+border-radius:20px;
+background:#ffffff08;
+padding:25px;
+margin-bottom:20px
+}
+
+h1,
+h2,
+h3{
+margin-top:0
+}
+
+.muted{
+color:#aaa
+}
+
+.small{
+font-size:13px
+}
+
+.status-box{
+padding:14px;
+border-radius:12px;
+background:#ffffff08;
+color:#aaa;
+margin-bottom:15px
+}
+
+.error{
+color:#ffb5b5!important;
+background:rgba(200,50,50,.12)!important
+}
+
+.success{
+color:#baffca!important;
+background:rgba(50,200,100,.10)!important
+}
+
+.warning{
+color:#ffe3a3!important;
+background:rgba(200,150,50,.12)!important
+}
+
+.profile-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+gap:14px
+}
+
+.item{
+padding:17px;
+border-radius:14px;
+background:#ffffff08
+}
+
+.label{
+display:block;
+color:#999;
+font-size:12px;
+margin-bottom:5px;
+text-transform:uppercase;
+letter-spacing:.08em
+}
+
+.profile-value{
+word-break:break-word
+}
+
+.role{
+display:inline-block;
+padding:7px 12px;
+margin:4px;
+border-radius:20px;
+background:#ffffff12
+}
+
+.order-card{
+padding:20px;
+border-radius:16px;
+background:#ffffff08;
+border:1px solid #ffffff12;
+margin-top:15px
+}
+
+.order-price{
+font-size:25px;
+font-weight:bold;
+margin-bottom:5px
+}
+
+.order-status{
+display:inline-block;
+padding:6px 12px;
+border-radius:20px;
+background:#ffffff12;
+text-transform:capitalize;
+margin-bottom:10px
+}
+
+.order-request{
+padding:14px;
+border-radius:12px;
+background:#00000025;
+color:#ccc;
+white-space:pre-wrap;
+margin:12px 0
+}
+
+.order-meta{
+color:#888;
+font-size:14px;
+margin-top:4px
+}
+
+.order-actions{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-top:15px
+}
+
+.order-button{
+border:0;
+padding:11px 20px;
+border-radius:25px;
+background:#fff;
+color:#080812;
+font-weight:bold;
+cursor:pointer
+}
+
+.order-button:hover{
+opacity:.9
+}
+
+.order-button:disabled{
+opacity:.6;
+cursor:wait
+}
+
+.decline-button{
+background:transparent;
+color:#fff;
+border:1px solid #ffffff35
+}
+
+.edit-link,
+.connect-button{
+display:inline-block;
+margin-top:18px;
+padding:11px 20px;
+border-radius:25px;
+background:#fff;
+color:#080812;
+text-decoration:none;
+font-weight:bold;
+border:0;
+cursor:pointer
+}
+
+.connect-button:disabled{
+opacity:.6;
+cursor:wait
+}
+
+.service-link{
+display:inline-block;
+margin-top:12px;
+color:#fff;
+text-decoration:underline
+}
+
+.empty{
+padding:18px;
+border-radius:14px;
+background:#ffffff06;
+color:#999;
+margin-top:12px
+}
+
+.notification-panel{
+border:1px solid #ffffff18;
+border-radius:18px;
+background:#ffffff08;
+padding:20px;
+margin-bottom:20px
+}
+
+.notification-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:15px
+}
+
+.notification-list{
+margin-top:14px
+}
+
+.notification{
+padding:14px;
+border-radius:12px;
+background:#00000022;
+border:1px solid #ffffff10;
+margin-top:10px
+}
+
+.notification.unread{
+border-color:#ffffff35;
+background:#ffffff0c
+}
+
+.notification-title{
+font-weight:bold
+}
+
+.notification-time{
+color:#777;
+font-size:12px;
+margin-top:4px
+}
+
+.rating-box{
+padding:20px;
+border-radius:16px;
+background:#ffffff08;
+border:1px solid #ffffff12
+}
+
+.rating-number{
+font-size:30px;
+font-weight:bold
+}
+
+.rating-stars{
+color:#ffd84d;
+font-size:28px;
+letter-spacing:2px
+}
+
+.timeline{
+margin-top:18px;
+padding:18px;
+border-radius:14px;
+background:#00000022;
+border:1px solid #ffffff12
+}
+
+.timeline-title{
+font-weight:bold;
+margin-bottom:14px
+}
+
+.timeline-track{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:8px
+}
+
+.timeline-step{
+text-align:center;
+position:relative
+}
+
+.timeline-dot{
+width:30px;
+height:30px;
+margin:0 auto 8px;
+border-radius:50%;
+background:#ffffff12;
+border:1px solid #ffffff20;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:13px
+}
+
+.timeline-step.active .timeline-dot,
+.timeline-step.complete .timeline-dot{
+background:#fff;
+color:#080812;
+border-color:#fff
+}
+
+.timeline-step.active .timeline-label{
+color:#fff;
+font-weight:bold
+}
+
+.timeline-step.complete .timeline-label{
+color:#bbb
+}
+
+.timeline-label{
+font-size:11px;
+color:#777
+}
+
+.review-box,
+.review-display{
+margin-top:18px;
+padding:18px;
+border-radius:14px;
+background:#00000022;
+border:1px solid #ffffff12
+}
+
+.stars{
+display:flex;
+gap:4px;
+margin:10px 0 14px
+}
+
+.star{
+border:0;
+background:transparent;
+color:#555;
+font-size:31px;
+line-height:1;
+padding:2px;
+cursor:pointer
+}
+
+.star.selected{
+color:#ffd84d
+}
+
+.review-text{
+width:100%;
+min-height:100px;
+resize:vertical;
+border:1px solid #ffffff20;
+border-radius:12px;
+background:#080812;
+color:#fff;
+padding:13px;
+font-family:inherit;
+margin-bottom:12px
+}
+
+.review-stars{
+color:#ffd84d;
+font-size:22px;
+letter-spacing:2px
+}
+
+.review-content{
+color:#ccc;
+white-space:pre-wrap;
+margin-top:8px
+}
+
+.review-date{
+color:#777;
+font-size:13px;
+margin-top:8px
+}
+
+.service-title{
+font-size:18px;
+font-weight:bold;
+margin-bottom:4px
+}
+
+.stripe-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+gap:12px;
+margin-top:15px
+}
+
+.stripe-stat{
+padding:15px;
+border-radius:14px;
+background:#ffffff08
+}
+
+.stripe-stat strong{
+display:block;
+font-size:18px;
+margin-top:3px
+}
+
+@media(max-width:650px){
+header{
+flex-direction:column
+}
+
+.header-actions{
+width:100%;
+justify-content:center;
+flex-wrap:wrap
+}
+
+main{
+width:calc(100% - 20px);
+margin-top:20px
+}
+
+.hero,
+.panel,
+.notification-panel{
+padding:20px
+}
+
+.order-actions{
+flex-direction:column
+}
+
+.order-button,
+.connect-button{
+width:100%
+}
+
+.timeline-track{
+grid-template-columns:1fr 1fr;
+gap:15px
+}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<a href="index.html">⭐ StarRise</a>
+
+<div class="header-actions">
+
+<a
+class="header-button"
+href="purchases.html"
+>
+My Purchases
+</a>
+
+<a
+class="header-button"
+href="services.html"
+>
+Browse Services
+</a>
+
+<a
+class="header-button"
+href="members.html"
+>
+Find Members
+</a>
+
+<button id="signout">
+Sign Out
+</button>
+
+</div>
+</header>
+
+<main>
+
+<section class="hero">
+
+<p class="muted">
+MEMBER DASHBOARD
+</p>
+
+<h1>
+Welcome, <span id="name">Member</span>
+</h1>
+
+<p>
+Your StarRise member account is active.
+</p>
+
+<a
+class="edit-link"
+href="edit-profile.html"
+>
+Edit Profile
+</a>
+
+</section>
+
+<section class="notification-panel">
+
+<div class="notification-header">
+
+<div>
+<h2 style="margin-bottom:4px;">
+Notifications
+</h2>
+
+<span
+id="notification-summary"
+class="muted small"
+>
+Checking notifications...
+</span>
+</div>
+
+<button
+id="mark-notifications-read"
+class="header-button"
+type="button"
+>
+Mark All Read
+</button>
+
+</div>
+
+<div
+id="notifications"
+class="notification-list"
+></div>
+
+</section>
+
+<section class="panel">
+
+<h2>
+Get Paid Through StarRise
+</h2>
+
+<p class="muted">
+Connect your Stripe account to receive payouts
+for services you complete.
+</p>
+
+<div
+id="stripe-status"
+class="status-box"
+>
+Checking Stripe payout status...
+</div>
+
+<div class="stripe-grid">
+
+<div class="stripe-stat">
+<span class="label">Account</span>
+<strong id="stripe-account-status">
+Checking...
+</strong>
+</div>
+
+<div class="stripe-stat">
+<span class="label">Charges</span>
+<strong id="stripe-charges">
+Checking...
+</strong>
+</div>
+
+<div class="stripe-stat">
+<span class="label">Payouts</span>
+<strong id="stripe-payouts">
+Checking...
+</strong>
+</div>
+
+</div>
+
+<button
+id="connect-stripe"
+class="connect-button"
+type="button"
+>
+Set Up Stripe Payouts
+</button>
+
+<p
+id="stripe-message"
+class="muted small"
+></p>
+
+</section>
+
+<section class="panel">
+
+<h2>Your Profile</h2>
+
+<div
+id="status"
+class="status-box"
+>
+Connecting to StarRise...
+</div>
+
+<div class="profile-grid">
+
+<div class="item">
+<span class="label">Full Name</span>
+<span id="profile-name" class="profile-value">
+Loading...
+</span>
+</div>
+
+<div class="item">
+<span class="label">
+Display / Stage Name
+</span>
+<span id="display-name" class="profile-value">
+Loading...
+</span>
+</div>
+
+<div class="item">
+<span class="label">Email</span>
+<span id="email" class="profile-value">
+Loading...
+</span>
+</div>
+
+<div class="item">
+<span class="label">Location</span>
+<span id="location" class="profile-value">
+Loading...
+</span>
+</div>
+
+<div class="item">
+<span class="label">Website</span>
+<span id="website" class="profile-value">
+Loading...
+</span>
+</div>
+
+<div class="item">
+<span class="label">Member Since</span>
+<span id="member-since" class="profile-value">
+Loading...
+</span>
+</div>
+
+</div>
+</section>
+
+<section class="panel">
+
+<h2>Your StarRise Rating</h2>
+
+<p class="muted">
+Your rating is based on completed services
+and customer reviews.
+</p>
+
+<div class="rating-box">
+
+<span class="label">
+Average Rating
+</span>
+
+<div id="average-rating" class="rating-number">
+Loading...
+</div>
+
+<div id="rating-stars" class="rating-stars">
+☆☆☆☆☆
+</div>
+
+<div class="stripe-grid">
+
+<div class="stripe-stat">
+<span class="label">Reviews</span>
+<strong id="review-count">0</strong>
+</div>
+
+<div class="stripe-stat">
+<span class="label">Completed Services</span>
+<strong id="completed-count">0</strong>
+</div>
+
+</div>
+</div>
+</section>
+
+<section class="panel">
+<h2>About You</h2>
+<p id="bio" class="muted">
+Loading...
+</p>
+</section>
+
+<section class="panel">
+<h2>Your StarRise Roles</h2>
+<div id="roles">
+Loading roles...
+</div>
+</section>
+
+<section class="panel">
+
+<h2>Incoming Service Orders</h2>
+
+<p class="muted">
+Active service requests from customers appear here.
+</p>
+
+<div id="orders-status" class="status-box">
+Loading orders...
+</div>
+
+<div id="orders"></div>
+
+</section>
+
+<section class="panel">
+
+<h2>Completed Services</h2>
+
+<p class="muted">
+Services you completed appear here.
+</p>
+
+<div id="completed-orders-status" class="status-box">
+Loading completed services...
+</div>
+
+<div id="completed-orders"></div>
+
+</section>
+
+<section class="panel">
+
+<h2>My Orders</h2>
+
+<p class="muted">
+Services you requested from other StarRise members.
+</p>
+
+<div id="my-orders-status" class="status-box">
+Loading your orders...
+</div>
+
+<div id="my-orders"></div>
+
+</section>
+
+<section class="panel">
+
+<h2>My Completed &amp; Cancelled Services</h2>
+
+<p class="muted">
+Completed services and cancelled orders, including Stripe refund progress.
+</p>
+
+<div id="my-completed-status" class="status-box">
+Loading completed orders...
+</div>
+
+<div id="my-completed"></div>
+
+</section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+(function(){
+'use strict';
+
+const SUPABASE_URL=
+'https://rcnikxotdalxtuvpmlvm.supabase.co';
+
+const SUPABASE_KEY=
+'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
+
+const FUNCTIONS_URL=
+SUPABASE_URL+
+'/functions/v1';
+
+const statusBox=
+document.getElementById('status');
+
+const ordersStatus=
+document.getElementById('orders-status');
+
+const ordersContainer=
+document.getElementById('orders');
+
+const completedOrdersStatus=
+document.getElementById(
+'completed-orders-status'
+);
+
+const completedOrdersContainer=
+document.getElementById(
+'completed-orders'
+);
+
+const myOrdersStatus=
+document.getElementById(
+'my-orders-status'
+);
+
+const myOrdersContainer=
+document.getElementById(
+'my-orders'
+);
+
+const myCompletedStatus=
+document.getElementById(
+'my-completed-status'
+);
+
+const myCompletedContainer=
+document.getElementById(
+'my-completed'
+);
+
+const stripeStatus=
+document.getElementById(
+'stripe-status'
+);
+
+const stripeAccountStatus=
+document.getElementById(
+'stripe-account-status'
+);
+
+const stripeCharges=
+document.getElementById(
+'stripe-charges'
+);
+
+const stripePayouts=
+document.getElementById(
+'stripe-payouts'
+);
+
+const connectStripeButton=
+document.getElementById(
+'connect-stripe'
+);
+
+const stripeMessage=
+document.getElementById(
+'stripe-message'
+);
+
+const notificationsContainer=
+document.getElementById(
+'notifications'
+);
+
+const notificationSummary=
+document.getElementById(
+'notification-summary'
+);
+
+const markNotificationsRead=
+document.getElementById(
+'mark-notifications-read'
+);
+
+let supabaseClient=null;
+let currentUser=null;
+
+function escapeHtml(value){
+return String(value??'')
+.replace(/&/g,'&amp;')
+.replace(/</g,'&lt;')
+.replace(/>/g,'&gt;')
+.replace(/"/g,'&quot;')
+.replace(/'/g,'&#039;');
+}
+
+function setStatus(
+element,
+message,
+type
+){
+if(!element){
+return;
+}
+
+element.textContent=
+message;
+
+element.classList.remove(
+'error',
+'success',
+'warning'
+);
+
+if(type){
+element.classList.add(type);
+}
+}
+
+function formatDate(value){
+if(!value){
+return 'Unknown';
+}
+
+const date=
+new Date(value);
+
+if(Number.isNaN(date.getTime())){
+return 'Unknown';
+}
+
+return date.toLocaleDateString();
+}
+
+function formatDateTime(value){
+if(!value){
+return '';
+}
+
+const date=
+new Date(value);
+
+if(Number.isNaN(date.getTime())){
+return '';
+}
+
+return date.toLocaleString();
+}
+
+function formatMoney(cents){
+return '$'+
+(
+Number(cents||0)/100
+).toFixed(2);
+}
+
+function starsHtml(rating){
+const value=
+Number(rating||0);
+
+return [1,2,3,4,5]
+.map(
+number=>
+number<=value
+?'★'
+:'☆'
+)
+.join('');
+}
+
+function getField(
+object,
+fields,
+fallback
+){
+for(const field of fields){
+if(
+object&&
+object[field]!==undefined&&
+object[field]!==null&&
+object[field]!==''
+){
+return object[field];
+}
+}
+
+return fallback;
+}
+
+function yesNo(value){
+return value
+?'Enabled'
+:'Not enabled';
+}
+
+function statusLabel(status){
+const labels={
+pending:'Waiting for seller',
+accepted:'Accepted by seller',
+in_progress:'Service in progress',
+completed:'Completed',
+declined:'Declined',
+cancelled:'Cancelled'
+};
+
+return labels[status]||
+status||
+'Unknown';
+}
+
+function paymentStatusLabel(status){
+const labels={
+unpaid:'Awaiting payment',
+paid:'Paid',
+refund_pending:'Refund processing',
+refunded:'Refunded'
+};
+
+return labels[status]||
+String(status||'Unknown').replaceAll('_',' ');
+}
+
+function statusIndex(status){
+const statuses=[
+'pending',
+'accepted',
+'in_progress',
+'completed'
+];
+
+const index=
+statuses.indexOf(status);
+
+return index>=0
+?index
+:0;
+}
+
+function renderTimeline(order){
+const current=
+statusIndex(order.status);
+
+const steps=[
+{
+key:'pending',
+label:'Requested'
+},
+{
+key:'accepted',
+label:'Accepted'
+},
+{
+key:'in_progress',
+label:'In Progress'
+},
+{
+key:'completed',
+label:'Completed'
+}
+];
+
+return `
+<div class="timeline">
+
+<div class="timeline-title">
+Order Progress
+</div>
+
+<div class="timeline-track">
+
+${steps.map(
+function(step,index){
+let className='';
+
+if(
+order.status!=='declined'&&
+order.status!=='cancelled'
+){
+if(index<current){
+className='complete';
+}
+
+if(index===current){
+className='active';
+}
+}
+
+return `
+<div class="timeline-step ${className}">
+
+<div class="timeline-dot">
+${index<current?'✓':index+1}
+</div>
+
+<div class="timeline-label">
+${escapeHtml(step.label)}
+</div>
+
+</div>
+`;
+}
+).join('')}
+
+</div>
+
+<div
+class="muted small"
+style="margin-top:12px;"
+>
+Current status:
+<strong>
+${escapeHtml(
+statusLabel(order.status)
+)}
+</strong>
+</div>
+
+</div>
+`;
+}
+
+async function initialize(){
+try{
+setStatus(
+statusBox,
+'Connecting to StarRise...'
+);
+
+if(!window.supabase){
+throw new Error(
+'Supabase JavaScript library failed to load.'
+);
+}
+
+supabaseClient=
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+const sessionResult=
+await supabaseClient
+.auth
+.getSession();
+
+if(sessionResult.error){
+throw sessionResult.error;
+}
+
+const session=
+sessionResult.data&&
+sessionResult.data.session;
+
+if(
+!session||
+!session.user
+){
+setStatus(
+statusBox,
+'No active session. Redirecting to login...',
+'error'
+);
+
+setTimeout(
+function(){
+window.location.href=
+'login.html';
+},
+1000
+);
+
+return;
+}
+
+currentUser=
+session.user;
+
+document.getElementById(
+'email'
+).textContent=
+currentUser.email||
+'Not available';
+
+setStatus(
+statusBox,
+'Connected to StarRise.',
+'success'
+);
+
+await loadProfile(currentUser);
+await loadRoles(currentUser);
+await loadStripeStatus(currentUser);
+await loadIncomingOrders(currentUser);
+await loadCompletedOrders(currentUser);
+await loadMyOrders(currentUser);
+await loadMyCompletedOrders(currentUser);
+await loadRating(currentUser);
+await loadNotifications(currentUser);
+
+}catch(error){
+console.error(
+'Dashboard initialization error:',
+error
+);
+
+setStatus(
+statusBox,
+'Dashboard error: '+
+(
+error.message||
+'Unknown error'
+),
+'error'
+);
+}
+}
+
+async function loadProfile(user){
+let result=
+await supabaseClient
+.from('Profiles')
+.select('*')
+.eq('id',user.id)
+.maybeSingle();
+
+if(result.error){
+throw new Error(
+'Profile: '+
+result.error.message
+);
+}
+
+if(!result.data){
+result=
+await supabaseClient
+.from('Profiles')
+.select('*')
+.eq('User_id',user.id)
+.maybeSingle();
+
+if(result.error){
+throw new Error(
+'Profile: '+
+result.error.message
+);
+}
+}
+
+if(!result.data){
+throw new Error(
+'Profile: no profile record exists for this account.'
+);
+}
+
+const profile=
+result.data;
+
+const fullName=
+getField(
+profile,
+[
+'full_name',
+'Full_Name',
+'name',
+'Name'
+],
+'StarRise Member'
+);
+
+const displayName=
+getField(
+profile,
+[
+'display_name',
+'Display_Name',
+'stage_name',
+'Stage_Name'
+],
+fullName
+);
+
+document.getElementById(
+'name'
+).textContent=
+displayName;
+
+document.getElementById(
+'profile-name'
+).textContent=
+fullName;
+
+document.getElementById(
+'display-name'
+).textContent=
+displayName;
+
+document.getElementById(
+'email'
+).textContent=
+user.email||
+'Not available';
+
+document.getElementById(
+'location'
+).textContent=
+getField(
+profile,
+[
+'location',
+'Location'
+],
+'Not provided'
+);
+
+document.getElementById(
+'bio'
+).textContent=
+getField(
+profile,
+[
+'bio',
+'Bio'
+],
+'No bio added yet.'
+);
+
+document.getElementById(
+'website'
+).textContent=
+getField(
+profile,
+[
+'website',
+'Website'
+],
+'Not provided'
+);
+
+document.getElementById(
+'member-since'
+).textContent=
+formatDate(
+getField(
+profile,
+[
+'created_at',
+'Created_at'
+],
+null
+)
+);
+}
+
+async function loadRoles(user){
+const element=
+document.getElementById(
+'roles'
+);
+
+try{
+const result=
+await supabaseClient
+.from('member_roles')
+.select('role')
+.eq('user_id',user.id)
+.order('role');
+
+if(result.error){
+throw result.error;
+}
+
+if(
+!result.data||
+!result.data.length
+){
+element.innerHTML=
+'<span class="muted">'+
+'No roles assigned yet.'+
+'</span>';
+
+return;
+}
+
+element.innerHTML=
+result.data
+.map(
+item=>
+'<span class="role">'+
+escapeHtml(item.role)+
+'</span>'
+)
+.join('');
+
+}catch(error){
+console.error(
+'Roles error:',
+error
+);
+
+element.innerHTML=
+'<span class="muted">'+
+'Unable to load roles: '+
+escapeHtml(error.message)+
+'</span>';
+}
+}
+
+async function loadRating(user){
+const averageElement=
+document.getElementById(
+'average-rating'
+);
+
+const starsElement=
+document.getElementById(
+'rating-stars'
+);
+
+const reviewCount=
+document.getElementById(
+'review-count'
+);
+
+const completedCount=
+document.getElementById(
+'completed-count'
+);
+
+try{
+const completed=
+await supabaseClient
+.from('service_orders')
+.select(
+'id',
+{
+count:'exact'
+}
+)
+.eq('seller_id',user.id)
+.eq('status','completed');
+
+if(completed.error){
+throw completed.error;
+}
+
+const reviews=
+await supabaseClient
+.from('service_reviews')
+.select('rating')
+.eq('seller_id',user.id);
+
+if(reviews.error){
+throw reviews.error;
+}
+
+const rows=
+reviews.data||[];
+
+const total=
+rows.length;
+
+completedCount.textContent=
+String(completed.count||0);
+
+reviewCount.textContent=
+String(total);
+
+if(!total){
+averageElement.textContent=
+'No rating yet';
+
+starsElement.textContent=
+'☆☆☆☆☆';
+
+return;
+}
+
+const average=
+rows.reduce(
+function(sum,review){
+return sum+
+Number(review.rating||0);
+},
+0
+)/total;
+
+averageElement.textContent=
+average.toFixed(1)+
+' / 5';
+
+starsElement.textContent=
+starsHtml(
+Math.round(average)
+);
+
+}catch(error){
+console.error(
+'Rating error:',
+error
+);
+
+averageElement.textContent=
+'Unavailable';
+
+starsElement.textContent=
+'☆☆☆☆☆';
+}
+}
+
+async function loadStripeStatus(user){
+setStatus(
+stripeStatus,
+'Checking Stripe payout status...'
+);
+
+connectStripeButton.disabled=true;
+
+connectStripeButton.textContent=
+'Checking Stripe...';
+
+try{
+const result=
+await supabaseClient
+.from('stripe_connected_accounts')
+.select(
+'stripe_account_id, charges_enabled, payouts_enabled, details_submitted'
+)
+.eq('user_id',user.id)
+.maybeSingle();
+
+if(result.error){
+throw result.error;
+}
+
+const account=
+result.data;
+
+if(!account){
+stripeAccountStatus.textContent=
+'Not connected';
+
+stripeCharges.textContent=
+'Not enabled';
+
+stripePayouts.textContent=
+'Not enabled';
+
+setStatus(
+stripeStatus,
+'Stripe payouts have not been set up yet.',
+'warning'
+);
+
+connectStripeButton.disabled=false;
+
+connectStripeButton.textContent=
+'Set Up Stripe Payouts';
+
+return;
+}
+
+stripeCharges.textContent=
+yesNo(account.charges_enabled);
+
+stripePayouts.textContent=
+yesNo(account.payouts_enabled);
+
+if(account.payouts_enabled){
+stripeAccountStatus.textContent=
+'Ready';
+
+setStatus(
+stripeStatus,
+'Your Stripe account is ready to receive payouts.',
+'success'
+);
+
+connectStripeButton.disabled=false;
+
+connectStripeButton.textContent=
+'Manage Stripe Setup';
+
+}else if(account.details_submitted){
+stripeAccountStatus.textContent=
+'Under review';
+
+setStatus(
+stripeStatus,
+'Stripe setup has been submitted. Complete any remaining requirements in Stripe.',
+'warning'
+);
+
+connectStripeButton.disabled=false;
+
+connectStripeButton.textContent=
+'Continue Stripe Setup';
+
+}else{
+stripeAccountStatus.textContent=
+'Setup required';
+
+setStatus(
+stripeStatus,
+'Finish Stripe onboarding before receiving payouts.',
+'warning'
+);
+
+connectStripeButton.disabled=false;
+
+connectStripeButton.textContent=
+'Finish Stripe Setup';
+}
+
+}catch(error){
+console.error(
+'Stripe status error:',
+error
+);
+
+stripeAccountStatus.textContent=
+'Unavailable';
+
+stripeCharges.textContent=
+'Unavailable';
+
+stripePayouts.textContent=
+'Unavailable';
+
+setStatus(
+stripeStatus,
+'Stripe status could not be loaded: '+
+error.message,
+'error'
+);
+
+connectStripeButton.disabled=false;
+
+connectStripeButton.textContent=
+'Set Up Stripe Payouts';
+}
+}
+
+async function startStripeOnboarding(){
+if(!currentUser){
+throw new Error(
+'You must be signed in.'
+);
+}
+
+connectStripeButton.disabled=true;
+
+connectStripeButton.textContent=
+'Opening Stripe...';
+
+stripeMessage.textContent=
+'Preparing your secure Stripe onboarding page...';
+
+try{
+const sessionResult=
+await supabaseClient
+.auth
+.getSession();
+
+if(sessionResult.error){
+throw sessionResult.error;
+}
+
+const session=
+sessionResult.data&&
+sessionResult.data.session;
+
+if(!session){
+throw new Error(
+'Your login session has expired.'
+);
+}
+
+const response=
+await fetch(
+FUNCTIONS_URL+
+'/connect-payouts',
+{
+method:'POST',
+headers:{
+Authorization:
+'Bearer '+
+session.access_token,
+apikey:SUPABASE_KEY,
+'Content-Type':
+'application/json'
+},
+body:JSON.stringify({})
+}
+);
+
+const data=
+await response.json();
+
+if(
+!response.ok||
+!data.url
+){
+throw new Error(
+data.error||
+'Stripe onboarding could not be started.'
+);
+}
+
+window.location.href=
+data.url;
+
+}catch(error){
+console.error(
+'Stripe onboarding error:',
+error
+);
+
+setStatus(
+stripeStatus,
+'Unable to start Stripe setup: '+
+error.message,
+'error'
+);
+
+stripeMessage.textContent=
+'Please try again.';
+
+connectStripeButton.disabled=false;
+
+connectStripeButton.textContent=
+'Set Up Stripe Payouts';
+}
+}
+
+async function getServices(serviceIds){
+const ids=[
+...new Set(
+serviceIds.filter(Boolean)
+)
+];
+
+if(!ids.length){
+return {};
+}
+
+const result=
+await supabaseClient
+.from('star_rise_services')
+.select('*')
+.in('id',ids);
+
+if(result.error){
+throw result.error;
+}
+
+return (result.data||[])
+.reduce(
+function(map,service){
+map[service.id]=service;
+return map;
+},
+{}
+);
+}
+
+async function getProfiles(userIds){
+const ids=[
+...new Set(
+userIds.filter(Boolean)
+)
+];
+
+if(!ids.length){
+return {};
+}
+
+const result=
+await supabaseClient
+.from('Profiles')
+.select('*')
+.in('id',ids);
+
+if(result.error){
+return {};
+}
+
+return (result.data||[])
+.reduce(
+function(map,profile){
+map[profile.id]=profile;
+return map;
+},
+{}
+);
+}
+
+async function getReviews(orderIds){
+if(!orderIds.length){
+return {};
+}
+
+const result=
+await supabaseClient
+.from('service_reviews')
+.select('*')
+.in('order_id',orderIds);
+
+if(result.error){
+console.error(
+'Reviews error:',
+result.error
+);
+
+return {};
+}
+
+return (result.data||[])
+.reduce(
+function(map,review){
+map[review.order_id]=review;
+return map;
+},
+{}
+);
+}
+
+function reviewDisplay(review){
+if(!review){
+return '';
+}
+
+return `
+<div class="review-display">
+
+<span class="label">
+Review
+</span>
+
+<div class="review-stars">
+${escapeHtml(
+starsHtml(review.rating)
+)}
+</div>
+
+${
+review.review
+?`
+<div class="review-content">
+${escapeHtml(review.review)}
+</div>
+`
+:''
+}
+
+<div class="review-date">
+Reviewed
+${escapeHtml(
+formatDate(review.created_at)
+)}
+</div>
+
+</div>
+`;
+}
+
+function reviewForm(order,review){
+const currentRating=
+Number(
+review&&review.rating
+?review.rating
+:0
+);
+
+return `
+<div class="review-box">
+
+<span class="label">
+${review?'Update Your Review':'Rate This Service'}
+</span>
+
+<div
+class="stars"
+data-stars-for="${escapeHtml(order.id)}"
+>
+
+${[1,2,3,4,5]
+.map(
+function(number){
+return `
+<button
+type="button"
+class="star ${number<=currentRating?'selected':''}"
+data-rating="${number}"
+data-order="${escapeHtml(order.id)}"
+>
+★
+</button>
+`;
+}
+)
+.join('')}
+
+</div>
+
+<textarea
+class="review-text"
+id="review-text-${escapeHtml(order.id)}"
+maxlength="1000"
+placeholder="Tell us about your StarRise experience..."
+>${escapeHtml(
+review&&review.review
+?review.review
+:''
+)}</textarea>
+
+<button
+type="button"
+class="order-button"
+data-submit-review="${escapeHtml(order.id)}"
+>
+${review?'Update Review':'Submit Review'}
+</button>
+
+<div
+id="review-message-${escapeHtml(order.id)}"
+class="muted"
+style="margin-top:10px;"
+></div>
+
+</div>
+`;
+}
+
+function renderOrder(
+order,
+service,
+profile,
+options
+){
+const serviceTitle=
+service
+?service.title
+:'Service';
+
+const requestMessage=
+order.request_message&&
+order.request_message.trim()
+?order.request_message
+:'No request details provided.';
+
+const personLabel=
+options.personLabel||
+'Member';
+
+const personName=
+profile
+?getField(
+profile,
+[
+'display_name',
+'full_name',
+'name'
+],
+personLabel
+)
+:personLabel;
+
+let actions='';
+
+if(options.provider){
+if(order.status==='pending'){
+if(order.payment_status==='paid'){
+actions=`
+<div class="order-actions">
+
+<button
+class="order-button"
+data-order-action="accepted"
+data-order-id="${escapeHtml(order.id)}"
+>
+Accept Request
+</button>
+
+</div>
+`;
+}else{
+actions=`
+<div class="order-actions">
+
+<button
+class="order-button"
+disabled
+>
+Awaiting Payment
+</button>
+
+<button
+class="order-button decline-button"
+data-order-action="declined"
+data-order-id="${escapeHtml(order.id)}"
+>
+Decline Unpaid Request
+</button>
+
+</div>
+`;
+}
+}
+
+if(order.status==='accepted'){
+if(order.payment_status==='paid'){
+actions=`
+<div class="order-actions">
+
+<button
+class="order-button"
+data-order-action="in_progress"
+data-order-id="${escapeHtml(order.id)}"
+>
+Start Service
+</button>
+
+</div>
+`;
+}else{
+actions=`
+<div class="order-actions">
+<button class="order-button" disabled>
+Payment Required Before Starting
+</button>
+</div>
+`;
+}
+}
+
+if(order.status==='in_progress'){
+if(order.payment_status==='paid'){
+actions=`
+<div class="order-actions">
+
+<button
+class="order-button"
+data-order-action="completed"
+data-order-id="${escapeHtml(order.id)}"
+>
+Complete Service &amp; Process Payout
+</button>
+
+</div>
+`;
+}else{
+actions=`
+<div class="order-actions">
+<button class="order-button" disabled>
+Payment Required Before Completion
+</button>
+</div>
+`;
+}
+}
+}
+
+const serviceLink=
+service
+?`
+<a
+class="service-link"
+href="service.html?id=${encodeURIComponent(service.id)}"
+>
+View Service
+</a>
+`
+:'';
+
+return `
+<div class="order-card">
+
+<div class="service-title">
+${escapeHtml(serviceTitle)}
+</div>
+
+<div class="order-price">
+${escapeHtml(
+formatMoney(order.amount_cents)
+)}
+</div>
+
+<div class="order-status">
+${escapeHtml(
+statusLabel(order.status)
+)}
+</div>
+
+<div class="order-meta">
+Payment:
+${escapeHtml(
+paymentStatusLabel(order.payment_status)
+)}
+</div>
+
+${
+order.status==='cancelled'&&order.refund_status
+?`
+<div class="order-meta">
+Stripe Refund:
+${escapeHtml(
+String(order.refund_status).replaceAll('_',' ')
+)}
+</div>
+`
+:''
+}
+
+<div class="order-request">
+${escapeHtml(requestMessage)}
+</div>
+
+<div class="order-meta">
+${escapeHtml(personLabel)}:
+${escapeHtml(personName)}
+</div>
+
+<div class="order-meta">
+Requested:
+${escapeHtml(
+formatDate(order.created_at)
+)}
+</div>
+
+${
+order.updated_at
+?`
+<div class="order-meta">
+Last Updated:
+${escapeHtml(
+formatDateTime(order.updated_at)
+)}
+</div>
+`
+:''
+}
+
+${serviceLink}
+${renderTimeline(order)}
+${actions}
+
+</div>
+`;
+}
+
+async function loadIncomingOrders(user){
+setStatus(
+ordersStatus,
+'Loading orders...'
+);
+
+ordersContainer.innerHTML='';
+
+try{
+const result=
+await supabaseClient
+.from('service_orders')
+.select('*')
+.eq('seller_id',user.id)
+.in(
+'status',
+[
+'pending',
+'accepted',
+'in_progress'
+]
+)
+.order(
+'created_at',
+{
+ascending:false
+}
+);
+
+if(result.error){
+throw result.error;
+}
+
+const orders=
+result.data||[];
+
+if(!orders.length){
+setStatus(
+ordersStatus,
+'You have no active service requests.'
+);
+
+ordersContainer.innerHTML=
+'<div class="empty">'+
+'No incoming service orders yet.'+
+'</div>';
+
+return;
+}
+
+const services=
+await getServices(
+orders.map(
+order=>order.service_id
+)
+);
+
+const profiles=
+await getProfiles(
+orders.map(
+order=>order.buyer_id
+)
+);
+
+setStatus(
+ordersStatus,
+orders.length===1
+?'1 active service request.'
+:orders.length+
+' active service requests.',
+'success'
+);
+
+ordersContainer.innerHTML=
+orders.map(
+order=>
+renderOrder(
+order,
+services[order.service_id],
+profiles[order.buyer_id],
+{
+provider:true,
+personLabel:'Customer'
+}
+)
+).join('');
+
+}catch(error){
+console.error(
+'Incoming orders error:',
+error
+);
+
+setStatus(
+ordersStatus,
+'Unable to load incoming orders: '+
+error.message,
+'error'
+);
+}
+}
+
+async function loadCompletedOrders(user){
+setStatus(
+completedOrdersStatus,
+'Loading completed services...'
+);
+
+completedOrdersContainer.innerHTML='';
+
+try{
+const result=
+await supabaseClient
+.from('service_orders')
+.select('*')
+.eq('seller_id',user.id)
+.eq('status','completed')
+.order(
+'updated_at',
+{
+ascending:false
+}
+);
+
+if(result.error){
+throw result.error;
+}
+
+const orders=
+result.data||[];
+
+if(!orders.length){
+setStatus(
+completedOrdersStatus,
+'No completed services yet.'
+);
+
+completedOrdersContainer.innerHTML=
+'<div class="empty">'+
+'You have not completed any services yet.'+
+'</div>';
+
+return;
+}
+
+const services=
+await getServices(
+orders.map(
+order=>order.service_id
+)
+);
+
+const profiles=
+await getProfiles(
+orders.map(
+order=>order.buyer_id
+)
+);
+
+setStatus(
+completedOrdersStatus,
+orders.length===1
+?'1 completed service.'
+:orders.length+
+' completed services.',
+'success'
+);
+
+completedOrdersContainer.innerHTML=
+orders.map(
+order=>
+renderOrder(
+order,
+services[order.service_id],
+profiles[order.buyer_id],
+{
+provider:false,
+personLabel:'Customer'
+}
+)
+).join('');
+
+}catch(error){
+console.error(
+'Completed services error:',
+error
+);
+
+setStatus(
+completedOrdersStatus,
+'Unable to load completed services: '+
+error.message,
+'error'
+);
+}
+}
+
+async function loadMyOrders(user){
+setStatus(
+myOrdersStatus,
+'Loading your orders...'
+);
+
+myOrdersContainer.innerHTML='';
+
+try{
+const result=
+await supabaseClient
+.from('service_orders')
+.select('*')
+.eq('buyer_id',user.id)
+.in(
+'status',
+[
+'pending',
+'accepted',
+'in_progress'
+]
+)
+.order(
+'created_at',
+{
+ascending:false
+}
+);
+
+if(result.error){
+throw result.error;
+}
+
+const orders=
+result.data||[];
+
+if(!orders.length){
+setStatus(
+myOrdersStatus,
+'You have no active orders.'
+);
+
+myOrdersContainer.innerHTML=
+'<div class="empty">'+
+'You have not placed any orders yet.'+
+'</div>';
+
+return;
+}
+
+const services=
+await getServices(
+orders.map(
+order=>order.service_id
+)
+);
+
+const profiles=
+await getProfiles(
+orders.map(
+order=>order.seller_id
+)
+);
+
+setStatus(
+myOrdersStatus,
+orders.length===1
+?'1 active order.'
+:orders.length+
+' active orders.',
+'success'
+);
+
+myOrdersContainer.innerHTML=
+orders.map(
+order=>
+renderOrder(
+order,
+services[order.service_id],
+profiles[order.seller_id],
+{
+provider:false,
+personLabel:'Seller'
+}
+)
+).join('');
+
+}catch(error){
+console.error(
+'My orders error:',
+error
+);
+
+setStatus(
+myOrdersStatus,
+'Unable to load your orders: '+
+error.message,
+'error'
+);
+}
+}
+
+async function loadMyCompletedOrders(user){
+setStatus(
+myCompletedStatus,
+'Loading completed and cancelled orders...'
+);
+
+myCompletedContainer.innerHTML='';
+
+try{
+const result=
+await supabaseClient
+.from('service_orders')
+.select('*')
+.eq('buyer_id',user.id)
+.in(
+'status',
+[
+'completed',
+'cancelled'
+]
+)
+.order(
+'updated_at',
+{
+ascending:false
+}
+);
+
+if(result.error){
+throw result.error;
+}
+
+const orders=
+result.data||[];
+
+if(!orders.length){
+setStatus(
+myCompletedStatus,
+'No completed or cancelled services yet.'
+);
+
+myCompletedContainer.innerHTML=
+'<div class="empty">'+
+'Your completed and cancelled service history will appear here.'+
+'</div>';
+
+return;
+}
+
+const services=
+await getServices(
+orders.map(
+order=>order.service_id
+)
+);
+
+const profiles=
+await getProfiles(
+orders.map(
+order=>order.seller_id
+)
+);
+
+const reviews=
+await getReviews(
+orders.map(
+order=>order.id
+)
+);
+
+setStatus(
+myCompletedStatus,
+orders.length===1
+?'1 service history item.'
+:orders.length+
+' service history items.',
+'success'
+);
+
+myCompletedContainer.innerHTML=
+orders.map(
+function(order){
+const review=
+reviews[order.id];
+
+return renderOrder(
+order,
+services[order.service_id],
+profiles[order.seller_id],
+{
+provider:false,
+personLabel:'Seller'
+}
+)+
+(
+order.status==='completed'
+?(
+review
+?reviewDisplay(review)
+:reviewForm(order,review)
+)
+:''
+);
+}
+).join('');
+
+}catch(error){
+console.error(
+'My completed orders error:',
+error
+);
+
+setStatus(
+myCompletedStatus,
+'Unable to load completed and cancelled orders: '+
+error.message,
+'error'
+);
+}
+}
+
+async function updateOrderStatus(
+orderId,
+newStatus
+){
+if(!currentUser){
+throw new Error(
+'You must be signed in.'
+);
+}
+
+if(newStatus==='completed'){
+const completionResult=
+await supabaseClient
+.functions
+.invoke(
+'complete-service-order',
+{
+body:{
+order_id:orderId
+}
+}
+);
+
+if(
+completionResult.error||
+(
+completionResult.data&&
+completionResult.data.error
+)
+){
+throw new Error(
+completionResult.data&&
+completionResult.data.error
+?completionResult.data.error
+:completionResult.error.message
+);
+}
+
+return completionResult.data;
+}
+
+const result=
+await supabaseClient
+.from('service_orders')
+.update({
+status:newStatus,
+updated_at:
+new Date().toISOString()
+})
+.eq('id',orderId)
+.eq('seller_id',currentUser.id);
+
+if(result.error){
+throw result.error;
+}
+}
+
+async function submitReview(orderId){
+if(!currentUser){
+throw new Error(
+'You must be signed in.'
+);
+}
+
+const starsContainer=
+document.querySelector(
+'[data-stars-for="'+
+CSS.escape(orderId)+
+'"]'
+);
+
+const selectedStar=
+starsContainer
+?starsContainer.querySelector(
+'.star.selected'
+)
+:null;
+
+const rating=
+selectedStar
+?Number(selectedStar.dataset.rating)
+:0;
+
+const textElement=
+document.getElementById(
+'review-text-'+
+orderId
+);
+
+const reviewText=
+textElement
+?textElement.value.trim()
+:'';
+
+if(
+rating<1||
+rating>5
+){
+throw new Error(
+'Please select a rating from 1 to 5 stars.'
+);
+}
+
+const orderResult=
+await supabaseClient
+.from('service_orders')
+.select(
+'id, seller_id, buyer_id, status'
+)
+.eq('id',orderId)
+.eq('buyer_id',currentUser.id)
+.eq('status','completed')
+.maybeSingle();
+
+if(orderResult.error){
+throw orderResult.error;
+}
+
+if(!orderResult.data){
+throw new Error(
+'Completed order not found.'
+);
+}
+
+const existing=
+await supabaseClient
+.from('service_reviews')
+.select('id')
+.eq('order_id',orderId)
+.eq('reviewer_id',currentUser.id)
+.maybeSingle();
+
+if(existing.error){
+throw existing.error;
+}
+
+let result;
+
+if(existing.data){
+result=
+await supabaseClient
+.from('service_reviews')
+.update({
+rating:rating,
+review:reviewText,
+seller_id:
+orderResult.data.seller_id,
+updated_at:
+new Date().toISOString()
+})
+.eq('id',existing.data.id)
+.eq('reviewer_id',currentUser.id);
+
+}else{
+result=
+await supabaseClient
+.from('service_reviews')
+.insert({
+order_id:orderId,
+reviewer_id:currentUser.id,
+seller_id:
+orderResult.data.seller_id,
+rating:rating,
+review:reviewText
+});
+}
+
+if(result.error){
+throw result.error;
+}
+}
+
+async function loadNotifications(user){
+notificationsContainer.innerHTML='';
+
+try{
+const incoming=
+await supabaseClient
+.from('service_orders')
+.select(
+'id, status, created_at, updated_at, amount_cents, buyer_id, service_id'
+)
+.eq('seller_id',user.id)
+.order(
+'updated_at',
+{
+ascending:false
+}
+)
+.limit(10);
+
+const outgoing=
+await supabaseClient
+.from('service_orders')
+.select(
+'id, status, created_at, updated_at, amount_cents, seller_id, service_id'
+)
+.eq('buyer_id',user.id)
+.order(
+'updated_at',
+{
+ascending:false
+}
+)
+.limit(10);
+
+if(incoming.error){
+throw incoming.error;
+}
+
+if(outgoing.error){
+throw outgoing.error;
+}
+
+const notifications=[];
+
+const seenKey=
+'starrise_seen_notifications_'+
+user.id;
+
+let seen=[];
+
+try{
+seen=
+JSON.parse(
+localStorage.getItem(seenKey)||
+'[]'
+);
+}catch(_){
+seen=[];
+}
+
+(incoming.data||[])
+.forEach(
+function(order){
+notifications.push({
+id:
+'seller-'+
+order.id+
+'-'+
+order.status,
+orderId:order.id,
+title:'Service order update',
+message:
+order.status==='pending'
+?'You have a new service request.'
+:'A service order you are providing is now '+
+statusLabel(order.status).toLowerCase()+
+'.',
+date:
+order.updated_at||
+order.created_at
+});
+}
+);
+
+(outgoing.data||[])
+.forEach(
+function(order){
+notifications.push({
+id:
+'buyer-'+
+order.id+
+'-'+
+order.status,
+orderId:order.id,
+title:'Your service order',
+message:
+'Your order is now '+
+statusLabel(order.status).toLowerCase()+
+'.',
+date:
+order.updated_at||
+order.created_at
+});
+}
+);
+
+notifications.sort(
+(a,b)=>
+new Date(b.date)-
+new Date(a.date)
+);
+
+const unique=[];
+const ids=new Set();
+
+notifications.forEach(
+function(notification){
+if(!ids.has(notification.id)){
+ids.add(notification.id);
+unique.push(notification);
+}
+}
+);
+
+const unread=
+unique.filter(
+item=>
+!seen.includes(item.id)
+);
+
+notificationSummary.textContent=
+unread.length
+?unread.length+
+' unread notification'+
+(
+unread.length===1
+?''
+:'s'
+)
+:'You have no notifications.';
+
+if(!unique.length){
+notificationsContainer.innerHTML=
+'<div class="empty">'+
+'You have no notifications. You are all caught up.'+
+'</div>';
+
+return;
+}
+
+notificationsContainer.innerHTML=
+unique
+.slice(0,10)
+.map(
+function(notification){
+const isUnread=
+!seen.includes(notification.id);
+
+return `
+<div
+class="notification ${isUnread?'unread':''}"
+data-notification-id="${escapeHtml(notification.id)}"
+data-order-link="${escapeHtml(notification.orderId)}"
+>
+
+<div class="notification-title">
+${escapeHtml(notification.title)}
+</div>
+
+<div class="muted small">
+${escapeHtml(notification.message)}
+</div>
+
+<div class="notification-time">
+${escapeHtml(
+formatDateTime(notification.date)
+)}
+</div>
+
+</div>
+`;
+}
+)
+.join('');
+
+}catch(error){
+console.error(
+'Notifications error:',
+error
+);
+
+notificationSummary.textContent=
+'Notifications unavailable';
+
+notificationsContainer.innerHTML=
+'<div class="empty">'+
+'Unable to load notifications right now.'+
+'</div>';
+}
+}
+
+markNotificationsRead.addEventListener(
+'click',
+function(){
+if(!currentUser){
+return;
+}
+
+const key=
+'starrise_seen_notifications_'+
+currentUser.id;
+
+const notificationElements=
+notificationsContainer
+.querySelectorAll(
+'[data-notification-id]'
+);
+
+const ids=[];
+
+notificationElements.forEach(
+function(element){
+ids.push(
+element.dataset.notificationId
+);
+
+element.classList.remove(
+'unread'
+);
+}
+);
+
+try{
+localStorage.setItem(
+key,
+JSON.stringify(ids)
+);
+}catch(_){}
+
+notificationSummary.textContent=
+'You are all caught up.';
+}
+);
+
+document.addEventListener(
+'click',
+async function(event){
+
+const star=
+event.target.closest(
+'.star[data-rating]'
+);
+
+if(star){
+const orderId=
+star.dataset.order;
+
+const rating=
+Number(
+star.dataset.rating
+);
+
+const container=
+document.querySelector(
+'[data-stars-for="'+
+CSS.escape(orderId)+
+'"]'
+);
+
+if(container){
+container
+.querySelectorAll('.star')
+.forEach(
+function(button){
+const buttonRating=
+Number(
+button.dataset.rating
+);
+
+button.classList.toggle(
+'selected',
+buttonRating<=rating
+);
+}
+);
+}
+
+return;
+}
+
+const actionButton=
+event.target.closest(
+'[data-order-action]'
+);
+
+if(actionButton){
+const orderId=
+actionButton.dataset.orderId;
+
+const newStatus=
+actionButton.dataset.orderAction;
+
+const card=
+actionButton.closest(
+'.order-card'
+);
+
+const buttons=
+card
+?card.querySelectorAll(
+'[data-order-action]'
+)
+:[];
+
+buttons.forEach(
+button=>{
+button.disabled=true;
+}
+);
+
+try{
+await updateOrderStatus(
+orderId,
+newStatus
+);
+
+await loadIncomingOrders(currentUser);
+await loadCompletedOrders(currentUser);
+await loadMyOrders(currentUser);
+await loadMyCompletedOrders(currentUser);
+await loadRating(currentUser);
+await loadNotifications(currentUser);
+
+}catch(error){
+console.error(
+'Order update error:',
+error
+);
+
+alert(
+'Unable to update order: '+
+error.message
+);
+
+buttons.forEach(
+button=>{
+button.disabled=false;
+}
+);
+}
+
+return;
+}
+
+const reviewButton=
+event.target.closest(
+'[data-submit-review]'
+);
+
+if(reviewButton){
+const orderId=
+reviewButton.dataset.submitReview;
+
+const message=
+document.getElementById(
+'review-message-'+
+orderId
+);
+
+reviewButton.disabled=true;
+
+if(message){
+message.textContent=
+'Saving review...';
+
+message.className=
+'muted';
+
+message.style.marginTop=
+'10px';
+}
+
+try{
+await submitReview(orderId);
+
+if(message){
+message.textContent=
+'Review saved successfully.';
+
+message.className=
+'success';
+
+message.style.marginTop=
+'10px';
+}
+
+await loadMyCompletedOrders(currentUser);
+await loadRating(currentUser);
+await loadNotifications(currentUser);
+
+}catch(error){
+console.error(
+'Review error:',
+error
+);
+
+if(message){
+message.textContent=
+'Unable to save review: '+
+error.message;
+
+message.className=
+'error';
+
+message.style.marginTop=
+'10px';
+}
+
+reviewButton.disabled=false;
+}
+
+return;
+}
+
+const notification=
+event.target.closest(
+'[data-notification-id]'
+);
+
+if(notification){
+if(!currentUser){
+return;
+}
+
+const key=
+'starrise_seen_notifications_'+
+currentUser.id;
+
+let seen=[];
+
+try{
+seen=
+JSON.parse(
+localStorage.getItem(key)||
+'[]'
+);
+}catch(_){
+seen=[];
+}
+
+const id=
+notification.dataset.notificationId;
+
+if(!seen.includes(id)){
+seen.push(id);
+
+try{
+localStorage.setItem(
+key,
+JSON.stringify(seen)
+);
+}catch(_){}
+}
+
+notification.classList.remove(
+'unread'
+);
+
+return;
+}
+}
+);
+
+connectStripeButton.addEventListener(
+'click',
+function(){
+startStripeOnboarding();
+}
+);
+
+document
+.getElementById('signout')
+.addEventListener(
+'click',
+async function(){
+const button=
+document.getElementById(
+'signout'
+);
+
+button.disabled=true;
+
+button.textContent=
+'Signing Out...';
+
+try{
+const result=
+await supabaseClient
+.auth
+.signOut();
+
+if(result.error){
+throw result.error;
+}
+
+window.location.href=
+'login.html';
+
+}catch(error){
+console.error(
+'Sign out error:',
+error
+);
+
+button.disabled=false;
+
+button.textContent=
+'Sign Out';
+
+setStatus(
+statusBox,
+'Unable to sign out: '+
+error.message,
+'error'
+);
+}
+}
+);
+
+setInterval(
+async function(){
+if(!currentUser){
+return;
+}
+
+try{
+await loadIncomingOrders(currentUser);
+await loadCompletedOrders(currentUser);
+await loadMyOrders(currentUser);
+await loadMyCompletedOrders(currentUser);
+await loadRating(currentUser);
+await loadNotifications(currentUser);
+
+}catch(error){
+console.error(
+'Dashboard refresh error:',
+error
+);
+}
+},
+30000
+);
+
+initialize();
+
+})();
+</script>
+
+</body>
+</html>
