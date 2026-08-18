@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wave One Control Center | StarRise Admin</title>
+  <meta name="robots" content="noindex,nofollow">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f2f9;color:#1d1428;line-height:1.5}.top{background:#190d31;color:#fff;padding:19px}.top-inner,main{width:min(900px,calc(100% - 32px));margin:auto}.top-inner{display:flex;justify-content:space-between;align-items:center;gap:18px}.top a{color:#fff;text-decoration:none;font-weight:850}.brand{font-size:23px}main{padding:48px 0 75px}.eyebrow{color:#6d28d9;font-weight:900;letter-spacing:.12em;text-transform:uppercase}h1{font-size:clamp(38px,8vw,62px);line-height:1;margin:9px 0 15px}.lead{color:#6b6074;font-size:18px;max-width:680px}.status{margin:26px 0;padding:18px;border:1px solid #ded5e5;border-radius:15px;background:#fff;font-weight:800}.status.good{color:#176b45}.status.bad{color:#9e2438}.hidden{display:none}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.stat{background:#fff;border:1px solid #ded5e5;border-radius:18px;padding:22px}.stat strong{display:block;font-size:36px;color:#55208d}.stat span{color:#6b6074;font-weight:750}.control{margin-top:20px;padding:28px;border-radius:20px;background:#fff;border:1px solid #ded5e5}.control h2{margin-top:0}.state{display:inline-block;margin:5px 0 18px;padding:8px 13px;border-radius:999px;font-weight:900}.state.open{color:#176b45;background:#dcf4e8}.state.closed{color:#962536;background:#fde2e7}.button{border:0;border-radius:11px;padding:13px 20px;background:#5b1aa6;color:#fff;font:inherit;font-weight:900;cursor:pointer}.button.close{background:#a1263a}.button:disabled{opacity:.55}.note{margin-top:15px;color:#6b6074}.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.link{display:inline-block;padding:11px 15px;border:1px solid #cfc3da;border-radius:10px;color:#4b1c7d;text-decoration:none;font-weight:850}@media(max-width:650px){.grid{grid-template-columns:1fr}.top-inner{align-items:flex-start;flex-direction:column}}
+  </style>
+</head>
+<body>
+  <header class="top"><div class="top-inner"><a class="brand" href="index.html">⭐ StarRise Admin</a><a href="dashboard.html">Member Dashboard</a></div></header>
+  <main>
+    <div class="eyebrow">Founding Creators</div>
+    <h1>Wave One Control Center</h1>
+    <p class="lead">Monitor the 25 creator positions and control whether new Wave One applications are accepted.</p>
+    <div id="authStatus" class="status">Verifying administrator access…</div>
+    <section id="controls" class="hidden">
+      <div class="grid">
+        <div class="stat"><strong id="accepted">—</strong><span>Accepted</span></div>
+        <div class="stat"><strong id="remaining">—</strong><span>Spots remaining</span></div>
+        <div class="stat"><strong id="capacity">25</strong><span>Total capacity</span></div>
+      </div>
+      <div class="control">
+        <h2>Application intake</h2>
+        <div id="state" class="state">Loading…</div>
+        <div><button id="toggle" class="button" type="button" disabled>Loading…</button></div>
+        <p class="note">Closing applications blocks new applicants. Existing applications remain available for review, and the database always prevents acceptance beyond the 25-person limit.</p>
+        <div class="links"><a class="link" href="founding-creator-admin.html">Open Review Center</a><a class="link" href="founding-creators.html">View Application Page</a><a class="link" href="founding-creator-directory.html">View Public Directory</a></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const db=window.supabase.createClient("https://rcnikxotdalxtuvpmlvm.supabase.co","sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"),authStatus=document.getElementById("authStatus"),controls=document.getElementById("controls"),state=document.getElementById("state"),toggle=document.getElementById("toggle");let open=true;
+    async function load(){const{data,error}=await db.rpc("get_founding_creator_program_status"),info=data?.[0];if(error||!info){authStatus.textContent="The Wave One status could not be loaded.";authStatus.className="status bad";return}open=info.applications_open;document.getElementById("accepted").textContent=info.accepted_count;document.getElementById("remaining").textContent=info.remaining_spots;document.getElementById("capacity").textContent=info.capacity;state.textContent=open?"Applications open":"Applications closed";state.className="state "+(open?"open":"closed");toggle.textContent=open?"Close Applications":"Open Applications";toggle.className="button "+(open?"close":"");toggle.disabled=false}
+    (async()=>{const{data:{session}}=await db.auth.getSession();if(!session){location.href="login.html?redirect=wave-one-control-center.html";return}const{data:admin}=await db.from("platform_admins").select("access_level").eq("user_id",session.user.id).maybeSingle();if(!admin){authStatus.textContent="Access denied. This page is limited to StarRise administrators.";authStatus.className="status bad";return}authStatus.textContent="Administrator access confirmed: "+admin.access_level+".";authStatus.className="status good";controls.classList.remove("hidden");await load()})();
+    toggle.addEventListener("click",async()=>{toggle.disabled=true;const{error}=await db.from("founding_creator_program_settings").update({applications_open:!open,updated_at:new Date().toISOString()}).eq("id",1);if(error){alert("Could not update application intake: "+error.message);toggle.disabled=false;return}await load()});
+  </script>
+</body>
+</html>
