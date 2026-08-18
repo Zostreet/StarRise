@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Founding Creator Onboarding | StarRise</title>
+  <meta name="robots" content="noindex,nofollow">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f7f3fb;color:#211336;line-height:1.55}a{color:inherit}.top{background:#1b0b35;color:#fff;padding:20px}.top-inner,main{width:min(820px,calc(100% - 32px));margin:auto}.top-inner{display:flex;justify-content:space-between;align-items:center;gap:18px}.brand{font-size:24px;font-weight:800;text-decoration:none}.top a:last-child{font-weight:700}main{padding:46px 0 70px}.eyebrow{color:#732fc2;font-weight:800;letter-spacing:.12em;text-transform:uppercase}h1{font-size:clamp(38px,8vw,64px);line-height:1;margin:10px 0 16px}.lead{color:#6d6373;font-size:19px}.status{margin:28px 0;padding:20px;border:1px solid #ded3e6;border-radius:18px;background:#fff;font-weight:700}.status.good{color:#176c48}.status.bad{color:#9c2638}.hidden{display:none}.welcome{padding:28px;border-radius:22px;background:linear-gradient(135deg,#351064,#6c20b8);color:#fff;margin-bottom:24px}.welcome h2{margin:0 0 8px;font-size:30px}.steps{display:grid;gap:15px}.step{padding:23px;border:1px solid #ded3e6;border-radius:18px;background:#fff;display:grid;grid-template-columns:48px 1fr;gap:15px}.number{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#f0e3ff;color:#5a1799;font-weight:900}.step h3{margin:1px 0 6px;font-size:21px}.step p{margin:0 0 13px;color:#6d6373}.button{display:inline-block;padding:11px 17px;border-radius:10px;background:#5b1aa6;color:#fff;text-decoration:none;font-weight:800}.finish{margin-top:24px;padding:25px;border-radius:18px;background:#fff;border:1px solid #ded3e6;text-align:center}.finish h2{margin-top:0}@media(max-width:560px){.top-inner{align-items:flex-start;flex-direction:column}.step{grid-template-columns:40px 1fr}.number{width:38px;height:38px}}
+  </style>
+</head>
+<body>
+  <header class="top"><div class="top-inner"><a class="brand" href="index.html">⭐ StarRise</a><a href="dashboard.html">Member Dashboard</a></div></header>
+  <main>
+    <div class="eyebrow">Wave One</div>
+    <h1>Founding Creator Onboarding</h1>
+    <p class="lead">Complete these steps to prepare your StarRise presence, opportunities, and creative work.</p>
+    <div id="status" class="status">Confirming your Founding Creator access…</div>
+    <section id="onboarding" class="hidden">
+      <div class="welcome"><h2 id="welcomeTitle">Welcome, Founding Creator!</h2><p>Your role is active. You’re part of the first creator group helping shape StarRise.</p></div>
+      <div class="steps">
+        <article class="step"><div class="number">1</div><div><h3>Complete your public profile</h3><p>Add your display name, location, biography, photo, and creative identity.</p><a class="button" href="edit-profile.html">Edit Profile</a></div></article>
+        <article class="step"><div class="number">2</div><div><h3>List a creative service</h3><p>Show members what you can provide, such as vocals, production, performances, design, or consulting.</p><a class="button" href="create-service.html">Create a Service</a></div></article>
+        <article class="step"><div class="number">3</div><div><h3>Add work to the marketplace</h3><p>Publish eligible music, beats, artwork, videos, or other digital creations when you’re ready.</p><a class="button" href="create-marketplace-item.html">Add Marketplace Item</a></div></article>
+        <article class="step"><div class="number">4</div><div><h3>Explore opportunities</h3><p>Review auditions, collaborations, events, and other ways to connect and grow.</p><a class="button" href="opportunities.html">View Opportunities</a></div></article>
+      </div>
+      <div class="finish"><h2>You’re officially part of Wave One.</h2><p>Return to your dashboard anytime to manage your StarRise activity.</p><a class="button" href="dashboard.html">Open Dashboard</a></div>
+    </section>
+  </main>
+  <script>
+  (async()=>{const url="https://rcnikxotdalxtuvpmlvm.supabase.co",key="sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN",db=window.supabase.createClient(url,key),status=document.getElementById("status"),area=document.getElementById("onboarding");const{data:{session}}=await db.auth.getSession();if(!session){location.href="login.html?redirect=founding-creator-onboarding.html";return}const{data,error}=await db.from("founding_creator_applications").select("stage_or_business_name,legal_name,status").eq("applicant_id",session.user.id).maybeSingle();if(error||!data){status.textContent="We could not find a Founding Creator application for this account.";status.className="status bad";return}if(data.status!=="accepted"){status.textContent="Your onboarding center will unlock when your application is accepted. Current status: "+data.status+".";status.className="status";return}status.textContent="Founding Creator access confirmed.";status.className="status good";document.getElementById("welcomeTitle").textContent="Welcome, "+(data.stage_or_business_name||data.legal_name||"Founding Creator")+"!";area.classList.remove("hidden")})();
+  </script>
+</body>
+</html>

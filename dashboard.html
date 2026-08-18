@@ -1491,7 +1491,10 @@ item=>
 escapeHtml(item.role)+
 '</span>'
 )
-.join('');
+.join('')+
+(result.data.some(item=>item.role==='Founding Creator')
+? '<div style="margin-top:14px"><a class="button" href="founding-creator-onboarding.html">Open Founding Creator Onboarding</a></div>'
+: '');
 
 }catch(error){
 console.error(
