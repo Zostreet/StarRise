@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PayPal Sandbox Checkout | StarRise Admin</title>
+  <meta name="robots" content="noindex,nofollow">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f5f2f9;color:#1c1524;font-family:Arial,sans-serif;line-height:1.5}.top{background:#190d31;color:#fff;padding:18px}.top a{color:#fff;text-decoration:none;font-weight:900}.wrap{width:min(760px,calc(100% - 32px));margin:auto;padding:44px 0 70px}h1{font-size:clamp(38px,8vw,58px);line-height:1;margin:10px 0}.lead{color:#6d6375;font-size:18px}.card{margin-top:24px;background:#fff;border:1px solid #ded5e5;border-radius:18px;padding:22px}.button{border:0;border-radius:10px;padding:14px 18px;background:#5b1aa6;color:#fff;font:inherit;font-weight:900;cursor:pointer}.button:disabled{opacity:.55;cursor:wait}.result{margin-top:18px;padding:17px;border-radius:12px;background:#f7f3fa;font-weight:800;white-space:pre-wrap}.good{background:#e2f5ea;color:#176b45}.bad{background:#fde9eb;color:#9d2639}.warn{background:#fff3d8;color:#755000}.note{margin-top:18px;color:#6d6375}.hidden{display:none!important}
+  </style>
+</head>
+<body>
+<header class="top"><a href="founding-creator-command-center.html">⭐ StarRise Admin</a></header>
+<main class="wrap">
+  <div>PRIVATE PAYMENT SETUP</div>
+  <h1>PayPal Sandbox Checkout</h1>
+  <p class="lead">Run one controlled $1.00 USD PayPal sandbox purchase from creation through capture.</p>
+  <section class="card">
+    <div id="auth">Verifying administrator access…</div>
+    <button id="start" class="button hidden" type="button">Start $1 Sandbox Checkout</button>
+    <div id="result" class="result hidden"></div>
+    <p class="note">This page is sandbox-only. It never displays PayPal credentials, access tokens, or merchant secrets.</p>
+  </section>
+</main>
+<script>
+'use strict';
+const db=window.supabase.createClient('https://rcnikxotdalxtuvpmlvm.supabase.co','sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN');
+const auth=document.getElementById('auth'),start=document.getElementById('start'),result=document.getElementById('result');
+function show(message,type=''){result.className='result '+type;result.textContent=message;result.classList.remove('hidden')}
+async function getSession(){const{data,error}=await db.auth.getSession();if(error)throw error;return data.session}
+async function requireAdmin(){const session=await getSession();if(!session){const redirect=encodeURIComponent('paypal-sandbox-checkout.html'+location.search);location.href='login.html?redirect='+redirect;return null}const{data:admin,error}=await db.from('platform_admins').select('access_level').eq('user_id',session.user.id).maybeSingle();if(error)throw error;if(!admin){auth.textContent='Access denied.';return null}auth.textContent='Administrator access confirmed: '+admin.access_level+'.';return session}
+async function startCheckout(){start.disabled=true;start.textContent='Creating PayPal Order…';show('Creating a $1.00 USD PayPal sandbox order…');try{const{data,error}=await db.functions.invoke('paypal-sandbox-create-order',{body:{}});if(error||!data?.approval_url||!data?.order_id)throw new Error(data?.error||error?.message||'PayPal did not return an approval URL.');sessionStorage.setItem('starrise_paypal_sandbox_order',data.order_id);show('Order created. Redirecting to PayPal sandbox for buyer approval…','warn');location.href=data.approval_url}catch(error){show('Could not start checkout: '+(error?.message||'Unknown error'),'bad');start.disabled=false;start.textContent='Try Again'}}
+async function captureReturnedOrder(orderId){show('PayPal approval returned. Capturing the sandbox payment…','warn');const{data,error}=await db.functions.invoke('paypal-sandbox-capture-order',{body:{order_id:orderId}});if(error||data?.status!=='COMPLETED')throw new Error(data?.error||error?.message||'Capture did not complete.');sessionStorage.removeItem('starrise_paypal_sandbox_order');show('PayPal sandbox purchase completed successfully.\nOrder ID: '+data.order_id+'\nCapture ID: '+data.capture_id+'\nAmount: '+(data.amount||'1.00')+' '+(data.currency||'USD')+'\nStatus: '+data.status,'good');start.classList.remove('hidden');start.disabled=false;start.textContent='Run Another $1 Test'}
+(async()=>{try{const session=await requireAdmin();if(!session)return;const params=new URLSearchParams(location.search),paypalState=params.get('paypal'),returnedOrder=params.get('token');if(paypalState==='cancel'){show('PayPal sandbox checkout was canceled. No capture was made.','warn');start.classList.remove('hidden');return}if(paypalState==='return'){const storedOrder=sessionStorage.getItem('starrise_paypal_sandbox_order'),orderId=returnedOrder||storedOrder;if(!orderId)throw new Error('PayPal returned without an order ID.');if(returnedOrder&&storedOrder&&returnedOrder!==storedOrder)throw new Error('Returned PayPal order does not match the StarRise test order.');await captureReturnedOrder(orderId);history.replaceState({},document.title,'paypal-sandbox-checkout.html');return}start.classList.remove('hidden')}catch(error){show('Sandbox checkout error: '+(error?.message||'Unknown error'),'bad');start.classList.remove('hidden');start.disabled=false;start.textContent='Try Again'}})();
+start.addEventListener('click',startCheckout);
+</script>
+</body>
+</html>
