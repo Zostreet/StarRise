@@ -1,918 +1,471 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>StarRise Store</title>
+  <title>StarRise Ecosystem</title>
 
-<style>
-*{box-sizing:border-box}
+  <meta
+    name="description"
+    content="Explore the StarRise ecosystem for talent, creators, opportunities, community, partners, supporters, and TalentFund."
+  >
 
-body{
-margin:0;
-background:#080812;
-color:#fff;
-font-family:Arial,sans-serif;
-line-height:1.6
-}
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-a{
-color:inherit;
-text-decoration:none
-}
+    html {
+      scroll-behavior: smooth;
+    }
 
-header{
-padding:20px 24px;
-border-bottom:1px solid #ffffff18;
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:18px
-}
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background: #080812;
+      color: #fff;
+    }
 
-.logo{
-font-size:21px;
-font-weight:800
-}
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-nav{
-display:flex;
-flex-wrap:wrap;
-gap:18px
-}
+    header {
+      padding: 24px 8%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      border-bottom: 1px solid #ffffff18;
+      background: rgba(8, 8, 18, .96);
+    }
 
-nav a{
-color:#bbb;
-font-weight:700
-}
+    .logo {
+      font-size: 27px;
+      font-weight: bold;
+    }
 
-nav a:hover{
-color:#fff
-}
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
 
-main{
-width:min(1150px,calc(100% - 30px));
-margin:35px auto 60px
-}
+    nav a {
+      color: #bbb;
+      font-weight: bold;
+    }
 
-.hero,
-.panel{
-padding:28px;
-margin-bottom:20px;
-border:1px solid #ffffff18;
-border-radius:22px;
-background:#ffffff08
-}
+    nav a:hover {
+      color: #fff;
+    }
 
-.eyebrow{
-color:#999;
-font-size:12px;
-font-weight:700;
-text-transform:uppercase;
-letter-spacing:.1em
-}
+    .hero {
+      padding: 90px 8% 70px;
+      text-align: center;
+    }
 
-h1{
-margin:6px 0 10px;
-font-size:clamp(42px,7vw,68px);
-line-height:1.05
-}
+    .hero h1 {
+      margin-bottom: 15px;
+      font-size: clamp(44px, 9vw, 78px);
+    }
 
-.hero p{
-max-width:760px;
-color:#aaa
-}
+    .hero p {
+      max-width: 750px;
+      margin: auto;
+      color: #ccccd8;
+      font-size: 18px;
+    }
 
-.actions{
-display:flex;
-flex-wrap:wrap;
-gap:10px;
-margin-top:20px
-}
+    section {
+      padding: 70px 8%;
+      text-align: center;
+    }
 
-.button{
-display:inline-block;
-padding:12px 20px;
-border:0;
-border-radius:25px;
-background:#fff;
-color:#080812;
-font:inherit;
-font-weight:700;
-text-align:center;
-cursor:pointer
-}
+    section h2 {
+      margin-bottom: 20px;
+      font-size: 38px;
+    }
 
-.button.secondary{
-border:1px solid #ffffff30;
-background:transparent;
-color:#fff
-}
+    .intro {
+      max-width: 800px;
+      margin: auto;
+      color: #ccc;
+      font-size: 18px;
+    }
 
-.button:disabled{
-opacity:.5;
-cursor:wait
-}
+    .grid {
+      max-width: 1100px;
+      margin: 40px auto 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 22px;
+    }
 
-.controls{
-display:grid;
-grid-template-columns:2fr 1fr 1fr;
-gap:12px;
-margin-bottom:20px
-}
+    .card {
+      padding: 30px;
+      border: 1px solid #ffffff1f;
+      border-radius: 18px;
+      background: #ffffff0a;
+      display: flex;
+      flex-direction: column;
+      transition: transform .2s ease, border-color .2s ease;
+    }
 
-.control{
-width:100%;
-padding:13px 15px;
-border:1px solid #ffffff20;
-border-radius:12px;
-background:#11111d;
-color:#fff;
-font:inherit
-}
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: #ffffff45;
+    }
 
-.results{
-margin-bottom:15px;
-color:#aaa
-}
+    .icon {
+      margin-bottom: 12px;
+      font-size: 36px;
+    }
 
-.status,
-.empty{
-padding:20px;
-border:1px solid #ffffff18;
-border-radius:15px;
-background:#ffffff08;
-color:#aaa;
-text-align:center
-}
+    .card h3 {
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
 
-.error{
-color:#ffb5b5;
-background:#c832321f
-}
+    .card p {
+      color: #bbb;
+      flex: 1;
+    }
 
-.warning{
-color:#ffe3a3;
-background:#c896321f
-}
+    .button {
+      display: inline-block;
+      padding: 13px 24px;
+      margin-top: 22px;
+      border-radius: 28px;
+      background: #fff;
+      color: #080812;
+      font-weight: bold;
+    }
 
-.success{
-color:#baffca;
-background:#32c8641a
-}
+    .button:hover {
+      opacity: .9;
+    }
 
-.hidden{
-display:none!important
-}
+    .highlight {
+      border-top: 1px solid #ffffff18;
+      border-bottom: 1px solid #ffffff18;
+      background: #ffffff04;
+    }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-gap:18px
-}
+    .actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
 
-.card{
-overflow:hidden;
-display:flex;
-flex-direction:column;
-border:1px solid #ffffff18;
-border-radius:20px;
-background:#ffffff08
-}
+    .actions .button {
+      margin-top: 0;
+    }
 
-.cover{
-height:190px;
-display:flex;
-align-items:center;
-justify-content:center;
-overflow:hidden;
-background:linear-gradient(135deg,#17172a,#0d0d17);
-font-size:55px
-}
+    .secondary {
+      border: 1px solid #ffffff30;
+      background: transparent;
+      color: #fff;
+    }
 
-.cover img{
-width:100%;
-height:100%;
-object-fit:cover
-}
+    footer {
+      padding: 35px;
+      border-top: 1px solid #ffffff18;
+      color: #999;
+      text-align: center;
+    }
 
-.card-body{
-padding:20px;
-display:flex;
-flex-direction:column;
-flex:1
-}
+    @media (max-width: 760px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
 
-.tag{
-width:max-content;
-padding:5px 10px;
-margin-bottom:10px;
-border-radius:20px;
-background:#ffffff12;
-color:#bbb;
-font-size:12px;
-text-transform:uppercase
-}
+      section {
+        padding: 55px 6%;
+      }
 
-.title{
-font-size:23px;
-font-weight:700
-}
-
-.description{
-margin:8px 0 15px;
-color:#aaa;
-white-space:pre-wrap;
-flex:1
-}
-
-.seller{
-color:#999;
-font-size:14px
-}
-
-.seller strong{
-color:#fff
-}
-
-.price{
-margin:12px 0;
-font-size:28px;
-font-weight:700
-}
-
-.card-actions{
-display:flex;
-gap:9px
-}
-
-.card-actions .button{
-flex:1
-}
-
-.modal{
-position:fixed;
-inset:0;
-z-index:1000;
-padding:20px;
-display:flex;
-align-items:center;
-justify-content:center;
-background:#000c
-}
-
-.modal-card{
-width:min(620px,100%);
-max-height:90vh;
-overflow:auto;
-padding:26px;
-border:1px solid #ffffff25;
-border-radius:22px;
-background:#10101c
-}
-
-.close{
-float:right;
-width:38px;
-height:38px;
-border:1px solid #ffffff25;
-border-radius:50%;
-background:transparent;
-color:#fff;
-font-size:20px;
-cursor:pointer
-}
-
-.modal-cover{
-height:240px;
-display:flex;
-align-items:center;
-justify-content:center;
-overflow:hidden;
-margin-bottom:18px;
-border-radius:16px;
-background:#17172a;
-font-size:55px
-}
-
-.modal-cover img{
-width:100%;
-height:100%;
-object-fit:cover
-}
-
-.modal-title{
-font-size:30px;
-font-weight:700
-}
-
-.modal-description{
-margin:12px 0;
-color:#bbb;
-white-space:pre-wrap
-}
-
-.modal-price{
-margin:12px 0;
-font-size:30px;
-font-weight:700
-}
-
-.notice{
-padding:14px;
-margin-top:15px;
-border-radius:12px;
-background:#ffffff08;
-color:#aaa
-}
-
-footer{
-padding:30px;
-border-top:1px solid #ffffff18;
-color:#888;
-text-align:center
-}
-
-@media(max-width:760px){
-header{
-flex-direction:column;
-align-items:flex-start
-}
-
-.controls{
-grid-template-columns:1fr
-}
-
-.card-actions,
-.modal .actions{
-flex-direction:column
-}
-
-.card-actions .button,
-.modal .button{
-width:100%
-}
-}
-</style>
+      .hero {
+        padding: 70px 6% 50px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
 <header>
-<a class="logo" href="index.html">
-⭐ StarRise
-</a>
+  <a class="logo" href="index.html">
+    ⭐ StarRise
+  </a>
 
-<nav>
-<a href="index.html">Home</a>
-<a href="members.html">Members</a>
-<a href="ecosystem.html">Ecosystem</a>
-<a href="marketplace.html">Store</a>
-<a href="purchases.html">Purchases</a>
-<a href="services.html">Services</a>
-<a href="opportunities.html">Opportunities</a>
-<a href="dashboard.html">Dashboard</a>
-</nav>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="community.html">Community</a>
+    <a href="members.html">Members</a>
+    <a href="messages.html">Messages</a>
+    <a href="ecosystem.html">Ecosystem</a>
+    <a href="marketplace.html">Store</a>
+    <a href="services.html">Services</a>
+    <a href="opportunities.html">Opportunities</a>
+    <a href="dashboard.html">Dashboard</a>
+  </nav>
 </header>
 
 <main>
 
-<section class="hero">
+  <section class="hero">
+    <h1>The StarRise Ecosystem</h1>
 
-<div class="eyebrow">
-StarRise Talent Marketplace
-</div>
+    <p>
+      One community connecting talent, creativity,
+      opportunity, resources, and people who believe
+      in helping others rise.
+    </p>
+  </section>
 
-<h1>The StarRise Store</h1>
+  <section id="talent">
+    <h2>Talent &amp; Creators</h2>
 
-<p>
-Discover music, beats, vocals, artwork, videos,
-digital creations, and other work created by
-StarRise talent.
-</p>
+    <p class="intro">
+      StarRise is built around people. Artists, musicians,
+      performers, creators, writers, producers, entrepreneurs,
+      and emerging talent all have a place here.
+    </p>
 
-<div class="actions">
+    <div class="grid">
+      <article class="card">
+        <div class="icon">📸</div>
+        <h3>Talent Feed</h3>
 
-<a
-class="button"
-href="create-marketplace-item.html"
->
-+ Sell Your Work
-</a>
+        <p>
+          Share photos and videos, follow creators,
+          like their work, and join conversations.
+        </p>
 
-<a
-class="button secondary"
-href="purchases.html"
->
-My Purchases
-</a>
+        <a class="button" href="community.html">
+          Open Community
+        </a>
+      </article>
 
-<a
-class="button secondary"
-href="dashboard.html"
->
-My Dashboard
-</a>
+      <article class="card">
+        <div class="icon">🎤</div>
+        <h3>Artists</h3>
 
-</div>
-</section>
+        <p>
+          Showcase your music, performances,
+          projects, and creative identity.
+        </p>
 
-<section class="panel">
+        <a class="button" href="members.html">
+          Explore Artists
+        </a>
+      </article>
 
-<div class="controls">
+      <article class="card">
+        <div class="icon">🎬</div>
+        <h3>Creators</h3>
 
-<input
-id="search"
-class="control"
-type="search"
-placeholder="Search music, beats, creators..."
->
+        <p>
+          Build and share original creative
+          work with the StarRise community.
+        </p>
 
-<select
-id="category"
-class="control"
->
-<option value="all">
-All Categories
-</option>
-</select>
+        <a class="button" href="members.html">
+          Explore Creators
+        </a>
+      </article>
 
-<select
-id="sort"
-class="control"
->
-<option value="newest">
-Newest
-</option>
+      <article class="card">
+        <div class="icon">🌟</div>
+        <h3>Emerging Talent</h3>
 
-<option value="price-low">
-Price: Low to High
-</option>
+        <p>
+          Discover pathways to develop your
+          skills and connect with opportunities.
+        </p>
 
-<option value="price-high">
-Price: High to Low
-</option>
+        <a class="button" href="members.html">
+          Discover Talent
+        </a>
+      </article>
+    </div>
+  </section>
 
-<option value="title">
-Name: A to Z
-</option>
-</select>
+  <section id="talentfund" class="highlight">
+    <h2>TalentFund</h2>
 
-</div>
+    <p class="intro">
+      Talent should not be limited simply because someone
+      lacks access to resources. TalentFund helps promising
+      people access support, resources, development,
+      and opportunity.
+    </p>
 
-<div id="count" class="results">
-Loading the Store...
-</div>
+    <div class="actions">
+      <a class="button" href="talent-funds.html">
+        Explore TalentFund
+      </a>
 
-<div id="status" class="status">
-Loading StarRise Store...
-</div>
+      <a class="button secondary" href="dashboard.html">
+        Create a Talent Fund
+      </a>
+    </div>
+  </section>
 
-<section
-id="storeGrid"
-class="grid hidden"
-></section>
+  <section id="opportunities">
+    <h2>Opportunities</h2>
 
-<div
-id="empty"
-class="empty hidden"
-></div>
+    <p class="intro">
+      Connect people with meaningful opportunities
+      to perform, create, collaborate, work,
+      learn, and grow.
+    </p>
 
-</section>
+    <div class="grid">
+      <article class="card">
+        <div class="icon">🎭</div>
+        <h3>Auditions</h3>
+
+        <p>
+          Discover casting calls and
+          performance opportunities.
+        </p>
+
+        <a class="button" href="opportunities.html">
+          View Auditions
+        </a>
+      </article>
+
+      <article class="card">
+        <div class="icon">🎵</div>
+        <h3>Gigs</h3>
+
+        <p>
+          Find performance, music,
+          entertainment, and creative gigs.
+        </p>
+
+        <a class="button" href="opportunities.html">
+          Find Gigs
+        </a>
+      </article>
+
+      <article class="card">
+        <div class="icon">🤝</div>
+        <h3>Collaborations</h3>
+
+        <p>
+          Connect with people who can help turn
+          creative ideas into real projects.
+        </p>
+
+        <a class="button" href="opportunities.html">
+          Explore Collaborations
+        </a>
+      </article>
+    </div>
+  </section>
+
+  <section id="community" class="highlight">
+    <h2>Community</h2>
+
+    <p class="intro">
+      StarRise isn't only about the people on stage.
+      It's also about the people behind the scenes and
+      the supporters who help make everything possible.
+    </p>
+
+    <div class="grid">
+      <article class="card">
+        <div class="icon">❤️</div>
+        <h3>Members</h3>
+
+        <p>
+          Discover the people participating in
+          and contributing to StarRise.
+        </p>
+
+        <a class="button" href="members.html">
+          Explore Members
+        </a>
+      </article>
+
+      <article class="card">
+        <div class="icon">🛠️</div>
+        <h3>Vendors</h3>
+
+        <p>
+          Find businesses and professionals
+          providing services and resources.
+        </p>
+
+        <a class="button" href="vendors.html">
+          Explore Vendors
+        </a>
+      </article>
+
+      <article class="card">
+        <div class="icon">🏢</div>
+        <h3>Partners</h3>
+
+        <p>
+          Explore organizations working with
+          StarRise to create opportunities.
+        </p>
+
+        <a class="button" href="partners.html">
+          Explore Partners
+        </a>
+      </article>
+
+      <article class="card">
+        <div class="icon">🙌</div>
+        <h3>Supporters</h3>
+
+        <p>
+          Join the people who believe in talent
+          and help others rise.
+        </p>
+
+        <a class="button" href="supporters.html">
+          Explore Supporters
+        </a>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2>Your Place in StarRise</h2>
+
+    <p class="intro">
+      Whether you're talent, a creator, supporter, client,
+      vendor, partner, or simply someone who believes in
+      opportunity, there's a place for you in StarRise.
+    </p>
+
+    <div class="actions">
+      <a class="button" href="join.html">
+        Join StarRise
+      </a>
+
+      <a class="button secondary" href="marketplace.html">
+        Visit the Store
+      </a>
+    </div>
+  </section>
+
 </main>
 
-<div id="modal" class="modal hidden">
-
-<div class="modal-card">
-
-<button
-id="closeModal"
-class="close"
-type="button"
->
-×
-</button>
-
-<div
-id="modalCover"
-class="modal-cover"
->
-⭐
-</div>
-
-<div
-id="modalCategory"
-class="tag"
-></div>
-
-<div
-id="modalTitle"
-class="modal-title"
-></div>
-
-<div
-id="modalSeller"
-class="seller"
-></div>
-
-<div
-id="modalDescription"
-class="modal-description"
-></div>
-
-<div
-id="modalPrice"
-class="modal-price"
-></div>
-
-<div
-id="modalStatus"
-class="notice hidden"
-></div>
-
-<div class="actions">
-
-<button
-id="buyButton"
-class="button"
-type="button"
->
-Buy Now
-</button>
-
-<button
-id="continueButton"
-class="button secondary"
-type="button"
->
-Continue Browsing
-</button>
-
-</div>
-</div>
-</div>
-
 <footer>
-⭐ StarRise — Where Talent Rises.
+  ⭐ StarRise — Where Talent Rises.
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-(function(){
-'use strict';
-
-const URL=
-'https://rcnikxotdalxtuvpmlvm.supabase.co';
-
-const KEY=
-'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
-
-const client=
-window.supabase.createClient(
-URL,
-KEY
-);
-
-const search=
-document.getElementById('search');
-
-const category=
-document.getElementById('category');
-
-const sort=
-document.getElementById('sort');
-
-const status=
-document.getElementById('status');
-
-const grid=
-document.getElementById('storeGrid');
-
-const empty=
-document.getElementById('empty');
-
-const count=
-document.getElementById('count');
-
-const modal=
-document.getElementById('modal');
-
-const modalCover=
-document.getElementById('modalCover');
-
-const modalCategory=
-document.getElementById('modalCategory');
-
-const modalTitle=
-document.getElementById('modalTitle');
-
-const modalSeller=
-document.getElementById('modalSeller');
-
-const modalDescription=
-document.getElementById('modalDescription');
-
-const modalPrice=
-document.getElementById('modalPrice');
-
-const modalStatus=
-document.getElementById('modalStatus');
-
-const buyButton=
-document.getElementById('buyButton');
-
-let items=[];
-let selected=null;
-
-function escapeHtml(value){
-return String(value??'')
-.replace(/&/g,'&amp;')
-.replace(/</g,'&lt;')
-.replace(/>/g,'&gt;')
-.replace(/"/g,'&quot;')
-.replace(/'/g,'&#039;');
-}
-
-function normalize(value){
-return String(value||'')
-.trim()
-.toLowerCase();
-}
-
-function money(cents){
-return (
-Number(cents||0)/100
-).toLocaleString(
-'en-US',
-{
-style:'currency',
-currency:'USD'
-}
-);
-}
-
-function sellerName(item){
-const profile=
-item.profile||{};
-
-return profile.display_name||
-profile.full_name||
-profile.name||
-'StarRise Talent';
-}
-
-function cover(item){
-if(item.cover_url){
-return '<img src="'+
-escapeHtml(item.cover_url)+
-'" alt="'+
-escapeHtml(
-item.title||
-'StarRise creation'
-)+
-'">';
-}
-
-return '⭐';
-}
-
-async function loadStore(){
-try{
-const itemResult=
-await client
-.from('marketplace_items')
-.select(
-'id,seller_id,title,description,category,price_cents,cover_url,status,created_at'
-)
-.eq('status','active')
-.order(
-'created_at',
-{
-ascending:false
-}
-);
-
-if(itemResult.error){
-throw itemResult.error;
-}
-
-items=
-itemResult.data||[];
-
-const profileResult=
-await client.rpc(
-'get_public_members'
-);
-
-const profiles=
-profileResult.error
-?[]
-:(profileResult.data||[]);
-
-const profileMap=
-new Map(
-profiles.map(
-profile=>[
-String(profile.id),
-profile
-]
-)
-);
-
-items=
-items.map(
-item=>({
-...item,
-profile:
-profileMap.get(
-String(item.seller_id)
-)||null
-})
-);
-
-buildCategories();
-
-status.classList.add(
-'hidden'
-);
-
-grid.classList.remove(
-'hidden'
-);
-
-render();
-}catch(error){
-console.error(
-'Store error:',
-error
-);
-
-status.textContent=
-'Unable to load the StarRise Store: '+
-(
-error.message||
-'Please try again.'
-);
-
-status.className=
-'status error';
-
-count.textContent='';
-}
-}
-
-function buildCategories(){
-const values=[
-...new Set(
-items
-.map(
-item=>
-String(
-item.category||''
-).trim()
-)
-.filter(Boolean)
-)
-].sort();
-
-category.innerHTML=
-'<option value="all">All Categories</option>';
-
-values.forEach(
-value=>{
-const option=
-document.createElement(
-'option'
-);
-
-option.value=value;
-option.textContent=value;
-
-category.appendChild(
-option
-);
-}
-);
-}
-
-function results(){
-const query=
-normalize(
-search.value
-);
-
-const selectedCategory=
-category.value;
-
-const selectedSort=
-sort.value;
-
-const filtered=
-items.filter(
-item=>{
-const profile=
-item.profile||{};
-
-const text=[
-item.title,
-item.description,
-item.category,
-profile.display_name,
-profile.full_name,
-profile.name,
-profile.location
-]
-.map(normalize)
-.join(' ');
-
-return (
-!query||
-text.includes(query)
-)&&
-(
-selectedCategory==='all'||
-item.category===selectedCategory
-);
-}
-);
-
-filtered.sort(
-(a,b)=>{
-if(selectedSort==='price-low'){
-return Number(
-a.price_cents||0
-)-
-Number(
-b.price_cents||0
-);
-}
-
-if(selectedSort==='price-high'){
-return Number(
-b.price_cents||0
-)-
-Number(
-a.price_cents||0
-);
-}
-
-if(selectedSort==='title'){
-return String(
-a.title||''
-).localeCompare(
-String(
-b.title||''
-)
-);
-}
-
-return new Date(
-b.created_at
-)-
-new Date(
-a.created_at
-);
-}
-);
-
-return filtered;
-}
-
-function render(){
-const visible=
-results();
-
-count.textContent=
-visible.length+
-' item'+
-(
-visible.length===1
-?''
-:'s'
-);
-
-if(!visible.length){
-grid.innerHTML='';
-
-empty.textContent=
-items.length
-?'No Store items match your search.'
-:'The StarRise Store is ready for talent. No items have been posted yet.';
-
-empty.classList.remove(
-'hidden'
-);
-
-return;
-}
-
-empty.classList.add(
-'hidden'
-);
-
-grid.innerHTML=
-visible.map(
-item=>`
-<article
+</body>
+</html>
