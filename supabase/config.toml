@@ -1,0 +1,8 @@
+[functions.paypal-sandbox-create-order]
+verify_jwt = true
+
+[functions.paypal-sandbox-capture-order]
+verify_jwt = true
+
+[functions.paypal-sandbox-cancel-order]
+verify_jwt = true
