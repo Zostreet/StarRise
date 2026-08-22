@@ -501,6 +501,20 @@ gap:15px
 
 <a
 class="header-button"
+href="community.html"
+>
+Community
+</a>
+
+<a
+class="header-button"
+href="messages.html"
+>
+Messages
+</a>
+
+<a
+class="header-button"
 href="purchases.html"
 >
 My Purchases
@@ -571,6 +585,22 @@ class="edit-link"
 href="edit-profile.html"
 >
 Edit Profile
+</a>
+
+<a
+class="edit-link"
+href="community.html"
+>
+Share Your Talent
+</a>
+
+<a
+id="view-profile-link"
+class="edit-link"
+href="profile.html"
+hidden
+>
+View Public Profile
 </a>
 
 </section>
@@ -666,7 +696,6 @@ class="muted small"
 ></p>
 
 </section>
-
 <section class="panel">
 
 <h2>Your Profile</h2>
@@ -1276,6 +1305,19 @@ return;
 currentUser=
 session.user;
 
+const viewProfileLink=
+document.getElementById(
+'view-profile-link'
+);
+
+viewProfileLink.href=
+'profile.html?id='+
+encodeURIComponent(
+currentUser.id
+);
+
+viewProfileLink.hidden=false;
+
 document.getElementById(
 'email'
 ).textContent=
@@ -1316,8 +1358,725 @@ error.message||
 );
 }
 }
+  async function loadProfile(user){
+let result=
+await supabaseClient
+.from('Profiles')
+.select('*')
+.eq('id',user.id)
+.maybeSingle();
 
-async function loadProfile(user){
+if(result.error){
+throw new Error(
+'Profile: '+
+result.error.message
+);
+}
+
+if(!result.data){
+result=
+await supabaseClient
+.from('Profiles')
+.select('*')
+.eq('User_id',user.id)
+.maybeSingle();
+
+if(result.error){
+throw new Error(
+'Profile: '+
+result.error.message
+);
+}
+}
+
+if(!result.data){
+throw new Error(
+'Profile: no profile record exists for this account.'
+);
+}
+
+const profile=
+result.data;
+
+const fullName=
+getField(
+profile,
+[
+'full_name',
+'Full_Name',
+'name',
+'Name'
+],
+'StarRise Member'
+);
+
+const displayName=
+getField(
+profile,
+[
+'display_name',
+'Display_Name',
+'stage_name',
+'Stage_Name'
+],
+fullName
+);
+
+document.getElementById(
+'name'
+).textContent=
+displayName;
+
+document.getElementById(
+'profile-name'
+).textContent=
+fullName;
+
+document.getElementById(
+'display-name'
+).textContent=
+displayName;
+
+document.getElementById(
+'email'
+).textContent=
+user.email||
+'Not available';
+
+document.getElementById(
+'location'
+).textContent=
+getField(
+profile,
+[
+'location',
+'Location'
+],
+'Not provided'
+);
+
+document.getElementById(
+'bio'
+).textContent=
+getField(
+profile,
+[
+'bio',
+'Bio'
+],
+'No bio added yet.'
+);
+
+document.getElementById(
+'website'
+).textContent=
+getField(
+profile,
+[
+'website',
+'Website'
+],
+'Not provided'
+);
+
+document.getElementById(
+'member-since'
+).textContent=
+formatDate(
+getField(
+profile,
+[
+'created_at',
+'Created_at'
+],
+null
+)
+);
+}
+
+async function loadRoles(user){
+const element=
+document.getElementById(
+'roles'
+);
+
+try{
+const result=
+await supabaseClient
+.from('member_roles')
+.select('role')
+.eq('user_id',user.id)
+.order('role');
+
+if(result.error){
+throw result.error;
+}
+
+if(
+!result.data||
+!result.data.length
+){
+element.innerHTML=
+'<span class="muted">'+
+'No roles assigned yet.'+
+'</span>';
+
+return;
+}
+
+element.innerHTML=
+result.data
+.map(
+item=>
+'<span class="role">'+
+escapeHtml(item.role)+
+'</span>'
+)
+.join('')+
+(result.data.some(item=>item.role==='Founding Creator')
+? '<div style="margin-top:14px"><a class="button" href="founding-creator-onboarding.html">Open Founding Creator Onboarding</a></div>'
+: '');
+
+}catch(error){
+console.error(
+'Roles error:',
+error
+);
+
+element.innerHTML=
+'<span class="muted">'+
+'Unable to load roles: '+
+escapeHtml(error.message)+
+'</span>';
+}
+}
+
+async function loadRating(user){
+const averageElement=
+document.getElementById(
+'average-rating'
+);
+
+const starsElement=
+document.getElementById(
+'rating-stars'
+);
+
+const reviewCount=
+document.getElementById(
+'review-count'
+);
+
+const completedCount=
+document.getElementById(
+'completed-count'
+);
+
+try{
+const completed=
+await supabaseClient
+.from('service_orders')
+.select(
+'id',
+{
+count:'exact'
+}
+)
+.eq('seller_id',user.id)
+.eq('status','completed');
+
+if(completed.error){
+throw completed.error;
+}
+
+const reviews=
+await supabaseClient
+.from('service_reviews')
+.select('rating')
+.eq('seller_id',user.id);
+
+if(reviews.error){
+throw reviews.error;
+}
+
+const rows=
+reviews.data||[];
+
+const total=
+rows.length;
+
+completedCount.textContent=
+String(completed.count||0);
+
+reviewCount.textContent=
+String(total);
+
+if(!total){
+averageElement.textContent=
+'No rating yet';
+
+starsElement.textContent=
+'☆☆☆☆☆';
+
+return;
+}
+
+const average=
+rows.reduce(
+function(sum,review){
+return sum+
+Number(review.rating||0);
+},
+0
+)/total;
+
+averageElement.textContent=
+average.toFixed(1)+
+' / 5';
+
+starsElement.textContent=
+starsHtml(
+Math.round(average)
+);
+
+}catch(error){
+console.error(
+'Rating error:',
+error
+);
+
+averageElement.textContent=
+'Unavailable';
+
+starsElement.textContent=
+'☆☆☆☆☆';
+}
+}
+
+async function loadStripeStatus(user){
+setStatus(
+stripeStatus,
+'Checking Stripe payout status...'
+);
+
+connectStripeButton.disabled=true;
+
+connectStripeButton.textContent=
+'Checking Stripe...';
+
+try{
+const result=
+await supabaseClient
+.from('stripe_connected_accounts')
+.select(
+'stripe_account_id, charges_enabled, payouts_enabled, details_submitted'
+)
+.eq('user_id',user.id)
+.maybeSingle();
+
+if(result.error){
+throw result.error;
+}
+
+const account=
+result.data;
+
+if(!account){
+stripeAccountStatus.textContent=
+'Not connected';
+
+stripeCharges.textContent=
+'Not enabled';
+
+stripePayouts.textContent=
+'Not enabled';
+
+setStatus(
+stripeStatus,
+'Stripe payouts have not been set up yet.',
+'warning'
+);
+
+connectStripeButton.disabled=false;
+
+connectStripeButton.textContent=
+'Set Up Stripe Payouts';
+
+return;
+}
+
+stripeCharges.textContent=
+yesNo(account.charges_enabled);
+
+stripePayouts.textContent=
+yesNo(account.payouts_enabled);
+
+if(account.payouts_enabled){
+stripeAccountStatus.textContent=
+'Ready';
+
+setStatus(
+stripeStatus,
+'Your Stripe account is ready to receive payouts.',
+'success'
+);
+
+connectStripeButton.disabled=false;
+
+connectStripeButton.textContent=
+'Manage Stripe Setup';
+
+}else if(account.details_submitted){
+stripeAccountStatus.textContent=
+'Under review';
+
+setStatus(
+stripeStatus,
+'Stripe setup has been submitted. Complete any remaining requirements in Stripe.',
+'warning'
+);
+
+connectStripeButton.disabled=false;
+
+connectStripeButton.textContent=
+'Continue Stripe Setup';
+
+}else{
+stripeAccountStatus.textContent=
+'Setup required';
+
+setStatus(
+stripeStatus,
+'Finish Stripe onboarding before receiving payouts.',
+'warning'
+);
+
+connectStripeButton.disabled=false;
+
+connectStripeButton.textContent=
+'Finish Stripe Setup';
+}
+
+}catch(error){
+console.error(
+'Stripe status error:',
+error
+);
+
+stripeAccountStatus.textContent=
+'Unavailable';
+
+stripeCharges.textContent=
+'Unavailable';
+
+stripePayouts.textContent=
+'Unavailable';
+
+setStatus(
+stripeStatus,
+'Stripe status could not be loaded: '+
+error.message,
+'error'
+);
+
+connectStripeButton.disabled=false;
+
+connectStripeButton.textContent=
+'Set Up Stripe Payouts';
+}
+}
+
+async function startStripeOnboarding(){
+if(!currentUser){
+throw new Error(
+'You must be signed in.'
+);
+}
+
+connectStripeButton.disabled=true;
+
+connectStripeButton.textContent=
+'Opening Stripe...';
+
+stripeMessage.textContent=
+'Preparing your secure Stripe onboarding page...';
+
+try{
+const sessionResult=
+await supabaseClient
+.auth
+.getSession();
+
+if(sessionResult.error){
+throw sessionResult.error;
+}
+
+const session=
+sessionResult.data&&
+sessionResult.data.session;
+
+if(!session){
+throw new Error(
+'Your login session has expired.'
+);
+}
+
+const response=
+await fetch(
+FUNCTIONS_URL+
+'/connect-payouts',
+{
+method:'POST',
+headers:{
+Authorization:
+'Bearer '+
+session.access_token,
+apikey:SUPABASE_KEY,
+'Content-Type':
+'application/json'
+},
+body:JSON.stringify({})
+}
+);
+
+const data=
+await response.json();
+
+if(
+!response.ok||
+!data.url
+){
+throw new Error(
+data.error||
+'Stripe onboarding could not be started.'
+);
+}
+
+window.location.href=
+data.url;
+
+}catch(error){
+console.error(
+'Stripe onboarding error:',
+error
+);
+
+setStatus(
+stripeStatus,
+'Unable to start Stripe setup: '+
+error.message,
+'error'
+);
+
+stripeMessage.textContent=
+'Please try again.';
+
+connectStripeButton.disabled=false;
+
+connectStripeButton.textContent=
+'Set Up Stripe Payouts';
+}
+}
+
+async function getServices(serviceIds){
+const ids=[
+...new Set(
+serviceIds.filter(Boolean)
+)
+];
+
+if(!ids.length){
+return {};
+}
+
+const result=
+await supabaseClient
+.from('star_rise_services')
+.select('*')
+.in('id',ids);
+
+if(result.error){
+throw result.error;
+}
+
+return (result.data||[])
+.reduce(
+function(map,service){
+map[service.id]=service;
+return map;
+},
+{}
+);
+}
+
+async function getProfiles(userIds){
+const ids=[
+...new Set(
+userIds.filter(Boolean)
+)
+];
+
+if(!ids.length){
+return {};
+}
+
+const result=
+await supabaseClient
+.from('Profiles')
+.select('*')
+.in('id',ids);
+
+if(result.error){
+return {};
+}
+
+return (result.data||[])
+.reduce(
+function(map,profile){
+map[profile.id]=profile;
+return map;
+},
+{}
+);
+}
+
+async function getReviews(orderIds){
+if(!orderIds.length){
+return {};
+}
+
+const result=
+await supabaseClient
+.from('service_reviews')
+.select('*')
+.in('order_id',orderIds);
+
+if(result.error){
+console.error(
+'Reviews error:',
+result.error
+);
+
+return {};
+}
+
+return (result.data||[])
+.reduce(
+function(map,review){
+map[review.order_id]=review;
+return map;
+},
+{}
+);
+}
+
+function reviewDisplay(review){
+if(!review){
+return '';
+}
+
+return `
+<div class="review-display">
+
+<span class="label">
+Review
+</span>
+
+<div class="review-stars">
+${escapeHtml(
+starsHtml(review.rating)
+)}
+</div>
+
+${
+review.review
+?`
+<div class="review-content">
+${escapeHtml(review.review)}
+</div>
+`
+:''
+}
+
+<div class="review-date">
+Reviewed
+${escapeHtml(
+formatDate(review.created_at)
+)}
+</div>
+
+</div>
+`;
+}
+
+function reviewForm(order,review){
+const currentRating=
+Number(
+review&&review.rating
+?review.rating
+:0
+);
+
+return `
+<div class="review-box">
+
+<span class="label">
+${review?'Update Your Review':'Rate This Service'}
+</span>
+
+<div
+class="stars"
+data-stars-for="${escapeHtml(order.id)}"
+>
+
+${[1,2,3,4,5]
+.map(
+function(number){
+return `
+<button
+type="button"
+class="star ${number<=currentRating?'selected':''}"
+data-rating="${number}"
+data-order="${escapeHtml(order.id)}"
+>
+★
+</button>
+`;
+}
+)
+.join('')}
+
+</div>
+
+<textarea
+class="review-text"
+id="review-text-${escapeHtml(order.id)}"
+maxlength="1000"
+placeholder="Tell us about your StarRise experience..."
+>${escapeHtml(
+review&&review.review
+?review.review
+:''
+)}</textarea>
+
+<button
+type="button"
+class="order-button"
+data-submit-review="${escapeHtml(order.id)}"
+>
+${review?'Update Review':'Submit Review'}
+</button>
+
+<div
+id="review-message-${escapeHtml(order.id)}"
+class="muted"
+style="margin-top:10px;"
+></div>
+
+</div>
+`;
+  }
+  async function loadProfile(user){
 let result=
 await supabaseClient
 .from('Profiles')
@@ -2035,8 +2794,7 @@ style="margin-top:10px;"
 </div>
 `;
 }
-
-function renderOrder(
+  function renderOrder(
 order,
 service,
 profile,
@@ -2728,9 +3486,8 @@ new Date().toISOString()
 if(result.error){
 throw result.error;
 }
-}
-
-async function submitReview(orderId){
+  }
+  async function submitReview(orderId){
 if(!currentUser){
 throw new Error(
 'You must be signed in.'
