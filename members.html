@@ -116,6 +116,12 @@
       font-size: 14px;
     }
 
+    .marketplace-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
     .button {
       display: inline-block;
       padding: 12px 20px;
@@ -344,6 +350,10 @@
       .marketplace-bar .button {
         width: 100%;
       }
+
+      .marketplace-actions {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -357,7 +367,9 @@
 
   <nav>
     <a href="index.html">Home</a>
+    <a href="community.html">Community</a>
     <a href="members.html">Members</a>
+    <a href="messages.html">Messages</a>
     <a href="ecosystem.html">Ecosystem</a>
     <a href="marketplace.html">Store</a>
     <a href="services.html">Services</a>
@@ -393,9 +405,19 @@
       </div>
     </div>
 
-    <a class="button" href="join.html">
-      Join StarRise
-    </a>
+    <div class="marketplace-actions">
+      <a class="button" href="community.html">
+        Open Community
+      </a>
+
+      <a class="button secondary" href="messages.html">
+        Messages
+      </a>
+
+      <a class="button secondary" href="join.html">
+        Join StarRise
+      </a>
+    </div>
   </section>
 
   <section class="controls">
@@ -466,7 +488,7 @@
   ⭐ StarRise — Where Talent Rises.
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 (function () {
@@ -879,6 +901,13 @@
               href="profile.html?id=${encodeURIComponent(member.id)}"
             >
               View Profile
+            </a>
+
+            <a
+              class="button secondary"
+              href="messages.html?to=${encodeURIComponent(member.id)}"
+            >
+              Message
             </a>
           </div>
         `;
