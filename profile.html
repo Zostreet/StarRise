@@ -163,7 +163,7 @@
 
     .stats {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
       gap: 12px;
       margin-top: 26px;
     }
@@ -289,6 +289,52 @@
       color: #aaa;
     }
 
+    .talent-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .talent-card {
+      overflow: hidden;
+      border: 1px solid #ffffff18;
+      border-radius: 18px;
+      background: #ffffff08;
+    }
+
+    .talent-media {
+      display: flex;
+      min-height: 220px;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    .talent-media img,
+    .talent-media video {
+      display: block;
+      width: 100%;
+      max-height: 430px;
+      object-fit: contain;
+    }
+
+    .talent-copy {
+      padding: 15px;
+    }
+
+    .talent-copy p {
+      margin: 0 0 12px;
+    }
+
+    .talent-meta {
+      color: #888;
+      font-size: 12px;
+    }
+
+    .button[hidden] {
+      display: none;
+    }
+
     footer {
       padding: 30px 15px;
       border-top: 1px solid #ffffff18;
@@ -327,7 +373,9 @@
 
   <nav>
     <a href="index.html">Home</a>
+    <a href="community.html">Community</a>
     <a href="members.html">Members</a>
+    <a href="messages.html">Messages</a>
     <a href="ecosystem.html">Ecosystem</a>
     <a href="marketplace.html">Store</a>
     <a href="services.html">Services</a>
@@ -335,7 +383,6 @@
     <a href="dashboard.html">Dashboard</a>
   </nav>
 </header>
-
 <main>
 
   <a class="back-link" href="members.html">
@@ -400,9 +447,37 @@
             0
           </div>
         </div>
+
+        <div class="stat">
+          <div class="stat-label">
+            Talent Posts
+          </div>
+
+          <div id="postCount" class="stat-value">
+            0
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-label">
+            Followers
+          </div>
+
+          <div id="followerCount" class="stat-value">
+            —
+          </div>
+        </div>
       </div>
 
       <div class="actions">
+        <button id="followButton" class="button" type="button" hidden>
+          Follow
+        </button>
+
+        <a id="messageButton" class="button secondary" href="messages.html" hidden>
+          Private Message
+        </a>
+
         <a class="button" href="services.html">
           Browse Services
         </a>
@@ -412,6 +487,13 @@
         </a>
       </div>
     </div>
+
+    <section class="section">
+      <h2>Talent Gallery</h2>
+      <div id="talentGallery" class="talent-gallery">
+        <div class="empty">Loading talent posts...</div>
+      </div>
+    </section>
 
     <section class="section">
       <h2>Services</h2>
@@ -472,6 +554,21 @@
   const serviceCount =
     document.getElementById('serviceCount');
 
+  const postCount =
+    document.getElementById('postCount');
+
+  const followerCount =
+    document.getElementById('followerCount');
+
+  const followButton =
+    document.getElementById('followButton');
+
+  const messageButton =
+    document.getElementById('messageButton');
+
+  const talentGallery =
+    document.getElementById('talentGallery');
+
   const services =
     document.getElementById('services');
 
@@ -480,6 +577,11 @@
 
   const funds =
     document.getElementById('funds');
+
+  let client = null;
+  let currentUser = null;
+  let viewedMemberId = '';
+  let followingViewedMember = false;
 
   function escapeHtml(value) {
     return String(value ?? '')
@@ -526,11 +628,31 @@
         return;
       }
 
-      const client =
+      client =
         window.supabase.createClient(
           SUPABASE_URL,
           SUPABASE_KEY
         );
+
+      const sessionResult =
+        await client.auth.getSession();
+
+      if (sessionResult.error) {
+        console.warn(
+          'Profile session check failed; continuing as a public visitor:',
+          sessionResult.error
+        );
+      }
+
+      const sessionUser =
+        sessionResult.error
+          ? null
+          : sessionResult.data.session?.user || null;
+
+      currentUser =
+        sessionUser && sessionUser.is_anonymous !== true
+          ? sessionUser
+          : null;
 
       const params =
         new URLSearchParams(
@@ -539,6 +661,9 @@
 
       const memberId =
         params.get('id');
+
+      viewedMemberId =
+        memberId || '';
 
       if (!memberId) {
         showError(
@@ -605,6 +730,21 @@
         memberServices,
         memberFunds
       );
+
+      try {
+        await loadCommunityProfile(memberId);
+      } catch (communityError) {
+        console.error(
+          'StarRise talent gallery error:',
+          communityError
+        );
+
+        talentGallery.innerHTML = `
+          <div class="empty">
+            This member's talent gallery could not load right now.
+          </div>
+        `;
+      }
     } catch (error) {
       console.error(
         'StarRise profile error:',
@@ -694,8 +834,7 @@
     profile.style.display =
       'block';
   }
-
-  function renderServices(memberServices) {
+    function renderServices(memberServices) {
     services.innerHTML = '';
 
     if (!memberServices.length) {
@@ -856,6 +995,249 @@
       }
     );
   }
+
+  async function loadCommunityProfile(memberId) {
+    const postResult =
+      await client
+        .from('talent_posts')
+        .select(
+          'id,creator_id,caption,media_path,media_kind,visibility,created_at'
+        )
+        .eq('creator_id', memberId)
+        .order('created_at', { ascending: false })
+        .limit(60);
+
+    if (postResult.error) {
+      throw postResult.error;
+    }
+
+    const memberPosts =
+      postResult.data || [];
+
+    postCount.textContent =
+      memberPosts.length;
+
+    await renderTalentGallery(memberPosts);
+
+    if (!currentUser) {
+      followerCount.textContent = '—';
+      return;
+    }
+
+    const followResult =
+      await client
+        .from('member_follows')
+        .select('follower_id,followed_id')
+        .or(
+          'follower_id.eq.' + memberId +
+          ',followed_id.eq.' + memberId
+        );
+
+    if (followResult.error) {
+      throw followResult.error;
+    }
+
+    const relationships =
+      followResult.data || [];
+
+    followerCount.textContent =
+      relationships.filter(
+        item =>
+          item.followed_id === memberId
+      ).length;
+
+    followingViewedMember =
+      relationships.some(
+        item =>
+          item.follower_id === currentUser.id &&
+          item.followed_id === memberId
+      );
+
+    const isOwnProfile =
+      currentUser.id === memberId;
+
+    followButton.hidden =
+      isOwnProfile;
+
+    followButton.textContent =
+      followingViewedMember
+        ? 'Following'
+        : 'Follow';
+
+    followButton.classList.toggle(
+      'secondary',
+      followingViewedMember
+    );
+
+    messageButton.hidden =
+      isOwnProfile;
+
+    messageButton.href =
+      'messages.html?to=' +
+      encodeURIComponent(memberId);
+  }
+
+  async function renderTalentGallery(memberPosts) {
+    if (!memberPosts.length) {
+      talentGallery.innerHTML = `
+        <div class="empty">
+          <h3>No visible talent posts yet</h3>
+
+          <p>
+            This member has not shared a photo or video
+            with your audience yet.
+          </p>
+        </div>
+      `;
+
+      return;
+    }
+
+    const signedMedia =
+      await Promise.all(
+        memberPosts.map(
+          async post => {
+            const result =
+              await client.storage
+                .from('talent-posts')
+                .createSignedUrl(
+                  post.media_path,
+                  300
+                );
+
+            return {
+              post,
+              url:
+                result.error
+                  ? ''
+                  : result.data?.signedUrl || ''
+            };
+          }
+        )
+      );
+
+    talentGallery.innerHTML =
+      signedMedia
+        .map(
+          item => {
+            const post =
+              item.post;
+
+            const media =
+              item.url
+                ? post.media_kind === 'video'
+                  ? `
+                    <video
+                      controls
+                      playsinline
+                      preload="metadata"
+                      src="${escapeHtml(item.url)}"
+                    ></video>
+                  `
+                  : `
+                    <img
+                      src="${escapeHtml(item.url)}"
+                      alt="Talent post"
+                      loading="lazy"
+                    >
+                  `
+                : `
+                  <div class="empty">
+                    Media unavailable. Refresh to try again.
+                  </div>
+                `;
+
+            return `
+              <article class="talent-card">
+                <div class="talent-media">
+                  ${media}
+                </div>
+
+                <div class="talent-copy">
+                  ${
+                    post.caption
+                      ? `
+                        <p class="bio">
+                          ${escapeHtml(post.caption)}
+                        </p>
+                      `
+                      : ''
+                  }
+
+                  <div class="talent-meta">
+                    ${escapeHtml(
+                      new Date(
+                        post.created_at
+                      ).toLocaleDateString()
+                    )}
+                  </div>
+
+                  <div class="actions">
+                    <a
+                      class="button secondary"
+                      href="community.html?post=${encodeURIComponent(post.id)}"
+                    >
+                      View Post
+                    </a>
+                  </div>
+                </div>
+              </article>
+            `;
+          }
+        )
+        .join('');
+  }
+
+  async function toggleFollow() {
+    if (
+      !currentUser ||
+      !viewedMemberId ||
+      currentUser.id === viewedMemberId
+    ) {
+      return;
+    }
+
+    followButton.disabled = true;
+
+    try {
+      const result =
+        followingViewedMember
+          ? await client
+              .from('member_follows')
+              .delete()
+              .eq('follower_id', currentUser.id)
+              .eq('followed_id', viewedMemberId)
+          : await client
+              .from('member_follows')
+              .insert({
+                follower_id: currentUser.id,
+                followed_id: viewedMemberId
+              });
+
+      if (result.error) {
+        throw result.error;
+      }
+
+      await loadCommunityProfile(
+        viewedMemberId
+      );
+    } catch (error) {
+      console.error(
+        'StarRise follow error:',
+        error
+      );
+
+      followButton.textContent =
+        'Try Follow Again';
+    } finally {
+      followButton.disabled = false;
+    }
+  }
+
+  followButton.addEventListener(
+    'click',
+    toggleFollow
+  );
 
   start();
 })();
