@@ -153,6 +153,43 @@ const form = document.getElementById('form');
 const btn = document.getElementById('btn');
 const msg = document.getElementById('msg');
 
+function getSafeRedirectTarget() {
+
+  const fallback = 'dashboard.html';
+  const requested = new URLSearchParams(window.location.search)
+    .get('redirect');
+
+  if (!requested) {
+    return fallback;
+  }
+
+  try {
+
+    const target = new URL(requested, window.location.href);
+    const siteDirectory = new URL('.', window.location.href).pathname;
+    const relativePath = target.pathname.slice(siteDirectory.length);
+
+    if (
+      target.origin !== window.location.origin ||
+      !target.pathname.startsWith(siteDirectory) ||
+      !/^[A-Za-z0-9][A-Za-z0-9._/-]*\.html$/.test(relativePath)
+    ) {
+      return fallback;
+    }
+
+    return relativePath + target.search + target.hash;
+
+  } catch (error) {
+
+    console.warn('Ignored unsafe redirect target:', error);
+    return fallback;
+
+  }
+
+}
+
+const redirectTarget = getSafeRedirectTarget();
+
 function showMessage(text, type = '') {
 
   msg.textContent = text;
@@ -176,7 +213,7 @@ async function checkExistingSession() {
 
     if (data.session) {
 
-      window.location.replace('dashboard.html');
+      window.location.replace(redirectTarget);
 
     }
 
@@ -261,13 +298,15 @@ form.addEventListener('submit', async (event) => {
     }
 
     showMessage(
-      'Signed in successfully. Opening your StarRise dashboard...',
+      redirectTarget === 'dashboard.html'
+        ? 'Signed in successfully. Opening your StarRise dashboard...'
+        : 'Signed in successfully. Returning to your requested page...',
       'success'
     );
 
     setTimeout(() => {
 
-      window.location.replace('dashboard.html');
+      window.location.replace(redirectTarget);
 
     }, 700);
 
