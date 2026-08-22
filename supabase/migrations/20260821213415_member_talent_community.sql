@@ -696,4 +696,59 @@ with check (
   and coalesce(((select auth.jwt()) ->> 'is_anonymous')::boolean, false) = false
 );
 
-create policy "Creato
+create policy "Creators can delete own talent post media"
+on storage.objects
+for delete
+to authenticated
+using (
+  bucket_id = 'talent-posts'
+  and (storage.foldername(name))[1] = (select auth.uid())::text
+  and coalesce(((select auth.jwt()) ->> 'is_anonymous')::boolean, false) = false
+);
+
+do $$
+begin
+  if exists (
+    select 1 from pg_publication where pubname = 'supabase_realtime'
+  ) then
+    if not exists (
+      select 1
+      from pg_publication_tables
+      where pubname = 'supabase_realtime'
+        and schemaname = 'public'
+        and tablename = 'member_messages'
+    ) then
+      alter publication supabase_realtime add table public.member_messages;
+    end if;
+
+    if not exists (
+      select 1
+      from pg_publication_tables
+      where pubname = 'supabase_realtime'
+        and schemaname = 'public'
+        and tablename = 'talent_post_comments'
+    ) then
+      alter publication supabase_realtime add table public.talent_post_comments;
+    end if;
+
+    if not exists (
+      select 1
+      from pg_publication_tables
+      where pubname = 'supabase_realtime'
+        and schemaname = 'public'
+        and tablename = 'talent_post_likes'
+    ) then
+      alter publication supabase_realtime add table public.talent_post_likes;
+    end if;
+  end if;
+end;
+$$;
+
+comment on table public.talent_posts is
+  'StarRise member photo and video talent posts with creator-selected visibility.';
+
+comment on column public.talent_posts.visibility is
+  'public, members, followers, or private; enforced by RLS and private storage policies.';
+
+comment on table public.member_messages is
+  'Private one-to-one member messages; only conversation participants can select rows.';
