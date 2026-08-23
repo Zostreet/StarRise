@@ -612,6 +612,12 @@
       await Promise.all([loadProfiles(), loadFollowing()]);
       await loadFeed();
     } catch (error) {
+            if (isJwtTimingError(error) && !initializationRetried) {
+        initializationRetried = true;
+        showStatus('Finishing your secure sign-in…');
+        await waitFor(1500);
+        return initialize();
+            }
       console.error('Community initialization error:', error);
       showStatus('The StarRise community could not start: ' + (error.message || 'Please refresh.'), 'error');
     }
