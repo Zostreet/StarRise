@@ -207,7 +207,7 @@
   let mediaUrls = new Map();
   let activeFeed = 'all';
   let previewUrl = '';
-
+  let initializationRetried = false;
   function escapeHtml(value) {
     return String(value ?? '')
       .replace(/&/g, '&amp;')
