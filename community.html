@@ -224,7 +224,13 @@
   function showStatus(message, type = '') {
     status.textContent = message;
     status.className = 'notice' + (type ? ' ' + type : '');
+  function isJwtTimingError(error) {
+    return /jwt issued at future/i.test(String(error?.message || error || ''));
   }
+
+  function waitFor(milliseconds) {
+    return new Promise(resolve => window.setTimeout(resolve, milliseconds));
+ }  }
 
   function profileFor(userId) {
     return profiles.get(userId) || {
