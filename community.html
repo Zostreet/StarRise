@@ -164,6 +164,8 @@
   const SUPABASE_URL = 'https://rcnikxotdalxtuvpmlvm.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
   const MEDIA_BUCKET = 'talent-posts';
+  const RESUMABLE_UPLOAD_URL = 'https://rcnikxotdalxtuvpmlvm.storage.supabase.co/storage/v1/upload/resumable';
+const UPLOAD_CHUNK_SIZE = 6 * 1024 * 1024;
   const SIGNED_URL_SECONDS = 300;
   const IMAGE_LIMIT = 15 * 1024 * 1024;
   const VIDEO_LIMIT = 100 * 1024 * 1024;
@@ -530,7 +532,50 @@
     if (file.size > limit) throw new Error(kind === 'image' ? 'Photos must be 15 MB or smaller.' : 'Videos must be 100 MB or smaller.');
     return { file, extension, kind };
   }
+  async function uploadTalentMedia(path, file) {
+    if (!window.tus?.Upload) {
+      throw new Error('The secure upload service did not load. Refresh the page and try again.');
+    }
 
+    const sessionResult = await client.auth.getSession();
+    if (sessionResult.error) throw sessionResult.error;
+    const accessToken = sessionResult.data.session?.access_token;
+    if (!accessToken) {
+      throw new Error('Your sign-in expired. Sign in again before publishing.');
+    }
+
+    return new Promise((resolve, reject) => {
+      const upload = new window.tus.Upload(file, {
+        endpoint: RESUMABLE_UPLOAD_URL,
+        retryDelays: [0, 3000, 5000, 10000, 20000],
+        headers: {
+          authorization: 'Bearer ' + accessToken,
+          apikey: SUPABASE_KEY
+        },
+        uploadDataDuringCreation: true,
+        removeFingerprintOnSuccess: true,
+        chunkSize: UPLOAD_CHUNK_SIZE,
+        metadata: {
+          bucketName: MEDIA_BUCKET,
+          objectName: path,
+          contentType: file.type,
+          cacheControl: '3600'
+        },
+        onError(error) {
+          reject(error instanceof Error ? error : new Error(String(error || 'Upload failed.')));
+        },
+        onProgress(bytesUploaded, bytesTotal) {
+          const percent = bytesTotal ? Math.round((bytesUploaded / bytesTotal) * 100) : 0;
+          showStatus('Uploading your talent media… ' + percent + '%');
+        },
+        onSuccess() {
+          resolve();
+        }
+      });
+
+      upload.start();
+    });
+  }
   async function publishPost(event) {
     event.preventDefault();
     if (!requireUser()) return;
@@ -540,13 +585,8 @@
     try {
       const selected = selectedFile();
       uploadedPath = currentUser.id + '/' + new Date().toISOString().slice(0, 10) + '/' + crypto.randomUUID() + '.' + selected.extension;
-      showStatus('Uploading your talent media…');
-      const upload = await client.storage.from(MEDIA_BUCKET).upload(uploadedPath, selected.file, {
-        contentType: selected.file.type,
-        cacheControl: '3600',
-        upsert: false
-      });
-      if (upload.error) throw upload.error;
+            showStatus('Preparing your secure upload…');
+      await uploadTalentMedia(uploadedPath, selected.file);
 
       showStatus('Saving your talent post…');
       const result = await client.from('talent_posts').insert({
