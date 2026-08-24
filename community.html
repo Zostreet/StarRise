@@ -552,7 +552,7 @@ const UPLOAD_CHUNK_SIZE = 6 * 1024 * 1024;
           authorization: 'Bearer ' + accessToken,
           apikey: SUPABASE_KEY
         },
-        uploadDataDuringCreation: true,
+        uploadDataDuringCreation: false,
         removeFingerprintOnSuccess: true,
         chunkSize: UPLOAD_CHUNK_SIZE,
         metadata: {
@@ -561,8 +561,13 @@ const UPLOAD_CHUNK_SIZE = 6 * 1024 * 1024;
           contentType: file.type,
           cacheControl: '3600'
         },
-        onError(error) {
-          reject(error instanceof Error ? error : new Error(String(error || 'Upload failed.')));
+                onError(error) {
+          console.error('Talent media upload failed:', error);
+          const detail = String(error?.message || error || '');
+          const message = /failed to create upload|progressEvent|response code: n\/a/i.test(detail)
+            ? 'The media upload could not connect. Check your connection and try again.'
+            : detail || 'The media upload failed. Please try again.';
+          reject(new Error(message));
         },
         onProgress(bytesUploaded, bytesTotal) {
           const percent = bytesTotal ? Math.round((bytesUploaded / bytesTotal) * 100) : 0;
