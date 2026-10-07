@@ -45,14 +45,14 @@
       <p class="panel-description">This information powers your public StarRise vendor identity.</p>
       <form id="vendorForm">
         <div class="form-grid">
-          <div class="form-group"><label for="businessName">Business Name</label><input id="businessName" type="text" maxlength="120" required></div>
+          <div class="form-group"><label for="businessName">Business Name</label><input id="businessName" type="text" minlength="2" maxlength="120" required></div>
           <div class="form-group">
             <label for="category">Category</label>
             <select id="category" required>
               <option value="">Choose a category</option>
-              <option>Studio &amp; Audio</option><option>Photography &amp; Video</option><option>Venue &amp; Events</option>
-              <option>Merchandise &amp; Products</option><option>Marketing &amp; Promotion</option><option>Design &amp; Creative</option>
-              <option>Business Services</option><option>Equipment &amp; Resources</option><option>Other</option>
+              <option>Studio &amp; Audio</option><option>Media &amp; Photography</option><option>Venue &amp; Events</option>
+              <option>Merchandise &amp; Products</option><option>Marketing &amp; Promotion</option><option>Professional Services</option>
+              <option>Equipment &amp; Rentals</option><option>Other</option>
             </select>
           </div>
           <div class="form-group full"><label for="description">Business Description</label><textarea id="description" maxlength="2000" placeholder="Tell StarRise members what your business offers."></textarea></div>
@@ -399,6 +399,10 @@
 
   byId("vendorForm").addEventListener("submit", async event => {
     event.preventDefault();
+    if (!currentUser) {
+      setStatus("Please sign in before saving your business profile.", "error");
+      return;
+    }
     const button = byId("saveVendor");
     button.disabled = true;
     button.textContent = "Saving...";
@@ -406,5 +410,85 @@
     const payload = {
       user_id: currentUser.id,
       business_name: byId("businessName").value.trim(),
-      category: byId("category").
+      category: byId("category").value,
+      description: byId("description").value.trim() || null,
+      location: byId("location").value.trim() || null,
+      website: byId("website").value.trim() || null,
+      contact_email: byId("contactEmail").value.trim() || null,
+      phone: byId("phone").value.trim() || null,
+      is_active: byId("isActive").checked
+    };
 
+    try {
+      if (payload.business_name.length < 2 || !payload.category) {
+        setStatus("Enter a business name with at least two characters and choose a category.", "error");
+        return;
+      }
+      const { data, error } = await starRiseSupabase
+        .from("vendor_profiles")
+        .upsert(payload, { onConflict: "user_id" })
+        .select("user_id,business_name,category,description,location,website,contact_email,phone,is_active")
+        .single();
+      if (error) throw error;
+      currentProfile = data;
+      fillProfile();
+      setStatus("Your business profile has been saved.", "success");
+    } catch (error) {
+      console.error(error);
+      setStatus("Your business profile could not be saved. Please try again.", "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = "Save Business Profile";
+    }
+  });
+
+  byId("refreshOrders").addEventListener("click", async () => {
+    if (!currentUser) return;
+    const button = byId("refreshOrders");
+    button.disabled = true;
+    button.textContent = "Refreshing...";
+    try {
+      await loadDashboard();
+    } catch (error) {
+      console.error(error);
+      setStatus("Your sales could not be refreshed. Please try again.", "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = "Refresh Sales";
+    }
+  });
+
+  byId("signout").addEventListener("click", async () => {
+    const button = byId("signout");
+    button.disabled = true;
+    try {
+      const { error } = await starRiseSupabase.auth.signOut();
+      if (error) throw error;
+      window.location.href = "login.html";
+    } catch (error) {
+      console.error(error);
+      setStatus("Sign out could not be completed. Please try again.", "error");
+      button.disabled = false;
+    }
+  });
+
+  byId("saveVendor").disabled = true;
+  byId("refreshOrders").disabled = true;
+  (async () => {
+    let verified = false;
+    try {
+      verified = await requireVendor();
+      if (verified) await loadDashboard();
+    } catch (error) {
+      console.error(error);
+      setStatus("Your vendor dashboard could not be loaded. Please reload and try again.", "error");
+    } finally {
+      if (verified) {
+        byId("saveVendor").disabled = false;
+        byId("refreshOrders").disabled = false;
+      }
+    }
+  })();
+</script>
+</body>
+</html>
