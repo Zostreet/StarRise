@@ -62,7 +62,8 @@
   <article class="receipt" id="receipt"></article>
 </div>
 
-<footer>⭐ StarRise — Where Talent Rises.</footer>
+<footer>⭐ StarRise — Where Talent Rises.<p style="font-size:12px;line-height:1.5">Payment information effective October 6, 2026. <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund-policy.html">Refunds</a> · <a href="support.html">Support</a></p>
+</footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const starRiseSupabase = window.supabase.createClient(
@@ -177,7 +178,7 @@
     serviceOrders.forEach(order => {
       const service = services.get(order.service_id);
       const title = service?.title || "StarRise Service";
-      const stripeReference = order.stripe_payment_intent_id || order.stripe_session_id;
+      const providerReference = order.paypal_capture_id || order.paypal_order_id || order.stripe_payment_intent_id || order.stripe_session_id;
 
       if (order.buyer_id === uid) {
         transactions.push({
@@ -192,7 +193,7 @@
           secondaryStatus: order.status,
           date: order.refunded_at || order.updated_at || order.created_at,
           originalDate: order.created_at,
-          stripeReference,
+          providerReference,
           refundId: order.stripe_refund_id,
           refundStatus: order.refund_status,
           receipt: ["paid", "refunded", "refund_pending"].includes(order.payment_status),
@@ -213,7 +214,7 @@
           secondaryStatus: order.status,
           date: order.updated_at || order.created_at,
           originalDate: order.created_at,
-          stripeReference: order.stripe_payment_intent_id,
+          providerReference: order.paypal_capture_id || order.paypal_order_id || order.stripe_payment_intent_id,
           receipt: false,
           isRefund: false
         });
@@ -237,7 +238,7 @@
           secondaryStatus: order.fulfillment_status,
           date: order.updated_at || order.created_at,
           originalDate: order.created_at,
-          stripeReference: order.stripe_payment_intent_id || order.stripe_session_id,
+          providerReference: order.paypal_capture_id || order.paypal_order_id || order.stripe_payment_intent_id || order.stripe_session_id,
           receipt: order.payment_status === "paid",
           isRefund: false
         });
@@ -252,11 +253,11 @@
           detail: "Seller share from a marketplace order",
           direction: "incoming",
           amount: Number(order.seller_amount_cents || 0),
-          status: order.stripe_transfer_id ? "paid_out" : order.payment_status,
+          status: order.payment_provider && order.payment_provider.startsWith("paypal") ? "payout_not_verified" : (order.stripe_transfer_id ? "paid_out" : order.payment_status),
           secondaryStatus: order.fulfillment_status,
           date: order.updated_at || order.created_at,
           originalDate: order.created_at,
-          stripeReference: order.stripe_transfer_id || order.stripe_payment_intent_id,
+          providerReference: order.paypal_capture_id || order.paypal_order_id || order.stripe_transfer_id || order.stripe_payment_intent_id,
           receipt: false,
           isRefund: false
         });
@@ -280,7 +281,7 @@
           secondaryStatus: contribution.payout_status,
           date: contribution.updated_at || contribution.created_at,
           originalDate: contribution.created_at,
-          stripeReference: contribution.stripe_payment_intent_id || contribution.stripe_session_id,
+          providerReference: contribution.stripe_payment_intent_id || contribution.stripe_session_id,
           receipt: contribution.payment_status === "paid",
           isRefund: false
         });
@@ -299,7 +300,7 @@
           secondaryStatus: contribution.payment_status,
           date: contribution.updated_at || contribution.created_at,
           originalDate: contribution.created_at,
-          stripeReference: contribution.stripe_payment_intent_id,
+          providerReference: contribution.stripe_payment_intent_id,
           receipt: false,
           isRefund: false
         });
@@ -338,7 +339,7 @@
     if (currentFilter === "refunds" && !item.isRefund) return false;
     const query = byId("search").value.trim().toLowerCase();
     if (!query) return true;
-    return [item.id, item.kind, item.title, item.detail, item.status, item.secondaryStatus, item.stripeReference]
+    return [item.id, item.kind, item.title, item.detail, item.status, item.secondaryStatus, item.providerReference]
       .some(value => String(value || "").toLowerCase().includes(query));
   }
 
@@ -385,11 +386,11 @@
         <div class="receipt-line"><span>Description</span><strong>${escapeHtml(item.title)}</strong></div>
         <div class="receipt-line"><span>Payment Status</span><strong>${escapeHtml(statusLabel(item.status))}</strong></div>
         <div class="receipt-line"><span>Purchase Date</span><strong>${escapeHtml(dateText(item.originalDate))}</strong></div>
-        <div class="receipt-line"><span>Stripe Reference</span><strong>${escapeHtml(shortReference(item.stripeReference))}</strong></div>
+        <div class="receipt-line"><span>Payment Provider Reference</span><strong>${escapeHtml(shortReference(item.providerReference))}</strong></div>
         ${refundDetails}
       </div>
       <div class="receipt-total"><span>Total</span><span>${escapeHtml(money(item.amount))}</span></div>
-      <p class="receipt-note">This StarRise account receipt reflects the transaction status stored for your account. Card refunds can take additional time to appear at your bank after Stripe marks the refund complete.</p>
+      <p class="receipt-note">This StarRise account receipt reflects the transaction status stored for your account. Card refunds can take additional time to appear at your bank after the original payment provider confirms the refund. A payment capture does not by itself confirm a seller payout.</p>
       <div class="receipt-actions">
         <button class="button" type="button" data-close-receipt>Close</button>
         <button class="button primary" type="button" data-print-receipt>Print / Save PDF</button>
@@ -464,3 +465,4 @@
 </script>
 </body>
 </html>
+

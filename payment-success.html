@@ -154,14 +154,15 @@
   </style></head><body><header>
   <a href="index.html">⭐ StarRise</a>
   <a href="dashboard.html">Dashboard</a>
-</header><main>  <section class="card"><div class="icon">✓</div>
+</header><main>
+<p>PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed. Earlier checkout references are verified with their original provider. <a href="dashboard.html">My Dashboard</a></p>  <section class="card"><div class="icon">✓</div>
 
 <h1>
   Payment complete
 </h1>
 
 <p class="muted">
-  We're confirming your StarRise order with Stripe.
+  We are checking the original payment-provider reference for your StarRise order.
 </p>
 
 <div
@@ -242,7 +243,8 @@
 
 </div>
 
-  </section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+  </section><p style="font-size:12px;line-height:1.5">Payment information effective October 6, 2026. <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund-policy.html">Refunds</a> · <a href="support.html">Support</a></p>
+</main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 
 const supabase =
   window.supabase.createClient(
@@ -302,7 +304,7 @@ async function finishPayment() {
   if (!sessionId) {
 
     showError(
-      'The Stripe checkout session is missing. Please return to your dashboard and check My Orders.'
+      'The original-provider checkout reference is missing. Please return to your dashboard and check My Orders.'
     );
 
     return;

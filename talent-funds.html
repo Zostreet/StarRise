@@ -333,6 +333,7 @@
 
 
 <main>
+<aside aria-label="Payment availability and fees" style="margin:20px 0;padding:18px;border:1px solid #8c78b855;border-radius:14px;line-height:1.6"><strong>PayPal payments are paused.</strong><p>PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.</p><p>Planned fee when payments reopen: StarRise deducts a 10% platform fee from each sale or Talent Fund contribution. The seller or fund recipient also pays PayPal processing fees from their proceeds. Buyers and supporters pay no additional StarRise platform surcharge.</p><p>Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Payment terms</a> · <a href="refund-policy.html">Refund policy</a></p></aside>
 
   <section class="hero">
 
@@ -367,6 +368,7 @@
 
 <footer>
   ⭐ StarRise — Where Talent Rises.
+<p style="font-size:12px;line-height:1.5">Payment information effective October 6, 2026. <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund-policy.html">Refunds</a> · <a href="support.html">Support</a></p>
 </footer>
 
 
@@ -409,6 +411,8 @@
       placeholder="25.00"
     >
 
+    <div id="fundPaymentNotice"><aside aria-label="Payment availability and fees" style="margin:20px 0;padding:18px;border:1px solid #8c78b855;border-radius:14px;line-height:1.6"><strong>PayPal payments are paused.</strong><p>PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.</p><p>Planned fee when payments reopen: StarRise deducts a 10% platform fee from each sale or Talent Fund contribution. The seller or fund recipient also pays PayPal processing fees from their proceeds. Buyers and supporters pay no additional StarRise platform surcharge.</p><p>Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Payment terms</a> · <a href="refund-policy.html">Refund policy</a></p></aside></div>
+
     <div
       id="modalMessage"
       class="modal-message"
@@ -428,8 +432,10 @@
         id="continueButton"
         class="continue-button"
         type="button"
+        disabled
+        aria-describedby="fundPaymentNotice"
       >
-        Continue to Stripe
+        Continue to PayPal
       </button>
 
     </div>
@@ -723,7 +729,7 @@ function openSupportModal(fund) {
     `Support ${fund.display_name || fund.stage_name || 'StarRise Talent'}`;
 
   modalDescription.textContent =
-    `Support "${fund.title || 'this Talent Fund'}" through secure Stripe checkout.`;
+    `Support "${fund.title || 'this Talent Fund'}". PayPal payments are currently paused.`;
 
   supportAmount.value =
     '';
@@ -738,8 +744,9 @@ function openSupportModal(fund) {
     false;
 
   continueButton.textContent =
-    'Continue to Stripe';
+    'Continue to PayPal';
 
+  continueButton.disabled = true;
   modalBackdrop.classList.add('show');
 
   setTimeout(
@@ -768,165 +775,9 @@ function closeModal() {
 */
 
 async function startCheckout() {
-
-  if (!selectedFund) {
-    return;
-  }
-
-
-  const amount =
-    Number(
-      supportAmount.value
-    );
-
-
-  if (
-    !Number.isFinite(amount) ||
-    amount < 1 ||
-    amount > 10000
-  ) {
-
-    modalMessage.textContent =
-      'Enter a support amount between $1 and $10,000.';
-
-    modalMessage.className =
-      'modal-message show';
-
-    return;
-
-  }
-
-
-  continueButton.disabled =
-    true;
-
-  continueButton.textContent =
-    'Opening Stripe...';
-
-
-  modalMessage.textContent =
-    'Preparing secure checkout...';
-
-  modalMessage.className =
-    'modal-message show';
-
-
-  try {
-
-    /*
-      CHECK LOGIN
-    */
-
-    const {
-      data: sessionData
-    } =
-      await starRiseSupabase
-        .auth
-        .getSession();
-
-
-    if (!sessionData.session) {
-
-      const returnUrl =
-        window.location.href;
-
-
-      window.location.href =
-        `login.html?redirect=${encodeURIComponent(returnUrl)}`;
-
-      return;
-
-    }
-
-
-    const amountCents =
-      Math.round(
-        amount * 100
-      );
-
-
-    /*
-      CALL EXISTING EDGE FUNCTION
-    */
-
-    const {
-      data,
-      error
-    } =
-      await starRiseSupabase.functions.invoke(
-        'create-talent-fund-checkout',
-        {
-          body: {
-            fund_id:
-              selectedFund.id,
-
-            amount_cents:
-              amountCents
-          }
-        }
-      );
-
-
-    if (error) {
-
-      console.error(
-        'Checkout error:',
-        error
-      );
-
-      throw new Error(
-        error.message ||
-        'Unable to start checkout.'
-      );
-
-    }
-
-
-    if (
-      !data ||
-      !data.url
-    ) {
-
-      throw new Error(
-        data?.error ||
-        'Stripe did not return a checkout URL.'
-      );
-
-    }
-
-
-    /*
-      SEND USER TO STRIPE
-    */
-
-    window.location.href =
-      data.url;
-
-
-  } catch (error) {
-
-    console.error(
-      'Talent Fund checkout error:',
-      error
-    );
-
-
-    modalMessage.textContent =
-      error.message ||
-      'Something went wrong. Please try again.';
-
-    modalMessage.className =
-      'modal-message show';
-
-
-    continueButton.disabled =
-      false;
-
-    continueButton.textContent =
-      'Continue to Stripe';
-
-  }
-
+  continueButton.disabled = true;
+  modalMessage.textContent = 'PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.';
+  modalMessage.className = 'modal-message show';
 }
 
 

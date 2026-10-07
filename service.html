@@ -410,7 +410,7 @@
       <p style="color:#aaa;">
         Tell the provider exactly what you need.
         Your request will be attached to the StarRise
-        order before you continue to secure Stripe checkout.
+        order when PayPal checkout becomes available. PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.
       </p>
 
       <form id="checkout-form">
@@ -430,8 +430,10 @@
           id="checkout-button"
           class="checkout-button"
           type="submit"
+          disabled
+          aria-describedby="servicePaymentNotice"
         >
-          Continue to Checkout
+          Continue to PayPal
         </button>
 
         <div
@@ -441,9 +443,7 @@
 
       </form>
 
-      <div class="small">
-        Payment is processed securely through Stripe.
-      </div>
+      <div id="servicePaymentNotice"><aside aria-label="Payment availability and fees" style="margin:20px 0;padding:18px;border:1px solid #8c78b855;border-radius:14px;line-height:1.6"><strong>PayPal payments are paused.</strong><p>PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.</p><p>Planned fee when payments reopen: StarRise deducts a 10% platform fee from each sale or Talent Fund contribution. The seller or fund recipient also pays PayPal processing fees from their proceeds. Buyers and supporters pay no additional StarRise platform surcharge.</p><p>Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Payment terms</a> · <a href="refund-policy.html">Refund policy</a></p></aside></div>
 
     </div>
 
@@ -482,6 +482,7 @@
     ← Back to Services
   </a>
 
+<p style="font-size:12px;line-height:1.5">Payment information effective October 6, 2026. <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund-policy.html">Refunds</a> · <a href="support.html">Support</a></p>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -903,285 +904,8 @@
 
 
   async function createCheckout() {
-
-    if (!currentService) {
-
-      throw new Error(
-        'Service information is missing.'
-      );
-
-    }
-
-
-    if (!currentUser) {
-
-      throw new Error(
-        'Please sign in before requesting a service.'
-      );
-
-    }
-
-
-    if (
-      String(currentService.user_id) ===
-      String(currentUser.id)
-    ) {
-
-      throw new Error(
-        'You cannot purchase your own service.'
-      );
-
-    }
-
-
-    const requestMessage =
-      document
-        .getElementById(
-          'request-message'
-        )
-        .value
-        .trim();
-
-
-    if (!requestMessage) {
-
-      throw new Error(
-        'Please tell the provider what you need.'
-      );
-
-    }
-
-
-    if (requestMessage.length > 2000) {
-
-      throw new Error(
-        'Your request is too long.'
-      );
-
-    }
-
-
-    checkoutButton.disabled =
-      true;
-
-    checkoutButton.textContent =
-      'Creating Checkout...';
-
-
-    setCheckoutStatus(
-      'Preparing your secure Stripe checkout...',
-      ''
-    );
-
-
-    const sessionResult =
-      await supabaseClient
-        .auth
-        .getSession();
-
-
-    if (sessionResult.error) {
-      throw sessionResult.error;
-    }
-
-
-    const session =
-      sessionResult.data?.session;
-
-
-    if (!session) {
-
-      throw new Error(
-        'Your login session has expired. Please sign in again.'
-      );
-
-    }
-
-
-    /*
-      CREATE CHECKOUT SESSION
-    */
-
-    const response =
-      await fetch(
-        FUNCTIONS_URL +
-        '/create-checkout-v2',
-        {
-          method: 'POST',
-
-          headers: {
-            'Authorization':
-              'Bearer ' +
-              session.access_token,
-
-            'apikey':
-              SUPABASE_KEY,
-
-            'Content-Type':
-              'application/json'
-          },
-
-          body: JSON.stringify({
-
-            service_id:
-              currentService.id,
-
-            seller_id:
-              currentService.user_id,
-
-            buyer_id:
-              currentUser.id,
-
-            request_message:
-              requestMessage
-
-          })
-
-        }
-      );
-
-
-    let data = null;
-
-
-    try {
-
-      data =
-        await response.json();
-
-    } catch (error) {
-
-      console.error(
-        'Could not read checkout response:',
-        error
-      );
-
-    }
-
-
-    console.log(
-      'StarRise checkout response:',
-      data
-    );
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        data?.error ||
-        'Stripe checkout could not be created.'
-      );
-
-    }
-
-
-    if (!data) {
-
-      throw new Error(
-        'StarRise returned an empty checkout response.'
-      );
-
-    }
-
-
-    /*
-      IMPORTANT FIX
-
-      create-checkout-v2 already returns the actual
-      Stripe Checkout URL.
-
-      Use that URL directly.
-
-      Do NOT send the browser through stripe-redirect.
-    */
-
-    const checkoutUrl =
-      data.checkout_url ||
-      data.session_url ||
-      data.url;
-
-
-    if (
-      !checkoutUrl ||
-      typeof checkoutUrl !== 'string'
-    ) {
-
-      console.error(
-        'Missing checkout URL:',
-        data
-      );
-
-      throw new Error(
-        data.error ||
-        'Checkout was created but Stripe did not return a checkout URL.'
-      );
-
-    }
-
-
-    /*
-      SECURITY CHECK
-
-      Only allow Stripe Checkout URLs.
-    */
-
-    let stripeUrl;
-
-    try {
-
-      stripeUrl =
-        new URL(
-          checkoutUrl,
-          window.location.origin
-        );
-
-    } catch (error) {
-
-      throw new Error(
-        'Stripe returned an invalid checkout URL.'
-      );
-
-    }
-
-
-    if (
-      stripeUrl.protocol !==
-      'https:' ||
-      stripeUrl.hostname !==
-      'checkout.stripe.com'
-    ) {
-
-      console.error(
-        'Invalid Stripe checkout destination:',
-        stripeUrl.href
-      );
-
-      throw new Error(
-        'Stripe returned an invalid checkout destination.'
-      );
-
-    }
-
-
-    setCheckoutStatus(
-      'Checkout created. Redirecting to Stripe...',
-      'success'
-    );
-
-
-    checkoutButton.textContent =
-      'Opening Stripe...';
-
-
-    /*
-      DIRECT REDIRECT TO STRIPE
-
-      This is the important change.
-    */
-
-    window.location.href =
-      stripeUrl.href;
-
+    checkoutButton.disabled = true;
+    setCheckoutStatus('PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.', 'error');
   }
 
 
@@ -1221,11 +945,11 @@
 
 
         checkoutButton.disabled =
-          false;
+          true;
 
 
         checkoutButton.textContent =
-          'Continue to Checkout';
+          'Continue to PayPal';
 
       }
 

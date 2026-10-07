@@ -25,11 +25,14 @@
         <article class="step"><div class="number">3</div><div><h3>Add work to the marketplace</h3><p>Publish eligible music, beats, artwork, videos, or other digital creations when you’re ready.</p><a class="button" href="create-marketplace-item.html">Add Marketplace Item</a></div></article>
         <article class="step"><div class="number">4</div><div><h3>Explore opportunities</h3><p>Review auditions, collaborations, events, and other ways to connect and grow.</p><a class="button" href="opportunities.html">View Opportunities</a></div></article>
       </div>
+      <aside aria-label="Payment availability and fees" style="margin:20px 0;padding:18px;border:1px solid #8c78b855;border-radius:14px;line-height:1.6"><strong>PayPal payments are paused.</strong><p>PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.</p><p>Planned fee when payments reopen: StarRise deducts a 10% platform fee from each sale or Talent Fund contribution. The seller or fund recipient also pays PayPal processing fees from their proceeds. Buyers and supporters pay no additional StarRise platform surcharge.</p><p>Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Payment terms</a> · <a href="refund-policy.html">Refund policy</a></p></aside>
       <div class="finish"><h2>You’re officially part of Wave One.</h2><p>Return to your dashboard anytime to manage your StarRise activity.</p><a class="button" href="dashboard.html">Open Dashboard</a></div>
     </section>
-  </main>
+  <p style="font-size:12px;line-height:1.5">Payment information effective October 6, 2026. <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund-policy.html">Refunds</a> · <a href="support.html">Support</a></p>
+</main>
   <script>
   (async()=>{const url="https://rcnikxotdalxtuvpmlvm.supabase.co",key="sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN",db=window.supabase.createClient(url,key),status=document.getElementById("status"),area=document.getElementById("onboarding");const{data:{session}}=await db.auth.getSession();if(!session){location.href="login.html?redirect=founding-creator-onboarding.html";return}const{data,error}=await db.from("founding_creator_applications").select("stage_or_business_name,legal_name,status").eq("applicant_id",session.user.id).maybeSingle();if(error||!data){status.textContent="We could not find a Founding Creator application for this account.";status.className="status bad";return}if(data.status!=="accepted"){status.textContent="Your onboarding center will unlock when your application is accepted. Current status: "+data.status+".";status.className="status";return}status.textContent="Founding Creator access confirmed.";status.className="status good";document.getElementById("welcomeTitle").textContent="Welcome, "+(data.stage_or_business_name||data.legal_name||"Founding Creator")+"!";area.classList.remove("hidden")})();
   </script>
 </body>
 </html>
+

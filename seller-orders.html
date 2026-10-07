@@ -55,7 +55,8 @@
   </section>
 </main>
 
-<footer>⭐ StarRise — Where Talent Rises.</footer>
+<footer>⭐ StarRise — Where Talent Rises.<p style="font-size:12px;line-height:1.5">Payment information effective October 6, 2026. <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund-policy.html">Refunds</a> · <a href="support.html">Support</a></p>
+</footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const starRiseSupabase = window.supabase.createClient(
@@ -135,7 +136,7 @@
 
     const { data, error } = await starRiseSupabase
       .from("service_orders")
-      .select("id,service_id,buyer_id,seller_id,amount_cents,provider_amount_cents,platform_fee_cents,request_message,status,payment_status,payout_status,stripe_refund_id,refund_status,refunded_at,created_at,updated_at")
+      .select("id,service_id,buyer_id,seller_id,amount_cents,provider_amount_cents,platform_fee_cents,request_message,status,payment_status,payout_status,payment_provider,stripe_refund_id,refund_status,refunded_at,created_at,updated_at")
       .eq("seller_id", currentUser.id)
       .order("created_at", { ascending: false });
 
@@ -216,10 +217,10 @@
 
     if (order.status === "cancelled") {
       if (order.payment_status === "paid" && ["failed", "canceled"].includes(order.refund_status)) {
-        return '<button class="button danger" type="button" data-action="refund" data-order-id="' + escapeHtml(order.id) + '">Retry Refund</button><span class="order-note">The previous Stripe refund did not complete.</span>';
+        return '<button class="button danger" type="button" data-action="refund" data-order-id="' + escapeHtml(order.id) + '">Retry Refund</button><span class="order-note">The previous original-provider refund did not complete.</span>';
       }
       if (["refunded", "refund_pending"].includes(order.payment_status)) {
-        return '<span class="order-note">Order cancelled. Stripe refund status: <strong>' + escapeHtml(label(order.refund_status || order.payment_status)) + '</strong>.</span>';
+        return '<span class="order-note">Order cancelled. Original-provider refund status: <strong>' + escapeHtml(label(order.refund_status || order.payment_status)) + '</strong>.</span>';
       }
     }
 
@@ -300,10 +301,14 @@
     const order = orders.find(item => item.id === button.dataset.orderId);
     const action = button.dataset.action;
     if (!order) throw new Error("Order not found.");
+    if (["completed", "refund"].includes(action) && String(order.payment_provider || "").startsWith("paypal")) {
+      setStatus("PayPal payout and refund actions are not yet active. Contact StarRise support with this order reference.", "warning");
+      return;
+    }
 
     if (action === "declined" && !window.confirm("Decline this unpaid service request?")) return;
     if (action === "completed" && !window.confirm("Confirm the service is complete and process the seller payout?")) return;
-    if (action === "refund" && !window.confirm("Cancel this paid service order and refund the customer through Stripe? This cannot be undone.")) return;
+    if (action === "refund" && !window.confirm("Cancel this paid service order and refund the customer through the original payment provider? This cannot be undone.")) return;
 
     const card = button.closest("[data-order-card]");
     const cardButtons = card ? card.querySelectorAll("button") : [button];
@@ -312,7 +317,7 @@
       action === "completed"
         ? "Completing the service and checking payout eligibility..."
         : action === "refund"
-          ? "Cancelling the order and starting the Stripe refund..."
+          ? "Cancelling the order and starting the original-provider refund..."
           : "Updating the service order..."
     );
 
@@ -369,3 +374,4 @@
 </script>
 </body>
 </html>
+

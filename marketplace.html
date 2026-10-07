@@ -379,6 +379,7 @@ width:100%
 </header>
 
 <main>
+<aside aria-label="Payment availability and fees" style="margin:20px 0;padding:18px;border:1px solid #8c78b855;border-radius:14px;line-height:1.6"><strong>PayPal payments are paused.</strong><p>PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.</p><p>Planned fee when payments reopen: StarRise deducts a 10% platform fee from each sale or Talent Fund contribution. The seller or fund recipient also pays PayPal processing fees from their proceeds. Buyers and supporters pay no additional StarRise platform surcharge.</p><p>Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Payment terms</a> · <a href="refund-policy.html">Refund policy</a></p></aside>
 
 <section class="hero">
 
@@ -528,6 +529,8 @@ id="modalPrice"
 class="modal-price"
 ></div>
 
+<div id="storePaymentNotice"><aside aria-label="Payment availability and fees" style="margin:20px 0;padding:18px;border:1px solid #8c78b855;border-radius:14px;line-height:1.6"><strong>PayPal payments are paused.</strong><p>PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.</p><p>Planned fee when payments reopen: StarRise deducts a 10% platform fee from each sale or Talent Fund contribution. The seller or fund recipient also pays PayPal processing fees from their proceeds. Buyers and supporters pay no additional StarRise platform surcharge.</p><p>Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Payment terms</a> · <a href="refund-policy.html">Refund policy</a></p></aside></div>
+
 <div
 id="modalStatus"
 class="notice hidden"
@@ -539,8 +542,10 @@ class="notice hidden"
 id="buyButton"
 class="button"
 type="button"
+disabled
+aria-describedby="storePaymentNotice"
 >
-Buy Now
+Continue to PayPal
 </button>
 
 <button
@@ -557,6 +562,7 @@ Continue Browsing
 
 <footer>
 ⭐ StarRise — Where Talent Rises.
+<p style="font-size:12px;line-height:1.5">Payment information effective October 6, 2026. <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund-policy.html">Refunds</a> · <a href="support.html">Support</a></p>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -926,7 +932,7 @@ ${item.category?`<span class="tag">${escapeHtml(item.category)}</span>`:''}
 <div class="price">${money(item.price_cents)}</div>
 <div class="card-actions">
 <button class="button" type="button" data-view="${escapeHtml(item.id)}">View</button>
-<button class="button secondary" type="button" data-buy="${escapeHtml(item.id)}">Buy Now</button>
+<button class="button secondary" type="button" data-buy="${escapeHtml(item.id)}">Payment Details</button>
 </div>
 </div>
 </article>
@@ -944,8 +950,8 @@ escapeHtml(sellerName(item))+
 modalDescription.textContent=item.description||'No description provided.';
 modalPrice.textContent=money(item.price_cents);
 modalStatus.classList.add('hidden');
-buyButton.disabled=false;
-buyButton.textContent='Buy Now';
+buyButton.disabled=true;
+buyButton.textContent='Continue to PayPal';
 modal.classList.remove('hidden');
 }
 
@@ -956,93 +962,10 @@ selected=null;
 
 async function purchase(){
 if(!selected)return;
-
-try{
 buyButton.disabled=true;
-buyButton.textContent='Preparing Checkout...';
-modalStatus.className='notice';
-modalStatus.textContent='Checking your StarRise account...';
-modalStatus.classList.remove('hidden');
-
-const userResult=await client.auth.getUser();
-if(userResult.error)throw userResult.error;
-
-const user=userResult.data.user;
-
-if(!user){
 modalStatus.className='notice warning';
-modalStatus.textContent='Please sign in before purchasing.';
-buyButton.disabled=false;
-buyButton.textContent='Sign In to Buy';
-buyButton.onclick=()=>{
-location.href='login.html?redirect='+
-encodeURIComponent(location.href);
-};
-return;
-}
-
-if(String(selected.seller_id)===String(user.id)){
-throw new Error('You cannot purchase your own Store item.');
-}
-
-const sessionResult=await client.auth.getSession();
-if(sessionResult.error)throw sessionResult.error;
-
-const session=sessionResult.data.session;
-if(!session)throw new Error('Your login session expired.');
-
-modalStatus.textContent='Creating secure Stripe checkout...';
-
-const response=await fetch(
-URL+'/functions/v1/create-marketplace-checkout',
-{
-method:'POST',
-headers:{
-Authorization:'Bearer '+session.access_token,
-apikey:KEY,
-'Content-Type':'application/json'
-},
-body:JSON.stringify({
-item_id:selected.id,
-buyer_id:user.id
-})
-}
-);
-
-const data=await response.json().catch(()=>null);
-
-if(!response.ok||!data){
-throw new Error(
-data?.error||
-data?.message||
-'Unable to create checkout.'
-);
-}
-
-const checkoutUrl=data.url||data.checkout_url;
-
-if(checkoutUrl){
-location.assign(checkoutUrl);
-return;
-}
-
-if(data.session_id){
-location.assign(
-URL+
-'/functions/v1/stripe-redirect?session_id='+
-encodeURIComponent(data.session_id)
-);
-return;
-}
-
-throw new Error('Checkout did not return a Stripe URL.');
-}catch(error){
-console.error('Checkout error:',error);
-modalStatus.className='notice error';
-modalStatus.textContent=error.message||'Unable to start checkout.';
-buyButton.disabled=false;
-buyButton.textContent='Buy Now';
-}
+modalStatus.textContent='PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.';
+modalStatus.classList.remove('hidden');
 }
 
 search.addEventListener('input',render);
@@ -1080,3 +1003,4 @@ loadStore();
 
 </body>
 </html>
+

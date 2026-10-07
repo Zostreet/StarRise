@@ -98,19 +98,20 @@
 
     <section class="panel half">
       <h2>Payouts</h2>
-      <p class="panel-description">Your Stripe Connect readiness for receiving seller payments.</p>
+      <p class="panel-description">PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed. An account record does not establish live payout availability.</p>
       <div class="payout-box">
-        <div class="payout-line"><span>Stripe Account</span><strong id="stripeAccount">Checking...</strong></div>
-        <div class="payout-line"><span>Charges Enabled</span><strong id="chargesEnabled">—</strong></div>
-        <div class="payout-line"><span>Payouts Enabled</span><strong id="payoutsEnabled">—</strong></div>
-        <div class="payout-line"><span>Details Submitted</span><strong id="detailsSubmitted">—</strong></div>
+        <div class="payout-line"><span>PayPal Seller Account</span><strong id="paypalAccount">Checking...</strong></div>
+        <div class="payout-line"><span>PayPal Payments Receivable</span><strong id="chargesEnabled">—</strong></div>
+        <div class="payout-line"><span>Live Payout Service</span><strong id="payoutsEnabled">—</strong></div>
+        <div class="payout-line"><span>Email Confirmed / Consent</span><strong id="detailsSubmitted">—</strong></div>
       </div>
       <div class="button-row" style="margin-top:18px"><a class="button primary" href="dashboard.html">Manage Payout Setup</a></div>
     </section>
   </div>
 </main>
 
-<footer>⭐ StarRise — Where Talent Rises.</footer>
+<footer>⭐ StarRise — Where Talent Rises.<p style="font-size:12px;line-height:1.5">Payment information effective October 6, 2026. <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund-policy.html">Refunds</a> · <a href="support.html">Support</a></p>
+</footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const starRiseSupabase = window.supabase.createClient(
@@ -208,7 +209,7 @@
       starRiseSupabase.from("marketplace_items").select("id,title,category,price_cents,status,file_path,mime_type,created_at").eq("seller_id", currentUser.id).order("created_at", { ascending: false }),
       starRiseSupabase.from("service_orders").select("id,service_id,amount_cents,provider_amount_cents,status,payment_status,payout_status,request_message,created_at").eq("seller_id", currentUser.id).order("created_at", { ascending: false }).limit(20),
       starRiseSupabase.from("marketplace_orders").select("id,item_id,amount_cents,platform_fee_cents,seller_amount_cents,payment_status,fulfillment_status,created_at").eq("seller_id", currentUser.id).order("created_at", { ascending: false }).limit(50),
-      starRiseSupabase.from("stripe_connected_accounts").select("stripe_account_id,charges_enabled,payouts_enabled,details_submitted").eq("user_id", currentUser.id).maybeSingle()
+      starRiseSupabase.from("paypal_connected_accounts").select("paypal_merchant_id,account_status,payments_receivable,primary_email_confirmed,consent_granted,environment").eq("user_id", currentUser.id).maybeSingle()
     ]);
 
     const results = [profileResult, serviceResult, productResult, serviceOrderResult, marketplaceOrderResult, payoutResult];
@@ -232,7 +233,7 @@
     if (errors.length) {
       setStatus("Most vendor data loaded, but one section could not be refreshed. Try Refresh Sales or reload the page.", "warning");
     } else {
-      setStatus("Vendor dashboard ready. Marketplace payment and delivery status are live.", "success");
+      setStatus("Vendor dashboard ready. PayPal payments are paused; existing orders remain available.", "success");
     }
   }
 
@@ -368,25 +369,26 @@
   function renderPayout(account, error) {
     if (error) {
       console.error(error);
-      byId("stripeAccount").textContent = "Unavailable";
-      byId("stripeAccount").className = "bad-text";
+      byId("paypalAccount").textContent = "Unavailable";
+      byId("paypalAccount").className = "bad-text";
       return;
     }
     if (!account) {
-      byId("stripeAccount").textContent = "Not connected";
-      byId("stripeAccount").className = "bad-text";
+      byId("paypalAccount").textContent = "Not connected";
+      byId("paypalAccount").className = "bad-text";
       byId("chargesEnabled").textContent = "No";
-      byId("payoutsEnabled").textContent = "No";
+      byId("payoutsEnabled").textContent = "Paused";
       byId("detailsSubmitted").textContent = "No";
       return;
     }
 
-    const accountId = String(account.stripe_account_id || "");
-    byId("stripeAccount").textContent = accountId ? "Connected · …" + accountId.slice(-6) : "Connected";
-    byId("stripeAccount").className = "good-text";
-    setBooleanStatus("chargesEnabled", account.charges_enabled);
-    setBooleanStatus("payoutsEnabled", account.payouts_enabled);
-    setBooleanStatus("detailsSubmitted", account.details_submitted);
+    const accountId = String(account.paypal_merchant_id || "");
+    byId("paypalAccount").textContent = accountId ? "Connected · …" + accountId.slice(-6) : "Connected";
+    byId("paypalAccount").className = "good-text";
+    setBooleanStatus("chargesEnabled", account.payments_receivable);
+    byId("payoutsEnabled").textContent = "Paused";
+    byId("payoutsEnabled").className = "bad-text";
+    setBooleanStatus("detailsSubmitted", account.primary_email_confirmed && account.consent_granted);
   }
 
   function setBooleanStatus(id, value) {
@@ -405,3 +407,4 @@
       user_id: currentUser.id,
       business_name: byId("businessName").value.trim(),
       category: byId("category").
+

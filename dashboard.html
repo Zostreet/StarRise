@@ -434,20 +434,20 @@ font-weight:bold;
 margin-bottom:4px
 }
 
-.stripe-grid{
+.payment-grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
 gap:12px;
 margin-top:15px
 }
 
-.stripe-stat{
+.payment-stat{
 padding:15px;
 border-radius:14px;
 background:#ffffff08
 }
 
-.stripe-stat strong{
+.payment-stat strong{
 display:block;
 font-size:18px;
 margin-top:3px
@@ -623,17 +623,17 @@ StarRise is transitioning member payments and seller payouts to PayPal.
 </p>
 
 <div class="status-box warning">
-PayPal seller payout setup is being finalized. Stripe setup is no longer required.
+PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed. Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Read payment terms</a>.
 </div>
 
-<div class="stripe-grid">
+<div class="payment-grid">
 
-<div class="stripe-stat">
+<div class="payment-stat">
 <span class="label">Payment Provider</span>
 <strong>PayPal</strong>
 </div>
 
-<div class="stripe-stat">
+<div class="payment-stat">
 <span class="label">Seller Payouts</span>
 <strong>Setup in Progress</strong>
 </div>
@@ -722,14 +722,14 @@ Loading...
 ☆☆☆☆☆
 </div>
 
-<div class="stripe-grid">
+<div class="payment-grid">
 
-<div class="stripe-stat">
+<div class="payment-stat">
 <span class="label">Reviews</span>
 <strong id="review-count">0</strong>
 </div>
 
-<div class="stripe-stat">
+<div class="payment-stat">
 <span class="label">Completed Services</span>
 <strong id="completed-count">0</strong>
 </div>
@@ -816,6 +816,7 @@ Loading completed orders...
 
 </section>
 
+<p style="font-size:12px;line-height:1.5">Payment information effective October 6, 2026. <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund-policy.html">Refunds</a> · <a href="support.html">Support</a></p>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3105,3 +3106,4 @@ initialize();
 
 </body>
 </html>
+
