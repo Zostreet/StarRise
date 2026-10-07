@@ -57,13 +57,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Only the public site belongs in the Pages artifact. Repository
+      # tooling, database migrations, edge functions, and internal business
+      # documents must never be served from the website.
+      - name: Stage public site files only
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site
+          find . -maxdepth 1 -type f -name '*.html' -exec cp {} _site/ \;
+          if [ -d css ]; then cp -r css _site/css; fi
+          test -n "$(find _site -type f -print -quit)" || {
+            echo "No site files were staged; refusing to deploy." >&2
+            exit 1
+          }
+          echo "Staged $(find _site -type f | wc -l) site files:"
+          find _site -type f | sort
+
       - name: Set up GitHub Pages
         uses: actions/configure-pages@v5
 
       - name: Upload StarRise site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy StarRise
         id: deployment
