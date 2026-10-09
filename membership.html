@@ -84,7 +84,11 @@ document.getElementById("account").textContent =
 const URL = "https://rcnikxotdalxtuvpmlvm.supabase.co";
 const KEY = "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
 
-const db = window.supabase.createClient(URL, KEY);
+
+const db = window.supabase
+  ? window.supabase.createClient(URL, KEY)
+  : null;
+
 
 const account = document.getElementById("account");
 const plans = document.getElementById("plans");
@@ -184,7 +188,9 @@ account.textContent =
 }
 
 
-if (!window.supabase) {
+
+if (!db) {
+
   account.textContent =
     "Membership connection unavailable. Please refresh the page.";
 } else {
