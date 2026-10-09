@@ -1,2631 +1,361 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title>StarRise Community | Share Your Talent</title>
-  <meta
-    name="description"
-    content="Share music, photos and videos, discover StarRise talent, follow creators, like posts, and join the conversation."
-  >
-
-  <style>
-    *{box-sizing:border-box}
-
-    body{
-      margin:0;
-      min-height:100vh;
-      background:#080812;
-      color:#fff;
-      font-family:Arial,sans-serif;
-      line-height:1.55
-    }
-
-    a{color:inherit;text-decoration:none}
-    button,input,select,textarea{font:inherit}
-
-    header{
-      position:sticky;
-      top:0;
-      z-index:20;
-      padding:18px 24px;
-      border-bottom:1px solid #ffffff18;
-      background:#080812ee;
-      backdrop-filter:blur(12px);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:18px
-    }
-
-    .logo{
-      font-size:21px;
-      font-weight:900
-    }
-
-    nav{
-      display:flex;
-      flex-wrap:wrap;
-      align-items:center;
-      gap:16px
-    }
-
-    nav a{
-      color:#bbb;
-      font-weight:800
-    }
-
-    nav a:hover,
-    nav a[aria-current="page"]{
-      color:#fff
-    }
-
-    main{
-      width:min(760px,calc(100% - 24px));
-      margin:28px auto 70px
-    }
-
-    .hero,
-    .composer,
-    .feed-controls,
-    .post,
-    .notice{
-      border:1px solid #ffffff18;
-      border-radius:22px;
-      background:#ffffff08
-    }
-
-    .hero{
-      padding:34px;
-      margin-bottom:18px
-    }
-
-    .eyebrow{
-      color:#b7a4ff;
-      font-size:12px;
-      font-weight:900;
-      letter-spacing:.12em;
-      text-transform:uppercase
-    }
-
-    h1{
-      margin:7px 0 10px;
-      font-size:clamp(38px,8vw,62px);
-      line-height:1.04
-    }
-
-    .hero p{
-      max-width:620px;
-      margin:0;
-      color:#b9b9c4;
-      font-size:17px
-    }
-
-    .composer{
-      padding:22px;
-      margin-bottom:18px
-    }
-
-    .composer h2{
-      margin:0 0 4px
-    }
-
-    .muted{color:#aaa}
-    .small{font-size:13px}
-
-    .form-grid{
-      display:grid;
-      gap:13px;
-      margin-top:17px
-    }
-
-    .field{
-      display:grid;
-      gap:7px
-    }
-
-    label{
-      font-size:13px;
-      font-weight:900;
-      color:#ddd
-    }
-
-    textarea,
-    .control{
-      width:100%;
-      border:1px solid #ffffff22;
-      border-radius:13px;
-      background:#10101d;
-      color:#fff;
-      padding:13px
-    }
-
-    textarea{
-      min-height:105px;
-      resize:vertical
-    }
-
-    textarea:focus,
-    .control:focus{
-      outline:2px solid #8e6bff55;
-      border-color:#9b7cff
-    }
-
-    .form-row{
-      display:grid;
-      grid-template-columns:1fr 190px;
-      gap:12px
-    }
-
-    .preview{
-      display:none;
-      overflow:hidden;
-      border:1px solid #ffffff18;
-      border-radius:16px;
-      background:#000
-    }
-
-    .preview img,
-    .preview video{
-      display:block;
-      width:100%;
-      max-height:430px;
-      object-fit:contain
-    }
-
-    .preview audio{
-      display:block;
-      width:calc(100% - 28px);
-      margin:20px 14px
-    }
-
-    .audio-preview{
-      padding:18px;
-      background:#11111d
-    }
-
-    .audio-preview-title{
-      margin-bottom:12px;
-      font-weight:900;
-      overflow-wrap:anywhere
-    }
-
-    .actions{
-      display:flex;
-      flex-wrap:wrap;
-      align-items:center;
-      gap:9px
-    }
-
-    .button{
-      border:0;
-      border-radius:24px;
-      padding:11px 18px;
-      background:#fff;
-      color:#080812;
-      font-weight:900;
-      cursor:pointer;
-      text-align:center
-    }
-
-    .button.secondary{
-      border:1px solid #ffffff2b;
-      background:transparent;
-      color:#fff
-    }
-
-    .button.danger{
-      border:1px solid #ff848455;
-      background:transparent;
-      color:#ffb5b5
-    }
-
-    .button:disabled{
-      opacity:.55;
-      cursor:wait
-    }
-
-    .notice{
-      padding:16px;
-      margin-bottom:18px;
-      color:#bbb;
-      text-align:center
-    }
-
-    .notice:empty{display:none}
-
-    .notice.error{
-      color:#ffb5b5;
-      background:rgba(200,50,50,.12)
-    }
-
-    .notice.success{
-      color:#baffca;
-      background:rgba(50,180,90,.12)
-    }
-
-    .feed-controls{
-      padding:13px;
-      margin-bottom:18px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px
-    }
-
-    .tabs{
-      display:flex;
-      gap:7px
-    }
-
-    .tab{
-      border:0;
-      border-radius:20px;
-      padding:9px 14px;
-      background:transparent;
-      color:#aaa;
-      font-weight:900;
-      cursor:pointer
-    }
-
-    .tab.active{
-      background:#fff;
-      color:#080812
-    }
-
-    .feed{
-      display:grid;
-      gap:18px
-    }
-
-    .post{
-      overflow:hidden
-    }
-
-    .post-head{
-      padding:17px 18px;
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:12px
-    }
-
-    .creator{
-      display:flex;
-      align-items:center;
-      gap:11px;
-      min-width:0
-    }
-
-    .avatar{
-      width:46px;
-      height:46px;
-      flex:0 0 46px;
-      border-radius:50%;
-      border:1px solid #ffffff20;
-      background:#19192a;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
-      font-weight:900
-    }
-
-    .avatar img{
-      width:100%;
-      height:100%;
-      object-fit:cover
-    }
-
-    .creator-name{
-      font-weight:900;
-      overflow-wrap:anywhere
-    }
-
-    .post-meta{
-      color:#888;
-      font-size:12px
-    }
-
-    .privacy{
-      display:inline-block;
-      margin-left:5px;
-      padding:2px 7px;
-      border-radius:12px;
-      background:#ffffff0e;
-      color:#aaa
-    }
-
-    .media{
-      background:#000
-    }
-
-    .media img,
-    .media video{
-      display:block;
-      width:100%;
-      max-height:680px;
-      object-fit:contain
-    }
-
-    .media.audio-media{
-      padding:24px 18px;
-      background:#11111d
-    }
-
-    .audio-card{
-      border:1px solid #ffffff18;
-      border-radius:18px;
-      padding:20px;
-      background:#181827
-    }
-
-    .audio-icon{
-      font-size:34px;
-      margin-bottom:7px
-    }
-
-    .audio-label{
-      margin-bottom:14px;
-      color:#ccc;
-      font-weight:800
-    }
-
-    .audio-card audio{
-      display:block;
-      width:100%
-    }
-
-    .post-body{
-      padding:18px
-    }
-
-    .caption{
-      margin:0 0 16px;
-      color:#eee;
-      white-space:pre-wrap;
-      overflow-wrap:anywhere
-    }
-
-    .interaction-bar{
-      display:flex;
-      flex-wrap:wrap;
-      align-items:center;
-      gap:8px;
-      padding-bottom:14px;
-      border-bottom:1px solid #ffffff12
-    }
-
-    .interaction{
-      border:1px solid #ffffff20;
-      border-radius:22px;
-      padding:8px 12px;
-      background:transparent;
-      color:#ddd;
-      font-weight:800;
-      cursor:pointer
-    }
-
-    .interaction.active{
-      background:#7d55e7;
-      border-color:#7d55e7;
-      color:#fff
-    }
-
-    .owner-controls{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:13px;
-      padding:12px;
-      border-radius:14px;
-      background:#ffffff08
-    }
-
-    .owner-controls select{
-      flex:1;
-      min-width:170px
-    }
-
-    .comments{
-      display:grid;
-      gap:10px;
-      margin-top:15px
-    }
-
-    .comment{
-      padding:11px 12px;
-      border-radius:13px;
-      background:#00000025
-    }
-
-    .comment-top{
-      display:flex;
-      justify-content:space-between;
-      gap:10px
-    }
-
-    .comment-author{
-      font-weight:900
-    }
-
-    .comment-body{
-      margin-top:4px;
-      color:#ccc;
-      white-space:pre-wrap;
-      overflow-wrap:anywhere
-    }
-
-    .text-button{
-      border:0;
-      background:transparent;
-      color:#ffb5b5;
-      padding:0;
-      cursor:pointer;
-      font-size:12px;
-      font-weight:800
-    }
-
-    .comment-form{
-      display:flex;
-      gap:8px;
-      margin-top:13px
-    }
-
-    .comment-form input{
-      flex:1;
-      min-width:0;
-      border:1px solid #ffffff20;
-      border-radius:22px;
-      background:#10101d;
-      color:#fff;
-      padding:10px 13px
-    }
-
-    .empty{
-      padding:34px;
-      border:1px solid #ffffff18;
-      border-radius:20px;
-      background:#ffffff08;
-      text-align:center;
-      color:#aaa
-    }
-
-    .empty h2{color:#fff}
-    .hidden{display:none!important}
-
-    footer{
-      padding:30px 15px;
-      border-top:1px solid #ffffff18;
-      color:#888;
-      text-align:center
-    }
-
-    @media(max-width:680px){
-      header{
-        position:static;
-        flex-direction:column;
-        align-items:flex-start
-      }
-
-      .form-row{
-        grid-template-columns:1fr
-      }
-
-      .feed-controls{
-        align-items:flex-start;
-        flex-direction:column
-      }
-
-      .comment-form{
-        align-items:stretch;
-        flex-direction:column
-      }
-
-      .comment-form .button{
-        width:100%
-      }
-
-      .hero{
-        padding:27px 22px
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StarRise Community</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090916;color:white;font-family:Arial,sans-serif}
+header{padding:20px;background:#151526;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+a{color:#c6b2ff}
+main{max-width:850px;margin:auto;padding:20px}
+h1{font-size:40px}
+.card{background:#19192b;border:1px solid #383850;border-radius:18px;padding:20px;margin:18px 0}
+input,textarea,select{display:block;width:100%;padding:12px;margin:12px 0;background:#101020;color:white;border:1px solid #555;border-radius:10px}
+textarea{min-height:90px}
+button{background:#a98bff;border:0;border-radius:25px;padding:12px 20px;font-weight:bold;cursor:pointer;margin:5px}
+button:disabled{opacity:.5}
+video,img,audio{width:100%;max-height:550px;object-fit:contain;margin:12px 0}
+.error{color:#ff9999}
+.success{color:#99ffbb}
+.muted{color:#aaa}
+[hidden]{display:none!important}
+</style>
 </head>
-
 <body>
-
 <header>
-  <a class="logo" href="index.html">⭐ StarRise</a>
-
-  <nav aria-label="Main navigation">
-    <a href="index.html">Home</a>
-    <a href="community.html" aria-current="page">Community</a>
-    <a href="members.html">Members</a>
-    <a href="messages.html">Messages</a>
-    <a href="marketplace.html">Store</a>
-    <a href="dashboard.html">Dashboard</a>
-  </nav>
+<strong>⭐ StarRise</strong>
+<nav>
+<a href="index.html">Home</a>
+<a href="members.html">Members</a>
+<a href="marketplace.html">Store</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
 </header>
-
 <main>
+<h1>Show Your Talent.</h1>
+<p>Share your music, videos and photos with the world.</p>
 
-  <section class="hero">
-    <div class="eyebrow">StarRise Community</div>
-    <h1>Show Your Talent.</h1>
-    <p>
-      Share music, photos and videos, follow creators, support their work,
-      and connect with the people helping talent rise.
-    </p>
-  </section>
+<section id="composer" class="card" hidden>
+<h2>Share Your Talent</h2>
+<form id="postForm">
+<label>Select photo, song or video</label>
+<input id="mediaFile" type="file" accept="image/*,audio/*,video/*" required>
+<div id="preview"></div>
+<textarea id="caption" maxlength="2200" placeholder="Tell us about your talent"></textarea>
+<label>Visibility</label>
+<select id="visibility">
+<option value="public">Everyone</option>
+<option value="members">Members</option>
+<option value="followers">Followers</option>
+<option value="private">Only Me</option>
+</select>
+<button id="publish" type="submit">Publish Talent Post</button>
+</form>
+</section>
 
-  <section id="guestPrompt" class="composer hidden">
-    <h2>Join the conversation</h2>
+<section id="guest" class="card" hidden>
+<p>Sign in to share your talent.</p>
+<a href="login.html">Sign In</a>
+</section>
 
-    <p class="muted">
-      Everyone can discover public talent. Sign in to post, follow,
-      like, comment, and message members.
-    </p>
-
-    <div class="actions">
-      <a class="button" href="login.html">Sign In</a>
-      <a class="button secondary" href="join.html">Join StarRise</a>
-    </div>
-  </section>
-
-  <section id="composer" class="composer hidden">
-    <h2>Share your talent</h2>
-
-    <div class="muted small">
-      Upload a photo, song, or video. Supported: JPG, PNG, WebP, GIF,
-      MP3, WAV, M4A, AAC, OGG, FLAC, MP4, WebM, MOV, M4V and 3GP.
-      Photos: 15 MB maximum. Songs and videos: 100 MB maximum.
-    </div>
-
-    <form id="postForm" class="form-grid">
-
-      <div class="field">
-        <label for="mediaFile">Photo, song, or video</label>
-
-        <input
-          id="mediaFile"
-          class="control"
-          type="file"
-          accept="image/*,audio/*,video/*,.jpg,.jpeg,.png,.webp,.gif,.mp3,.wav,.m4a,.aac,.ogg,.flac,.mp4,.webm,.mov,.m4v,.3gp"
-          required
-        >
-      </div>
-
-      <div id="preview" class="preview" aria-live="polite"></div>
-
-      <div class="field">
-        <label for="caption">Tell the community about your talent</label>
-
-        <textarea
-          id="caption"
-          maxlength="2200"
-          placeholder="What are you sharing?"
-        ></textarea>
-      </div>
-
-      <div class="form-row">
-
-        <div class="field">
-          <label for="visibility">Who can see this post?</label>
-
-          <select id="visibility" class="control">
-            <option value="public">Everyone</option>
-            <option value="members">Signed-in members</option>
-            <option value="followers">Followers only</option>
-            <option value="private">Only me</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>&nbsp;</label>
-
-          <button id="publish" class="button" type="submit">
-            Publish Talent Post
-          </button>
-        </div>
-
-      </div>
-    </form>
-  </section>
-
-  <div
-    id="status"
-    class="notice"
-    role="status"
-    aria-live="polite"
-  >
-    Loading the StarRise community…
-  </div>
-
-  <section class="feed-controls" aria-label="Feed controls">
-
-    <div class="tabs">
-      <button class="tab active" type="button" data-feed="all">
-        Discover
-      </button>
-
-      <button class="tab" type="button" data-feed="following">
-        Following
-      </button>
-    </div>
-
-    <button id="refresh" class="button secondary" type="button">
-      Refresh Feed
-    </button>
-
-  </section>
-
-  <section id="feed" class="feed" aria-label="Talent posts"></section>
-
+<div id="status" class="card">Loading Community...</div>
+<button id="refresh">Refresh Feed</button>
+<div id="feed"></div>
 </main>
-
-<footer>
-  ⭐ StarRise — Where Talent Rises.
-</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4.3.1/dist/tus.min.js"></script>
-
 <script>
-(function () {
-  'use strict';
+(async function(){
+"use strict";
 
-  const SUPABASE_URL =
-    'https://rcnikxotdalxtuvpmlvm.supabase.co';
+const SUPABASE_URL="https://rcnikxotdalxtuvpmlvm.supabase.co";
+const SUPABASE_KEY="sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+const BUCKET="talent-posts";
 
-  const SUPABASE_KEY =
-    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
+const db=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let user=null;
+let profiles=new Map();
 
-  const MEDIA_BUCKET = 'talent-posts';
+function status(message,type=""){
+ $("status").textContent=message;
+ $("status").className="card "+type;
+}
 
-  const RESUMABLE_UPLOAD_URL =
-    'https://rcnikxotdalxtuvpmlvm.storage.supabase.co/storage/v1/upload/resumable';
+function errorText(e){
+ return e?.message||String(e);
+}
 
-  const UPLOAD_CHUNK_SIZE = 6 * 1024 * 1024;
-  const SIGNED_URL_SECONDS = 300;
+function fileInfo(file){
+ if(!file)throw Error("Choose a file.");
+ const extension=file.name.split(".").pop().toLowerCase();
+ const images=["jpg","jpeg","png","webp","gif"];
+ const audio=["mp3","wav","m4a","aac","ogg","flac"];
+ const video=["mp4","webm","mov","m4v","3gp"];
+ let kind;
+ if(images.includes(extension))kind="image";
+ else if(audio.includes(extension))kind="audio";
+ else if(video.includes(extension))kind="video";
+ else throw Error("Unsupported file format.");
 
-  const IMAGE_LIMIT = 15 * 1024 * 1024;
-  const AUDIO_LIMIT = 100 * 1024 * 1024;
-  const VIDEO_LIMIT = 100 * 1024 * 1024;
+ const max=kind==="image"?15:100;
+ if(file.size>max*1048576)throw Error("File exceeds "+max+" MB.");
 
-  const MIME_EXTENSIONS = {
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/webp': 'webp',
-    'image/gif': 'gif',
+ const types={
+ jpg:"image/jpeg",jpeg:"image/jpeg",
+ mp3:"audio/mpeg",m4a:"audio/mp4",
+ mp4:"video/mp4",mov:"video/quicktime",
+ m4v:"video/x-m4v",wav:"audio/wav"
+ };
+ return {kind,extension,mime:types[extension]||file.type||"application/octet-stream"};
+}
 
-    'audio/mpeg': 'mp3',
-    'audio/mp3': 'mp3',
-    'audio/wav': 'wav',
-    'audio/x-wav': 'wav',
-    'audio/mp4': 'm4a',
-    'audio/x-m4a': 'm4a',
-    'audio/aac': 'aac',
-    'audio/ogg': 'ogg',
-    'audio/flac': 'flac',
-    'audio/x-flac': 'flac',
+function previewFile(){
+ const file=$("mediaFile").files[0];
+ $("preview").replaceChildren();
+ if(!file)return;
+ try{
+  const info=fileInfo(file);
+  const el=document.createElement(info.kind==="image"?"img":info.kind);
+  const url=URL.createObjectURL(file);
+  el.src=url;
+  if(info.kind!=="image")el.controls=true;
+  el.onloadeddata=()=>URL.revokeObjectURL(url);
+  $("preview").append(el);
+  status("Ready to publish.","success");
+ }catch(e){status(errorText(e),"error")}
+}
 
-    'video/mp4': 'mp4',
-    'video/webm': 'webm',
-    'video/quicktime': 'mov',
-    'video/x-m4v': 'm4v',
-    'video/3gpp': '3gp'
-  };
+$("mediaFile").addEventListener("change",previewFile);
 
-  const EXTENSION_INFO = {
-    jpg:  { kind:'image', mime:'image/jpeg' },
-    jpeg: { kind:'image', mime:'image/jpeg' },
-    png:  { kind:'image', mime:'image/png' },
-    webp: { kind:'image', mime:'image/webp' },
-    gif:  { kind:'image', mime:'image/gif' },
+async function uploadMedia(path,file,mime){
+ const session=await db.auth.getSession();
+ if(session.error)throw session.error;
+ const token=session.data.session?.access_token;
+ if(!token)throw Error("Session expired. Sign in again.");
 
-    mp3:  { kind:'audio', mime:'audio/mpeg' },
-    wav:  { kind:'audio', mime:'audio/wav' },
-    m4a:  { kind:'audio', mime:'audio/mp4' },
-    aac:  { kind:'audio', mime:'audio/aac' },
-    ogg:  { kind:'audio', mime:'audio/ogg' },
-    flac: { kind:'audio', mime:'audio/flac' },
+ if(file.size<=6*1048576){
+  status("Uploading media...");
+  const result=await Promise.race([
+   db.storage.from(BUCKET).upload(path,file,{
+    contentType:mime,upsert:false,cacheControl:"3600"
+   }),
+   new Promise((_,reject)=>setTimeout(
+    ()=>reject(Error("Upload timed out after 90 seconds.")),90000
+   ))
+  ]);
+  if(result.error)throw result.error;
+  return;
+ }
 
-    mp4:  { kind:'video', mime:'video/mp4' },
-    webm: { kind:'video', mime:'video/webm' },
-    mov:  { kind:'video', mime:'video/quicktime' },
-    m4v:  { kind:'video', mime:'video/x-m4v' },
-    '3gp':{ kind:'video', mime:'video/3gpp' }
-  };
+ if(!window.tus?.Upload)throw Error("Upload library unavailable.");
 
-  const VISIBILITY_LABELS = {
-    public: 'Everyone',
-    members: 'Members',
-    followers: 'Followers',
-    private: 'Only me'
-  };
+ return new Promise((resolve,reject)=>{
+  let finished=false;
+  let lastActivity=Date.now();
+  let watchdog;
 
-  const client = window.supabase
-    ? window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      )
-    : null;
-
-  const guestPrompt =
-    document.getElementById('guestPrompt');
-
-  const composer =
-    document.getElementById('composer');
-
-  const postForm =
-    document.getElementById('postForm');
-
-  const mediaFile =
-    document.getElementById('mediaFile');
-
-  const preview =
-    document.getElementById('preview');
-
-  const caption =
-    document.getElementById('caption');
-
-  const visibility =
-    document.getElementById('visibility');
-
-  const publish =
-    document.getElementById('publish');
-
-  const status =
-    document.getElementById('status');
-
-  const feed =
-    document.getElementById('feed');
-
-  const refresh =
-    document.getElementById('refresh');
-
-  const tabs =
-    Array.from(document.querySelectorAll('[data-feed]'));
-
-  let currentUser = null;
-  let posts = [];
-  let likes = [];
-  let comments = [];
-  let profiles = new Map();
-  let followedIds = new Set();
-  let mediaUrls = new Map();
-  let activeFeed = 'all';
-  let previewUrl = '';
-  let initializationRetried = false;
-
-  function escapeHtml(value) {
-    return String(value ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+  function finish(error){
+   if(finished)return;
+   finished=true;
+   clearInterval(watchdog);
+   error?reject(error):resolve();
   }
 
-  function isUuid(value) {
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-      .test(value || '');
+  const upload=new window.tus.Upload(file,{
+   endpoint:SUPABASE_URL.replace(".supabase.co",".storage.supabase.co")+
+    "/storage/v1/upload/resumable",
+   headers:{authorization:"Bearer "+token,apikey:SUPABASE_KEY},
+   chunkSize:6*1048576,
+   retryDelays:[0,3000,5000,10000],
+   uploadDataDuringCreation:false,
+   removeFingerprintOnSuccess:true,
+   metadata:{
+    bucketName:BUCKET,objectName:path,
+    contentType:mime,cacheControl:"3600"
+   },
+   onProgress(sent,total){
+    lastActivity=Date.now();
+    status("Uploading... "+Math.round(sent/total*100)+"%");
+   },
+   onError(e){finish(Error("Upload failed: "+errorText(e)))},
+   onSuccess(){finish()}
+  });
+
+  watchdog=setInterval(()=>{
+   if(Date.now()-lastActivity>90000){
+    upload.abort().catch(()=>{});
+    finish(Error("Upload stalled. Please retry."));
+   }
+  },5000);
+
+  upload.start();
+ });
+}
+
+$("postForm").addEventListener("submit",async event=>{
+ event.preventDefault();
+ if(!user)return;
+
+ const button=$("publish");
+ button.disabled=true;
+ let path="";
+ let saved=false;
+
+ try{
+  const file=$("mediaFile").files[0];
+  const info=fileInfo(file);
+
+  path=user.id+"/"+new Date().toISOString().slice(0,10)+"/"+
+   crypto.randomUUID()+"."+info.extension;
+
+  await uploadMedia(path,file,info.mime);
+  status("Saving your post...");
+
+  const result=await db.from("talent_posts").insert({
+   creator_id:user.id,
+   caption:$("caption").value.trim(),
+   media_path:path,
+   media_kind:info.kind,
+   media_mime_type:info.mime,
+   visibility:$("visibility").value,
+   status:"published"
+  });
+
+  if(result.error)throw result.error;
+  saved=true;
+  $("postForm").reset();
+  $("preview").replaceChildren();
+  await loadFeed();
+  status("Your talent post is published!","success");
+
+ }catch(e){
+  status("Could not publish: "+errorText(e),"error");
+  if(path&&!saved){
+   try{await db.storage.from(BUCKET).remove([path])}catch(_){}
+  }
+ }finally{button.disabled=false}
+});
+
+async function loadFeed(){
+ try{
+  status("Loading posts...");
+  const result=await db.from("talent_posts")
+   .select("id,creator_id,caption,media_path,media_kind,visibility,created_at")
+   .eq("status","published")
+   .order("created_at",{ascending:false})
+   .limit(30);
+
+  if(result.error)throw result.error;
+  $("feed").replaceChildren();
+
+  if(!result.data?.length){
+   status("No visible talent posts yet.");
+   return;
   }
 
-  function showStatus(message, type = '') {
-    status.textContent = message;
+  for(const post of result.data){
+   const card=document.createElement("article");
+   card.className="card";
 
-    status.className =
-      'notice' + (type ? ' ' + type : '');
-  }
+   const author=document.createElement("h3");
+   const profile=profiles.get(post.creator_id);
+   author.textContent=profile?.display_name||"StarRise Creator";
+   card.append(author);
 
-  function isJwtTimingError(error) {
-    return /jwt issued at future/i.test(
-      String(error?.message || error || '')
+   const media=await db.storage.from(BUCKET)
+    .createSignedUrl(post.media_path,300);
+
+   if(!media.error&&media.data?.signedUrl){
+    const element=document.createElement(
+     post.media_kind==="image"?"img":post.media_kind==="audio"?"audio":"video"
     );
-  }
+    element.src=media.data.signedUrl;
+    if(post.media_kind!=="image")element.controls=true;
+    if(post.media_kind==="video")element.playsInline=true;
+    card.append(element);
+   }
 
-  function waitFor(milliseconds) {
-    return new Promise(resolve =>
-      window.setTimeout(resolve, milliseconds)
-    );
-  }
+   const caption=document.createElement("p");
+   caption.textContent=post.caption||"";
+   card.append(caption);
 
-  function profileFor(userId) {
-    return profiles.get(userId) || {
-      id: userId,
-      display_name: 'StarRise Member',
-      avatar_url: ''
+   if(user){
+    const like=document.createElement("button");
+    like.textContent="Like";
+    like.onclick=async()=>{
+     const r=await db.from("talent_post_likes").insert({
+      post_id:post.id,user_id:user.id
+     });
+     status(r.error?errorText(r.error):"Liked!",r.error?"error":"success");
     };
-  }
-
-  function displayName(profile) {
-    return (
-      profile.display_name ||
-      profile.full_name ||
-      profile.name ||
-      'StarRise Member'
-    );
-  }
-
-  function formatDate(value) {
-    const date = new Date(value);
-
-    return Number.isNaN(date.getTime())
-      ? ''
-      : date.toLocaleString([], {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit'
-        });
-  }
-
-  function avatarHtml(profile) {
-    const name = displayName(profile);
-
-    const initial =
-      escapeHtml(name.charAt(0).toUpperCase() || '⭐');
-
-    return profile.avatar_url
-      ? '<img src="' +
-          escapeHtml(profile.avatar_url) +
-          '" alt="' +
-          escapeHtml(name) +
-          '" loading="lazy">'
-      : initial;
-  }
-
-  async function loadProfiles() {
-    const result =
-      await client.rpc('get_public_members');
-
-    if (result.error) throw result.error;
-
-    profiles = new Map(
-      (
-        Array.isArray(result.data)
-          ? result.data
-          : []
-      ).map(item => [item.id, item])
-    );
-  }
-
-  async function loadFollowing() {
-    followedIds = new Set();
-
-    if (!currentUser) return;
-
-    const result = await client
-      .from('member_follows')
-      .select('followed_id')
-      .eq('follower_id', currentUser.id);
-
-    if (result.error) throw result.error;
-
-    followedIds = new Set(
-      (result.data || []).map(
-        item => item.followed_id
-      )
-    );
-  }
-
-  async function createMediaUrls(visiblePosts) {
-    const pairs = await Promise.all(
-      visiblePosts.map(async post => {
-
-        const result = await client.storage
-          .from(MEDIA_BUCKET)
-          .createSignedUrl(
-            post.media_path,
-            SIGNED_URL_SECONDS
-          );
-
-        return [
-          post.id,
-          result.error
-            ? ''
-            : result.data?.signedUrl || ''
-        ];
-      })
-    );
-
-    mediaUrls = new Map(pairs);
-  }
-
-  async function loadFeed() {
-    refresh.disabled = true;
-
-    showStatus('Loading talent posts…');
-
-    try {
-      const requestedPost =
-        new URLSearchParams(
-          window.location.search
-        ).get('post');
-
-      let query = client
-        .from('talent_posts')
-        .select(
-          'id,creator_id,caption,media_path,media_kind,media_mime_type,visibility,status,created_at,updated_at'
-        )
-        .order('created_at', {
-          ascending:false
-        })
-        .limit(30);
-
-      if (
-        requestedPost &&
-        isUuid(requestedPost)
-      ) {
-        query = query.eq(
-          'id',
-          requestedPost
-        );
-      }
-
-      else if (
-        activeFeed === 'following' &&
-        currentUser
-      ) {
-        query = query.in(
-          'creator_id',
-          Array.from(
-            new Set([
-              currentUser.id,
-              ...followedIds
-            ])
-          )
-        );
-      }
-
-      const postResult = await query;
-
-      if (postResult.error)
-        throw postResult.error;
-
-      posts = postResult.data || [];
-
-      const postIds =
-        posts.map(post => post.id);
-
-      if (!postIds.length) {
-        likes = [];
-        comments = [];
-        mediaUrls = new Map();
-
-        renderFeed();
-
-        showStatus(
-          'No talent posts are visible here yet.'
-        );
-
-        return;
-      }
-
-      const [
-        likeResult,
-        commentResult
-      ] = await Promise.all([
-        client
-          .from('talent_post_likes')
-          .select(
-            'post_id,user_id,created_at'
-          )
-          .in('post_id', postIds),
-
-        client
-          .from('talent_post_comments')
-          .select(
-            'id,post_id,author_id,body,created_at'
-          )
-          .in('post_id', postIds)
-          .order(
-            'created_at',
-            {ascending:true}
-          )
-          .limit(500),
-
-        createMediaUrls(posts)
-      ]);
-
-      if (likeResult.error)
-        throw likeResult.error;
-
-      if (commentResult.error)
-        throw commentResult.error;
-
-      likes =
-        likeResult.data || [];
-
-      comments =
-        commentResult.data || [];
-
-      renderFeed();
-
-      showStatus(
-        posts.length +
-        ' talent post' +
-        (posts.length === 1 ? '' : 's') +
-        ' loaded.',
-        'success'
-      );
-    }
-
-    catch (error) {
-      console.error(
-        'Community feed error:',
-        error
-      );
-
-      feed.innerHTML =
-        '<div class="empty">' +
-        '<h2>The community could not load</h2>' +
-        '<p>' +
-        escapeHtml(
-          error.message ||
-          'Please try again.'
-        ) +
-        '</p></div>';
-
-      showStatus(
-        'Unable to load the StarRise community.',
-        'error'
-      );
-    }
-
-    finally {
-      refresh.disabled = false;
-    }
-  }
-
-  function renderFeed() {
-    let visiblePosts = posts;
-
-    if (activeFeed === 'following') {
-      visiblePosts = currentUser
-        ? posts.filter(post =>
-            followedIds.has(
-              post.creator_id
-            ) ||
-            post.creator_id ===
-              currentUser.id
-          )
-        : [];
-    }
-
-    if (!visiblePosts.length) {
-      feed.innerHTML =
-        '<div class="empty">' +
-        '<h2>' +
-        (
-          activeFeed === 'following'
-            ? 'Your following feed is ready to grow'
-            : 'Be the first to rise'
-        ) +
-        '</h2>' +
-        '<p>' +
-        (
-          activeFeed === 'following'
-            ? 'Follow creators from their profiles or posts to see them here.'
-            : 'No talent posts are visible yet.'
-        ) +
-        '</p></div>';
-
-      return;
-    }
-
-    feed.innerHTML =
-      visiblePosts
-        .map(renderPost)
-        .join('');
-  }
-
-  function renderMedia(post, mediaUrl, creatorName) {
-    if (!mediaUrl) {
-      return (
-        '<div class="empty">' +
-        'This media link could not be created. ' +
-        'Refresh to try again.' +
-        '</div>'
-      );
-    }
-
-    if (post.media_kind === 'video') {
-      return (
-        '<video controls playsinline preload="metadata" src="' +
-        escapeHtml(mediaUrl) +
-        '"></video>'
-      );
-    }
-
-    if (post.media_kind === 'audio') {
-      return (
-        '<div class="audio-card">' +
-          '<div class="audio-icon">🎵</div>' +
-          '<div class="audio-label">' +
-            escapeHtml(creatorName) +
-            ' shared a song</div>' +
-          '<audio controls preload="metadata" src="' +
-            escapeHtml(mediaUrl) +
-          '"></audio>' +
-        '</div>'
-      );
-    }
-
-    return (
-      '<img src="' +
-      escapeHtml(mediaUrl) +
-      '" alt="Talent shared by ' +
-      escapeHtml(creatorName) +
-      '" loading="lazy">'
-    );
-  }
-
-  function renderPost(post) {
-    const creator =
-      profileFor(post.creator_id);
-
-    const creatorName =
-      displayName(creator);
-
-    const postLikes =
-      likes.filter(
-        item =>
-          item.post_id === post.id
-      );
-
-    const postComments =
-      comments.filter(
-        item =>
-          item.post_id === post.id
-      );
-
-    const liked = Boolean(
-      currentUser &&
-      postLikes.some(
-        item =>
-          item.user_id ===
-          currentUser.id
-      )
-    );
-
-    const following =
-      followedIds.has(
-        post.creator_id
-      );
-
-    const owner = Boolean(
-      currentUser &&
-      post.creator_id ===
-        currentUser.id
-    );
-
-    const mediaUrl =
-      mediaUrls.get(post.id) || '';
-
-    const media =
-      renderMedia(
-        post,
-        mediaUrl,
-        creatorName
-      );
-
-    const mediaClass =
-      post.media_kind === 'audio'
-        ? 'media audio-media'
-        : 'media';
-
-    const commentHtml =
-      postComments.map(item => {
-
-        const author =
-          profileFor(item.author_id);
-
-        const canDelete =
-          currentUser &&
-          item.author_id ===
-            currentUser.id;
-
-        return (
-          '<div class="comment">' +
-
-            '<div class="comment-top">' +
-
-              '<a class="comment-author" href="profile.html?id=' +
-              encodeURIComponent(
-                item.author_id
-              ) +
-              '">' +
-              escapeHtml(
-                displayName(author)
-              ) +
-              '</a>' +
-
-              (
-                canDelete
-                  ? '<button class="text-button" type="button" data-action="delete-comment" data-comment-id="' +
-                    item.id +
-                    '">Delete</button>'
-                  : ''
-              ) +
-
-            '</div>' +
-
-            '<div class="comment-body">' +
-            escapeHtml(item.body) +
-            '</div>' +
-
-            '<div class="post-meta">' +
-            escapeHtml(
-              formatDate(
-                item.created_at
-              )
-            ) +
-            '</div>' +
-
-          '</div>'
-        );
-      }).join('');
-
-    const followButton =
-      currentUser && !owner
-        ? (
-          '<button class="interaction' +
-          (following ? ' active' : '') +
-          '" type="button" data-action="follow" data-creator-id="' +
-          post.creator_id +
-          '">' +
-          (
-            following
-              ? 'Following'
-              : 'Follow'
-          ) +
-          '</button>'
-        )
-        : '';
-
-    const ownerControls =
-      owner
-        ? (
-          '<div class="owner-controls">' +
-
-            '<select class="control" data-action="privacy" data-post-id="' +
-            post.id +
-            '" aria-label="Change post visibility">' +
-
-            visibilityOptions(
-              post.visibility
-            ) +
-
-            '</select>' +
-
-            '<button class="button danger" type="button" data-action="delete-post" data-post-id="' +
-            post.id +
-            '" data-media-path="' +
-            escapeHtml(
-              post.media_path
-            ) +
-            '">' +
-            'Delete Post' +
-            '</button>' +
-
-          '</div>'
-        )
-        : '';
-
-    const messageAction =
-      owner
-        ? ''
-        : (
-          '<a class="interaction" href="messages.html?to=' +
-          encodeURIComponent(
-            post.creator_id
-          ) +
-          '">Message</a>'
-        );
-
-    const commentForm =
-      currentUser
-        ? (
-          '<form class="comment-form" data-post-id="' +
-          post.id +
-          '">' +
-
-            '<input name="comment" maxlength="1000" required placeholder="Add a respectful comment…" aria-label="Comment">' +
-
-            '<button class="button" type="submit">Post</button>' +
-
-          '</form>'
-        )
-        : (
-          '<p class="muted small">' +
-          '<a href="login.html"><u>Sign in</u></a> ' +
-          'to like or comment.' +
-          '</p>'
-        );
-
-    return (
-      '<article class="post" id="post-' +
-      post.id +
-      '">' +
-
-        '<div class="post-head">' +
-
-          '<a class="creator" href="profile.html?id=' +
-          encodeURIComponent(
-            post.creator_id
-          ) +
-          '">' +
-
-            '<span class="avatar">' +
-            avatarHtml(creator) +
-            '</span>' +
-
-            '<span>' +
-
-              '<span class="creator-name">' +
-              escapeHtml(
-                creatorName
-              ) +
-              '</span>' +
-
-              '<span class="post-meta"><br>' +
-
-              escapeHtml(
-                formatDate(
-                  post.created_at
-                )
-              ) +
-
-              '<span class="privacy">' +
-              escapeHtml(
-                VISIBILITY_LABELS[
-                  post.visibility
-                ] ||
-                post.visibility
-              ) +
-              '</span>' +
-
-              '</span>' +
-
-            '</span>' +
-
-          '</a>' +
-
-          followButton +
-
-        '</div>' +
-
-        '<div class="' +
-        mediaClass +
-        '">' +
-        media +
-        '</div>' +
-
-        '<div class="post-body">' +
-
-          (
-            post.caption
-              ? '<p class="caption">' +
-                escapeHtml(
-                  post.caption
-                ) +
-                '</p>'
-              : ''
-          ) +
-
-          '<div class="interaction-bar">' +
-
-            '<button class="interaction' +
-            (liked ? ' active' : '') +
-            '" type="button" data-action="like" data-post-id="' +
-            post.id +
-            '" aria-pressed="' +
-            liked +
-            '">' +
-
-            '♥ ' +
-            postLikes.length +
-
-            '</button>' +
-
-            '<span class="interaction">' +
-            '💬 ' +
-            postComments.length +
-            '</span>' +
-
-            messageAction +
-
-          '</div>' +
-
-          ownerControls +
-
-          '<div class="comments">' +
-          commentHtml +
-          '</div>' +
-
-          commentForm +
-
-        '</div>' +
-
-      '</article>'
-    );
-  }
-
-  function visibilityOptions(selected) {
-    return Object.entries(
-      VISIBILITY_LABELS
-    )
-    .map(([value,label]) =>
-      '<option value="' +
-      value +
-      '"' +
-      (
-        value === selected
-          ? ' selected'
-          : ''
-      ) +
-      '>' +
-      escapeHtml(label) +
-      '</option>'
-    )
-    .join('');
-  }
-
-  function requireUser() {
-    if (currentUser)
-      return true;
-
-    showStatus(
-      'Sign in to use community interactions.',
-      'error'
-    );
-
-    guestPrompt.scrollIntoView({
-      behavior:'smooth',
-      block:'center'
-    });
-
-    return false;
-  }
-
-  async function toggleLike(
-    postId,
-    button
-  ) {
-    if (!requireUser())
-      return;
-
-    button.disabled = true;
-
-    try {
-      const existing =
-        likes.find(
-          item =>
-            item.post_id === postId &&
-            item.user_id ===
-              currentUser.id
-        );
-
-      if (existing) {
-        const result = await client
-          .from('talent_post_likes')
-          .delete()
-          .eq('post_id',postId)
-          .eq(
-            'user_id',
-            currentUser.id
-          );
-
-        if (result.error)
-          throw result.error;
-
-        likes = likes.filter(
-          item =>
-            !(
-              item.post_id === postId &&
-              item.user_id ===
-                currentUser.id
-            )
-        );
-      }
-
-      else {
-        const result = await client
-          .from('talent_post_likes')
-          .insert({
-            post_id:postId,
-            user_id:currentUser.id
-          })
-          .select(
-            'post_id,user_id,created_at'
-          )
-          .single();
-
-        if (result.error)
-          throw result.error;
-
-        likes.push(result.data);
-      }
-
-      renderFeed();
-    }
-
-    catch (error) {
-      showStatus(
-        'Like could not be updated: ' +
-        (
-          error.message ||
-          'Please try again.'
-        ),
-        'error'
-      );
-
-      button.disabled = false;
-    }
-  }
-
-  async function toggleFollow(
-    creatorId,
-    button
-  ) {
-    if (
-      !requireUser() ||
-      creatorId === currentUser.id
-    )
-      return;
-
-    button.disabled = true;
-
-    try {
-      if (
-        followedIds.has(
-          creatorId
-        )
-      ) {
-        const result = await client
-          .from('member_follows')
-          .delete()
-          .eq(
-            'follower_id',
-            currentUser.id
-          )
-          .eq(
-            'followed_id',
-            creatorId
-          );
-
-        if (result.error)
-          throw result.error;
-
-        followedIds.delete(
-          creatorId
-        );
-      }
-
-      else {
-        const result = await client
-          .from('member_follows')
-          .insert({
-            follower_id:
-              currentUser.id,
-            followed_id:
-              creatorId
-          });
-
-        if (result.error)
-          throw result.error;
-
-        followedIds.add(
-          creatorId
-        );
-      }
-
-      await loadFeed();
-    }
-
-    catch (error) {
-      showStatus(
-        'Follow could not be updated: ' +
-        (
-          error.message ||
-          'Please try again.'
-        ),
-        'error'
-      );
-
-      button.disabled = false;
-    }
-  }
-
-  async function addComment(form) {
-    if (!requireUser())
-      return;
-
-    const input =
-      form.elements.comment;
-
-    const body =
-      input.value.trim();
-
-    if (!body)
-      return;
-
-    const button =
-      form.querySelector('button');
-
-    button.disabled = true;
-
-    try {
-      const result = await client
-        .from(
-          'talent_post_comments'
-        )
-        .insert({
-          post_id:
-            form.dataset.postId,
-          author_id:
-            currentUser.id,
-          body
-        })
-        .select(
-          'id,post_id,author_id,body,created_at'
-        )
-        .single();
-
-      if (result.error)
-        throw result.error;
-
-      comments.push(
-        result.data
-      );
-
-      renderFeed();
-    }
-
-    catch (error) {
-      showStatus(
-        'Comment could not be posted: ' +
-        (
-          error.message ||
-          'Please try again.'
-        ),
-        'error'
-      );
-
-      button.disabled = false;
-    }
-  }
-
-  async function deleteComment(
-    commentId,
-    button
-  ) {
-    if (!requireUser())
-      return;
-
-    button.disabled = true;
-
-    try {
-      const result = await client
-        .from(
-          'talent_post_comments'
-        )
-        .delete()
-        .eq(
-          'id',
-          commentId
-        )
-        .eq(
-          'author_id',
-          currentUser.id
-        );
-
-      if (result.error)
-        throw result.error;
-
-      comments =
-        comments.filter(
-          item =>
-            item.id !== commentId
-        );
-
-      renderFeed();
-    }
-
-    catch (error) {
-      showStatus(
-        'Comment could not be deleted: ' +
-        (
-          error.message ||
-          'Please try again.'
-        ),
-        'error'
-      );
-
-      button.disabled = false;
-    }
-  }
-
-  async function updatePrivacy(
-    postId,
-    select
-  ) {
-    if (!requireUser())
-      return;
-
-    select.disabled = true;
-
-    try {
-      const result = await client
-        .from('talent_posts')
-        .update({
-          visibility:
-            select.value
-        })
-        .eq(
-          'id',
-          postId
-        )
-        .eq(
-          'creator_id',
-          currentUser.id
-        )
-        .select(
-          'id,visibility'
-        )
-        .single();
-
-      if (result.error)
-        throw result.error;
-
-      const post =
-        posts.find(
-          item =>
-            item.id === postId
-        );
-
-      if (post)
-        post.visibility =
-          result.data.visibility;
-
-      renderFeed();
-
-      showStatus(
-        'Post visibility updated to ' +
-        (
-          VISIBILITY_LABELS[
-            result.data.visibility
-          ] ||
-          result.data.visibility
-        ) +
-        '.',
-        'success'
-      );
-    }
-
-    catch (error) {
-      showStatus(
-        'Privacy could not be updated: ' +
-        (
-          error.message ||
-          'Please try again.'
-        ),
-        'error'
-      );
-
-      select.disabled = false;
-    }
-  }
-
-  async function deletePost(
-    postId,
-    mediaPath,
-    button
-  ) {
-    if (
-      !requireUser() ||
-      !window.confirm(
-        'Delete this talent post permanently?'
-      )
-    )
-      return;
-
-    button.disabled = true;
-
-    try {
-      const result = await client
-        .from('talent_posts')
-        .delete()
-        .eq(
-          'id',
-          postId
-        )
-        .eq(
-          'creator_id',
-          currentUser.id
-        );
-
-      if (result.error)
-        throw result.error;
-
-      const storageResult =
-        await client.storage
-          .from(MEDIA_BUCKET)
-          .remove([mediaPath]);
-
-      posts =
-        posts.filter(
-          item =>
-            item.id !== postId
-        );
-
-      likes =
-        likes.filter(
-          item =>
-            item.post_id !== postId
-        );
-
-      comments =
-        comments.filter(
-          item =>
-            item.post_id !== postId
-        );
-
-      renderFeed();
-
-      showStatus(
-        storageResult.error
-          ? 'Post deleted. Its media cleanup needs another try.'
-          : 'Talent post deleted.',
-        storageResult.error
-          ? 'error'
-          : 'success'
-      );
-    }
-
-    catch (error) {
-      showStatus(
-        'Post could not be deleted: ' +
-        (
-          error.message ||
-          'Please try again.'
-        ),
-        'error'
-      );
-
-      button.disabled = false;
-    }
-  }
-
-  function fileExtension(fileName) {
-    const parts =
-      String(fileName || '')
-        .toLowerCase()
-        .split('.');
-
-    return parts.length > 1
-      ? parts.pop()
-      : '';
-  }
-
-  function selectedFile() {
-    const file =
-      mediaFile.files &&
-      mediaFile.files[0];
-
-    if (!file) {
-      throw new Error(
-        'Choose a photo, song, or video.'
-      );
-    }
-
-    const originalExtension =
-      fileExtension(file.name);
-
-    let kind = '';
-    let mimeType =
-      String(file.type || '')
-        .toLowerCase();
-
-    let extension =
-      MIME_EXTENSIONS[mimeType];
-
-    if (
-      mimeType.startsWith('image/')
-    ) {
-      kind = 'image';
-    }
-
-    else if (
-      mimeType.startsWith('audio/')
-    ) {
-      kind = 'audio';
-    }
-
-    else if (
-      mimeType.startsWith('video/')
-    ) {
-      kind = 'video';
-    }
-
-    /*
-      Some Android file managers return
-      blank or generic MIME types.
-      Fall back to the actual file extension.
-    */
-    if (
-      !kind ||
-      !extension ||
-      mimeType ===
-        'application/octet-stream'
-    ) {
-      const fallback =
-        EXTENSION_INFO[
-          originalExtension
-        ];
-
-      if (!fallback) {
-        throw new Error(
-          'That file type is not supported.'
-        );
-      }
-
-      kind =
-        fallback.kind;
-
-      mimeType =
-        fallback.mime;
-
-      extension =
-        originalExtension;
-    }
-
-    if (
-      !['image','audio','video']
-        .includes(kind)
-    ) {
-      throw new Error(
-        'That file type is not supported.'
-      );
-    }
-
-    const supported =
-      MIME_EXTENSIONS[mimeType] ||
-      EXTENSION_INFO[
-        originalExtension
-      ];
-
-    if (!supported) {
-      throw new Error(
-        'That file type is not supported.'
-      );
-    }
-
-    let limit;
-
-    if (kind === 'image') {
-      limit = IMAGE_LIMIT;
-    }
-
-    else if (kind === 'audio') {
-      limit = AUDIO_LIMIT;
-    }
-
-    else {
-      limit = VIDEO_LIMIT;
-    }
-
-    if (file.size > limit) {
-      if (kind === 'image') {
-        throw new Error(
-          'Photos must be 15 MB or smaller.'
-        );
-      }
-
-      if (kind === 'audio') {
-        throw new Error(
-          'Songs must be 100 MB or smaller.'
-        );
-      }
-
-      throw new Error(
-        'Videos must be 100 MB or smaller.'
-      );
-    }
-
-    return {
-      file,
-      extension:
-        extension ||
-        MIME_EXTENSIONS[mimeType],
-      kind,
-      mimeType
+    card.append(like);
+
+    const comment=document.createElement("form");
+    const input=document.createElement("input");
+    input.placeholder="Add a comment";
+    input.maxLength=1000;
+    input.required=true;
+    const send=document.createElement("button");
+    send.textContent="Comment";
+    comment.append(input,send);
+    comment.onsubmit=async e=>{
+     e.preventDefault();
+     const r=await db.from("talent_post_comments").insert({
+      post_id:post.id,author_id:user.id,body:input.value.trim()
+     });
+     status(r.error?errorText(r.error):"Comment posted.",
+      r.error?"error":"success");
+     if(!r.error)input.value="";
     };
-  }
+    card.append(comment);
 
-  async function uploadTalentMedia(
-    path,
-    file,
-    contentType
-  ) {
-    if (!window.tus?.Upload) {
-      throw new Error(
-        'The secure upload service did not load. Refresh the page and try again.'
-      );
-    }
-
-    const sessionResult =
-      await client.auth.getSession();
-
-    if (sessionResult.error)
-      throw sessionResult.error;
-
-    const accessToken =
-      sessionResult.data
-        .session
-        ?.access_token;
-
-    if (!accessToken) {
-      throw new Error(
-        'Your sign-in expired. Sign in again before publishing.'
-      );
-    }
-
-    return new Promise(
-      (resolve,reject) => {
-
-        const upload =
-          new window.tus.Upload(
-            file,
-            {
-              endpoint:
-                RESUMABLE_UPLOAD_URL,
-
-              retryDelays:[
-                0,
-                3000,
-                5000,
-                10000,
-                20000
-              ],
-
-              headers:{
-                authorization:
-                  'Bearer ' +
-                  accessToken,
-
-                apikey:
-                  SUPABASE_KEY
-              },
-
-              uploadDataDuringCreation:
-                false,
-
-              removeFingerprintOnSuccess:
-                true,
-
-              chunkSize:
-                UPLOAD_CHUNK_SIZE,
-
-              metadata:{
-                bucketName:
-                  MEDIA_BUCKET,
-
-                objectName:
-                  path,
-
-                contentType:
-                  contentType,
-
-                cacheControl:
-                  '3600'
-              },
-
-              onError(error) {
-                console.error(
-                  'Talent media upload failed:',
-                  error
-                );
-
-                const detail =
-                  String(
-                    error?.message ||
-                    error ||
-                    ''
-                  );
-
-                const message =
-                  /failed to create upload|progressEvent|response code: n\/a/i
-                    .test(detail)
-                    ? 'The media upload could not connect. Check your connection and try again.'
-                    : (
-                        detail ||
-                        'The media upload failed. Please try again.'
-                      );
-
-                reject(
-                  new Error(message)
-                );
-              },
-
-              onProgress(
-                bytesUploaded,
-                bytesTotal
-              ) {
-                const percent =
-                  bytesTotal
-                    ? Math.round(
-                        (
-                          bytesUploaded /
-                          bytesTotal
-                        ) * 100
-                      )
-                    : 0;
-
-                showStatus(
-                  'Uploading your talent media… ' +
-                  percent +
-                  '%'
-                );
-              },
-
-              onSuccess() {
-                resolve();
-              }
-            }
-          );
-
-        upload.start();
-      }
-    );
-  }
-
-  async function publishPost(event) {
-    event.preventDefault();
-
-    if (!requireUser())
-      return;
-
-    let uploadedPath = '';
-
-    publish.disabled = true;
-    publish.textContent =
-      'Publishing…';
-
-    try {
-      const selected =
-        selectedFile();
-
-      uploadedPath =
-        currentUser.id +
-        '/' +
-        new Date()
-          .toISOString()
-          .slice(0,10) +
-        '/' +
-        crypto.randomUUID() +
-        '.' +
-        selected.extension;
-
-      showStatus(
-        'Preparing your secure upload…'
-      );
-
-      await uploadTalentMedia(
-        uploadedPath,
-        selected.file,
-        selected.mimeType
-      );
-
-      showStatus(
-        'Saving your talent post…'
-      );
-
-      const result = await client
-        .from('talent_posts')
-        .insert({
-          creator_id:
-            currentUser.id,
-
-          caption:
-            caption.value.trim(),
-
-          media_path:
-            uploadedPath,
-
-          media_kind:
-            selected.kind,
-
-          media_mime_type:
-            selected.mimeType,
-
-          visibility:
-            visibility.value,
-
-          status:
-            'published'
-        })
-        .select('id')
-        .single();
-
-      if (result.error) {
-        await client.storage
-          .from(MEDIA_BUCKET)
-          .remove([
-            uploadedPath
-          ]);
-
-        uploadedPath = '';
-
-        throw result.error;
-      }
-
-      clearPreview();
-      postForm.reset();
-
-      showStatus(
-        'Your talent post is live for the audience you selected.',
-        'success'
-      );
-
+    if(user.id===post.creator_id){
+     const del=document.createElement("button");
+     del.textContent="Delete Post";
+     del.onclick=async()=>{
+      if(!confirm("Delete this post?"))return;
+      const r=await db.from("talent_posts").delete()
+       .eq("id",post.id).eq("creator_id",user.id);
+      if(r.error){status(errorText(r.error),"error");return}
+      await db.storage.from(BUCKET).remove([post.media_path]);
       await loadFeed();
-
-      document
-        .getElementById(
-          'post-' +
-          result.data.id
-        )
-        ?.scrollIntoView({
-          behavior:'smooth',
-          block:'start'
-        });
+     };
+     card.append(del);
     }
-
-    catch (error) {
-      if (uploadedPath) {
-        await client.storage
-          .from(MEDIA_BUCKET)
-          .remove([
-            uploadedPath
-          ]);
-      }
-
-      showStatus(
-        'Post could not be published: ' +
-        (
-          error.message ||
-          'Please try again.'
-        ),
-        'error'
-      );
-    }
-
-    finally {
-      publish.disabled = false;
-
-      publish.textContent =
-        'Publish Talent Post';
-    }
+   }
+   $("feed").append(card);
   }
+  status(result.data.length+" posts loaded.","success");
+ }catch(e){status("Feed error: "+errorText(e),"error")}
+}
 
-  function clearPreview() {
-    if (previewUrl) {
-      URL.revokeObjectURL(
-        previewUrl
-      );
-    }
+$("refresh").onclick=loadFeed;
 
-    previewUrl = '';
-    preview.innerHTML = '';
-    preview.style.display =
-      'none';
-  }
+if(!db){
+ status("Supabase connection unavailable.","error");
+ return;
+}
 
-  function updatePreview() {
-    clearPreview();
+try{
+ const session=await db.auth.getSession();
+ user=session.data.session?.user||null;
+ $("composer").hidden=!user;
+ $("guest").hidden=!!user;
 
-    try {
-      const selected =
-        selectedFile();
-
-      previewUrl =
-        URL.createObjectURL(
-          selected.file
-        );
-
-      if (
-        selected.kind === 'video'
-      ) {
-        preview.innerHTML =
-          '<video controls playsinline src="' +
-          escapeHtml(
-            previewUrl
-          ) +
-          '"></video>';
-      }
-
-      else if (
-        selected.kind === 'audio'
-      ) {
-        preview.innerHTML =
-          '<div class="audio-preview">' +
-
-            '<div class="audio-preview-title">' +
-            '🎵 ' +
-            escapeHtml(
-              selected.file.name
-            ) +
-            '</div>' +
-
-            '<audio controls preload="metadata" src="' +
-            escapeHtml(
-              previewUrl
-            ) +
-            '"></audio>' +
-
-          '</div>';
-      }
-
-      else {
-        preview.innerHTML =
-          '<img src="' +
-          escapeHtml(
-            previewUrl
-          ) +
-          '" alt="Selected talent preview">';
-      }
-
-      preview.style.display =
-        'block';
-
-      showStatus(
-        selected.kind === 'audio'
-          ? 'Song selected and ready to post.'
-          : selected.kind === 'video'
-            ? 'Video selected and ready to post.'
-            : 'Photo selected and ready to post.',
-        'success'
-      );
-    }
-
-    catch (error) {
-      mediaFile.value = '';
-
-      showStatus(
-        error.message,
-        'error'
-      );
-    }
-  }
-
-  async function initialize() {
-    try {
-      if (!client) {
-        throw new Error(
-          'The StarRise connection library did not load.'
-        );
-      }
-
-      const sessionResult =
-        await client.auth.getSession();
-
-      if (sessionResult.error) {
-        console.warn(
-          'Community session check failed; continuing as a public visitor:',
-          sessionResult.error
-        );
-      }
-
-      const user =
-        sessionResult.error
-          ? null
-          : (
-              sessionResult.data
-                .session
-                ?.user ||
-              null
-            );
-
-      currentUser =
-        user &&
-        user.is_anonymous !== true
-          ? user
-          : null;
-
-      guestPrompt.classList.toggle(
-        'hidden',
-        Boolean(currentUser)
-      );
-
-      composer.classList.toggle(
-        'hidden',
-        !currentUser
-      );
-
-      await Promise.all([
-        loadProfiles(),
-        loadFollowing()
-      ]);
-
-      await loadFeed();
-    }
-
-    catch (error) {
-      if (
-        isJwtTimingError(error) &&
-        !initializationRetried
-      ) {
-        initializationRetried =
-          true;
-
-        showStatus(
-          'Finishing your secure sign-in…'
-        );
-
-        await waitFor(1500);
-
-        return initialize();
-      }
-
-      console.error(
-        'Community initialization error:',
-        error
-      );
-
-      showStatus(
-        'The StarRise community could not start: ' +
-        (
-          error.message ||
-          'Please refresh.'
-        ),
-        'error'
-      );
-    }
-  }
-
-  postForm.addEventListener(
-    'submit',
-    publishPost
-  );
-
-  mediaFile.addEventListener(
-    'change',
-    updatePreview
-  );
-
-  refresh.addEventListener(
-    'click',
-    loadFeed
-  );
-
-  tabs.forEach(
-    tab =>
-      tab.addEventListener(
-        'click',
-        function () {
-          if (
-            tab.dataset.feed ===
-              'following' &&
-            !requireUser()
-          ) {
-            return;
-          }
-
-          activeFeed =
-            tab.dataset.feed;
-
-          tabs.forEach(
-            item =>
-              item.classList.toggle(
-                'active',
-                item === tab
-              )
-          );
-
-          loadFeed();
-        }
-      )
-  );
-
-  feed.addEventListener(
-    'click',
-    function (event) {
-      const target =
-        event.target.closest(
-          '[data-action]'
-        );
-
-      if (!target)
-        return;
-
-      const action =
-        target.dataset.action;
-
-      if (action === 'like') {
-        toggleLike(
-          target.dataset.postId,
-          target
-        );
-      }
-
-      if (action === 'follow') {
-        toggleFollow(
-          target.dataset.creatorId,
-          target
-        );
-      }
-
-      if (
-        action ===
-        'delete-comment'
-      ) {
-        deleteComment(
-          target.dataset.commentId,
-          target
-        );
-      }
-
-      if (
-        action ===
-        'delete-post'
-      ) {
-        deletePost(
-          target.dataset.postId,
-          target.dataset.mediaPath,
-          target
-        );
-      }
-    }
-  );
-
-  feed.addEventListener(
-    'change',
-    function (event) {
-      const target =
-        event.target.closest(
-          '[data-action="privacy"]'
-        );
-
-      if (target) {
-        updatePrivacy(
-          target.dataset.postId,
-          target
-        );
-      }
-    }
-  );
-
-  feed.addEventListener(
-    'submit',
-    function (event) {
-      const form =
-        event.target.closest(
-          '.comment-form'
-        );
-
-      if (!form)
-        return;
-
-      event.preventDefault();
-
-      addComment(form);
-    }
-  );
-
-  window.addEventListener(
-    'beforeunload',
-    clearPreview
-  );
-
-  initialize();
-
+ const members=await db.rpc("get_public_members");
+ if(!members.error){
+  profiles=new Map((members.data||[]).map(p=>[p.id,p]));
+ }
+ await loadFeed();
+}catch(e){
+ status("Community startup error: "+errorText(e),"error");
+}
 })();
 </script>
-
 </body>
 </html>
