@@ -1232,6 +1232,41 @@ statusBox,
 'success'
 );
 
+try {
+  const foundingResult = await supabaseClient.rpc(
+    'starrise_my_founding_status'
+  );
+
+  if (!foundingResult.error) {
+    const founding = Array.isArray(foundingResult.data)
+      ? foundingResult.data[0]
+      : foundingResult.data;
+
+    if (
+      founding &&
+      founding.is_founder === true &&
+      founding.lifetime_fee_waiver === true
+    ) {
+      const panel = document.getElementById(
+        'founding-member-panel'
+      );
+
+      const message = document.getElementById(
+        'founding-member-status'
+      );
+
+      if (panel && message) {
+        message.textContent =
+          'Verified Founding Member. Your StarRise membership fees are waived for life.';
+
+        panel.hidden = false;
+      }
+    }
+  }
+} catch (error) {
+  console.warn('Founding status check unavailable');
+}
+
 await loadProfile(currentUser);
 await loadAdminAccess();
 await loadRoles(currentUser);
