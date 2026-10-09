@@ -158,7 +158,27 @@ account.textContent =
 
 }
 
-loadMembership();
+
+if (!window.supabase) {
+  account.textContent =
+    "Membership connection unavailable. Please refresh the page.";
+} else {
+  account.textContent = "Loading your membership...";
+
+  Promise.race([
+    loadMembership(),
+    new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error("Connection timed out")),
+        12000
+      )
+    )
+  ]).catch(error => {
+    account.textContent =
+      "Membership loading error: " + error.message;
+  });
+}
+
 </script>
 
 </body>
