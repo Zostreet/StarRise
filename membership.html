@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StarRise Membership</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090914;color:white;font-family:Arial,sans-serif;line-height:1.6}
+header{padding:20px;background:#171727;text-align:center}
+header a{color:#fff;text-decoration:none;margin:0 10px}
+main{max-width:1100px;margin:auto;padding:24px}
+h1{text-align:center}
+.subtitle{text-align:center;color:#aaa}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:25px}
+.card{background:#1c1c30;border:1px solid #393951;border-radius:18px;padding:24px}
+.price{font-size:30px;font-weight:bold;color:#d6b5ff}
+.badge{color:#b8ffcf;font-size:13px}
+.notice{background:#292339;border-radius:12px;padding:18px;margin:25px 0}
+ul{padding-left:20px}
+li{margin:9px 0}
+a{color:#d6b5ff}
+</style>
+</head>
+<body>
+
+<header>
+<a href="index.html">StarRise</a>
+<a href="dashboard.html">Dashboard</a>
+<a href="marketplace.html">Store</a>
+</header>
+
+<main>
+<h1>StarRise Membership</h1>
+<p class="subtitle">Everyone Eats. Grow your career without breaking your pockets.</p>
+
+<div id="account" class="notice">
+Checking membership...
+</div>
+
+<h2>Membership Packages</h2>
+<div id="plans" class="grid"></div>
+
+<h2>Your Membership Benefits</h2>
+<div id="benefits" class="card">
+Sign in to view your benefits.
+</div>
+
+<div class="notice">
+<strong>Membership launch notice</strong>
+<p>Paid subscriptions are not yet available. Some advanced features are still being developed or tested. No payments are collected through this page.</p>
+</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const URL = "https://rcnikxotdalxtuvpmlvm.supabase.co";
+const KEY = "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+
+const db = window.supabase.createClient(URL, KEY);
+
+const account = document.getElementById("account");
+const plans = document.getElementById("plans");
+const benefits = document.getElementById("benefits");
+
+function escapeHTML(value){
+return String(value ?? "").replace(/[&<>"']/g, c => ({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#39;"
+})[c]);
+}
+
+async function loadMembership(){
+
+try{
+
+const {data:planData,error:planError} = await db
+.from("membership_plans")
+.select("plan_key,display_name,price_cents,sales_enabled")
+.order("sort_order");
+
+if(planError) throw planError;
+
+plans.innerHTML = planData.map(plan => `
+<div class="card">
+<h2>${escapeHTML(plan.display_name)}</h2>
+<div class="price">
+${plan.price_cents === 0
+? "FREE"
+: "$" + (plan.price_cents / 100).toFixed(2) + "/month"}
+</div>
+<p class="badge">
+${plan.price_cents === 0
+? "Free membership"
+: "Coming soon"}
+</p>
+</div>
+`).join("");
+
+const {data:{user},error:userError} = await db.auth.getUser();
+
+if(userError) throw userError;
+
+if(!user){
+account.innerHTML = 'Please <a href="login.html">sign in</a> to view your membership.';
+return;
+}
+
+const {data:subscription,error:subError} = await db
+.from("member_subscriptions")
+.select("plan_key,status,current_period_end")
+.eq("user_id",user.id)
+.maybeSingle();
+
+if(subError) throw subError;
+
+const active = subscription &&
+subscription.status === "active" &&
+(!subscription.current_period_end ||
+new Date(subscription.current_period_end) > new Date());
+
+const plan = active ? subscription.plan_key : "community";
+
+account.textContent =
+"Current Membership: " +
+plan.charAt(0).toUpperCase() +
+plan.slice(1);
+
+const {data:entitlements,error:entError} =
+await db.rpc("starrise_my_entitlements");
+
+if(entError) throw entError;
+
+benefits.innerHTML = "<ul>" +
+entitlements.map(item => `
+<li>
+<strong>${escapeHTML(item.feature_key.replace(/_/g," "))}</strong>
+<br>
+${item.available ? "Verified available" : "Not yet verified"}
+${item.quota !== null
+? " | Allowance: " + escapeHTML(item.quota) + " " + escapeHTML(item.unit)
+: ""}
+</li>
+`).join("") +
+"</ul>";
+
+}catch(error){
+
+account.textContent =
+"Unable to load membership: " + error.message;
+
+}
+
+}
+
+loadMembership();
+</script>
+
+</body>
+</html>
