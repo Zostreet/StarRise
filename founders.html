@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StarRise Founding Members</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090914;color:#fff;font:16px/1.6 Arial,sans-serif}
+header,main,footer{max-width:900px;margin:auto;padding:22px}
+a{color:#d6b5ff}
+h1{margin-bottom:0}
+.muted{color:#bbb}
+.panel{background:#1c1c30;border:1px solid #393951;border-radius:16px;padding:24px;margin:18px 0}
+.success{color:#b9ffca}
+footer{text-align:center;color:#aaa}
+</style>
+</head>
+<body>
+<header>
+<a href="index.html">StarRise</a> |
+<a href="dashboard.html">Dashboard</a> |
+<a href="membership.html">Membership</a>
+</header>
+
+<main>
+<h1>StarRise Founding Members</h1>
+<p class="muted">Honoring those who helped establish StarRise.</p>
+
+<section class="panel" aria-live="polite">
+<h2>Your Founding Status</h2>
+<p id="status">Checking your account...</p>
+</section>
+
+<section class="panel">
+<h2>Lifetime Membership</h2>
+<p>Approved founding members receive a lifetime waiver of StarRise membership fees.</p>
+<p>Founding status does not automatically grant employment, ownership, or administrator privileges.</p>
+</section>
+
+<section class="panel">
+<h2>Grow With StarRise</h2>
+<p><strong>Mentors:</strong> Help artists and creators develop their skills.</p>
+<p><strong>Partners:</strong> Build collaborations and opportunities.</p>
+<p><strong>Leadership:</strong> Apply for staff or executive positions as opportunities become available.</p>
+<p class="muted">All positions require separate review and approval.</p>
+</section>
+</main>
+
+<footer>StarRise by FAM Entertainment | Everyone Eats.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(async function(){
+const status=document.getElementById("status");
+
+try{
+if(!window.supabase)throw Error("Unavailable");
+
+const client=window.supabase.createClient(
+"https://rcnikxotdalxtuvpmlvm.supabase.co",
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+
+const {data:auth,error:authError}=await client.auth.getUser();
+
+if(authError||!auth?.user){
+status.textContent="Please sign in through your StarRise dashboard to verify your founding status.";
+return;
+}
+
+const {data,error}=await client.rpc("starrise_my_founding_status");
+
+if(error)throw error;
+
+const member=Array.isArray(data)?data[0]:data;
+
+if(member?.is_founder&&member?.lifetime_fee_waiver){
+status.className="success";
+status.textContent="Verified Founding Member. Your StarRise membership fees are waived for life.";
+}else{
+status.textContent="This account does not currently have founding-member recognition.";
+}
+
+}catch(error){
+status.textContent="Membership status temporarily unavailable. Please try again later.";
+}
+})();
+</script>
+</body>
+</html>
