@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>StarRise Membership</title>
+<title>StarRise Membership | FAM Entertainment</title>
 <style>
 *{box-sizing:border-box}
 body{
@@ -43,6 +43,7 @@ h1,.subtitle{text-align:center}
  border-radius:16px;
  padding:22px
 }
+.card h2{margin-top:0}
 .price{
  font-size:30px;
  font-weight:bold;
@@ -58,6 +59,21 @@ button{
  padding:12px 18px;
  font-weight:bold
 }
+.status{
+ display:inline-block;
+ background:#302442;
+ color:#e9d5ff;
+ padding:5px 12px;
+ border-radius:20px;
+ font-size:13px;
+ font-weight:bold
+}
+footer{
+ text-align:center;
+ padding:24px;
+ color:#aaa;
+ border-top:1px solid #393951
+}
 </style>
 </head>
 <body>
@@ -69,6 +85,7 @@ button{
 </header>
 
 <main>
+
 <h1>StarRise Membership</h1>
 <p class="subtitle">
 Everyone Eats. Build your career at your own pace.
@@ -76,8 +93,13 @@ Everyone Eats. Build your career at your own pace.
 
 <section class="notice">
 <h2>Membership Status</h2>
-<p id="account">
-Community membership is available free.
+<p>
+New Starter membership: $4.99 one time.
+No monthly Starter subscription.
+</p>
+<p class="note">
+Existing Community members retain their current
+membership access without an additional charge.
 </p>
 <a href="dashboard.html">Open My Dashboard</a>
 </section>
@@ -87,13 +109,19 @@ Community membership is available free.
 <div class="grid">
 
 <section class="card">
-<h2>Community</h2>
-<div class="price">FREE</div>
-<p>Our free membership.</p>
-<p class="note">
-Community participation and marketplace access,
-subject to feature availability.
+<h2>Starter</h2>
+<div class="price">$4.99</div>
+<p><strong>One-time payment</strong></p>
+<p>
+Get started with StarRise without a recurring
+Starter membership charge.
 </p>
+<p class="note">
+Planned benefits include community participation,
+a member profile, and basic marketplace access,
+subject to feature availability and usage limits.
+</p>
+<span class="status">Checkout Coming Soon</span>
 </section>
 
 <section class="card">
@@ -102,9 +130,9 @@ subject to feature availability.
 <p>For growing independent creators.</p>
 <p class="note">
 Planned benefits include increased storage,
-more listings, and creator tools.
+more listings, and additional creator tools.
 </p>
-<strong>Coming Soon</strong>
+<span class="status">Coming Soon</span>
 </section>
 
 <section class="card">
@@ -113,9 +141,9 @@ more listings, and creator tools.
 <p>For professional creators.</p>
 <p class="note">
 Planned benefits include advanced creative tools,
-analytics, and AI promotion credits.
+analytics, and expanded publishing capabilities.
 </p>
-<strong>Coming Soon</strong>
+<span class="status">Coming Soon</span>
 </section>
 
 <section class="card">
@@ -126,7 +154,7 @@ analytics, and AI promotion credits.
 Planned benefits include team management,
 multiple storefronts, and business tools.
 </p>
-<strong>Coming Soon</strong>
+<span class="status">Coming Soon</span>
 </section>
 
 </div>
@@ -134,24 +162,51 @@ multiple storefronts, and business tools.
 <section class="notice">
 <h2>Your Membership Benefits</h2>
 <p>
-Personalized membership information is being
+Membership benefits and usage limits are being
 connected to the StarRise dashboard.
 </p>
 <p>
-No paid benefits are being represented as
-verified until testing is complete.
+Features marked as planned are not guaranteed
+to be available until testing and launch are complete.
+</p>
+</section>
+
+<section class="notice">
+<h2>Existing Community Members</h2>
+<p>
+If you already received a Community membership,
+your existing access remains in place.
+</p>
+<p>
+You will not automatically be charged the new
+$4.99 Starter fee.
+</p>
+<p class="note">
+The new one-time price applies to future Starter
+purchases once checkout becomes available.
 </p>
 </section>
 
 <section class="notice">
 <h2>Membership Launch Notice</h2>
 <p>
-Paid subscriptions are not yet available.
-Some services are under development or testing.
+Membership checkout is not yet available.
+Starter purchases and monthly subscriptions
+cannot be purchased through this page yet.
+</p>
+<p>
 No payments are collected through this page.
+Payment activation will follow successful
+checkout, webhook, and membership-access testing.
 </p>
 </section>
 
 </main>
+
+<footer>
+<p>StarRise by FAM Entertainment</p>
+<p>Where Talent Rises. Everyone Eats.</p>
+</footer>
+
 </body>
 </html>
