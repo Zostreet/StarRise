@@ -20,6 +20,9 @@ video,img,audio{width:100%;max-height:550px;object-fit:contain;margin:12px 0}
 .error{color:#ff9999}
 .success{color:#99ffbb}
 .muted{color:#aaa}
+.picker{display:flex;flex-wrap:wrap;gap:4px}
+#selectedInfo,#status{overflow-wrap:anywhere}
+#selectedInfo{margin:12px 0;line-height:1.5}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -41,9 +44,17 @@ video,img,audio{width:100%;max-height:550px;object-fit:contain;margin:12px 0}
 <section id="composer" class="card" hidden>
 <h2>Share Your Talent</h2>
 <form id="postForm">
-<label>Select photo, song or video</label>
-<input id="mediaFile" type="file"
-       accept="image/*,audio/*,video/*" required>
+<div class="picker">
+<button type="button" data-picker="videoFile">Choose Video</button>
+<button type="button" data-picker="audioFile">Choose Song</button>
+<button type="button" data-picker="imageFile">Choose Photo</button>
+</div>
+<input id="videoFile" type="file" accept="video/*" hidden>
+<input id="audioFile" type="file" accept="audio/*" hidden>
+<input id="imageFile" type="file" accept="image/*" hidden>
+<label for="mediaFile">Or browse files on your phone</label>
+<input id="mediaFile" type="file">
+<p id="selectedInfo" class="muted" role="status" aria-live="polite">No file selected.</p>
 <div id="preview"></div>
 
 <textarea id="caption" maxlength="2200"
@@ -57,7 +68,7 @@ video,img,audio{width:100%;max-height:550px;object-fit:contain;margin:12px 0}
 <option value="private">Only Me</option>
 </select>
 
-<button id="publish" type="submit">Publish Talent Post</button>
+<button id="publish" type="submit" disabled>Publish Talent Post</button>
 </form>
 </section>
 
@@ -88,10 +99,16 @@ let user=null;
 let profiles=new Map();
 let previewUrl="";
 let pendingPost=null;
+let selectedFile=null;
+let selectionReady=false;
+let selectionVersion=0;
+let publishing=false;
+const pickerIds=["mediaFile","videoFile","audioFile","imageFile"];
 
 function status(message,type=""){
  $("status").textContent=message;
  $("status").className="card "+type;
+ if(publishing)selection(message,type||"muted");
 }
 
 function errorText(e){
@@ -101,7 +118,15 @@ function errorText(e){
 function fileInfo(file){
  if(!file)throw Error("Choose a file.");
 
- const extension=file.name.split(".").pop().toLowerCase();
+ let extension=(file.name||"").split(".").pop().toLowerCase();
+ const fromMime={
+  "image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif",
+  "audio/mpeg":"mp3","audio/wav":"wav","audio/x-wav":"wav",
+  "audio/mp4":"m4a","audio/x-m4a":"m4a","audio/aac":"aac",
+  "audio/ogg":"ogg","audio/flac":"flac","audio/x-flac":"flac",
+  "video/mp4":"mp4","video/webm":"webm","video/quicktime":"mov",
+  "video/x-m4v":"m4v","video/3gpp":"3gp"
+ };
  const images=["jpg","jpeg","png","webp","gif"];
  const audio=["mp3","wav","m4a","aac","ogg","flac"];
  const video=["mp4","webm","mov","m4v","3gp"];
@@ -110,15 +135,21 @@ function fileInfo(file){
  if(images.includes(extension))kind="image";
  else if(audio.includes(extension))kind="audio";
  else if(video.includes(extension))kind="video";
- else throw Error("Unsupported file format.");
+ else{
+  extension=fromMime[(file.type||"").toLowerCase()];
+  if(images.includes(extension))kind="image";
+  else if(audio.includes(extension))kind="audio";
+  else if(video.includes(extension))kind="video";
+  else throw Error("Choose a supported photo, song or video file.");
+ }
 
- const max=kind==="image"?15:100;
+ const max=kind==="image"?15:kind==="audio"?100:null;
 
  if(!file.size){
   throw Error("That file is empty. Choose another file.");
  }
 
- if(file.size>max*1048576){
+ if(max!==null&&file.size>max*1048576){
   throw Error("File exceeds "+max+" MB.");
  }
 
@@ -148,37 +179,112 @@ function fileInfo(file){
  };
 }
 
-function previewFile(){
- if(previewUrl)URL.revokeObjectURL(previewUrl);
+function selection(message,type="muted"){
+ $("selectedInfo").textContent=message;
+ $("selectedInfo").className=type;
+}
 
- previewUrl="";
- pendingPost=null;
-
- const file=$("mediaFile").files[0];
+function clearPreview(){
  $("preview").replaceChildren();
+ if(previewUrl)URL.revokeObjectURL(previewUrl);
+ previewUrl="";
+}
 
- if(!file)return;
+async function readChunk(blob){
+ let bytes;
+ try{
+  bytes=await new Promise((resolve,reject)=>{
+   const reader=new FileReader();
+   const timer=setTimeout(()=>{
+    reader.abort();
+    reject(Error("File read timed out."));
+   },25000);
+   function finish(error,value){
+    clearTimeout(timer);
+    error?reject(error):resolve(value);
+   }
+   reader.onload=()=>finish(null,reader.result);
+   reader.onerror=()=>finish(reader.error||Error("File read failed."));
+   reader.onabort=()=>finish(Error("File read stopped."));
+   try{reader.readAsArrayBuffer(blob);}catch(e){finish(e);}
+  });
+ }catch(e){
+  if(typeof blob.arrayBuffer!=="function")throw Error(
+   "Your phone could not read this file. Save it to Downloads, then use Browse Files to select that copy."
+  );
+  bytes=await new Promise((resolve,reject)=>{
+   const timer=setTimeout(()=>reject(Error("File read timed out.")),25000);
+   Promise.resolve().then(()=>blob.arrayBuffer()).then(
+    value=>{clearTimeout(timer);resolve(value);},
+    error=>{clearTimeout(timer);reject(error);}
+   );
+  }).catch(()=>{throw Error(
+   "Your phone could not read this file. Save it to Downloads, then use Browse Files to select that copy."
+  );});
+ }
+ if(!bytes||bytes.byteLength!==blob.size)throw Error("The file could not be read completely. Select it again using Browse Files.");
+ return bytes;
+}
 
+async function selectFile(file){
+ if(publishing)return;
+ if(!file){
+  if(!selectedFile)selection("No file was selected. Choose Video or Browse Files, then confirm your choice in the phone's picker.");
+  return;
+ }
+ const version=++selectionVersion;
+ selectedFile=file;
+ selectionReady=false;
+ pendingPost=null;
+ clearPreview();
+ $("publish").disabled=true;
+ const label=(file.name||"Selected file")+" ("+(file.size/1048576).toFixed(1)+" MB)";
+ selection("Selected: "+label+". Checking file...");
  try{
   const info=fileInfo(file);
-  const el=document.createElement(
-   info.kind==="image"?"img":info.kind
-  );
-
-  previewUrl=URL.createObjectURL(file);
-  el.src=previewUrl;
-
-  if(info.kind!=="image")el.controls=true;
-  if(info.kind==="video")el.playsInline=true;
-
-  $("preview").append(el);
+  await readChunk(file.slice(0,Math.min(file.size,65536),info.mime));
+  if(version!==selectionVersion)return;
+  selectionReady=true;
+  $("publish").disabled=false;
+  selection("Ready: "+label,"success");
   status("Ready to publish.","success");
+  try{
+   const el=document.createElement(info.kind==="image"?"img":info.kind);
+   previewUrl=URL.createObjectURL(file);
+   el.onerror=()=>{
+    if(version!==selectionVersion)return;
+    $("preview").replaceChildren();
+    selection("Ready: "+label+". Preview unavailable; you can still publish.","success");
+   };
+   el.src=previewUrl;
+   if(info.kind!=="image")el.controls=true;
+   if(info.kind==="video")el.playsInline=true;
+   $("preview").append(el);
+  }catch(e){
+   selection("Ready: "+label+". Preview unavailable; you can still publish.","success");
+  }
  }catch(e){
+  if(version!==selectionVersion)return;
+  selection("Could not add "+(file.name||"this file")+": "+errorText(e),"error");
   status(errorText(e),"error");
  }
 }
 
-$("mediaFile").addEventListener("change",previewFile);
+for(const id of pickerIds){
+ const input=$(id);
+ input.addEventListener("click",()=>{
+  input.value="";
+  if(!selectedFile)selection("Select a file in your phone's picker. If it shows a checkmark, tap Open or Done to finish.");
+ });
+ input.addEventListener("change",()=>{selectFile(input.files?.[0]);});
+ input.addEventListener("cancel",()=>{
+  if(!selectedFile)selectFile(null);
+  else if(selectionReady)selection("Still selected: "+selectedFile.name+". Ready to publish.","success");
+ });
+}
+for(const button of document.querySelectorAll("[data-picker]")){
+ button.addEventListener("click",()=>{$(button.dataset.picker).click();});
+}
 
 async function uploadMedia(path,file,mime){
  const session=await db.auth.getSession();
@@ -193,24 +299,6 @@ async function uploadMedia(path,file,mime){
 
  if(!window.tus?.Upload){
   throw Error("Upload library unavailable. Refresh this page.");
- }
-
- status("Reading your file...");
-
- let source;
-
- try{
-  const bytes=await file.arrayBuffer();
-
-  if(bytes.byteLength!==file.size){
-   throw Error("Incomplete file");
-  }
-
-  source=new Blob([bytes],{type:mime});
- }catch(e){
-  throw Error(
-   "Could not read that file. Download it to your phone, then select it again."
-  );
  }
 
  status("Uploading... 0%");
@@ -229,7 +317,7 @@ async function uploadMedia(path,file,mime){
    error?reject(error):resolve();
   }
 
-  const upload=new window.tus.Upload(source,{
+  const upload=new window.tus.Upload(file,{
    endpoint:
     SUPABASE_URL.replace(".supabase.co",".storage.supabase.co")+
     "/storage/v1/upload/resumable",
@@ -244,6 +332,20 @@ async function uploadMedia(path,file,mime){
    uploadDataDuringCreation:true,
    fingerprint:async()=>"starrise-talent:"+path,
    removeFingerprintOnSuccess:true,
+   fileReader:{
+    async openFile(input){
+     return {
+      size:input.size,
+      async slice(start,end){
+       end=Math.min(end,input.size);
+       if(start>=input.size)return {value:null,done:true};
+       const bytes=await readChunk(input.slice(start,end,mime));
+       return {value:new Blob([bytes],{type:mime}),done:end>=input.size};
+      },
+      close(){}
+     };
+    }
+   },
 
    async onBeforeRequest(request){
     const current=await db.auth.getSession();
@@ -316,14 +418,21 @@ $("postForm").addEventListener("submit",async event=>{
  event.preventDefault();
 
  if(!user)return;
+ if(publishing)return;
+ if(!selectionReady||!selectedFile){
+  selection("Choose a readable file before publishing.","error");
+  return;
+ }
 
  const button=$("publish");
 
+ publishing=true;
  button.disabled=true;
- $("mediaFile").disabled=true;
+ for(const id of pickerIds)$(id).disabled=true;
+ for(const picker of document.querySelectorAll("[data-picker]"))picker.disabled=true;
 
  try{
-  const file=$("mediaFile").files[0];
+  const file=selectedFile;
   const info=fileInfo(file);
 
   if(
@@ -375,21 +484,25 @@ $("postForm").addEventListener("submit",async event=>{
   }
 
   pendingPost=null;
+  selectedFile=null;
+  selectionReady=false;
+  selectionVersion++;
 
   $("postForm").reset();
-  $("preview").replaceChildren();
-
-  if(previewUrl)URL.revokeObjectURL(previewUrl);
-  previewUrl="";
+  clearPreview();
+  selection("Post published. Choose a file to share another talent.","success");
 
   await loadFeed();
 
   status("Your talent post is published!","success");
  }catch(e){
+  selection("Could not publish: "+errorText(e),"error");
   status("Could not publish: "+errorText(e),"error");
  }finally{
-  button.disabled=false;
-  $("mediaFile").disabled=false;
+  publishing=false;
+  button.disabled=!selectionReady;
+  for(const id of pickerIds)$(id).disabled=false;
+  for(const picker of document.querySelectorAll("[data-picker]"))picker.disabled=false;
  }
 });
 
