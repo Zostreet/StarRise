@@ -53,7 +53,32 @@ Sign in to view your benefits.
 </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+window.addEventListener("error", function(event) {
+  const box = document.getElementById("account");
+  if (box) {
+    box.textContent = "Page error: " + event.message;
+  }
+});
+
+window.addEventListener("unhandledrejection", function(event) {
+  const box = document.getElementById("account");
+  if (box) {
+    box.textContent = "Connection error: " +
+      (event.reason?.message || "Unknown error");
+  }
+});
+
+document.getElementById("account").textContent =
+  "Starting membership system...";
+</script>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  onerror="document.getElementById('account').textContent='Supabase library failed to load.'">
+</script>
+
 
 <script>
 const URL = "https://rcnikxotdalxtuvpmlvm.supabase.co";
