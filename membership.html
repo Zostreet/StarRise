@@ -7,20 +7,57 @@
 <title>StarRise Membership</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#090914;color:white;font-family:Arial,sans-serif;line-height:1.6}
-header{padding:20px;background:#171727;text-align:center}
-header a{color:#fff;text-decoration:none;margin:0 10px}
-main{max-width:1100px;margin:auto;padding:24px}
-h1{text-align:center}
-.subtitle{text-align:center;color:#aaa}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:25px}
-.card{background:#1c1c30;border:1px solid #393951;border-radius:18px;padding:24px}
-.price{font-size:30px;font-weight:bold;color:#d6b5ff}
-.badge{color:#b8ffcf;font-size:13px}
-.notice{background:#292339;border-radius:12px;padding:18px;margin:25px 0}
-ul{padding-left:20px}
-li{margin:9px 0}
+body{
+ margin:0;
+ background:#090914;
+ color:#fff;
+ font-family:Arial,sans-serif;
+ line-height:1.6
+}
+header{
+ background:#171727;
+ padding:18px;
+ text-align:center
+}
+header a{
+ color:#fff;
+ margin:0 10px;
+ text-decoration:none
+}
+main{
+ max-width:1100px;
+ margin:auto;
+ padding:22px
+}
+h1,.subtitle{text-align:center}
+.subtitle{color:#bbb}
+.grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+ gap:16px;
+ margin:25px 0
+}
+.card,.notice{
+ background:#1c1c30;
+ border:1px solid #393951;
+ border-radius:16px;
+ padding:22px
+}
+.price{
+ font-size:30px;
+ font-weight:bold;
+ color:#d6b5ff
+}
+.note{color:#bbb;font-size:14px}
 a{color:#d6b5ff}
+button{
+ background:#d6b5ff;
+ color:#090914;
+ border:0;
+ border-radius:25px;
+ padding:12px 18px;
+ font-weight:bold
+}
 </style>
 </head>
 <body>
@@ -33,184 +70,88 @@ a{color:#d6b5ff}
 
 <main>
 <h1>StarRise Membership</h1>
-<p class="subtitle">Everyone Eats. Grow your career without breaking your pockets.</p>
+<p class="subtitle">
+Everyone Eats. Build your career at your own pace.
+</p>
 
-<div id="account" class="notice">
-Checking membership...
-</div>
+<section class="notice">
+<h2>Membership Status</h2>
+<p id="account">
+Community membership is available free.
+</p>
+<a href="dashboard.html">Open My Dashboard</a>
+</section>
 
 <h2>Membership Packages</h2>
-<div id="plans" class="grid"></div>
 
-<h2>Your Membership Benefits</h2>
-<div id="benefits" class="card">
-Sign in to view your benefits.
-</div>
+<div class="grid">
 
-<div class="notice">
-<strong>Membership launch notice</strong>
-<p>Paid subscriptions are not yet available. Some advanced features are still being developed or tested. No payments are collected through this page.</p>
-</div>
-</main>
-
-
-<script>
-window.addEventListener("error", function(event) {
-  const box = document.getElementById("account");
-  if (box) {
-    box.textContent = "Page error: " + event.message;
-  }
-});
-
-window.addEventListener("unhandledrejection", function(event) {
-  const box = document.getElementById("account");
-  if (box) {
-    box.textContent = "Connection error: " +
-      (event.reason?.message || "Unknown error");
-  }
-});
-
-document.getElementById("account").textContent =
-  "Starting membership system...";
-</script>
-
-<script
-  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-  onerror="document.getElementById('account').textContent='Supabase library failed to load.'">
-</script>
-
-
-<script>
-const URL = "https://rcnikxotdalxtuvpmlvm.supabase.co";
-const KEY = "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
-
-
-const db = window.supabase
-  ? window.supabase.createClient(URL, KEY)
-  : null;
-
-
-const account = document.getElementById("account");
-const plans = document.getElementById("plans");
-const benefits = document.getElementById("benefits");
-
-function escapeHTML(value){
-return String(value ?? "").replace(/[&<>"']/g, c => ({
-"&":"&amp;",
-"<":"&lt;",
-">":"&gt;",
-'"':"&quot;",
-"'":"&#39;"
-})[c]);
-}
-
-async function loadMembership(){
-
-try{
-
-const {data:planData,error:planError} = await db
-.from("membership_plans")
-.select("plan_key,display_name,price_cents,sales_enabled")
-.order("sort_order");
-
-if(planError) throw planError;
-
-plans.innerHTML = planData.map(plan => `
-<div class="card">
-<h2>${escapeHTML(plan.display_name)}</h2>
-<div class="price">
-${plan.price_cents === 0
-? "FREE"
-: "$" + (plan.price_cents / 100).toFixed(2) + "/month"}
-</div>
-<p class="badge">
-${plan.price_cents === 0
-? "Free membership"
-: "Coming soon"}
+<section class="card">
+<h2>Community</h2>
+<div class="price">FREE</div>
+<p>Our free membership.</p>
+<p class="note">
+Community participation and marketplace access,
+subject to feature availability.
 </p>
+</section>
+
+<section class="card">
+<h2>Creator</h2>
+<div class="price">$9.99/mo</div>
+<p>For growing independent creators.</p>
+<p class="note">
+Planned benefits include increased storage,
+more listings, and creator tools.
+</p>
+<strong>Coming Soon</strong>
+</section>
+
+<section class="card">
+<h2>Pro</h2>
+<div class="price">$24.99/mo</div>
+<p>For professional creators.</p>
+<p class="note">
+Planned benefits include advanced creative tools,
+analytics, and AI promotion credits.
+</p>
+<strong>Coming Soon</strong>
+</section>
+
+<section class="card">
+<h2>Business</h2>
+<div class="price">$49.99/mo</div>
+<p>For teams and creative businesses.</p>
+<p class="note">
+Planned benefits include team management,
+multiple storefronts, and business tools.
+</p>
+<strong>Coming Soon</strong>
+</section>
+
 </div>
-`).join("");
 
-const {data:{user},error:userError} = await db.auth.getUser();
+<section class="notice">
+<h2>Your Membership Benefits</h2>
+<p>
+Personalized membership information is being
+connected to the StarRise dashboard.
+</p>
+<p>
+No paid benefits are being represented as
+verified until testing is complete.
+</p>
+</section>
 
-if(userError) throw userError;
+<section class="notice">
+<h2>Membership Launch Notice</h2>
+<p>
+Paid subscriptions are not yet available.
+Some services are under development or testing.
+No payments are collected through this page.
+</p>
+</section>
 
-if(!user){
-account.innerHTML = 'Please <a href="login.html">sign in</a> to view your membership.';
-return;
-}
-
-const {data:subscription,error:subError} = await db
-.from("member_subscriptions")
-.select("plan_key,status,current_period_end")
-.eq("user_id",user.id)
-.maybeSingle();
-
-if(subError) throw subError;
-
-const active = subscription &&
-subscription.status === "active" &&
-(!subscription.current_period_end ||
-new Date(subscription.current_period_end) > new Date());
-
-const plan = active ? subscription.plan_key : "community";
-
-account.textContent =
-"Current Membership: " +
-plan.charAt(0).toUpperCase() +
-plan.slice(1);
-
-const {data:entitlements,error:entError} =
-await db.rpc("starrise_my_entitlements");
-
-if(entError) throw entError;
-
-benefits.innerHTML = "<ul>" +
-entitlements.map(item => `
-<li>
-<strong>${escapeHTML(item.feature_key.replace(/_/g," "))}</strong>
-<br>
-${item.available ? "Verified available" : "Not yet verified"}
-${item.quota !== null
-? " | Allowance: " + escapeHTML(item.quota) + " " + escapeHTML(item.unit)
-: ""}
-</li>
-`).join("") +
-"</ul>";
-
-}catch(error){
-
-account.textContent =
-"Unable to load membership: " + error.message;
-
-}
-
-}
-
-
-
-if (!db) {
-
-  account.textContent =
-    "Membership connection unavailable. Please refresh the page.";
-} else {
-  account.textContent = "Loading your membership...";
-
-  Promise.race([
-    loadMembership(),
-    new Promise((_, reject) =>
-      setTimeout(
-        () => reject(new Error("Connection timed out")),
-        12000
-      )
-    )
-  ]).catch(error => {
-    account.textContent =
-      "Membership loading error: " + error.message;
-  });
-}
-
-</script>
-
+</main>
 </body>
 </html>
