@@ -38,6 +38,9 @@ jobs:
       - name: Check links, anchors, IDs, and JavaScript
         run: node scripts/validate-site.mjs
 
+      - name: Check PayPal payment verification and readiness gates
+        run: node --experimental-strip-types --test tests/paypal-payment.test.mjs
+
   deploy:
     name: Deploy GitHub Pages
     needs:
