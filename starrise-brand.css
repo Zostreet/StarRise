@@ -1,0 +1,10 @@
+.starrise-brand{display:inline-flex;align-items:center;gap:12px;flex-shrink:0;max-width:100%;line-height:1;text-decoration:none;color:inherit}
+.starrise-brand img{display:block;width:160px;height:auto;max-width:100%;max-height:88px;margin:4px 0;object-fit:contain;border:0;border-radius:0;mix-blend-mode:lighten}
+.starrise-brand-context{font-size:13px;line-height:1.4;font-weight:700;white-space:nowrap}
+header .nav,header .top-inner{flex-wrap:wrap}
+.starrise-brand:focus-visible{outline:2px solid #ffcd64;outline-offset:5px;border-radius:6px}
+.starrise-header-extra{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.starrise-brand-standalone{display:flex;width:fit-content;margin:0 auto 24px;justify-content:center}
+.starrise-brand-standalone img{width:200px;max-height:none;mix-blend-mode:normal;border-radius:10px}
+.starrise-hero-logo{display:block;width:min(370px,90%);height:auto;max-width:100%;max-height:none;margin:0 auto 30px;object-fit:contain;mix-blend-mode:lighten}
+@media(max-width:700px){.starrise-brand img{width:145px;max-height:80px}.starrise-brand-standalone img{width:190px;max-height:none}.starrise-hero-logo{width:min(300px,95%);margin-bottom:24px}.starrise-header-extra{justify-content:flex-start}}
