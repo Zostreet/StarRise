@@ -323,7 +323,6 @@ async function uploadMedia(path,file,mime){
     "/storage/v1/upload/resumable",
 
    headers:{
-    authorization:"Bearer "+token,
     apikey:SUPABASE_KEY
    },
 
@@ -358,6 +357,7 @@ async function uploadMedia(path,file,mime){
      throw Error("Session expired. Sign in again.");
     }
 
+    // Set this once: browser XHR appends repeated header values.
     request.setHeader("authorization","Bearer "+accessToken);
    },
 
