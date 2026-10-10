@@ -505,10 +505,7 @@
     SUPABASE_URL + '/functions/v1';
 
   const supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
+    window.StarRisePayments.client();
 
   const loading =
     document.getElementById('loading');

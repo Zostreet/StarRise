@@ -1151,10 +1151,7 @@ throw new Error(
 }
 
 supabaseClient=
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
+window.StarRisePayments.client();
 
 const sessionResult=
 await supabaseClient
