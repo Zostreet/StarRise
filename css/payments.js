@@ -148,7 +148,7 @@
     retry.addEventListener('click', verify);
     await verify();
   }
-  window.StarRisePayments = { invoke, platform, enabled, notice, checkout };
+  window.StarRisePayments = { client: db, invoke, platform, enabled, notice, checkout };
   document.addEventListener('DOMContentLoaded', () => {
     sellerPanel();
     returnPage();
