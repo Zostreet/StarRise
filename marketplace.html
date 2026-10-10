@@ -357,6 +357,7 @@ width:100%
 </style>
 <link rel="stylesheet" href="starrise-brand.css">
 <link rel="icon" type="image/png" href="starrise-logo.png">
+<link rel="stylesheet" href="css/payments.css">
 </head>
 
 <body>
@@ -379,7 +380,7 @@ width:100%
 </header>
 
 <main>
-<aside aria-label="Payment availability and fees" style="margin:20px 0;padding:18px;border:1px solid #8c78b855;border-radius:14px;line-height:1.6"><strong>PayPal payments are paused.</strong><p>PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.</p><p>Planned fee when payments reopen: StarRise deducts a 10% platform fee from each sale or Talent Fund contribution. The seller or fund recipient also pays PayPal processing fees from their proceeds. Buyers and supporters pay no additional StarRise platform surcharge.</p><p>Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Payment terms</a> · <a href="refund-policy.html">Refund policy</a></p></aside>
+<aside data-paypal-notice aria-label="Payment availability and fees" style="margin:20px 0;padding:18px;border:1px solid #8c78b855;border-radius:14px;line-height:1.6"><strong>PayPal payments are paused.</strong><p>PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.</p><p>Planned fee when payments reopen: StarRise deducts a 10% platform fee from each sale or Talent Fund contribution. The seller or fund recipient also pays PayPal processing fees from their proceeds. Buyers and supporters pay no additional StarRise platform surcharge.</p><p>Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Payment terms</a> · <a href="refund-policy.html">Refund policy</a></p></aside>
 
 <section class="hero">
 
@@ -529,7 +530,7 @@ id="modalPrice"
 class="modal-price"
 ></div>
 
-<div id="storePaymentNotice"><aside aria-label="Payment availability and fees" style="margin:20px 0;padding:18px;border:1px solid #8c78b855;border-radius:14px;line-height:1.6"><strong>PayPal payments are paused.</strong><p>PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.</p><p>Planned fee when payments reopen: StarRise deducts a 10% platform fee from each sale or Talent Fund contribution. The seller or fund recipient also pays PayPal processing fees from their proceeds. Buyers and supporters pay no additional StarRise platform surcharge.</p><p>Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Payment terms</a> · <a href="refund-policy.html">Refund policy</a></p></aside></div>
+<div id="storePaymentNotice"><aside data-paypal-notice aria-label="Payment availability and fees" style="margin:20px 0;padding:18px;border:1px solid #8c78b855;border-radius:14px;line-height:1.6"><strong>PayPal payments are paused.</strong><p>PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.</p><p>Planned fee when payments reopen: StarRise deducts a 10% platform fee from each sale or Talent Fund contribution. The seller or fund recipient also pays PayPal processing fees from their proceeds. Buyers and supporters pay no additional StarRise platform surcharge.</p><p>Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Payment terms</a> · <a href="refund-policy.html">Refund policy</a></p></aside></div>
 
 <div
 id="modalStatus"
@@ -566,6 +567,7 @@ Continue Browsing
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="css/payments.js"></script>
 
 <script>
 (function(){
@@ -633,6 +635,8 @@ document.getElementById('buyButton');
 
 let items=[];
 let selected=null;
+let paymentState=null;
+let purchaseBusy=false;
 
 function escapeHtml(value){
 return String(value??'')
@@ -950,8 +954,8 @@ escapeHtml(sellerName(item))+
 modalDescription.textContent=item.description||'No description provided.';
 modalPrice.textContent=money(item.price_cents);
 modalStatus.classList.add('hidden');
-buyButton.disabled=true;
-buyButton.textContent='Continue to PayPal';
+buyButton.disabled=purchaseBusy||!window.StarRisePayments.enabled(paymentState);
+buyButton.textContent=window.StarRisePayments.enabled(paymentState)?'Continue to PayPal':'Payments Awaiting Activation';
 modal.classList.remove('hidden');
 }
 
@@ -960,12 +964,30 @@ modal.classList.add('hidden');
 selected=null;
 }
 
+async function loadPaymentAvailability(){
+try{
+paymentState=await window.StarRisePayments.platform();
+window.StarRisePayments.notice(paymentState);
+}catch{paymentState=null;}
+buyButton.disabled=purchaseBusy||!window.StarRisePayments.enabled(paymentState);
+buyButton.textContent=window.StarRisePayments.enabled(paymentState)?'Continue to PayPal':'Payments Awaiting Activation';
+}
+
 async function purchase(){
-if(!selected)return;
+if(!selected||purchaseBusy)return;
+const itemId=selected.id;
+purchaseBusy=true;
 buyButton.disabled=true;
 modalStatus.className='notice warning';
-modalStatus.textContent='PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.';
+modalStatus.textContent='Checking PayPal checkout…';
 modalStatus.classList.remove('hidden');
+try{
+await window.StarRisePayments.checkout('marketplace',{item_id:itemId});
+}catch(error){
+modalStatus.textContent=error.message;
+purchaseBusy=false;
+await loadPaymentAvailability();
+}
 }
 
 search.addEventListener('input',render);
@@ -997,6 +1019,7 @@ document.addEventListener('keydown',event=>{
 if(event.key==='Escape')closeItem();
 });
 
+loadPaymentAvailability();
 loadStore();
 })();
 </script>

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Confirm Your PayPal Payment | StarRise</title>
+  <link rel="icon" type="image/png" href="starrise-logo.png">
+  <link rel="stylesheet" href="starrise-brand.css">
+  <link rel="stylesheet" href="css/payments.css">
+</head>
+<body class="paypal-return-body">
+  <header class="paypal-return-header"><a href="index.html" class="starrise-brand" aria-label="StarRise — Home"><img src="starrise-logo.png" alt="StarRise by FAM ENT" width="1697" height="927"></a></header>
+  <main class="paypal-return-main">
+    <section class="paypal-panel">
+      <h1>Confirming your payment</h1>
+      <p id="paypal-return-status" role="status" aria-live="polite">Connecting to StarRise to verify your PayPal payment…</p>
+      <div class="payment-actions">
+        <a id="paypal-return-login" class="payment-button" hidden href="login.html">Sign in to verify payment</a>
+        <a id="paypal-return-continue" class="payment-button" hidden href="dashboard.html">Open My Dashboard</a>
+        <button id="paypal-return-retry" class="secondary" type="button" hidden>Check payment again</button>
+      </div>
+      <p class="note">A return from PayPal alone does not confirm a completed payment. StarRise verifies your order before showing a purchase or paid service request.</p>
+      <p><a href="purchases.html">My Purchases</a> · <a href="dashboard.html">My Dashboard</a> · <a href="support.html">Payment support</a></p>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="css/payments.js"></script>
+</body>
+</html>

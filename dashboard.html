@@ -492,6 +492,7 @@ gap:15px
 </style>
 <link rel="stylesheet" href="starrise-brand.css">
 <link rel="icon" type="image/png" href="starrise-logo.png">
+<link rel="stylesheet" href="css/payments.css">
 </head>
 
 <body>
@@ -624,34 +625,16 @@ class="notification-list"
 
 </section>
 
-<section class="panel">
-
-<h2>
-Get Paid Through StarRise
-</h2>
-
-<p class="muted">
-StarRise is transitioning member payments and seller payouts to PayPal.
-</p>
-
-<div class="status-box warning">
-PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed. Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Read payment terms</a>.
+<section class="panel paypal-panel" id="paypal-seller-panel">
+<h2>Get Paid Through StarRise</h2>
+<p>Connect your PayPal seller account to receive payments for your Store listings and services when marketplace checkout is activated.</p>
+<p data-seller-status role="status" aria-live="polite">Checking your PayPal seller setup…</p>
+<label><input type="checkbox" data-seller-consent> <span>I understand that PayPal verifies my account and asks for permission to process payments, refunds, and StarRise’s 10% platform fee. <a href="terms.html">Payment terms</a> · <a href="refund-policy.html">Refund policy</a></span></label>
+<div class="payment-actions">
+<button type="button" data-seller-setup disabled>Connect PayPal</button>
+<button type="button" class="secondary" data-seller-refresh>Refresh Seller Status</button>
 </div>
-
-<div class="payment-grid">
-
-<div class="payment-stat">
-<span class="label">Payment Provider</span>
-<strong>PayPal</strong>
-</div>
-
-<div class="payment-stat">
-<span class="label">Seller Payouts</span>
-<strong>Setup in Progress</strong>
-</div>
-
-</div>
-
+<p class="note">Seller proceeds go to the verified seller’s PayPal account when payment is completed. PayPal controls availability and bank transfers. Completing a service does not send another payout.</p>
 </section>
 
 <section class="panel">
@@ -832,6 +815,7 @@ Loading completed orders...
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="css/payments.js"></script>
 
 <script>
 (function(){
