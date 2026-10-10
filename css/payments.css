@@ -1,0 +1,7 @@
+.paypal-panel{border:1px solid #ffffff24;background:#171727;border-radius:18px;padding:24px;margin:24px 0;color:#fff;line-height:1.6}
+.paypal-panel h2{margin-top:0}.paypal-panel p{max-width:760px}.paypal-panel .payment-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.paypal-panel button,.paypal-panel .payment-button{font:inherit;font-weight:700;cursor:pointer;border:1px solid #b39aff;border-radius:24px;padding:12px 20px;background:#a88bff;color:#100b20;text-decoration:none}
+.paypal-panel button:disabled{opacity:.45;cursor:not-allowed}.paypal-panel .secondary{background:transparent;color:#fff}.paypal-panel label{display:flex;gap:10px;align-items:flex-start}
+.paypal-panel input{flex:none;margin-top:6px}.paypal-panel [hidden]{display:none!important}.paypal-panel a{color:#dccfff}
+.paypal-return-main{width:min(720px,calc(100% - 32px));margin:56px auto}.paypal-return-body{margin:0;background:#080812;color:#fff;font-family:Arial,sans-serif;line-height:1.6}
+.paypal-return-header{padding:18px 24px;border-bottom:1px solid #ffffff20}.paypal-return-main h1{font-size:clamp(32px,7vw,48px);line-height:1.15}.paypal-return-main .note{font-size:14px;color:#b7b2c2}
