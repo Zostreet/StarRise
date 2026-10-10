@@ -288,6 +288,7 @@
   </style>
 <link rel="stylesheet" href="starrise-brand.css">
 <link rel="icon" type="image/png" href="starrise-logo.png">
+<link rel="stylesheet" href="css/payments.css">
 </head>
 
 <body>
@@ -410,7 +411,7 @@
       <p style="color:#aaa;">
         Tell the provider exactly what you need.
         Your request will be attached to the StarRise
-        order when PayPal checkout becomes available. PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.
+        order when you continue to PayPal. Checkout is available only after marketplace activation and verified seller setup.
       </p>
 
       <form id="checkout-form">
@@ -443,7 +444,7 @@
 
       </form>
 
-      <div id="servicePaymentNotice"><aside aria-label="Payment availability and fees" style="margin:20px 0;padding:18px;border:1px solid #8c78b855;border-radius:14px;line-height:1.6"><strong>PayPal payments are paused.</strong><p>PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.</p><p>Planned fee when payments reopen: StarRise deducts a 10% platform fee from each sale or Talent Fund contribution. The seller or fund recipient also pays PayPal processing fees from their proceeds. Buyers and supporters pay no additional StarRise platform surcharge.</p><p>Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Payment terms</a> · <a href="refund-policy.html">Refund policy</a></p></aside></div>
+      <div id="servicePaymentNotice"><aside data-paypal-notice aria-label="Payment availability and fees" style="margin:20px 0;padding:18px;border:1px solid #8c78b855;border-radius:14px;line-height:1.6"><strong>PayPal payments are paused.</strong><p>PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.</p><p>Planned fee when payments reopen: StarRise deducts a 10% platform fee from each sale or Talent Fund contribution. The seller or fund recipient also pays PayPal processing fees from their proceeds. Buyers and supporters pay no additional StarRise platform surcharge.</p><p>Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Payment terms</a> · <a href="refund-policy.html">Refund policy</a></p></aside></div>
 
     </div>
 
@@ -486,6 +487,7 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="css/payments.js"></script>
 
 <script>
 
@@ -903,9 +905,33 @@
   }
 
 
+  let checkoutBusy = false;
+  async function refreshPaymentAvailability() {
+    try {
+      const state = await window.StarRisePayments.platform(true);
+      window.StarRisePayments.notice(state);
+      checkoutButton.disabled = checkoutBusy || !window.StarRisePayments.enabled(state);
+      checkoutButton.textContent = window.StarRisePayments.enabled(state) ? 'Continue to PayPal' : 'Payments Awaiting Activation';
+    } catch {
+      checkoutButton.disabled = true;
+      checkoutButton.textContent = 'Payments Unavailable';
+    }
+  }
   async function createCheckout() {
+    if (checkoutBusy || !currentService) return;
+    checkoutBusy = true;
     checkoutButton.disabled = true;
-    setCheckoutStatus('PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.', 'error');
+    setCheckoutStatus('Checking PayPal checkout…', '');
+    try {
+      await window.StarRisePayments.checkout('service', {
+        service_id: currentService.id,
+        request_message: document.getElementById('request-message').value.trim()
+      });
+    } catch (error) {
+      setCheckoutStatus(error.message, 'error');
+      checkoutBusy = false;
+      await refreshPaymentAvailability();
+    }
   }
 
 
@@ -1005,6 +1031,8 @@
           </div>
         `;
 
+      } else {
+        await refreshPaymentAvailability();
       }
 
     } catch (error) {

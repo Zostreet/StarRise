@@ -10,6 +10,7 @@
   </style>
 <link rel="stylesheet" href="starrise-brand.css">
 <link rel="icon" type="image/png" href="starrise-logo.png">
+<link rel="stylesheet" href="css/payments.css">
 </head>
 <body>
 <header>
@@ -60,6 +61,7 @@
 <footer>⭐ StarRise — Where Talent Rises.<p style="font-size:12px;line-height:1.5">Payment information effective October 6, 2026. <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund-policy.html">Refunds</a> · <a href="support.html">Support</a></p>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="css/payments.js"></script>
 <script>
   const starRiseSupabase = window.supabase.createClient(
     "https://rcnikxotdalxtuvpmlvm.supabase.co",
@@ -209,7 +211,7 @@
 
     if (order.status === "in_progress") {
       return paid
-        ? '<button class="button primary" type="button" data-action="completed" data-order-id="' + escapeHtml(order.id) + '">Complete Service &amp; Process Payout</button><button class="button danger" type="button" data-action="refund" data-order-id="' + escapeHtml(order.id) + '">Cancel &amp; Refund</button>'
+        ? '<button class="button primary" type="button" data-action="completed" data-order-id="' + escapeHtml(order.id) + '">Complete Service</button><button class="button danger" type="button" data-action="refund" data-order-id="' + escapeHtml(order.id) + '">Cancel &amp; Refund</button>'
         : '<button class="button" type="button" disabled>Payment Required Before Completion</button>';
     }
 
@@ -282,7 +284,8 @@
   }
 
   async function completeOrder(order) {
-    const { data, error } = await starRiseSupabase.functions.invoke("complete-service-order", {
+    const functionName = order.payment_provider === "paypal_live" ? "paypal-complete-service-order" : "complete-service-order";
+    const { data, error } = await starRiseSupabase.functions.invoke(functionName, {
       body: { order_id: order.id }
     });
     if (error) throw error;
@@ -291,7 +294,8 @@
   }
 
   async function refundOrder(order) {
-    const { data, error } = await starRiseSupabase.functions.invoke("refund-service-order", {
+    const functionName = order.payment_provider === "paypal_live" ? "paypal-refund-service-order" : "refund-service-order";
+    const { data, error } = await starRiseSupabase.functions.invoke(functionName, {
       body: { order_id: order.id }
     });
     if (error) throw error;
@@ -303,13 +307,13 @@
     const order = orders.find(item => item.id === button.dataset.orderId);
     const action = button.dataset.action;
     if (!order) throw new Error("Order not found.");
-    if (["completed", "refund"].includes(action) && String(order.payment_provider || "").startsWith("paypal")) {
-      setStatus("PayPal payout and refund actions are not yet active. Contact StarRise support with this order reference.", "warning");
+    if (["completed", "refund"].includes(action) && String(order.payment_provider || "").startsWith("paypal") && order.payment_provider !== "paypal_live") {
+      setStatus("This earlier PayPal payment needs support through its original setup. Contact StarRise support with this order reference.", "warning");
       return;
     }
 
     if (action === "declined" && !window.confirm("Decline this unpaid service request?")) return;
-    if (action === "completed" && !window.confirm("Confirm the service is complete and process the seller payout?")) return;
+    if (action === "completed" && !window.confirm(order.payment_provider === "paypal_live" ? "Confirm this service is complete? The seller proceeds were routed at payment; no additional payout will be sent." : "Confirm the service is complete and process the seller payout?")) return;
     if (action === "refund" && !window.confirm("Cancel this paid service order and refund the customer through the original payment provider? This cannot be undone.")) return;
 
     const card = button.closest("[data-order-card]");
@@ -317,7 +321,7 @@
     cardButtons.forEach(item => { item.disabled = true; });
     setStatus(
       action === "completed"
-        ? "Completing the service and checking payout eligibility..."
+        ? (order.payment_provider === "paypal_live" ? "Recording service completion..." : "Completing the service and checking payout eligibility...")
         : action === "refund"
           ? "Cancelling the order and starting the original-provider refund..."
           : "Updating the service order..."
