@@ -11,7 +11,7 @@ header{padding:20px;background:#151526;display:flex;justify-content:space-betwee
 a{color:#c6b2ff}
 main{max-width:850px;margin:auto;padding:20px}
 h1{font-size:40px}
-.card{background:#19192b;border:1px solid #383850;border-radius:18px;padding:20px;margin:18px 0}
+.card{background:#19192b;border:1px solid #383850;border-radius:18px;padding:20px;margin:18px 0;min-width:0;overflow-wrap:anywhere}
 input,textarea,select{display:block;width:100%;padding:12px;margin:12px 0;background:#101020;color:white;border:1px solid #555;border-radius:10px}
 textarea{min-height:90px}
 button{background:#a98bff;border:0;border-radius:25px;padding:12px 20px;font-weight:bold;cursor:pointer;margin:5px}
@@ -23,6 +23,21 @@ video,img,audio{width:100%;max-height:550px;object-fit:contain;margin:12px 0}
 .picker{display:flex;flex-wrap:wrap;gap:4px}
 #selectedInfo,#status{overflow-wrap:anywhere}
 #selectedInfo{margin:12px 0;line-height:1.5}
+.post-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:12px}
+.post-actions button{margin:0}
+.post-meta{font-size:14px;color:#bbb}
+.post-caption,.comment-body{white-space:pre-wrap;overflow-wrap:anywhere}
+.post-feedback{font-size:14px}
+button[aria-pressed="true"]{background:#d7c5ff}
+.comments{margin-top:16px;border-top:1px solid #383850;padding-top:12px}
+.comments summary{cursor:pointer;font-weight:bold;padding:8px 0}
+.comment-list{list-style:none;padding:0;margin:12px 0}
+.comment-list li{padding:12px 0;border-bottom:1px solid #383850}
+.comment-list p{margin:6px 0}
+.comment-form textarea{min-height:70px}
+input[type="file"]{min-width:0;max-width:100%}
+nav{display:flex;flex-wrap:wrap;gap:12px}
+@media(max-width:480px){main{padding:12px}.card{padding:14px}h1{font-size:32px}}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -77,7 +92,8 @@ video,img,audio{width:100%;max-height:550px;object-fit:contain;margin:12px 0}
 <a href="login.html">Sign In</a>
 </section>
 
-<div id="status" class="card">Loading Community...</div>
+<div id="status" class="card" role="status" aria-live="polite">Loading Community...</div>
+<p id="allPosts" hidden><a href="community.html">View all community posts</a></p>
 <button id="refresh">Refresh Feed</button>
 <div id="feed"></div>
 </main>
@@ -103,12 +119,13 @@ let selectedFile=null;
 let selectionReady=false;
 let selectionVersion=0;
 let publishing=false;
+let feedVersion=0;
 const pickerIds=["mediaFile","videoFile","audioFile","imageFile"];
 
 function status(message,type=""){
  $("status").textContent=message;
  $("status").className="card "+type;
- if(publishing)selection(message,type||"muted");
+ if(publishing&&selectedFile)selection(message,type||"muted");
 }
 
 function errorText(e){
@@ -506,141 +523,300 @@ $("postForm").addEventListener("submit",async event=>{
  }
 });
 
+function memberName(id){
+ return profiles.get(id)?.display_name||"StarRise Member";
+}
+
+async function renderPost(post,likedPosts,likesAvailable){
+ const card=document.createElement("article");
+ card.className="card";
+ card.id="post-"+post.id;
+ const author=document.createElement("h3");
+ author.textContent=memberName(post.creator_id);
+ card.append(author);
+
+ const meta=document.createElement("p");
+ meta.className="post-meta";
+ const audience={public:"Everyone",members:"Members",followers:"Followers",private:"Only Me"};
+ meta.textContent=new Date(post.created_at).toLocaleString()+" • "+(audience[post.visibility]||"");
+ card.append(meta);
+
+ const media=await db.storage.from(BUCKET).createSignedUrl(post.media_path,300);
+ if(!media.error&&media.data?.signedUrl){
+  const element=document.createElement(post.media_kind==="image"?"img":post.media_kind==="audio"?"audio":"video");
+  element.src=media.data.signedUrl;
+  if(post.media_kind!=="image"){element.controls=true;element.preload="metadata";}
+  else{element.alt="Talent shared by "+memberName(post.creator_id);element.loading="lazy";}
+  if(post.media_kind==="video")element.playsInline=true;
+  card.append(element);
+ }else{
+  const unavailable=document.createElement("p");
+  unavailable.textContent="Media temporarily unavailable. Refresh the feed to try again.";
+  card.append(unavailable);
+ }
+ const caption=document.createElement("p");
+ caption.className="post-caption";
+ caption.textContent=post.caption||"";
+ card.append(caption);
+
+ const actions=document.createElement("div");
+ actions.className="post-actions";
+ const feedback=document.createElement("p");
+ feedback.className="post-feedback";
+ feedback.setAttribute("role","status");
+ function tell(message,type=""){
+  feedback.textContent=message;
+  feedback.className="post-feedback "+type;
+ }
+ let likeCount=Number(post.talent_post_likes?.[0]?.count||0);
+ let liked=likedPosts.has(post.id);
+ const total=document.createElement("span");
+ const like=user?document.createElement("button"):null;
+ function updateLikes(){
+  total.textContent=likeCount+" like"+(likeCount===1?"":"s");
+  if(like){
+   like.textContent=liked?"Unlike":"Like";
+   like.setAttribute("aria-pressed",String(liked));
+  }
+ }
+ updateLikes();
+ if(like){
+  like.type="button";
+  like.disabled=!likesAvailable;
+  like.onclick=async()=>{
+   if(like.disabled)return;
+   like.disabled=true;
+   const next=!liked;
+   try{
+    const r=next
+     ?await db.from("talent_post_likes").insert({post_id:post.id,user_id:user.id})
+     :await db.from("talent_post_likes").delete().eq("post_id",post.id).eq("user_id",user.id);
+    if(r.error&&!(next&&r.error.code==="23505"))throw r.error;
+    liked=next;
+    const count=await db.from("talent_post_likes").select("post_id",{count:"exact",head:true}).eq("post_id",post.id);
+    if(!count.error&&count.count!==null)likeCount=count.count;
+    else if(!r.error)likeCount=Math.max(0,likeCount+(next?1:-1));
+    updateLikes();
+    tell(next?"Liked!":"Like removed.","success");
+   }catch(e){tell("Could not update your like: "+errorText(e),"error");}
+   finally{like.disabled=false;}
+  };
+  actions.append(like);
+ }
+ actions.append(total);
+
+ // Share a page link; the original audience rules still govern access.
+ const share=document.createElement("button");
+ share.type="button";
+ share.textContent="Share";
+ share.onclick=async()=>{
+  const url=new URL(location.href);
+  url.search="";
+  url.hash="";
+  url.searchParams.set("post",post.id);
+  try{
+   if(navigator.share){
+    await navigator.share({title:"Talent on StarRise",text:"View this StarRise talent post.",url:url.href});
+    tell("Post link shared.","success");
+   }else if(navigator.clipboard?.writeText){
+    await navigator.clipboard.writeText(url.href);
+    tell(post.visibility==="public"?"Post link copied!":"Post link copied. Only permitted viewers can open it.","success");
+   }else{prompt("Copy this post link:",url.href);}
+  }catch(e){
+   if(e.name!=="AbortError")prompt("Copy this post link:",url.href);
+  }
+ };
+ actions.append(share);
+ card.append(actions,feedback);
+
+ const details=document.createElement("details");
+ details.className="comments";
+ const summary=document.createElement("summary");
+ let commentCount=Number(post.talent_post_comments?.[0]?.count||0);
+ function updateComments(){
+  summary.textContent=commentCount+" comment"+(commentCount===1?"":"s");
+ }
+ updateComments();
+ const list=document.createElement("ul");
+ list.className="comment-list";
+ const commentStatus=document.createElement("p");
+ commentStatus.setAttribute("role","status");
+ const more=document.createElement("button");
+ more.type="button";
+ more.textContent="Earlier comments";
+ more.hidden=true;
+ const reload=document.createElement("button");
+ reload.type="button";
+ reload.textContent="Refresh comments";
+ details.append(summary,list,commentStatus,more,reload);
+ let commentsLoaded=false;
+ let commentsLoading=false;
+ let commentSaving=false;
+ let offset=0;
+ let seenComments=new Set();
+ let send=null;
+ const pageSize=20;
+
+ async function loadComments(reset=true){
+  if(commentsLoading)return false;
+  commentsLoading=true;
+  more.disabled=reload.disabled=true;
+  if(send)send.disabled=true;
+  commentStatus.textContent="Loading comments...";
+  commentStatus.className="muted";
+  try{
+   const start=reset?0:offset;
+   const r=await db.from("talent_post_comments")
+    .select("id,author_id,body,created_at",{count:"exact"})
+    .eq("post_id",post.id)
+    .order("created_at",{ascending:false})
+    .order("id",{ascending:false})
+    .range(start,start+pageSize-1);
+   if(r.error)throw r.error;
+   const rows=r.data||[];
+   if(reset){list.replaceChildren();seenComments=new Set();}
+   const nodes=[];
+   for(const row of [...rows].reverse()){
+    if(seenComments.has(row.id))continue;
+    seenComments.add(row.id);
+    const item=document.createElement("li");
+    const name=document.createElement("strong");
+    name.textContent=memberName(row.author_id);
+    const body=document.createElement("p");
+    body.className="comment-body";
+    body.textContent=row.body;
+    const time=document.createElement("small");
+    time.className="muted";
+    time.textContent=new Date(row.created_at).toLocaleString();
+    item.append(name,body,time);
+    nodes.push(item);
+   }
+   reset?list.append(...nodes):list.prepend(...nodes);
+   offset=start+rows.length;
+   if(r.count!==null)commentCount=r.count;
+   updateComments();
+   more.hidden=rows.length<pageSize||(r.count!==null&&offset>=r.count);
+   commentsLoaded=true;
+   commentStatus.textContent=list.children.length?"":"No comments yet. Be the first to respond.";
+   return true;
+  }catch(e){
+   commentStatus.textContent="Could not load comments: "+errorText(e);
+   commentStatus.className="error";
+   return false;
+  }finally{
+   commentsLoading=false;
+   more.disabled=reload.disabled=false;
+   if(send)send.disabled=commentSaving;
+  }
+ }
+ details.addEventListener("toggle",()=>{
+  if(details.open&&!commentsLoaded)loadComments();
+ });
+ more.onclick=()=>loadComments(false);
+ reload.onclick=()=>loadComments(true);
+
+ if(user){
+  const form=document.createElement("form");
+  form.className="comment-form";
+  const input=document.createElement("textarea");
+  input.placeholder="Add a comment";
+  input.setAttribute("aria-label","Add a comment to this post");
+  input.maxLength=1000;
+  input.required=true;
+  send=document.createElement("button");
+  send.type="submit";
+  send.textContent="Post Comment";
+  form.append(input,send);
+  form.onsubmit=async event=>{
+   event.preventDefault();
+   if(commentSaving||commentsLoading)return;
+   const body=input.value.trim();
+   if(!body){
+    commentStatus.textContent="Write a comment before posting.";
+    commentStatus.className="error";
+    return;
+   }
+   commentSaving=true;
+   send.disabled=true;
+   try{
+    const r=await db.from("talent_post_comments").insert({post_id:post.id,author_id:user.id,body});
+    if(r.error)throw r.error;
+    input.value="";
+    const loaded=await loadComments(true);
+    tell(loaded?"Comment posted.":"Comment saved. Tap Refresh comments to see it.","success");
+   }catch(e){
+    commentStatus.textContent="Could not post comment: "+errorText(e);
+    commentStatus.className="error";
+   }finally{commentSaving=false;send.disabled=commentsLoading;}
+  };
+  details.append(form);
+ }else{
+  const signIn=document.createElement("a");
+  signIn.href="login.html";
+  signIn.textContent="Sign in to like or comment";
+  details.append(signIn);
+ }
+ card.append(details);
+
+ if(user?.id===post.creator_id){
+  const del=document.createElement("button");
+  del.type="button";
+  del.textContent="Delete Post";
+  del.onclick=async()=>{
+   if(!confirm("Delete this post?"))return;
+   del.disabled=true;
+   try{
+    const r=await db.from("talent_posts").delete().eq("id",post.id).eq("creator_id",user.id);
+    if(r.error)throw r.error;
+    await db.storage.from(BUCKET).remove([post.media_path]);
+    await loadFeed();
+   }catch(e){tell("Could not delete post: "+errorText(e),"error");del.disabled=false;}
+  };
+  card.append(del);
+ }
+ return card;
+}
+
 async function loadFeed(){
+ const version=++feedVersion;
+ $("refresh").disabled=true;
  try{
   status("Loading posts...");
-
-  const result=await db.from("talent_posts")
-   .select(
-    "id,creator_id,caption,media_path,media_kind,visibility,created_at"
-   )
+  const sharedId=new URLSearchParams(location.search).get("post");
+  $("allPosts").hidden=!sharedId;
+  if(sharedId&&!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sharedId)){
+   throw Error("This post link is invalid. Use View all community posts.");
+  }
+  let query=db.from("talent_posts")
+   .select("id,creator_id,caption,media_path,media_kind,visibility,created_at,talent_post_likes(count),talent_post_comments(count)")
    .eq("status","published")
    .order("created_at",{ascending:false})
    .limit(30);
-
+  if(sharedId)query=query.eq("id",sharedId);
+  const result=await query;
   if(result.error)throw result.error;
-
-  $("feed").replaceChildren();
-
+  if(version!==feedVersion)return;
   if(!result.data?.length){
-   status("No visible talent posts yet.");
+   $("feed").replaceChildren();
+   status(sharedId?"This post is unavailable or you do not have permission to view it.":"No visible talent posts yet.");
    return;
   }
-
-  for(const post of result.data){
-   const card=document.createElement("article");
-   card.className="card";
-
-   const author=document.createElement("h3");
-   const profile=profiles.get(post.creator_id);
-
-   author.textContent=profile?.display_name||"StarRise Creator";
-   card.append(author);
-
-   const media=await db.storage.from(BUCKET)
-    .createSignedUrl(post.media_path,300);
-
-   if(!media.error&&media.data?.signedUrl){
-    const element=document.createElement(
-     post.media_kind==="image"
-      ?"img"
-      :post.media_kind==="audio"
-       ?"audio"
-       :"video"
-    );
-
-    element.src=media.data.signedUrl;
-
-    if(post.media_kind!=="image")element.controls=true;
-    if(post.media_kind==="video")element.playsInline=true;
-
-    card.append(element);
-   }
-
-   const caption=document.createElement("p");
-   caption.textContent=post.caption||"";
-   card.append(caption);
-
-   if(user){
-    const like=document.createElement("button");
-    like.textContent="Like";
-
-    like.onclick=async()=>{
-     const r=await db.from("talent_post_likes").insert({
-      post_id:post.id,
-      user_id:user.id
-     });
-
-     status(
-      r.error?errorText(r.error):"Liked!",
-      r.error?"error":"success"
-     );
-    };
-
-    card.append(like);
-
-    const comment=document.createElement("form");
-    const input=document.createElement("input");
-
-    input.placeholder="Add a comment";
-    input.maxLength=1000;
-    input.required=true;
-
-    const send=document.createElement("button");
-    send.textContent="Comment";
-
-    comment.append(input,send);
-
-    comment.onsubmit=async e=>{
-     e.preventDefault();
-
-     const r=await db.from("talent_post_comments").insert({
-      post_id:post.id,
-      author_id:user.id,
-      body:input.value.trim()
-     });
-
-     status(
-      r.error?errorText(r.error):"Comment posted.",
-      r.error?"error":"success"
-     );
-
-     if(!r.error)input.value="";
-    };
-
-    card.append(comment);
-
-    if(user.id===post.creator_id){
-     const del=document.createElement("button");
-     del.textContent="Delete Post";
-
-     del.onclick=async()=>{
-      if(!confirm("Delete this post?"))return;
-
-      const r=await db.from("talent_posts")
-       .delete()
-       .eq("id",post.id)
-       .eq("creator_id",user.id);
-
-      if(r.error){
-       status(errorText(r.error),"error");
-       return;
-      }
-
-      await db.storage.from(BUCKET).remove([post.media_path]);
-      await loadFeed();
-     };
-
-     card.append(del);
-    }
-   }
-
-   $("feed").append(card);
+  let likedPosts=new Set();
+  let likesAvailable=true;
+  if(user){
+   const mine=await db.from("talent_post_likes").select("post_id")
+    .eq("user_id",user.id).in("post_id",result.data.map(post=>post.id));
+   likesAvailable=!mine.error;
+   likedPosts=new Set((mine.data||[]).map(row=>row.post_id));
   }
-
-  status(result.data.length+" posts loaded.","success");
+  const cards=await Promise.all(result.data.map(post=>renderPost(post,likedPosts,likesAvailable)));
+  if(version!==feedVersion)return;
+  $("feed").replaceChildren(...cards);
+  status(likesAvailable?result.data.length+" posts loaded.":"Posts loaded. Refresh the feed to retry loading your likes.",likesAvailable?"success":"error");
  }catch(e){
-  status("Feed error: "+errorText(e),"error");
+  if(version===feedVersion)status("Feed error: "+errorText(e),"error");
+ }finally{
+  if(version===feedVersion)$("refresh").disabled=false;
  }
 }
 
