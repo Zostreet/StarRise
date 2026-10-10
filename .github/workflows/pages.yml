@@ -67,6 +67,9 @@ jobs:
           mkdir -p _site
           find . -maxdepth 1 -type f -name '*.html' -exec cp {} _site/ \;
           if [ -d css ]; then cp -r css _site/css; fi
+          for asset in starrise-brand.css starrise-logo.png; do
+            if [ -f "$asset" ]; then cp "$asset" _site/; fi
+          done
           test -n "$(find _site -type f -print -quit)" || {
             echo "No site files were staged; refusing to deploy." >&2
             exit 1
