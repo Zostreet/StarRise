@@ -4,33 +4,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>StarRise | Professional Sample Lab</title>
+<title>StarRise | Beat Lab & Recording Studio</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0b0b16;color:#fff;font:15px Arial,sans-serif;line-height:1.5}
-header{background:#191529;padding:18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
-a{color:#e6baff}
+body{margin:0;background:#0b0b16;color:#f8f5ff;font:15px Arial,sans-serif;line-height:1.5}
+header{background:#191429;padding:17px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+header a{color:#e4baff}
 main{max-width:1150px;margin:auto;padding:16px}
-h1{color:#e4b6ff}
-.panel{background:#1c1a2d;border:1px solid #403753;border-radius:16px;padding:18px;margin:16px 0}
-button{background:#9256d9;color:white;border:0;border-radius:9px;padding:11px;margin:4px;cursor:pointer;font-weight:bold}
-button:disabled{opacity:.4}
+h1{color:#e6bbff;margin-bottom:4px}
+h2{margin-top:0;color:#e9cbff}
+.panel{background:#1b192c;border:1px solid #403653;border-radius:15px;padding:17px;margin:16px 0}
+button{background:#9255d5;border:0;border-radius:9px;padding:11px;color:#fff;font-weight:bold;cursor:pointer;margin:3px}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.secondary{background:#3d3556}
+button.danger{background:#9e3858}
 input,select{max-width:100%;padding:7px}
-label{display:inline-block;margin:7px}
-small{color:#bdb5cc}
-#status{color:#e8bdff}
-#library{display:grid;gap:8px}
-.sample{background:#302b43;border-radius:10px;padding:12px;overflow-wrap:anywhere}
-#pads{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.pad{background:#39304e;min-height:68px;margin:0;overflow-wrap:anywhere}
-.pad.selected{background:#a35ed9;outline:2px solid #fff}
+input[type=range]{vertical-align:middle}
+label{display:inline-block;margin:6px}
+small{color:#c4b9d2}
+#status{color:#e9c4ff}
+#pads{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.pad{min-height:65px;margin:0;background:#38304d;overflow-wrap:anywhere}
+.pad.selected{background:#a75bd7;outline:2px solid white}
 #sequencer{overflow-x:auto}
-.seqrow{display:grid;grid-template-columns:90px repeat(16,minmax(30px,1fr));gap:3px;min-width:650px;margin:6px 0;align-items:center}
-.seqname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
-.step{height:35px;margin:0;padding:0;background:#383249;border-radius:5px}
-.step.on{background:#bd70e8}
-canvas{width:100%;height:145px;background:#10101e;border-radius:10px}
-.actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.seqrow{display:grid;grid-template-columns:85px repeat(16,minmax(29px,1fr));gap:3px;min-width:625px;align-items:center;margin:6px 0}
+.seqname{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.step{margin:0;padding:0;height:34px;background:#3d3550;border-radius:5px}
+.step.on{background:#c278ef}
+.libraryItem,.track{background:#302a43;border-radius:10px;padding:12px;margin:8px 0;overflow-wrap:anywhere}
+.trackHead{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.trackHead strong{flex:1;min-width:120px}
+canvas{display:block;width:100%;height:110px;background:#10101d;border-radius:8px;margin:10px 0}
+.actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tag{display:inline-block;background:#4a375f;padding:4px 9px;border-radius:20px;font-size:12px}
 @media(max-width:520px){#pads{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
@@ -40,372 +46,393 @@ canvas{width:100%;height:145px;background:#10101e;border-radius:10px}
 <a href="index.html">Home</a>
 </header>
 <main>
-<h1>StarRise Sample Lab</h1>
-<p>Record it. Sample it. Chop it. Flip it. Create your sound.</p>
+<h1>StarRise Recording Studio</h1>
+<p>Make the beat. Record the song. Mix it. Export it.</p>
+<p><span class="tag">Beat Lab</span> <span class="tag">Sample Lab</span> <span class="tag">Multitrack Vocals</span></p>
+<p id="status" role="status">Studio ready.</p>
 
 <section class="panel">
-<h2>Record & Import</h2>
+<h2>1. Sample Lab</h2>
 <div class="actions">
-<button id="record">Record Sample</button>
-<button id="stopRecord" disabled>Stop Recording</button>
-<label>Upload Sounds
-<input id="upload" type="file" accept="audio/*" multiple>
+<button id="recordSample">Record a Sound</button>
+<button id="stopSample" disabled>Stop Sample Recording</button>
+<label>Import Samples
+<input id="sampleUpload" type="file" accept="audio/*" multiple>
 </label>
 </div>
-<p id="status" role="status">Studio ready.</p>
-</section>
-
-<section class="panel">
-<h2>Sample Library</h2>
 <div id="library"></div>
+<p><small>Record your own sounds or load drum hits, loops, instruments, and other audio.</small></p>
 </section>
 
 <section class="panel">
-<h2>Waveform Editor</h2>
-<p id="selectedName">Select a sample to edit.</p>
-<canvas id="wave" width="900" height="145"></canvas>
-<div>
+<h2>2. Sample Editor</h2>
+<p id="sampleName">Choose a sample from the library.</p>
+<canvas id="sampleWave" width="900" height="110"></canvas>
 <label>Start <input id="trimStart" type="range" min="0" max="1000" value="0"></label>
 <label>End <input id="trimEnd" type="range" min="0" max="1000" value="1000"></label>
-</div>
-<div>
-<label>Pitch / Speed <input id="pitch" type="range" min=".5" max="2" step=".01" value="1"></label>
-<label>Volume <input id="volume" type="range" min="0" max="1" step=".01" value="1"></label>
-</div>
+<label>Speed / Pitch <input id="rate" type="range" min=".5" max="2" step=".01" value="1"></label>
+<label>Level <input id="sampleLevel" type="range" min="0" max="1" step=".01" value="1"></label>
 <div class="actions">
-<button id="preview">Preview</button>
-<button id="saveTrim">Save Chop</button>
-<button id="downloadSample">Download Sample WAV</button>
+<button id="previewSample">Preview</button>
+<button id="chopSample">Save Chop</button>
+<button id="exportSample">Export Sample</button>
 </div>
-<small>Pitch and speed change together in this version.</small>
 </section>
 
 <section class="panel">
-<h2>16-Pad Sampler</h2>
-<p>Select a pad, then assign a sample from the library. Tap an assigned pad to hear it.</p>
+<h2>3. Beat Lab</h2>
+<p>Select a pad, assign a sample, and create a pattern.</p>
 <div id="pads"></div>
-</section>
-
-<section class="panel">
-<h2>Beat Sequencer</h2>
 <label>BPM <input id="bpm" type="number" min="40" max="240" value="100"></label>
 <div class="actions">
-<button id="play">Play Pattern</button>
-<button id="stop">Stop</button>
-<button id="clear">Clear Pattern</button>
-<button id="export">Export Beat WAV</button>
+<button id="playBeat">Play Beat</button>
+<button id="stopBeat" class="secondary">Stop</button>
+<button id="clearBeat" class="secondary">Clear Pattern</button>
 </div>
 <div id="sequencer"></div>
-<small>Each row represents one sample pad. Activate steps to build a 16-step pattern. WAV export renders four bars.</small>
+<label>Song Length (bars)
+<input id="bars" type="number" min="1" max="128" value="16">
+</label>
+<div class="actions">
+<button id="renderBeat">Send Beat to Recording Studio</button>
+<button id="downloadBeat">Download Beat WAV</button>
+</div>
+<p><small>Beat rendering creates a real audio track from your pattern. You can record vocals over it or export the instrumental.</small></p>
 </section>
 
 <section class="panel">
-<h2>About Your Session</h2>
-<p>Record sounds using your microphone or upload your own audio files. Assign sounds to pads, trim samples, sequence beats, and export WAV files.</p>
-<small>Audio is held in your current browser session, not saved to the cloud. Export your work before closing or refreshing the page. Use samples you own or have permission to use. This version does not yet include automatic pitch correction, professional plugin hosting, or cloud collaboration.</small>
+<h2>4. Song Recording Studio</h2>
+<p>Import an instrumental or send your beat from Beat Lab.</p>
+<label>Import Beat / Instrumental
+<input id="beatUpload" type="file" accept="audio/*">
+</label>
+<div class="actions">
+<button id="playSong">Play Session</button>
+<button id="stopSong" class="secondary">Stop Session</button>
+</div>
+<p><strong>Vocal Recording</strong></p>
+<div class="actions">
+<button id="recordVocal">Record Vocal Track</button>
+<button id="stopVocal" disabled>Stop Vocal Recording</button>
+</div>
+<p><small>Use headphones while recording so the instrumental does not leak into the microphone. Microphone access requires HTTPS and browser permission.</small></p>
+<h3>Multitrack Mixer</h3>
+<div id="tracks"></div>
+<div class="actions">
+<button id="exportMix">Export Full Song WAV</button>
+<button id="exportStems">Export Individual Tracks</button>
+</div>
+</section>
+
+<section class="panel">
+<h2>Session Information</h2>
+<p>This version keeps audio in browser memory. Download your song and individual tracks before leaving or refreshing. Imported or recorded material must be yours or licensed for your use.</p>
+<p><small>Current limitations: recording is not latency-calibrated, playback starts from the beginning, the sequencer repeats one pattern, and there is no cloud project saving, Auto-Tune, plugin hosting, or real-time collaboration yet.</small></p>
 </section>
 </main>
 
 <script>
 "use strict";
-
 const $=id=>document.getElementById(id);
-
 let ctx=null;
 let recorder=null;
 let micStream=null;
 let chunks=[];
+let recordingType="";
 let samples=[];
-let selected=-1;
+let selectedSample=-1;
 let selectedPad=0;
-let playing=false;
-let timer=null;
-let stepIndex=0;
-let nextTime=0;
-let activeSources=[];
 let nextId=1;
+let tracks=[];
+let trackId=1;
+let sources=[];
+let beatTimer=null;
+let beatPlaying=false;
+let beatStep=0;
+let beatNextTime=0;
+let songPlaying=false;
+let songStartTime=0;
+let vocalStartTime=0;
+let vocalOffset=0;
+let recording=false;
 
 const pads=Array.from({length:16},()=>({
  sampleId:null,
  steps:Array(16).fill(false)
 }));
 
+function status(message){
+ $("status").textContent=message;
+}
 function audio(){
  if(!ctx){
   ctx=new (window.AudioContext||window.webkitAudioContext)();
  }
  return ctx;
 }
-
 async function ready(){
  const ac=audio();
  await ac.resume();
  return ac;
 }
-
-function status(message){
- $("status").textContent=message;
-}
-
-function getSample(id){
+function sampleById(id){
  return samples.find(s=>s.id===id);
 }
-
-function currentSample(){
- return samples[selected];
+function selected(){
+ return samples[selectedSample];
 }
-
+async function decodeBlob(blob){
+ const ac=await ready();
+ return ac.decodeAudioData(await blob.arrayBuffer());
+}
 function addSample(buffer,name){
- const sample={
+ const s={
   id:nextId++,
-  name,
-  buffer,
+  name,buffer,
   start:0,
   end:buffer.duration,
   rate:1,
-  volume:1
+  level:1
  };
- samples.push(sample);
- selected=samples.length-1;
+ samples.push(s);
+ selectedSample=samples.length-1;
  renderLibrary();
- loadSelected();
+ loadEditor();
  status("Sample added: "+name);
- return sample;
+ return s;
 }
-
-async function importBlob(blob,name){
- const ac=await ready();
- const data=await blob.arrayBuffer();
- const buffer=await ac.decodeAudioData(data);
- addSample(buffer,name);
+function addTrack(buffer,name,type,offset=0){
+ const t={
+  id:trackId++,
+  name,type,buffer,
+  offset:Math.max(0,offset),
+  volume:1,
+  pan:0,
+  mute:false
+ };
+ tracks.push(t);
+ renderTracks();
+ status("Track added: "+name);
+ return t;
 }
-
-$("upload").onchange=async event=>{
- for(const file of event.target.files){
+$("sampleUpload").onchange=async e=>{
+ for(const file of e.target.files){
   try{
-   await importBlob(file,file.name);
+   addSample(await decodeBlob(file),file.name);
   }catch(error){
-   status("Unable to import "+file.name+": "+error.message);
+   status("Cannot load "+file.name+": "+error.message);
   }
  }
- event.target.value="";
+ e.target.value="";
+};
+$("beatUpload").onchange=async e=>{
+ const file=e.target.files[0];
+ if(!file)return;
+ try{
+  addTrack(await decodeBlob(file),file.name,"beat");
+ }catch(error){
+  status("Beat import failed: "+error.message);
+ }
+ e.target.value="";
 };
 
-$("record").onclick=async()=>{
+async function beginRecording(type){
+ if(recording)return;
  try{
-  if(!navigator.mediaDevices||!window.MediaRecorder){
-   throw Error("Microphone recording is unavailable.");
+  if(!navigator.mediaDevices?.getUserMedia||
+     !window.MediaRecorder){
+   throw Error("Microphone recording unavailable.");
   }
-
-  micStream=await navigator.mediaDevices.getUserMedia({audio:true});
-  chunks=[];
+  await ready();
+  micStream=await navigator.mediaDevices.getUserMedia({
+   audio:{
+    echoCancellation:false,
+    noiseSuppression:false,
+    autoGainControl:false
+   }
+  });
   recorder=new MediaRecorder(micStream);
-
-  recorder.ondataavailable=event=>{
-   if(event.data.size)chunks.push(event.data);
+  recordingType=type;
+  chunks=[];
+  recording=true;
+  recorder.ondataavailable=e=>{
+   if(e.data.size)chunks.push(e.data);
   };
-
   recorder.onstop=async()=>{
    micStream.getTracks().forEach(t=>t.stop());
-   $("record").disabled=false;
-   $("stopRecord").disabled=true;
-
+   recording=false;
+   $("recordSample").disabled=false;
+   $("stopSample").disabled=true;
+   $("recordVocal").disabled=false;
+   $("stopVocal").disabled=true;
+   const blob=new Blob(chunks,{type:recorder.mimeType});
    try{
-    const blob=new Blob(chunks,{type:recorder.mimeType});
-    await importBlob(blob,"Recording "+new Date().toLocaleTimeString());
+    const buffer=await decodeBlob(blob);
+    if(recordingType==="sample"){
+     addSample(buffer,"Recorded Sample "+nextId);
+    }else{
+     addTrack(
+      buffer,
+      "Vocal Take "+trackId,
+      "vocal",
+      vocalOffset
+     );
+    }
    }catch(error){
-    status("Recording import failed: "+error.message);
+    status("Recording decode failed: "+error.message);
    }
   };
-
   recorder.start();
-  $("record").disabled=true;
-  $("stopRecord").disabled=false;
-  status("Recording...");
+  if(type==="sample"){
+   $("recordSample").disabled=true;
+   $("stopSample").disabled=false;
+   status("Recording sample...");
+  }else{
+   $("recordVocal").disabled=true;
+   $("stopVocal").disabled=false;
+   status("Recording vocal take...");
+  }
  }catch(error){
-  status("Recording error: "+error.message);
+  recording=false;
+  if(micStream)micStream.getTracks().forEach(t=>t.stop());
+  status("Microphone error: "+error.message);
  }
-};
-
-$("stopRecord").onclick=()=>{
- if(recorder&&recorder.state==="recording"){
+}
+function endRecording(){
+ if(recorder?.state==="recording"){
   recorder.stop();
  }
-};
+}
+$("recordSample").onclick=()=>beginRecording("sample");
+$("stopSample").onclick=endRecording;
 
 function renderLibrary(){
  const box=$("library");
  box.replaceChildren();
-
- samples.forEach((sample,index)=>{
+ samples.forEach((s,index)=>{
   const row=document.createElement("div");
-  row.className="sample";
-
+  row.className="libraryItem";
   const name=document.createElement("strong");
-  name.textContent=sample.name;
-
-  const info=document.createElement("small");
-  info.textContent=" | "+sample.buffer.duration.toFixed(2)+" seconds";
-
+  name.textContent=s.name+" ("+s.buffer.duration.toFixed(2)+"s)";
   const edit=document.createElement("button");
   edit.textContent="Edit";
   edit.onclick=()=>{
-   selected=index;
-   loadSelected();
+   selectedSample=index;
+   loadEditor();
   };
-
   const assign=document.createElement("button");
   assign.textContent="Assign to Pad "+(selectedPad+1);
   assign.onclick=()=>{
-   pads[selectedPad].sampleId=sample.id;
+   pads[selectedPad].sampleId=s.id;
    renderPads();
    renderSequencer();
-   status("Assigned "+sample.name+" to pad "+(selectedPad+1));
+   status("Assigned to pad "+(selectedPad+1));
   };
-
-  row.append(name,info,document.createElement("br"),edit,assign);
+  row.append(name,document.createElement("br"),edit,assign);
   box.append(row);
  });
 }
-
-function loadSelected(){
- const s=currentSample();
+function loadEditor(){
+ const s=selected();
  if(!s)return;
-
- $("selectedName").textContent=s.name;
+ $("sampleName").textContent=s.name;
  $("trimStart").value=Math.round(s.start/s.buffer.duration*1000);
  $("trimEnd").value=Math.round(s.end/s.buffer.duration*1000);
- $("pitch").value=s.rate;
- $("volume").value=s.volume;
- drawWave();
+ $("rate").value=s.rate;
+ $("sampleLevel").value=s.level;
+ drawWave($("sampleWave"),s.buffer,s.start,s.end);
 }
-
-function updateSample(event){
- const s=currentSample();
+function updateEditor(e){
+ const s=selected();
  if(!s)return;
-
- let start=Number($("trimStart").value);
- let end=Number($("trimEnd").value);
-
- if(start>=end){
-  if(event.target.id==="trimStart"){
-   start=Math.max(0,end-1);
-   $("trimStart").value=start;
+ let a=Number($("trimStart").value);
+ let b=Number($("trimEnd").value);
+ if(a>=b){
+  if(e.target.id==="trimStart"){
+   a=Math.max(0,b-1);
+   $("trimStart").value=a;
   }else{
-   end=Math.min(1000,start+1);
-   $("trimEnd").value=end;
+   b=Math.min(1000,a+1);
+   $("trimEnd").value=b;
   }
  }
-
- s.start=start/1000*s.buffer.duration;
- s.end=end/1000*s.buffer.duration;
- s.rate=Number($("pitch").value);
- s.volume=Number($("volume").value);
- drawWave();
+ s.start=a/1000*s.buffer.duration;
+ s.end=b/1000*s.buffer.duration;
+ s.rate=Number($("rate").value);
+ s.level=Number($("sampleLevel").value);
+ drawWave($("sampleWave"),s.buffer,s.start,s.end);
 }
-
-["trimStart","trimEnd","pitch","volume"].forEach(id=>{
- $(id).addEventListener("input",updateSample);
+["trimStart","trimEnd","rate","sampleLevel"].forEach(id=>{
+ $(id).oninput=updateEditor;
 });
-
-function drawWave(){
- const canvas=$("wave");
+function drawWave(canvas,buffer,start=0,end=buffer.duration){
  const g=canvas.getContext("2d");
- const w=canvas.width;
- const h=canvas.height;
-
- g.fillStyle="#10101e";
+ const w=canvas.width,h=canvas.height;
+ g.fillStyle="#10101d";
  g.fillRect(0,0,w,h);
-
- const s=currentSample();
- if(!s)return;
-
- const data=s.buffer.getChannelData(0);
+ const data=buffer.getChannelData(0);
  const stride=Math.max(1,Math.ceil(data.length/w));
-
- g.strokeStyle="#d38aff";
+ g.strokeStyle="#ce8aff";
  g.beginPath();
-
  for(let x=0;x<w;x++){
-  const from=x*stride;
   let peak=0;
-
+  const from=x*stride;
   for(let j=from;j<Math.min(from+stride,data.length);j++){
    peak=Math.max(peak,Math.abs(data[j]));
   }
-
   g.moveTo(x,h/2-peak*h*.45);
   g.lineTo(x,h/2+peak*h*.45);
  }
-
  g.stroke();
-
- const left=s.start/s.buffer.duration*w;
- const right=s.end/s.buffer.duration*w;
-
  g.fillStyle="rgba(0,0,0,.6)";
+ const left=start/buffer.duration*w;
+ const right=end/buffer.duration*w;
  g.fillRect(0,0,left,h);
  g.fillRect(right,0,w-right,h);
 }
-
-function trigger(sample,when,destination,ac){
- if(!sample)return;
-
+function triggerSample(s,when,destination,ac){
+ if(!s)return;
  const source=ac.createBufferSource();
  const gain=ac.createGain();
-
- source.buffer=sample.buffer;
- source.playbackRate.value=sample.rate;
- gain.gain.value=sample.volume;
-
- source.connect(gain);
- gain.connect(destination);
-
- const duration=Math.max(.001,sample.end-sample.start);
- source.start(when,sample.start,duration);
-
- if(ac===ctx){
-  activeSources.push(source);
-  source.onended=()=>{
-   activeSources=activeSources.filter(x=>x!==source);
-  };
- }
-
+ source.buffer=s.buffer;
+ source.playbackRate.value=s.rate;
+ gain.gain.value=s.level;
+ source.connect(gain).connect(destination);
+ source.start(when,s.start,Math.max(.001,s.end-s.start));
+ if(ac===ctx)registerSource(source);
  return source;
 }
-
-$("preview").onclick=async()=>{
- const s=currentSample();
- if(!s)return status("Select a sample first.");
-
+function registerSource(source){
+ sources.push(source);
+ source.onended=()=>{
+  sources=sources.filter(x=>x!==source);
+ };
+}
+$("previewSample").onclick=async()=>{
+ const s=selected();
+ if(!s)return status("Choose a sample.");
  const ac=await ready();
- trigger(s,ac.currentTime,ac.destination,ac);
+ triggerSample(s,ac.currentTime,ac.destination,ac);
 };
-
 function extractSample(s){
  const b=s.buffer;
  const start=Math.floor(s.start*b.sampleRate);
  const end=Math.ceil(s.end*b.sampleRate);
  const length=Math.max(1,end-start);
-
  const out=audio().createBuffer(
   b.numberOfChannels,length,b.sampleRate
  );
-
- for(let channel=0;channel<b.numberOfChannels;channel++){
-  out.getChannelData(channel).set(
-   b.getChannelData(channel).subarray(start,end)
+ for(let c=0;c<b.numberOfChannels;c++){
+  out.getChannelData(c).set(
+   b.getChannelData(c).subarray(start,end)
   );
  }
-
  return out;
 }
-
-$("saveTrim").onclick=()=>{
- const s=currentSample();
- if(!s)return status("Select a sample first.");
-
- addSample(extractSample(s),s.name+" - Chop");
+$("chopSample").onclick=()=>{
+ const s=selected();
+ if(!s)return status("Choose a sample.");
+ addSample(extractSample(s),s.name+" Chop");
 };
 
 function wav(buffer){
@@ -413,17 +440,15 @@ function wav(buffer){
  const length=buffer.length;
  const bytes=new ArrayBuffer(44+length*channels*2);
  const view=new DataView(bytes);
-
- function writeText(position,value){
-  for(let i=0;i<value.length;i++){
-   view.setUint8(position+i,value.charCodeAt(i));
+ const write=(pos,str)=>{
+  for(let i=0;i<str.length;i++){
+   view.setUint8(pos+i,str.charCodeAt(i));
   }
- }
-
- writeText(0,"RIFF");
+ };
+ write(0,"RIFF");
  view.setUint32(4,36+length*channels*2,true);
- writeText(8,"WAVE");
- writeText(12,"fmt ");
+ write(8,"WAVE");
+ write(12,"fmt ");
  view.setUint32(16,16,true);
  view.setUint16(20,1,true);
  view.setUint16(22,channels,true);
@@ -431,225 +456,384 @@ function wav(buffer){
  view.setUint32(28,buffer.sampleRate*channels*2,true);
  view.setUint16(32,channels*2,true);
  view.setUint16(34,16,true);
- writeText(36,"data");
+ write(36,"data");
  view.setUint32(40,length*channels*2,true);
-
- let position=44;
-
+ let p=44;
  for(let i=0;i<length;i++){
-  for(let channel=0;channel<channels;channel++){
-   const value=Math.max(-1,Math.min(
-    1,buffer.getChannelData(channel)[i]
+  for(let c=0;c<channels;c++){
+   const v=Math.max(-1,Math.min(1,
+    buffer.getChannelData(c)[i]
    ));
-
-   view.setInt16(
-    position,
-    value<0?value*32768:value*32767,
-    true
-   );
-
-   position+=2;
+   view.setInt16(p,v<0?v*32768:v*32767,true);
+   p+=2;
   }
  }
-
  return new Blob([bytes],{type:"audio/wav"});
 }
-
 function download(blob,name){
  const url=URL.createObjectURL(blob);
- const link=document.createElement("a");
-
- link.href=url;
- link.download=name;
- document.body.append(link);
- link.click();
- link.remove();
-
+ const a=document.createElement("a");
+ a.href=url;
+ a.download=name;
+ document.body.append(a);
+ a.click();
+ a.remove();
  setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
-
-$("downloadSample").onclick=()=>{
- const s=currentSample();
- if(!s)return status("Select a sample first.");
-
+$("exportSample").onclick=()=>{
+ const s=selected();
+ if(!s)return status("Choose a sample.");
  download(wav(extractSample(s)),"starrise-sample.wav");
 };
 
 function renderPads(){
  const box=$("pads");
  box.replaceChildren();
-
  pads.forEach((pad,index)=>{
   const button=document.createElement("button");
-  button.className="pad";
-
-  if(index===selectedPad){
-   button.classList.add("selected");
-  }
-
-  const sample=getSample(pad.sampleId);
-  button.textContent=(index+1)+" | "+(sample?.name||"Empty");
-
+  button.className="pad"+(index===selectedPad?" selected":"");
+  const s=sampleById(pad.sampleId);
+  button.textContent=(index+1)+" | "+(s?.name||"Empty");
   button.onclick=async()=>{
    selectedPad=index;
    renderPads();
    renderLibrary();
-
-   if(sample){
+   if(s){
     const ac=await ready();
-    trigger(sample,ac.currentTime,ac.destination,ac);
+    triggerSample(s,ac.currentTime,ac.destination,ac);
    }
   };
-
   box.append(button);
  });
 }
-
 function renderSequencer(){
  const box=$("sequencer");
  box.replaceChildren();
-
  pads.forEach((pad,rowIndex)=>{
   const row=document.createElement("div");
   row.className="seqrow";
-
-  const label=document.createElement("span");
-  label.className="seqname";
-  label.textContent=(rowIndex+1)+": "+
-   (getSample(pad.sampleId)?.name||"Empty");
-
-  row.append(label);
-
+  const name=document.createElement("span");
+  name.className="seqname";
+  name.textContent=(rowIndex+1)+": "+
+   (sampleById(pad.sampleId)?.name||"Empty");
+  row.append(name);
   pad.steps.forEach((enabled,step)=>{
    const button=document.createElement("button");
    button.className="step"+(enabled?" on":"");
-   button.setAttribute(
-    "aria-label",
-    "Pad "+(rowIndex+1)+" step "+(step+1)
-   );
+   button.setAttribute("aria-label","Pad "+(rowIndex+1)+" step "+(step+1));
    button.setAttribute("aria-pressed",String(enabled));
-
    button.onclick=()=>{
     pad.steps[step]=!pad.steps[step];
     renderSequencer();
    };
-
    row.append(button);
   });
-
   box.append(row);
  });
 }
-
-function bpm(){
+function getBpm(){
  return Math.max(40,Math.min(240,Number($("bpm").value)||100));
 }
-
-function scheduleStep(index,when){
+function getBars(){
+ return Math.max(1,Math.min(128,Math.floor(Number($("bars").value)||16)));
+}
+function scheduleBeatStep(index,when){
  pads.forEach(pad=>{
   if(!pad.steps[index])return;
-
-  const sample=getSample(pad.sampleId);
-  if(sample){
-   trigger(sample,when,ctx.destination,ctx);
-  }
+  const s=sampleById(pad.sampleId);
+  if(s)triggerSample(s,when,ctx.destination,ctx);
  });
 }
-
-function scheduler(){
- if(!playing)return;
-
+function beatScheduler(){
+ if(!beatPlaying)return;
  const ac=audio();
- const secondsPerStep=60/bpm()/4;
-
- while(nextTime<ac.currentTime+.12){
-  scheduleStep(stepIndex,nextTime);
-  stepIndex=(stepIndex+1)%16;
-  nextTime+=secondsPerStep;
+ const duration=60/getBpm()/4;
+ while(beatNextTime<ac.currentTime+.12){
+  scheduleBeatStep(beatStep,beatNextTime);
+  beatStep=(beatStep+1)%16;
+  beatNextTime+=duration;
  }
 }
-
-$("play").onclick=async()=>{
- if(playing)return;
-
- try{
-  const ac=await ready();
-  playing=true;
-  stepIndex=0;
-  nextTime=ac.currentTime+.05;
-
-  scheduler();
-  timer=setInterval(scheduler,25);
-  status("Playing beat pattern.");
- }catch(error){
-  playing=false;
-  status("Playback error: "+error.message);
- }
+$("playBeat").onclick=async()=>{
+ if(beatPlaying)return;
+ stopAll();
+ const ac=await ready();
+ beatPlaying=true;
+ beatStep=0;
+ beatNextTime=ac.currentTime+.05;
+ beatScheduler();
+ beatTimer=setInterval(beatScheduler,25);
+ status("Playing beat.");
 };
-
-$("stop").onclick=()=>{
- playing=false;
- clearInterval(timer);
- timer=null;
-
- activeSources.forEach(source=>{
-  try{source.stop()}catch(error){}
+function stopAll(){
+ beatPlaying=false;
+ songPlaying=false;
+ clearInterval(beatTimer);
+ beatTimer=null;
+ sources.forEach(s=>{
+  try{s.stop()}catch(e){}
  });
-
- activeSources=[];
- status("Playback stopped.");
+ sources=[];
+}
+$("stopBeat").onclick=()=>{
+ stopAll();
+ status("Stopped.");
 };
-
-$("clear").onclick=()=>{
- pads.forEach(pad=>pad.steps.fill(false));
+$("clearBeat").onclick=()=>{
+ pads.forEach(p=>p.steps.fill(false));
  renderSequencer();
  status("Pattern cleared.");
 };
 
-$("export").onclick=async()=>{
- try{
-  const tempo=bpm();
-  const secondsPerStep=60/tempo/4;
-  const bars=4;
-  const patternLength=secondsPerStep*16;
-  const totalDuration=patternLength*bars;
-
-  const sampleRate=44100;
-  const offline=new OfflineAudioContext(
-   2,
-   Math.ceil((totalDuration+5)*sampleRate),
-   sampleRate
-  );
-
-  for(let bar=0;bar<bars;bar++){
-   for(let step=0;step<16;step++){
-    const when=bar*patternLength+step*secondsPerStep;
-
-    pads.forEach(pad=>{
-     if(!pad.steps[step])return;
-
-     const sample=getSample(pad.sampleId);
-     if(!sample)return;
-
-     trigger(sample,when,offline.destination,offline);
-    });
-   }
+async function renderPattern(){
+ const ac=await ready();
+ const tempo=getBpm();
+ const bars=getBars();
+ const stepLength=60/tempo/4;
+ const patternDuration=stepLength*16;
+ let tail=0;
+ pads.forEach(p=>{
+  const s=sampleById(p.sampleId);
+  if(s&&p.steps.some(Boolean)){
+   tail=Math.max(tail,(s.end-s.start)/s.rate);
   }
-
-  status("Rendering your beat...");
-
-  const rendered=await offline.startRendering();
-  const blob=wav(rendered);
-
-  download(blob,"starrise-beat.wav");
-  status("Beat exported successfully.");
+ });
+ const total=patternDuration*bars;
+ const sampleRate=44100;
+ const offline=new OfflineAudioContext(
+  2,Math.ceil((total+tail+.1)*sampleRate),sampleRate
+ );
+ for(let bar=0;bar<bars;bar++){
+  for(let step=0;step<16;step++){
+   const when=bar*patternDuration+step*stepLength;
+   pads.forEach(p=>{
+    if(!p.steps[step])return;
+    const s=sampleById(p.sampleId);
+    if(s)triggerSample(s,when,offline.destination,offline);
+   });
+  }
+ }
+ return offline.startRendering();
+}
+$("renderBeat").onclick=async()=>{
+ try{
+  status("Rendering beat into recording session...");
+  const buffer=await renderPattern();
+  addTrack(buffer,"StarRise Beat "+trackId,"beat");
+  status("Beat loaded into recording studio. Ready for vocals.");
  }catch(error){
-  status("Export error: "+error.message);
+  status("Beat rendering failed: "+error.message);
+ }
+};
+$("downloadBeat").onclick=async()=>{
+ try{
+  status("Rendering instrumental...");
+  download(wav(await renderPattern()),"starrise-beat.wav");
+  status("Instrumental exported.");
+ }catch(error){
+  status("Export failed: "+error.message);
  }
 };
 
+function trackEnd(t){
+ return t.offset+t.buffer.duration;
+}
+function sessionDuration(){
+ return Math.max(0,...tracks.map(trackEnd));
+}
+function renderTracks(){
+ const box=$("tracks");
+ box.replaceChildren();
+ if(!tracks.length){
+  const p=document.createElement("p");
+  p.textContent="No tracks yet. Import a beat or send one from Beat Lab.";
+  box.append(p);
+  return;
+ }
+ tracks.forEach(t=>{
+  const row=document.createElement("div");
+  row.className="track";
+  const head=document.createElement("div");
+  head.className="trackHead";
+  const name=document.createElement("strong");
+  name.textContent=t.name+" ["+t.type+"]";
+  const duration=document.createElement("small");
+  duration.textContent=t.buffer.duration.toFixed(1)+"s";
+  const remove=document.createElement("button");
+  remove.className="danger";
+  remove.textContent="Remove";
+  remove.onclick=()=>{
+   if(recording||songPlaying){
+    status("Stop recording or playback before removing tracks.");
+    return;
+   }
+   tracks=tracks.filter(x=>x.id!==t.id);
+   renderTracks();
+  };
+  head.append(name,duration,remove);
+  const canvas=document.createElement("canvas");
+  canvas.width=900;
+  canvas.height=110;
+  drawWave(canvas,t.buffer);
+  const controls=document.createElement("div");
+  const volumeLabel=document.createElement("label");
+  volumeLabel.textContent="Volume ";
+  const volume=document.createElement("input");
+  volume.type="range";
+  volume.min="0";
+  volume.max="1.5";
+  volume.step=".01";
+  volume.value=t.volume;
+  volume.oninput=()=>t.volume=Number(volume.value);
+  volumeLabel.append(volume);
+  const panLabel=document.createElement("label");
+  panLabel.textContent="Pan ";
+  const pan=document.createElement("input");
+  pan.type="range";
+  pan.min="-1";
+  pan.max="1";
+  pan.step=".01";
+  pan.value=t.pan;
+  pan.oninput=()=>t.pan=Number(pan.value);
+  panLabel.append(pan);
+  const muteLabel=document.createElement("label");
+  const mute=document.createElement("input");
+  mute.type="checkbox";
+  mute.checked=t.mute;
+  mute.onchange=()=>t.mute=mute.checked;
+  muteLabel.append(mute,document.createTextNode(" Mute"));
+  controls.append(volumeLabel,panLabel,muteLabel);
+  row.append(head,canvas,controls);
+  box.append(row);
+ });
+}
+function scheduleTrack(t,ac,when,destination){
+ if(t.mute)return;
+ const source=ac.createBufferSource();
+ const gain=ac.createGain();
+ const pan=ac.createStereoPanner();
+ source.buffer=t.buffer;
+ gain.gain.value=t.volume;
+ pan.pan.value=t.pan;
+ source.connect(gain).connect(pan).connect(destination);
+ source.start(when+t.offset);
+ if(ac===ctx)registerSource(source);
+}
+async function startSong(){
+ const ac=await ready();
+ if(!tracks.length){
+  status("Add a beat or track first.");
+  return;
+ }
+ stopAll();
+ songPlaying=true;
+ songStartTime=ac.currentTime+.1;
+ tracks.forEach(t=>{
+  scheduleTrack(t,ac,songStartTime,ac.destination);
+ });
+ status("Playing recording session.");
+}
+$("playSong").onclick=startSong;
+$("stopSong").onclick=()=>{
+ if(recording&&recordingType==="vocal"){
+  endRecording();
+ }
+ stopAll();
+ status("Session stopped.");
+};
+
+$("recordVocal").onclick=async()=>{
+ if(!tracks.length){
+  status("Load or create an instrumental first.");
+  return;
+ }
+ if(recording)return;
+ try{
+  const ac=await ready();
+  stopAll();
+  vocalOffset=0;
+  vocalStartTime=ac.currentTime+.2;
+  await beginRecording("vocal");
+  if(!recording)return;
+  songPlaying=true;
+  songStartTime=vocalStartTime;
+  tracks.forEach(t=>{
+   scheduleTrack(t,ac,songStartTime,ac.destination);
+  });
+  status("Recording vocals over instrumental. Use headphones.");
+ }catch(error){
+  status("Vocal recording failed: "+error.message);
+ }
+};
+$("stopVocal").onclick=()=>{
+ endRecording();
+ stopAll();
+ status("Processing vocal take...");
+};
+
+async function renderSong(onlyTrack=null){
+ const included=onlyTrack?[onlyTrack]:tracks.filter(t=>!t.mute);
+ if(!included.length)throw Error("No audible tracks.");
+ const duration=Math.max(...included.map(trackEnd));
+ const rate=44100;
+ const offline=new OfflineAudioContext(
+  2,Math.ceil((duration+.1)*rate),rate
+ );
+ included.forEach(t=>{
+  const source=offline.createBufferSource();
+  const gain=offline.createGain();
+  const pan=offline.createStereoPanner();
+  source.buffer=t.buffer;
+  gain.gain.value=t.volume;
+  pan.pan.value=t.pan;
+  source.connect(gain).connect(pan).connect(offline.destination);
+  source.start(t.offset);
+ });
+ return offline.startRendering();
+}
+$("exportMix").onclick=async()=>{
+ try{
+  status("Mixing full song...");
+  const buffer=await renderSong();
+  download(wav(buffer),"starrise-full-song.wav");
+  status("Full song exported.");
+ }catch(error){
+  status("Mix export failed: "+error.message);
+ }
+};
+$("exportStems").onclick=async()=>{
+ try{
+  if(!tracks.length){
+   status("No tracks to export.");
+   return;
+  }
+  status("Exporting individual tracks...");
+  for(let i=0;i<tracks.length;i++){
+   const t=tracks[i];
+   const originalMute=t.mute;
+   t.mute=false;
+   const buffer=await renderSong(t);
+   t.mute=originalMute;
+   download(wav(buffer),"starrise-track-"+(i+1)+".wav");
+   await new Promise(resolve=>setTimeout(resolve,250));
+  }
+  status("Track exports requested. Check your downloads.");
+ }catch(error){
+  status("Stem export failed: "+error.message);
+ }
+};
+
+window.addEventListener("beforeunload",e=>{
+ if(recording||tracks.length||samples.length){
+  e.preventDefault();
+  e.returnValue="";
+ }
+});
+
+renderLibrary();
 renderPads();
 renderSequencer();
+renderTracks();
 </script>
 </body>
 </html>
