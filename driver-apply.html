@@ -1,0 +1,324 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Apply to Drive | StarRise Eats</title>
+<meta name="description" content="Register your interest in future StarRise Eats delivery opportunities.">
+<link rel="stylesheet" href="starrise-brand.css">
+<link rel="icon" href="starrise-logo.png" type="image/png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090916;color:#fff;font-family:Arial,sans-serif;line-height:1.6}
+a{color:#f3ca71}
+header{padding:18px 6%;border-bottom:1px solid #ffffff24;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+header img{width:140px;height:auto}
+nav{display:flex;gap:18px;flex-wrap:wrap}
+nav a{color:#fff;text-decoration:none}
+main{max-width:850px;margin:auto;padding:30px 20px 80px}
+.hero{text-align:center;padding:35px 0}
+.hero h1{font-size:clamp(35px,7vw,60px);line-height:1.15;margin:12px 0}
+.gold{color:#f3ca71}
+.muted{color:#bbb}
+.panel{background:#19162b;border:1px solid #ffffff24;padding:26px;border-radius:18px;margin:20px 0}
+.notice{background:#302443;border:1px solid #b391e5;border-radius:12px;padding:16px;margin:20px 0}
+label{display:block;font-weight:bold;margin:18px 0 7px}
+input,select,textarea{width:100%;background:#100f1f;color:#fff;border:1px solid #777;border-radius:10px;padding:14px;font:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid #f3ca71;outline-offset:1px}
+textarea{min-height:110px;resize:vertical}
+button,.btn{display:inline-block;background:#f3ca71;color:#171021;border:0;border-radius:25px;padding:14px 24px;font-weight:bold;font-size:16px;cursor:pointer;text-decoration:none}
+button:disabled{opacity:.5;cursor:wait}
+.btn.secondary{background:#302443;color:#fff}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.status{border-radius:10px;padding:14px;background:#242139;margin:16px 0}
+.hidden{display:none!important}
+.small{font-size:13px;color:#bbb}
+footer{text-align:center;border-top:1px solid #ffffff20;padding:25px}
+</style>
+</head>
+<body>
+<header>
+<a href="index.html"><img src="starrise-logo.png" alt="StarRise"></a>
+<nav>
+<a href="index.html">Home</a>
+<a href="eats.html">StarRise Eats</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
+</header>
+
+<main>
+<section class="hero">
+<p class="gold">STARRISE EATS</p>
+<h1>Become a Future <span class="gold">Delivery Driver</span></h1>
+<p class="muted">Join our interest list as we develop the StarRise delivery network.</p>
+</section>
+
+<div class="notice">
+<strong>Prelaunch applications only.</strong>
+StarRise is not currently hiring delivery drivers or accepting delivery assignments. Submitting this form does not guarantee employment, independent-contractor work, or future earnings.
+</div>
+
+<div id="loading" class="panel">
+Checking your StarRise account...
+</div>
+
+<div id="loginPanel" class="panel hidden">
+<h2>Sign in to apply</h2>
+<p>Driver interest submissions require a StarRise account so your application can be saved privately.</p>
+<div class="actions">
+<a class="btn" href="register.html?role=Supporter">Create Account</a>
+<a class="btn secondary" href="dashboard.html">Sign In</a>
+</div>
+<p class="small">After signing in, return to this page to submit your interest.</p>
+</div>
+
+<div id="existingPanel" class="panel hidden">
+<h2>Application Received</h2>
+<p>Your interest has been recorded. Thank you for wanting to help StarRise grow.</p>
+<div class="status">
+<strong>Application status:</strong>
+<span id="applicationStatus">Received</span>
+</div>
+<p id="submittedDate" class="muted"></p>
+<p class="small">A submission is not an offer of work. We will contact applicants if suitable opportunities become available.</p>
+<a class="btn secondary" href="eats.html">Back to StarRise Eats</a>
+</div>
+
+<div id="formPanel" class="panel hidden">
+<h2>Driver Interest Application</h2>
+<p class="muted">Complete the form below. Fields marked * are required.</p>
+
+<form id="driverForm">
+<label for="fullName">Full Name *</label>
+<input id="fullName" name="full_name" maxlength="120" autocomplete="name" required minlength="2">
+
+<label for="email">Contact Email *</label>
+<input id="email" name="contact_email" type="email" maxlength="254" autocomplete="email" required>
+
+<label for="phone">Phone Number *</label>
+<input id="phone" name="phone" type="tel" maxlength="35" autocomplete="tel" required minlength="7">
+
+<label for="city">City *</label>
+<input id="city" name="city" maxlength="120" autocomplete="address-level2" placeholder="Kannapolis" required minlength="2">
+
+<label for="state">State *</label>
+<input id="state" name="state" maxlength="60" autocomplete="address-level1" value="NC" required minlength="2">
+
+<label for="vehicle">Preferred Delivery Vehicle *</label>
+<select id="vehicle" name="vehicle_type" required>
+<option value="">Choose one</option>
+<option value="car">Car / SUV</option>
+<option value="bike">Bicycle</option>
+<option value="scooter">Scooter / Moped</option>
+<option value="other">Other</option>
+</select>
+
+<label for="availability">Availability *</label>
+<select id="availability" name="availability" required>
+<option value="">Choose one</option>
+<option value="weekdays">Weekdays</option>
+<option value="evenings">Evenings</option>
+<option value="weekends">Weekends</option>
+<option value="flexible">Flexible</option>
+</select>
+
+<label for="notes">Additional Information (Optional)</label>
+<textarea id="notes" name="notes" maxlength="1000" placeholder="Tell us about your delivery experience or interests. Do not include sensitive personal information."></textarea>
+
+<div class="notice">
+<strong>Privacy:</strong> Do not upload or enter Social Security numbers, driver's license numbers, banking details, or identity documents here. If formal screening becomes necessary, it will use a separate secure process.
+</div>
+
+<label style="font-weight:normal">
+<input id="ack" type="checkbox" required style="width:auto;margin-right:8px">
+I understand this is an interest application only, and I agree that StarRise may use my contact details to follow up about delivery opportunities.
+</label>
+
+<p class="small">
+Your submission is stored in StarRise's Supabase database and is accessible to authorized platform administrators. Review our <a href="privacy.html">Privacy Policy</a>.
+</p>
+
+<button id="submitBtn" type="submit">Submit My Interest</button>
+<div id="formMessage" role="status" aria-live="polite" class="status hidden"></div>
+</form>
+</div>
+
+<div class="panel">
+<h2>What Happens Next?</h2>
+<ol>
+<li>Create or sign into your StarRise account.</li>
+<li>Submit your driver interest application.</li>
+<li>Check this page to view your application status.</li>
+<li>If the program moves forward, StarRise may contact you about eligibility, screening, and onboarding.</li>
+</ol>
+<p class="small">The future driver program depends on operational readiness, applicable laws, insurance, and required approvals.</p>
+</div>
+</main>
+
+<footer>
+<p>StarRise by FAM Entertainment LLC</p>
+<a href="eats.html">StarRise Eats</a> |
+<a href="privacy.html">Privacy</a> |
+<a href="support.html">Support</a>
+</footer>
+
+<script>
+const SUPABASE_URL =
+"https://rcnikxotdalxtuvpmlvm.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let currentUser = null;
+
+const $ = id => document.getElementById(id);
+
+function show(id) {
+  ["loading","loginPanel","existingPanel","formPanel"]
+    .forEach(name => $(name).classList.add("hidden"));
+  $(id).classList.remove("hidden");
+}
+
+function message(text, error=false) {
+  const el = $("formMessage");
+  el.classList.remove("hidden");
+  el.textContent = text;
+  el.style.border = error
+    ? "1px solid #e48b8b"
+    : "1px solid #b9a0f2";
+}
+
+function formatStatus(status) {
+  const labels = {
+    interest_received:"Interest Received",
+    under_review:"Under Review",
+    contacted:"Contacted",
+    waitlisted:"Waitlisted",
+    declined:"Closed"
+  };
+  return labels[status] || "Received";
+}
+
+async function initialize() {
+  try {
+    const {data:{user},error:authError} =
+      await db.auth.getUser();
+
+    if(authError || !user) {
+      show("loginPanel");
+      return;
+    }
+
+    currentUser = user;
+    $("email").value = user.email || "";
+    $("fullName").value =
+      user.user_metadata?.full_name ||
+      user.user_metadata?.display_name ||
+      "";
+
+    const {data,error} = await db
+      .from("driver_applications")
+      .select("id,status,created_at")
+      .eq("user_id",user.id)
+      .maybeSingle();
+
+    if(error) {
+      show("formPanel");
+      message(
+        "Application records could not be checked. Please try again later.",
+        true
+      );
+      $("submitBtn").disabled = true;
+      return;
+    }
+
+    if(data) {
+      $("applicationStatus").textContent =
+        formatStatus(data.status);
+      $("submittedDate").textContent =
+        "Submitted: " +
+        new Date(data.created_at).toLocaleDateString();
+      show("existingPanel");
+      return;
+    }
+
+    show("formPanel");
+
+  } catch(err) {
+    console.error(err);
+    show("loginPanel");
+  }
+}
+
+$("driverForm").addEventListener("submit",async event => {
+  event.preventDefault();
+
+  if(!currentUser) {
+    show("loginPanel");
+    return;
+  }
+
+  if(!$("driverForm").reportValidity()) return;
+
+  const button = $("submitBtn");
+  button.disabled = true;
+  button.textContent = "Submitting...";
+
+  try {
+    const payload = {
+      user_id:currentUser.id,
+      full_name:$("fullName").value.trim(),
+      contact_email:$("email").value.trim(),
+      phone:$("phone").value.trim(),
+      city:$("city").value.trim(),
+      state:$("state").value.trim(),
+      vehicle_type:$("vehicle").value,
+      availability:$("availability").value,
+      notes:$("notes").value.trim()
+    };
+
+    const {error} = await db
+      .from("driver_applications")
+      .insert(payload);
+
+    if(error) {
+      if(error.code === "23505") {
+        message(
+          "You already have an application. Refresh to view its status.",
+          true
+        );
+      } else {
+        message(
+          "We could not save your application. Please try again.",
+          true
+        );
+      }
+      return;
+    }
+
+    $("applicationStatus").textContent =
+      "Interest Received";
+    $("submittedDate").textContent =
+      "Submitted: " + new Date().toLocaleDateString();
+    show("existingPanel");
+
+  } catch(err) {
+    console.error(err);
+    message("A connection error occurred. Please try again.",true);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Submit My Interest";
+  }
+});
+
+initialize();
+</script>
+</body>
+</html>
