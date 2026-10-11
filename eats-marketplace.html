@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Explore Food | StarRise Eats</title>
+<meta name="description" content="Discover food vendors and menus in the upcoming StarRise Eats marketplace.">
+<link rel="stylesheet" href="starrise-brand.css">
+<link rel="icon" type="image/png" href="starrise-logo.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:#fff;font-family:Arial,sans-serif;line-height:1.6}
+header{padding:18px 5%;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;border-bottom:1px solid #ffffff25}
+header img{width:130px}
+nav{display:flex;gap:15px;flex-wrap:wrap}
+a{color:#f3ca71}
+nav a{color:white;text-decoration:none}
+main{max-width:1200px;margin:auto;padding:35px 20px 80px}
+h1{font-size:clamp(36px,7vw,65px);margin:10px 0}
+.gold{color:#f3ca71}
+.muted{color:#bbb}
+.notice{background:#302443;border:1px solid #a787d6;border-radius:12px;padding:16px;margin:22px 0}
+.filters{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin:25px 0}
+input,select{width:100%;background:#19152a;color:#fff;border:1px solid #777;border-radius:10px;padding:14px;font:inherit}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(265px,1fr));gap:20px}
+.card{background:#19152a;border:1px solid #ffffff25;border-radius:17px;padding:24px}
+.card h2{margin:0 0 8px;font-size:23px}
+.card h3{margin:12px 0 5px}
+.card p{color:#bbb}
+.price{color:#f3ca71;font-weight:bold;font-size:21px}
+.tag{display:inline-block;background:#332545;color:#f3ca71;border-radius:18px;padding:5px 12px;font-size:12px}
+.btn{display:inline-block;background:#f3ca71;color:#171021;border-radius:25px;padding:12px 20px;text-decoration:none;font-weight:bold}
+.menu{border-top:1px solid #ffffff25;margin-top:18px;padding-top:14px}
+.menu-item{padding:12px 0;border-bottom:1px solid #ffffff18}
+.menu-item:last-child{border-bottom:0}
+.hidden{display:none!important}
+footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
+@media(max-width:600px){.filters{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+<a href="index.html"><img src="starrise-logo.png" alt="StarRise"></a>
+<nav>
+<a href="index.html">Home</a>
+<a href="eats.html">StarRise Eats</a>
+<a href="eats-vendor.html">Vendor Dashboard</a>
+</nav>
+</header>
+
+<main>
+<p class="gold">STARRISE EATS</p>
+<h1>Discover Local Food</h1>
+<p class="muted">Explore food businesses and menus joining the StarRise Eats network.</p>
+
+<div class="notice">
+<strong>Marketplace Preview:</strong>
+Food ordering, payment processing, pickup scheduling, and delivery are not available yet. Listings are informational while we prepare the platform.
+</div>
+
+<div class="filters">
+<input id="search" type="search" placeholder="Search restaurants, food, or locations" aria-label="Search food vendors">
+<select id="category" aria-label="Filter food category">
+<option value="all">All Categories</option>
+<option value="Food">Food</option>
+<option value="Drinks">Drinks</option>
+<option value="Desserts">Desserts</option>
+<option value="Sides">Sides</option>
+<option value="Combos">Combos</option>
+<option value="Other">Other</option>
+</select>
+</div>
+
+<p id="status" role="status" aria-live="polite">Loading marketplace...</p>
+<div id="vendors" class="grid"></div>
+
+<section style="margin-top:60px">
+<div class="card">
+<h2>Own a Restaurant or Food Truck?</h2>
+<p>Join StarRise Eats and begin preparing your food menu for our future marketplace.</p>
+<a class="btn" href="register.html?role=Vendor">Register Your Business</a>
+<p><a href="eats-vendor.html">Already registered? Manage your menu.</a></p>
+</div>
+</section>
+</main>
+
+<footer>
+<p>StarRise by FAM Entertainment LLC</p>
+<a href="eats.html">StarRise Eats</a> |
+<a href="privacy.html">Privacy</a>
+</footer>
+
+<script>
+const db=window.supabase.createClient(
+"https://rcnikxotdalxtuvpmlvm.supabase.co",
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+
+const $=id=>document.getElementById(id);
+let vendors=[];
+let menus=[];
+
+function node(tag,text){
+const el=document.createElement(tag);
+if(text!==undefined)el.textContent=text;
+return el;
+}
+
+function money(cents){
+return new Intl.NumberFormat("en-US",{
+style:"currency",currency:"USD"
+}).format(cents/100);
+}
+
+async function load(){
+try{
+const [vendorResult,menuResult]=await Promise.all([
+db.from("vendor_profiles")
+.select("user_id,business_name,category,description,location,is_active")
+.eq("is_active",true),
+db.from("eats_menu_items")
+.select("vendor_id,name,description,category,price_cents,available")
+.eq("available",true)
+]);
+
+if(vendorResult.error)throw vendorResult.error;
+if(menuResult.error)throw menuResult.error;
+
+menus=menuResult.data||[];
+const ids=new Set(menus.map(x=>x.vendor_id));
+
+vendors=(vendorResult.data||[])
+.filter(v=>ids.has(v.user_id));
+
+render();
+}catch(error){
+console.error(error);
+$("status").textContent=
+"Marketplace listings are temporarily unavailable.";
+}
+}
+
+function render(){
+const search=$("search").value.trim().toLowerCase();
+const category=$("category").value;
+const root=$("vendors");
+root.replaceChildren();
+
+const matching=vendors.filter(v=>{
+const items=menus.filter(m=>m.vendor_id===v.user_id);
+const relevant=category==="all"?
+items:items.filter(m=>m.category===category);
+
+if(!relevant.length)return false;
+
+const text=[
+v.business_name,v.category,v.description,v.location,
+...relevant.map(m=>m.name+" "+m.description)
+].join(" ").toLowerCase();
+
+return text.includes(search);
+});
+
+$("status").textContent=matching.length?
+matching.length+" food business(es) found.":
+"No matching food menus are listed yet. Check back as vendors join.";
+
+matching.forEach(v=>{
+const card=node("article");
+card.className="card";
+
+const title=node("h2",v.business_name||"Food Vendor");
+const tag=node("span",v.category||"Food Business");
+tag.className="tag";
+const location=node("p",v.location||"Location coming soon");
+const description=node("p",v.description||"Explore this vendor's menu.");
+
+const menu=node("div");
+menu.className="menu";
+menu.append(node("h3","Menu Preview"));
+
+menus
+.filter(m=>m.vendor_id===v.user_id)
+.filter(m=>category==="all"||m.category===category)
+.forEach(item=>{
+const row=node("div");
+row.className="menu-item";
+
+const name=node("strong",item.name);
+const price=node("div",money(item.price_cents));
+price.className="price";
+const details=node("p",item.description||"");
+
+row.append(name,price,details);
+menu.append(row);
+});
+
+card.append(title,tag,location,description,menu);
+root.append(card);
+});
+}
+
+$("search").addEventListener("input",render);
+$("category").addEventListener("change",render);
+
+load();
+</script>
+</body>
+</html>
