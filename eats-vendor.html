@@ -1,0 +1,305 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Food Vendor Dashboard | StarRise Eats</title>
+<meta name="description" content="Manage your StarRise Eats food menu.">
+<link rel="stylesheet" href="starrise-brand.css">
+<link rel="icon" href="starrise-logo.png" type="image/png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:#fff;font-family:Arial,sans-serif;line-height:1.6}
+header{padding:18px 5%;border-bottom:1px solid #ffffff25;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}
+header img{width:135px}
+nav{display:flex;gap:15px;flex-wrap:wrap}
+a{color:#f3ca71}
+nav a{color:white;text-decoration:none}
+main{max-width:1100px;margin:auto;padding:35px 20px 80px}
+h1{font-size:clamp(34px,7vw,60px);margin:10px 0}
+.gold{color:#f3ca71}
+.muted{color:#bbb}
+.panel,.item{background:#19152a;border:1px solid #ffffff25;border-radius:17px;padding:24px;margin:20px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px}
+.item{margin:0}
+.item h3{margin:0}
+label{display:block;font-weight:bold;margin:17px 0 7px}
+input,select,textarea{width:100%;background:#100e1e;color:#fff;border:1px solid #777;border-radius:10px;padding:13px;font:inherit}
+textarea{min-height:90px}
+button,.btn{display:inline-block;background:#f3ca71;color:#171021;border:0;border-radius:25px;padding:12px 21px;font-weight:bold;cursor:pointer;text-decoration:none}
+button.secondary{background:#322545;color:white}
+button:disabled{opacity:.5;cursor:wait}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.hidden{display:none!important}
+.notice{background:#302443;border:1px solid #a787d6;border-radius:12px;padding:16px;margin:20px 0}
+.price{font-size:24px;font-weight:bold;color:#f3ca71}
+footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
+</style>
+</head>
+<body>
+
+<header>
+<a href="index.html"><img src="starrise-logo.png" alt="StarRise"></a>
+<nav>
+<a href="index.html">Home</a>
+<a href="eats.html">StarRise Eats</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
+</header>
+
+<main>
+<p class="gold">STARRISE EATS BUSINESS TOOLS</p>
+<h1>Food Vendor Dashboard</h1>
+<p class="muted">Create and manage your food menu directly through StarRise.</p>
+
+<div class="notice">
+<strong>Prelaunch:</strong> Menus are being prepared for the StarRise Eats marketplace. Food ordering, checkout, and delivery are not active yet.
+</div>
+
+<div id="loading" class="panel">Checking your vendor account...</div>
+
+<div id="login" class="panel hidden">
+<h2>Vendor Account Required</h2>
+<p>Sign in to a registered StarRise vendor account to manage your menu.</p>
+<a class="btn" href="register.html?role=Vendor">Register as Vendor</a>
+<a class="btn" href="dashboard.html">Sign In</a>
+</div>
+
+<div id="workspace" class="hidden">
+
+<div class="panel">
+<h2 id="businessName">Your Food Business</h2>
+<p id="businessDetails" class="muted"></p>
+</div>
+
+<div class="panel">
+<h2>Add Menu Item</h2>
+<form id="menuForm">
+
+<label for="name">Food or Drink Name *</label>
+<input id="name" maxlength="120" minlength="2" required placeholder="Example: Chicken & Waffles">
+
+<label for="description">Description</label>
+<textarea id="description" maxlength="1000" placeholder="Describe your item and ingredients."></textarea>
+
+<label for="category">Category *</label>
+<select id="category" required>
+<option value="Food">Food</option>
+<option value="Drinks">Drinks</option>
+<option value="Desserts">Desserts</option>
+<option value="Sides">Sides</option>
+<option value="Combos">Combos</option>
+<option value="Other">Other</option>
+</select>
+
+<label for="price">Price in USD *</label>
+<input id="price" type="number" min="0.01" max="100000" step="0.01" required placeholder="12.99">
+
+<label for="available">Availability</label>
+<select id="available">
+<option value="true">Available</option>
+<option value="false">Unavailable</option>
+</select>
+
+<div class="actions">
+<button id="submitBtn" type="submit">Save Menu Item</button>
+</div>
+<p id="formMessage" role="status" aria-live="polite"></p>
+</form>
+</div>
+
+<div class="panel">
+<h2>Your Menu</h2>
+<div class="actions">
+<button id="refresh" type="button" class="secondary">Refresh Menu</button>
+</div>
+<p id="listMessage" role="status"></p>
+<div id="menuList" class="grid"></div>
+</div>
+
+</div>
+</main>
+
+<footer>
+<p>StarRise by FAM Entertainment LLC</p>
+<a href="eats.html">Back to StarRise Eats</a>
+</footer>
+
+<script>
+const db=window.supabase.createClient(
+"https://rcnikxotdalxtuvpmlvm.supabase.co",
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+
+const $=id=>document.getElementById(id);
+let user=null;
+let vendor=null;
+
+function show(id){
+["loading","login","workspace"].forEach(x=>$(x).classList.add("hidden"));
+$(id).classList.remove("hidden");
+}
+
+function el(tag,text){
+const node=document.createElement(tag);
+if(text!==undefined)node.textContent=text;
+return node;
+}
+
+function money(cents){
+return new Intl.NumberFormat("en-US",{
+style:"currency",currency:"USD"
+}).format(cents/100);
+}
+
+async function initialize(){
+try{
+const {data:{user:sessionUser},error:authError}=await db.auth.getUser();
+if(authError||!sessionUser){show("login");return}
+user=sessionUser;
+
+const {data,error}=await db
+.from("vendor_profiles")
+.select("user_id,business_name,category,location")
+.eq("user_id",user.id)
+.maybeSingle();
+
+if(error||!data){show("login");return}
+vendor=data;
+$("businessName").textContent=vendor.business_name||"Your Food Business";
+$("businessDetails").textContent=
+[vendor.category,vendor.location].filter(Boolean).join(" • ");
+
+show("workspace");
+await loadMenu();
+}catch(error){
+console.error(error);
+show("login");
+}
+}
+
+async function loadMenu(){
+if(!user)return;
+$("refresh").disabled=true;
+$("listMessage").textContent="Loading menu...";
+
+try{
+const {data,error}=await db
+.from("eats_menu_items")
+.select("id,name,description,category,price_cents,available,created_at")
+.eq("vendor_id",user.id)
+.order("created_at",{ascending:false});
+
+if(error)throw error;
+
+const root=$("menuList");
+root.replaceChildren();
+$("listMessage").textContent=data.length?
+data.length+" menu item(s)":"No menu items yet.";
+
+data.forEach(item=>{
+const card=el("article");
+card.className="item";
+
+const title=el("h3",item.name);
+const price=el("div",money(item.price_cents));
+price.className="price";
+const desc=el("p",item.description||"No description");
+const category=el("p","Category: "+item.category);
+const status=el("p",item.available?"Available":"Unavailable");
+
+const toggle=el("button",item.available?"Mark Unavailable":"Mark Available");
+toggle.className="secondary";
+toggle.type="button";
+toggle.addEventListener("click",async()=>{
+toggle.disabled=true;
+const {error}=await db
+.from("eats_menu_items")
+.update({available:!item.available})
+.eq("id",item.id)
+.eq("vendor_id",user.id);
+if(error){
+alert("Unable to update availability.");
+toggle.disabled=false;
+return;
+}
+await loadMenu();
+});
+
+const remove=el("button","Delete Item");
+remove.className="secondary";
+remove.type="button";
+remove.addEventListener("click",async()=>{
+if(!confirm("Delete this menu item?"))return;
+remove.disabled=true;
+const {error}=await db
+.from("eats_menu_items")
+.delete()
+.eq("id",item.id)
+.eq("vendor_id",user.id);
+if(error){
+alert("Unable to delete item.");
+remove.disabled=false;
+return;
+}
+await loadMenu();
+});
+
+const actions=el("div");
+actions.className="actions";
+actions.append(toggle,remove);
+
+card.append(title,price,desc,category,status,actions);
+root.append(card);
+});
+}catch(error){
+console.error(error);
+$("listMessage").textContent="Unable to load menu.";
+}finally{
+$("refresh").disabled=false;
+}
+}
+
+$("menuForm").addEventListener("submit",async event=>{
+event.preventDefault();
+if(!user||!vendor)return;
+
+const amount=Number($("price").value);
+const cents=Math.round(amount*100);
+if(!Number.isSafeInteger(cents)||cents<1||cents>10000000){
+$("formMessage").textContent="Enter a valid price.";
+return;
+}
+
+const button=$("submitBtn");
+button.disabled=true;
+$("formMessage").textContent="Saving...";
+
+try{
+const {error}=await db.from("eats_menu_items").insert({
+vendor_id:user.id,
+name:$("name").value.trim(),
+description:$("description").value.trim(),
+category:$("category").value,
+price_cents:cents,
+available:$("available").value==="true"
+});
+if(error)throw error;
+$("formMessage").textContent="Menu item saved successfully.";
+$("menuForm").reset();
+await loadMenu();
+}catch(error){
+console.error(error);
+$("formMessage").textContent="Unable to save item. Check your vendor account and try again.";
+}finally{
+button.disabled=false;
+}
+});
+
+$("refresh").addEventListener("click",loadMenu);
+initialize();
+</script>
+</body>
+</html>
