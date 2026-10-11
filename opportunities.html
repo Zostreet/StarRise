@@ -1141,8 +1141,15 @@
             .getElementById('remote')
             .checked;
 
-        const insertResult =
-          await supabaseClient
+        const insertResult = await supabaseClient
+  .from('opportunity_applications')
+  .insert({
+    opportunity_id: selectedOpportunity.id,
+    applicant_id: user.id,
+    message,
+    fit_role: selectedOpportunity.type || 'Collaboration',
+    status: 'pending'
+  });
             .from('opportunities')
             .insert({
               creator_id:
