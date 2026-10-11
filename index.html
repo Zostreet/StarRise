@@ -1,589 +1,511 @@
+
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title>StarRise | Where Talent Rises</title>
-
-  <meta
-    name="description"
-    content="StarRise connects talent, creativity, opportunity, resources, and people who believe in helping others rise."
-  >
-
-  <style>
-    * { box-sizing: border-box; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #080812;
-      color: #fff;
-      line-height: 1.6;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(8, 8, 18, .95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid #ffffff18;
-    }
-
-    .nav {
-      width: min(1150px, calc(100% - 30px));
-      margin: auto;
-      min-height: 72px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    .logo {
-      font-size: 22px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .nav-links {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 18px;
-    }
-
-    .nav-links a {
-      color: #aaa;
-      font-size: 15px;
-    }
-
-    .nav-links a:hover { color: #fff; }
-
-    main {
-      width: min(1150px, calc(100% - 30px));
-      margin: auto;
-    }
-
-    .hero {
-      min-height: 650px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 90px 0;
-    }
-
-    .hero-inner { max-width: 850px; }
-
-    .eyebrow {
-      color: #aaa;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      font-size: 13px;
-      font-weight: bold;
-      margin-bottom: 18px;
-    }
-
-    .hero h1 {
-      margin: 0;
-      font-size: clamp(52px, 10vw, 100px);
-      line-height: .95;
-    }
-
-    .hero h1 span { display: block; }
-
-    .hero p {
-      max-width: 720px;
-      margin: 28px auto 0;
-      color: #aaa;
-      font-size: 19px;
-    }
-
-    .buttons {
-      margin-top: 32px;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .button {
-      display: inline-block;
-      padding: 13px 23px;
-      border-radius: 30px;
-      font-weight: bold;
-      border: 1px solid #ffffff25;
-      transition: transform .2s ease, background .2s ease;
-    }
-
-    .button:hover { transform: translateY(-2px); }
-
-    .button.primary {
-      background: #fff;
-      color: #080812;
-    }
-
-    .button.secondary {
-      color: #fff;
-      background: #ffffff08;
-    }
-
-    section { padding: 75px 0; }
-
-    .section-heading {
-      max-width: 760px;
-      margin-bottom: 35px;
-    }
-
-    .section-heading h2 {
-      font-size: clamp(34px, 6vw, 52px);
-      margin: 0 0 12px;
-    }
-
-    .section-heading p {
-      color: #aaa;
-      margin: 0;
-      font-size: 17px;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 18px;
-    }
-
-    .card {
-      display: block;
-      border: 1px solid #ffffff18;
-      border-radius: 20px;
-      padding: 25px;
-      background: #ffffff08;
-      transition: transform .2s ease, border-color .2s ease, background .2s ease;
-    }
-
-    a.card:hover {
-      transform: translateY(-5px);
-      border-color: #ffffff40;
-      background: #ffffff10;
-    }
-
-    .card-icon {
-      font-size: 30px;
-      margin-bottom: 12px;
-    }
-
-    .card h3 {
-      margin: 0 0 8px;
-      font-size: 22px;
-    }
-
-    .card p {
-      margin: 0;
-      color: #aaa;
-    }
-
-    .card-link {
-      display: inline-block;
-      margin-top: 16px;
-      font-weight: bold;
-      color: #fff;
-    }
-
-    .fund-section {
-      border: 1px solid #ffffff20;
-      border-radius: 28px;
-      padding: 45px;
-      background: #ffffff08;
-    }
-
-    .fund-section .section-heading { margin-bottom: 25px; }
-
-    .fund-badge {
-      display: inline-block;
-      padding: 7px 13px;
-      border-radius: 20px;
-      border: 1px solid #ffffff25;
-      color: #ccc;
-      font-size: 13px;
-      margin-bottom: 18px;
-    }
-
-    .fund-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 25px;
-    }
-
-    .ecosystem-box {
-      border-top: 1px solid #ffffff18;
-      margin-top: 25px;
-      padding-top: 25px;
-      color: #aaa;
-    }
-
-    .cta {
-      text-align: center;
-      padding: 90px 20px;
-      border-top: 1px solid #ffffff18;
-    }
-
-    .cta h2 {
-      font-size: clamp(36px, 7vw, 60px);
-      margin: 0 0 15px;
-    }
-
-    .cta p {
-      max-width: 700px;
-      margin: auto;
-      color: #aaa;
-    }
-
-    footer {
-      border-top: 1px solid #ffffff18;
-      padding: 30px 15px;
-      color: #888;
-    }
-
-    .footer-inner {
-      width: min(1150px, calc(100% - 30px));
-      margin: auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-    }
-
-    .footer-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    .footer-links a { font-size: 13px; }
-    .footer-links a:hover { color: #fff; }
-
-    @media (max-width: 700px) {
-      .nav {
-        padding: 14px 0;
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .nav-links { justify-content: flex-start; }
-      .hero { min-height: 550px; }
-      .fund-section { padding: 28px; }
-
-      .footer-inner {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StarRise | Where Talent Rises</title>
+<meta name="description" content="StarRise connects talent, creativity, opportunities, businesses, and people who believe in helping others rise.">
 <link rel="stylesheet" href="starrise-brand.css">
 <link rel="icon" type="image/png" href="starrise-logo.png">
+
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+ margin:0;
+ font-family:Arial,Helvetica,sans-serif;
+ background:#080812;
+ color:#fff;
+ line-height:1.6
+}
+a{color:inherit;text-decoration:none}
+header{
+ position:sticky;
+ top:0;
+ z-index:100;
+ background:rgba(8,8,18,.96);
+ backdrop-filter:blur(10px);
+ border-bottom:1px solid #ffffff18
+}
+.nav{
+ width:min(1150px,calc(100% - 30px));
+ margin:auto;
+ min-height:72px;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:20px
+}
+.logo{font-size:22px;font-weight:800}
+.nav-links{
+ display:flex;
+ flex-wrap:wrap;
+ justify-content:flex-end;
+ gap:16px
+}
+.nav-links a{color:#ccc;font-size:14px}
+.nav-links a:hover{color:#fff}
+main{
+ width:min(1150px,calc(100% - 30px));
+ margin:auto
+}
+.hero{
+ min-height:620px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ text-align:center;
+ padding:80px 0
+}
+.hero-inner{max-width:850px}
+.eyebrow{
+ color:#c5a0fa;
+ text-transform:uppercase;
+ letter-spacing:3px;
+ font-size:13px;
+ font-weight:bold;
+ margin-bottom:18px
+}
+.hero h1{
+ margin:0;
+ font-size:clamp(52px,10vw,100px);
+ line-height:1
+}
+.hero h1 span{display:block}
+.hero p{
+ max-width:720px;
+ margin:28px auto 0;
+ color:#bbb;
+ font-size:19px
+}
+.buttons,.fund-actions{
+ display:flex;
+ justify-content:center;
+ flex-wrap:wrap;
+ gap:12px;
+ margin-top:25px
+}
+.button{
+ display:inline-block;
+ padding:13px 23px;
+ border-radius:30px;
+ font-weight:bold;
+ border:1px solid #ffffff25;
+ transition:transform .2s
+}
+.button:hover{transform:translateY(-2px)}
+.button.primary{background:#fff;color:#080812}
+.button.secondary{background:#ffffff08;color:#fff}
+.button.gold{background:#f3ca71;color:#171021}
+section{padding:70px 0}
+.section-heading{max-width:760px;margin-bottom:35px}
+.section-heading h2{
+ font-size:clamp(34px,6vw,52px);
+ margin:0 0 12px
+}
+.section-heading p{color:#aaa;margin:0;font-size:17px}
+.cards{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+ gap:18px
+}
+.card{
+ display:block;
+ border:1px solid #ffffff20;
+ border-radius:20px;
+ padding:25px;
+ background:#ffffff08;
+ transition:transform .2s,border-color .2s
+}
+a.card:hover{
+ transform:translateY(-5px);
+ border-color:#ffffff60
+}
+.card-icon{font-size:30px;margin-bottom:12px}
+.card h3{margin:0 0 8px;font-size:22px}
+.card p{margin:0;color:#aaa}
+.card-link{
+ display:inline-block;
+ margin-top:16px;
+ font-weight:bold
+}
+.fund-section{
+ border:1px solid #ffffff20;
+ border-radius:28px;
+ padding:45px;
+ background:#ffffff08
+}
+.fund-badge{
+ display:inline-block;
+ padding:7px 13px;
+ border-radius:20px;
+ border:1px solid #ffffff25;
+ color:#ddd;
+ font-size:13px;
+ margin-bottom:18px
+}
+.fund-actions{justify-content:flex-start}
+.ecosystem-box{
+ border-top:1px solid #ffffff18;
+ margin-top:25px;
+ padding-top:25px;
+ color:#aaa
+}
+.eats-section{
+ border:1px solid #d9ad5e77;
+ border-radius:28px;
+ padding:45px;
+ background:linear-gradient(135deg,#251733,#100e20)
+}
+.eats-section h2{font-size:clamp(35px,7vw,55px)}
+.eats-section p{color:#ddd;max-width:760px}
+.eats-section .fund-badge{color:#f3ca71}
+.eats-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:25px}
+.cta{
+ text-align:center;
+ padding:90px 20px;
+ border-top:1px solid #ffffff18
+}
+.cta h2{
+ font-size:clamp(36px,7vw,60px);
+ margin:0 0 15px
+}
+.cta p{max-width:700px;margin:auto;color:#aaa}
+footer{
+ border-top:1px solid #ffffff18;
+ padding:30px 15px;
+ color:#999
+}
+.footer-inner{
+ width:min(1150px,calc(100% - 30px));
+ margin:auto;
+ display:flex;
+ justify-content:space-between;
+ gap:18px;
+ flex-wrap:wrap
+}
+.footer-links{display:flex;flex-wrap:wrap;gap:15px}
+.footer-links a{font-size:13px}
+@media(max-width:700px){
+ .nav{
+  padding:14px 0;
+  align-items:flex-start;
+  flex-direction:column
+ }
+ .nav-links{justify-content:flex-start}
+ .hero{min-height:520px}
+ .fund-section,.eats-section{padding:25px}
+}
+</style>
 </head>
 
 <body>
 
 <header>
-  <div class="nav">
-    <a class="logo starrise-brand" href="index.html" aria-label="StarRise — Home"><img src="starrise-logo.png" alt="StarRise by FAM ENT" width="1697" height="927" decoding="async"></a>
+<div class="nav">
+<a class="logo starrise-brand" href="index.html" aria-label="StarRise Home">
+<img src="starrise-logo.png" alt="StarRise by FAM ENT" width="1697" height="927" decoding="async">
+</a>
 
-    <nav class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="community.html">Community</a>
-      <a href="creator-studio.html">Creator Studio</a>
-      <a href="doing-it-big.html">Doing It Big</a>
-      <a href="young-creators.html">Young Creators</a>
-      <a href="members.html">Members</a>
-      <a href="messages.html">Messages</a>
-      <a href="ecosystem.html">Ecosystem</a>
-      <a href="marketplace.html">Store</a>
-      <a href="services.html">Services</a>
-      <a href="opportunities.html">Opportunities</a>
-      <a href="founding-creators.html">Founding Creators</a>
-      <a href="founding-creator-directory.html">Founding Directory</a>
-      <a href="dashboard.html">Dashboard</a>
-    </nav>
-  </div>
+<nav class="nav-links" aria-label="Main navigation">
+<a href="index.html">Home</a>
+<a href="community.html">Community</a>
+<a href="creator-studio.html">Creator Studio</a>
+<a href="doing-it-big.html">Doing It Big</a>
+<a href="young-creators.html">Young Creators</a>
+<a href="members.html">Members</a>
+<a href="messages.html">Messages</a>
+<a href="ecosystem.html">Ecosystem</a>
+<a href="marketplace.html">Store</a>
+<a href="eats.html">StarRise Eats</a>
+<a href="services.html">Services</a>
+<a href="events.html">Events</a>
+<a href="opportunities.html">Opportunities</a>
+<a href="founding-creators.html">Founding Creators</a>
+<a href="founding-creator-directory.html">Founding Directory</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
+</div>
 </header>
 
 <main>
 
-  <section class="hero">
-    <div class="hero-inner">
-      <img src="starrise-logo.png" alt="" class="starrise-hero-logo" width="1697" height="927" decoding="async">
-      <div class="eyebrow">The StarRise Ecosystem</div>
+<section class="hero">
+<div class="hero-inner">
+<img src="starrise-logo.png" alt="" class="starrise-hero-logo" width="1697" height="927" decoding="async">
+<div class="eyebrow">The StarRise Ecosystem</div>
+<h1>Where <span>Talent Rises.</span></h1>
+<p>One community connecting talent, creativity, opportunity, resources, businesses, and people who believe in helping others rise.</p>
+<div class="buttons">
+<a class="button primary" href="#talent">Explore StarRise</a>
+<a class="button secondary" href="talent-funds.html">Support Talent</a>
+<a class="button gold" href="eats.html">Explore StarRise Eats</a>
+</div>
+</div>
+</section>
 
-      <h1>
-        Where
-        <span>Talent Rises.</span>
-      </h1>
+<section id="talent">
+<div class="section-heading">
+<h2>Talent &amp; Creators</h2>
+<p>Artists, musicians, performers, creators, writers, producers, entrepreneurs, and emerging talent all have a place here.</p>
+</div>
+<div class="cards">
 
-      <p>
-        One community connecting talent, creativity,
-        opportunity, resources, and people who believe
-        in helping others rise.
-      </p>
+<a href="community.html" class="card">
+<div class="card-icon">📸</div>
+<h3>Talent Feed</h3>
+<p>Share photos and videos, discover talent, follow creators, like posts, and comment.</p>
+<span class="card-link">Open Community →</span>
+</a>
 
-      <div class="buttons">
-        <a class="button primary" href="#talent">Explore StarRise</a>
-        <a class="button secondary" href="talent-funds.html">Support Talent</a>
-      </div>
-    </div>
-  </section>
+<a href="members.html" class="card">
+<div class="card-icon">🎤</div>
+<h3>Artists</h3>
+<p>Showcase your music, performances, projects, and creative identity.</p>
+<span class="card-link">Explore Artists →</span>
+</a>
 
-  <section id="talent">
-    <div class="section-heading">
-      <h2>Talent &amp; Creators</h2>
+<a href="members.html" class="card">
+<div class="card-icon">🎬</div>
+<h3>Creators</h3>
+<p>Build and share original creative work with the StarRise community.</p>
+<span class="card-link">Explore Creators →</span>
+</a>
 
-      <p>
-        StarRise is built around people. Artists, musicians,
-        performers, creators, writers, producers, entrepreneurs,
-        and emerging talent all have a place here.
-      </p>
-    </div>
+<a href="members.html" class="card">
+<div class="card-icon">🌟</div>
+<h3>Emerging Talent</h3>
+<p>Discover pathways to develop your skills and connect with opportunities.</p>
+<span class="card-link">Discover Talent →</span>
+</a>
 
-    <div class="cards">
-      <a href="community.html" class="card">
-        <div class="card-icon">📸</div>
-        <h3>Talent Feed</h3>
-        <p>Share photos and videos, discover talent, follow creators, like posts, and comment.</p>
-        <span class="card-link">Open Community →</span>
-      </a>
+</div>
+</section>
 
-      <a href="members.html" class="card">
-        <div class="card-icon">🎤</div>
-        <h3>Artists</h3>
-        <p>Showcase your music, performances, projects, and creative identity.</p>
-        <span class="card-link">Explore Artists →</span>
-      </a>
+<section id="creator-studio">
+<div class="fund-section">
+<div class="fund-badge">CREATE IN STARRISE · FREE TO TRY</div>
+<div class="section-heading">
+<h2>Your Adult Creator Studio</h2>
+<p>Write songs, play instruments, flip samples into beats, tune and mix vocals, create cover art, plan scenes, and export your projects.</p>
+</div>
+<div class="fund-actions">
+<a class="button primary" href="creator-studio.html">Open Creator Studio</a>
+<a class="button secondary" href="creator-studio.html?room=audio#workspace">Open Recording Studio</a>
+</div>
+</div>
+</section>
 
-      <a href="members.html" class="card">
-        <div class="card-icon">🎬</div>
-        <h3>Creators</h3>
-        <p>Build and share original creative work with the StarRise community.</p>
-        <span class="card-link">Explore Creators →</span>
-      </a>
+<section id="doing-it-big">
+<div class="fund-section">
+<div class="fund-badge">GIVE TALENT THEIR FLOWERS</div>
+<div class="section-heading">
+<h2>Doing It Big</h2>
+<p>Recognition for upcoming artists and creators doing meaningful work while being overlooked. They do not need a StarRise account to be recognized.</p>
+</div>
+<div class="fund-actions">
+<a class="button primary" href="doing-it-big.html">Discover Doing It Big</a>
+<a class="button secondary" href="doing-it-big.html#nominate">Nominate a Creator</a>
+</div>
+</div>
+</section>
 
-      <a href="members.html" class="card">
-        <div class="card-icon">🌟</div>
-        <h3>Emerging Talent</h3>
-        <p>Discover pathways to develop your skills and connect with opportunities.</p>
-        <span class="card-link">Discover Talent →</span>
-      </a>
-    </div>
-  </section>
+<section id="young-creators">
+<div class="fund-section">
+<div class="fund-badge">FREE CREATIVE SPACE</div>
+<div class="section-heading">
+<h2>Young Ideas Deserve to Shine</h2>
+<p>Young creators can explore songwriting, beatmaking, drawing, acting, and storytelling. No account is needed to explore activities or create on a device.</p>
+</div>
+<div class="fund-actions">
+<a class="button primary" href="young-creators.html">Explore Young Creators</a>
+<a class="button secondary" href="youth-program.html">Parents, Teachers &amp; Schools</a>
+</div>
+</div>
+</section>
 
-  <section id="creator-studio">
-    <div class="fund-section">
-      <div class="fund-badge">CREATE IN STARRISE · FREE TO TRY</div>
-      <div class="section-heading">
-        <h2>Your adult Creator Studio.</h2>
-        <p>Write songs, play instruments, flip samples into new beats, tune and mix vocal takes, create layered cover art, plan scenes, and rehearse your set. Keep the whole project together and export your work.</p>
-      </div>
-      <div class="fund-actions">
-        <a class="button primary" href="creator-studio.html">Open Creator Studio</a>
-        <a class="button secondary" href="creator-studio.html?room=audio#workspace">Open Recording Studio</a>
-      </div>
-    </div>
-  </section>
+<section id="talentfund">
+<div class="fund-section">
+<div class="fund-badge">TALENT SUPPORT</div>
+<div class="section-heading">
+<h2>TalentFund</h2>
+<p>Helping promising people access support, resources, development, and opportunity.</p>
+</div>
+<div class="cards">
 
-  <section id="doing-it-big">
-    <div class="fund-section">
-      <div class="fund-badge">GIVE THE TALENT THEIR FLOWERS</div>
-      <div class="section-heading"><h2>Doing It Big.</h2><p>Recognition for upcoming artists and creators doing meaningful work while being slept on. Discover their work or nominate someone who deserves the spotlight. They do not need a StarRise account to be recognized.</p></div>
-      <div class="fund-actions"><a class="button primary" href="doing-it-big.html">Discover Doing It Big</a><a class="button secondary" href="doing-it-big.html#nominate">Nominate a creator</a></div>
-    </div>
-  </section>
+<a href="talent-funds.html" class="card">
+<div class="card-icon">🎵</div>
+<h3>Fund Music</h3>
+<p>Support songs, albums, recordings, and music projects.</p>
+<span class="card-link">Browse Funds →</span>
+</a>
 
-  <section id="young-creators">
-    <div class="fund-section">
-      <div class="fund-badge">FREE CREATIVE SPACE</div>
-      <div class="section-heading">
-        <h2>Young ideas deserve to shine.</h2>
-        <p>StarRise Young Creators gives young artists their own place to try songwriting, beatmaking, drawing, acting, and storytelling. No account is needed to explore the activities or create on a device.</p>
-      </div>
-      <div class="fund-actions">
-        <a class="button primary" href="young-creators.html">Explore Young Creators</a>
-        <a class="button secondary" href="youth-program.html">Parents, Teachers &amp; Schools</a>
-      </div>
-    </div>
-  </section>
+<a href="talent-funds.html" class="card">
+<div class="card-icon">🎥</div>
+<h3>Creative Projects</h3>
+<p>Support artwork, videos, performances, and equipment.</p>
+<span class="card-link">Support Projects →</span>
+</a>
 
-  <section id="talentfund">
-    <div class="fund-section">
-      <div class="fund-badge">⭐ LIVE NOW</div>
+<a href="talent-funds.html" class="card">
+<div class="card-icon">🚀</div>
+<h3>Help Talent Rise</h3>
+<p>Put resources behind people building their creative futures.</p>
+<span class="card-link">Help Someone Rise →</span>
+</a>
 
-      <div class="section-heading">
-        <h2>TalentFund</h2>
+</div>
+<div class="fund-actions">
+<a class="button primary" href="talent-funds.html">Browse Talent Funds</a>
+<a class="button secondary" href="dashboard.html">Create Your Talent Fund</a>
+</div>
+<div class="ecosystem-box">
+<strong>Payment update:</strong>
+PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.
+Planned platform fee when payments reopen: 10% deducted from each sale or Talent Fund contribution. Sellers or recipients also pay applicable PayPal processing fees from proceeds. Buyers pay no additional StarRise platform surcharge.
+<a href="terms.html">Read payment terms</a>.
+</div>
+</div>
+</section>
 
-        <p>
-          Talent should not be limited simply because someone lacks
-          access to resources. TalentFund helps promising people access
-          support, resources, development, and opportunity.
-        </p>
-      </div>
+<section id="starrise-eats">
+<div class="eats-section">
+<div class="fund-badge">NEW · RECRUITING VENDORS &amp; PARTNERS</div>
+<h2>🍽️ StarRise Eats</h2>
+<p>Food. Delivery. Local Businesses. Opportunity.</p>
+<p>We're building a network connecting restaurants, food trucks, caterers, customers, sponsors, and future delivery drivers.</p>
+<p><strong>Ordering and delivery are coming soon.</strong> StarRise Eats is not yet accepting food orders or operating a delivery fleet.</p>
+<div class="eats-links">
+<a class="button gold" href="eats.html">Explore StarRise Eats</a>
+<a class="button secondary" href="register.html?role=Vendor">Register Your Food Business</a>
+<a class="button secondary" href="register.html?role=Partner">Become a Partner</a>
+<a class="button secondary" href="eats.html#drivers">Driver Opportunities</a>
+</div>
+</div>
+</section>
 
-      <div class="cards">
-        <a href="talent-funds.html" class="card">
-          <div class="card-icon">🎵</div>
-          <h3>Fund Music</h3>
-          <p>Help artists create songs, albums, recordings, and new projects.</p>
-          <span class="card-link">Browse Funds →</span>
-        </a>
+<section id="opportunities">
+<div class="section-heading">
+<h2>Opportunities</h2>
+<p>Connect people with opportunities to perform, create, collaborate, work, learn, and grow.</p>
+</div>
+<div class="cards">
 
-        <a href="talent-funds.html" class="card">
-          <div class="card-icon">🎥</div>
-          <h3>Creative Projects</h3>
-          <p>Support artwork, videos, performances, equipment, and other creative goals.</p>
-          <span class="card-link">Support Projects →</span>
-        </a>
+<a href="opportunities.html" class="card">
+<div class="card-icon">🎭</div>
+<h3>Auditions</h3>
+<p>Discover casting calls and performance opportunities.</p>
+<span class="card-link">View Auditions →</span>
+</a>
 
-        <a href="talent-funds.html" class="card">
-          <div class="card-icon">🚀</div>
-          <h3>Help Talent Rise</h3>
-          <p>Put resources directly behind people working to build their creative future.</p>
-          <span class="card-link">Help Someone Rise →</span>
-        </a>
-      </div>
+<a href="opportunities.html" class="card">
+<div class="card-icon">🎵</div>
+<h3>Gigs</h3>
+<p>Find music, entertainment, and creative gigs.</p>
+<span class="card-link">Find Gigs →</span>
+</a>
 
-      <div class="fund-actions">
-        <a class="button primary" href="talent-funds.html">Browse Talent Funds</a>
-        <a class="button secondary" href="dashboard.html">Create Your Talent Fund</a>
-      </div>
+<a href="opportunities.html" class="card">
+<div class="card-icon">🤝</div>
+<h3>Collaborations</h3>
+<p>Connect with people who can help develop creative projects.</p>
+<span class="card-link">Explore Opportunities →</span>
+</a>
 
-      <div class="ecosystem-box">
-        <strong>Explore Talent Funds on StarRise.</strong>
-        Browse creative projects. PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.
-        Planned fee when payments reopen: StarRise deducts a 10% platform fee from each sale or Talent Fund contribution. The seller or fund recipient also pays PayPal processing fees from their proceeds. Buyers and supporters pay no additional StarRise platform surcharge. <a href="terms.html">Read payment terms</a>.
-      </div>
-    </div>
-  </section>
+<a href="founding-creators.html" class="card">
+<div class="card-icon">⭐</div>
+<h3>Founding Creators</h3>
+<p>Apply for Wave One and help shape StarRise.</p>
+<span class="card-link">Apply Now →</span>
+</a>
 
-  <section id="opportunities">
-    <div class="section-heading">
-      <h2>Opportunities</h2>
+</div>
+</section>
 
-      <p>
-        Connect people with meaningful opportunities to perform,
-        create, collaborate, work, learn, and grow.
-      </p>
-    </div>
+<section id="community">
+<div class="section-heading">
+<h2>Community &amp; Business</h2>
+<p>StarRise supports the people on stage and the businesses, organizations, and communities behind them.</p>
+</div>
 
-    <div class="cards">
-      <a href="opportunities.html" class="card">
-        <div class="card-icon">🎭</div>
-        <h3>Auditions</h3>
-        <p>Discover casting calls and performance opportunities.</p>
-        <span class="card-link">View Auditions →</span>
-      </a>
+<div class="cards">
 
-      <a href="opportunities.html" class="card">
-        <div class="card-icon">🎵</div>
-        <h3>Gigs</h3>
-        <p>Find performance, music, entertainment, and creative gigs.</p>
-        <span class="card-link">Find Gigs →</span>
-      </a>
+<a href="members.html" class="card">
+<div class="card-icon">❤️</div>
+<h3>Members</h3>
+<p>Discover the people participating in StarRise.</p>
+<span class="card-link">Explore Members →</span>
+</a>
 
-      <a href="opportunities.html" class="card">
-        <div class="card-icon">🤝</div>
-        <h3>Collaborations</h3>
-        <p>Connect with people who can help turn creative ideas into real projects.</p>
-        <span class="card-link">Explore Opportunities →</span>
-      </a>
+<a href="eats.html" class="card">
+<div class="card-icon">🍽️</div>
+<h3>StarRise Eats</h3>
+<p>Explore our upcoming food and delivery network. Restaurants, food trucks, vendors, sponsors, and prospective drivers are welcome.</p>
+<span class="card-link">Explore StarRise Eats →</span>
+</a>
 
-      <a href="founding-creators.html" class="card">
-        <div class="card-icon">⭐</div>
-        <h3>Founding Creators</h3>
-        <p>Apply for Wave One and help shape the future of the StarRise creator community.</p>
-        <span class="card-link">Apply Now →</span>
-      </a>
-    </div>
-  </section>
+<a href="vendors.html" class="card">
+<div class="card-icon">🛠️</div>
+<h3>Vendors</h3>
+<p>Find businesses offering products, services, and creative resources.</p>
+<span class="card-link">Explore Vendors →</span>
+</a>
 
-  <section id="community">
-    <div class="section-heading">
-      <h2>Community</h2>
+<a href="partners.html" class="card">
+<div class="card-icon">🏢</div>
+<h3>Partners</h3>
+<p>Explore organizations helping create opportunities.</p>
+<span class="card-link">Explore Partners →</span>
+</a>
 
-      <p>
-        StarRise isn't only about the people on stage. It's also
-        about the people behind the scenes and the supporters
-        who help make everything possible.
-      </p>
-    </div>
+<a href="supporters.html" class="card">
+<div class="card-icon">🙌</div>
+<h3>Supporters</h3>
+<p>Join people who believe in talent and help others rise.</p>
+<span class="card-link">Explore Supporters →</span>
+</a>
 
-    <div class="cards">
-      <a href="members.html" class="card">
-        <div class="card-icon">❤️</div>
-        <h3>Members</h3>
-        <p>Discover the people who participate in and contribute to StarRise.</p>
-        <span class="card-link">Explore Members →</span>
-      </a>
+<a href="events.html" class="card">
+<div class="card-icon">🎟️</div>
+<h3>StarRise Events</h3>
+<p>Discover upcoming showcases, festivals, and community entertainment plans. Dates and venues are subject to confirmation.</p>
+<span class="card-link">Explore Events →</span>
+</a>
 
-      <a href="vendors.html" class="card">
-        <div class="card-icon">🛠️</div>
-        <h3>Vendors</h3>
-        <p>Find businesses providing services, products, and creative resources.</p>
-        <span class="card-link">Explore Vendors →</span>
-      </a>
+</div>
+</section>
 
-      <a href="partners.html" class="card">
-        <div class="card-icon">🏢</div>
-        <h3>Partners</h3>
-        <p>Explore organizations working with StarRise to create opportunities.</p>
-        <span class="card-link">Explore Partners →</span>
-      </a>
-
-      <a href="supporters.html" class="card">
-        <div class="card-icon">🙌</div>
-        <h3>Supporters</h3>
-        <p>Join the people who believe in talent and help others rise.</p>
-        <span class="card-link">Explore Supporters →</span>
-      </a>
-    </div>
-  </section>
-
-  <section class="cta">
-    <h2>Your Place in StarRise</h2>
-
-    <p>
-      Whether you're talent, a creator, supporter, client, vendor,
-      partner, or simply someone who believes in opportunity,
-      there's a place for you in the StarRise ecosystem.
-    </p>
-
-    <div class="buttons">
-      <a class="button primary" href="join.html">Join StarRise</a>
-      <a class="button secondary" href="talent-funds.html">Support Talent</a>
-    </div>
-  </section>
+<section class="cta">
+<h2>Your Place in StarRise</h2>
+<p>Whether you're talent, a creator, supporter, client, vendor, driver applicant, or business partner, there's a place for you in our growing ecosystem.</p>
+<div class="buttons">
+<a class="button primary" href="join.html">Join StarRise</a>
+<a class="button gold" href="eats.html">StarRise Eats</a>
+<a class="button secondary" href="talent-funds.html">Support Talent</a>
+</div>
+</section>
 
 </main>
 
 <footer>
-  <div class="footer-inner">
-    <span>⭐ StarRise — Where Talent Rises.</span>
-    <nav class="footer-links" aria-label="Legal navigation">
-      <a href="terms.html">Terms</a>
-      <a href="privacy.html">Privacy</a>
-      <a href="refund-policy.html">Refunds</a>
-      <a href="support.html">Contact &amp; Support</a>
-    </nav>
-  </div>
-<p style="font-size:12px;line-height:1.5">Payment information effective October 6, 2026. <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund-policy.html">Refunds</a> · <a href="support.html">Support</a></p>
+<div class="footer-inner">
+<span>⭐ StarRise — Where Talent Rises.</span>
+<nav class="footer-links" aria-label="Legal navigation">
+<a href="terms.html">Terms</a>
+<a href="privacy.html">Privacy</a>
+<a href="refund-policy.html">Refunds</a>
+<a href="support.html">Contact &amp; Support</a>
+</nav>
+</div>
+<p style="font-size:12px;line-height:1.5">
+Payment information effective October 6, 2026.
+<a href="terms.html">Terms</a> ·
+<a href="privacy.html">Privacy</a> ·
+<a href="refund-policy.html">Refunds</a> ·
+<a href="support.html">Support</a>
+</p>
 </footer>
 
 </body>
 </html>
-
