@@ -198,7 +198,12 @@
           class: "button quiet"
         });
 
-        actions.append(share, collaborate);
+        const opportunities = el("a", "Auditions & Opportunities ↗", {
+  href: "opportunities.html",
+  class: "button quiet"
+});
+
+actions.append(share, collaborate, opportunities);
         card.append(actions);
 
         card.append(
