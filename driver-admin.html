@@ -1,0 +1,291 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Driver Applications | StarRise Admin</title>
+<link rel="stylesheet" href="starrise-brand.css">
+<link rel="icon" href="starrise-logo.png" type="image/png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090916;color:#fff;font-family:Arial,sans-serif;line-height:1.6}
+header{padding:18px 5%;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;border-bottom:1px solid #ffffff25}
+header img{width:130px}
+nav{display:flex;gap:15px;flex-wrap:wrap}
+a{color:#f3ca71}
+nav a{color:#fff;text-decoration:none}
+main{max-width:1150px;margin:auto;padding:35px 20px 80px}
+h1{font-size:clamp(32px,6vw,55px);margin:10px 0}
+.gold{color:#f3ca71}
+.muted{color:#bbb}
+.panel,.card{background:#19152a;border:1px solid #ffffff25;border-radius:16px;padding:22px;margin:20px 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:#252039;padding:20px;border-radius:14px}
+.stat strong{font-size:30px;display:block;color:#f3ca71}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:15px}
+.card{margin:0}
+.card h3{margin:0 0 8px}
+.card p{overflow-wrap:anywhere}
+label{display:block;margin:15px 0 7px;font-weight:bold}
+select,input{width:100%;background:#0e0d1c;color:white;border:1px solid #777;border-radius:9px;padding:12px;font:inherit}
+button,.btn{background:#f3ca71;color:#171021;border:0;border-radius:24px;padding:12px 20px;font-weight:bold;cursor:pointer;display:inline-block;text-decoration:none}
+button:disabled{opacity:.55;cursor:wait}
+.actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.hidden{display:none!important}
+.message{padding:14px;border-radius:10px;background:#302443;margin:15px 0}
+small{color:#bbb}
+footer{text-align:center;border-top:1px solid #ffffff25;padding:25px}
+</style>
+</head>
+<body>
+
+<header>
+<a href="index.html"><img src="starrise-logo.png" alt="StarRise"></a>
+<nav>
+<a href="index.html">Home</a>
+<a href="eats.html">StarRise Eats</a>
+<a href="dashboard.html">Member Dashboard</a>
+</nav>
+</header>
+
+<main>
+<p class="gold">STARRISE MANAGEMENT</p>
+<h1>Driver Applications</h1>
+<p class="muted">Private management dashboard for the StarRise Eats driver interest program.</p>
+
+<div id="loading" class="panel">Verifying administrator access...</div>
+
+<div id="denied" class="panel hidden">
+<h2>Administrator Access Required</h2>
+<p>You must sign into an authorized StarRise administrator account.</p>
+<a class="btn" href="dashboard.html">Go to Sign In</a>
+</div>
+
+<div id="admin" class="hidden">
+<div class="stats">
+<div class="stat"><strong id="total">0</strong>Total</div>
+<div class="stat"><strong id="received">0</strong>Received</div>
+<div class="stat"><strong id="review">0</strong>Under Review</div>
+<div class="stat"><strong id="contacted">0</strong>Contacted</div>
+</div>
+
+<div class="panel">
+<div class="actions">
+<button id="refresh" type="button">Refresh Applications</button>
+<span id="lastRefresh" class="muted"></span>
+</div>
+
+<label for="filter">Filter by Status</label>
+<select id="filter">
+<option value="all">All Applications</option>
+<option value="interest_received">Interest Received</option>
+<option value="under_review">Under Review</option>
+<option value="contacted">Contacted</option>
+<option value="waitlisted">Waitlisted</option>
+<option value="declined">Closed</option>
+</select>
+
+<div id="message" role="status" aria-live="polite" class="message hidden"></div>
+</div>
+
+<div id="applications" class="grid"></div>
+</div>
+
+</main>
+
+<footer>
+<p>StarRise by FAM Entertainment LLC</p>
+<small>Private administrative information. Do not share applicant contact details without authorization.</small>
+</footer>
+
+<script>
+const db = window.supabase.createClient(
+ "https://rcnikxotdalxtuvpmlvm.supabase.co",
+ "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+
+const $ = id => document.getElementById(id);
+let applications = [];
+let authorized = false;
+
+const statusLabels = {
+ interest_received:"Interest Received",
+ under_review:"Under Review",
+ contacted:"Contacted",
+ waitlisted:"Waitlisted",
+ declined:"Closed"
+};
+
+function notify(text) {
+ $("message").textContent = text;
+ $("message").classList.remove("hidden");
+}
+
+function element(tag,text,cls) {
+ const el = document.createElement(tag);
+ if(text !== undefined) el.textContent = text;
+ if(cls) el.className = cls;
+ return el;
+}
+
+async function checkAccess() {
+ try {
+  const {data:{user},error} = await db.auth.getUser();
+
+  if(error || !user) {
+   $("loading").classList.add("hidden");
+   $("denied").classList.remove("hidden");
+   return;
+  }
+
+  const {data:admin,error:adminError} = await db
+   .from("driver_admins")
+   .select("user_id")
+   .eq("user_id",user.id)
+   .maybeSingle();
+
+  $("loading").classList.add("hidden");
+
+  if(adminError || !admin) {
+   $("denied").classList.remove("hidden");
+   return;
+  }
+
+  authorized = true;
+  $("admin").classList.remove("hidden");
+  await loadApplications();
+
+ } catch(err) {
+  console.error(err);
+  $("loading").classList.add("hidden");
+  $("denied").classList.remove("hidden");
+ }
+}
+
+async function loadApplications() {
+ if(!authorized) return;
+
+ $("refresh").disabled = true;
+ try {
+  const {data,error} = await db
+   .from("driver_applications")
+   .select("id,full_name,contact_email,phone,city,state,vehicle_type,availability,notes,status,created_at")
+   .order("created_at",{ascending:false});
+
+  if(error) throw error;
+
+  applications = data || [];
+  updateStats();
+  renderApplications();
+
+  $("lastRefresh").textContent =
+   "Updated " + new Date().toLocaleTimeString();
+
+ } catch(err) {
+  console.error(err);
+  notify("Unable to load applications. Check your connection and permissions.");
+ } finally {
+  $("refresh").disabled = false;
+ }
+}
+
+function updateStats() {
+ $("total").textContent = applications.length;
+ $("received").textContent =
+  applications.filter(x=>x.status==="interest_received").length;
+ $("review").textContent =
+  applications.filter(x=>x.status==="under_review").length;
+ $("contacted").textContent =
+  applications.filter(x=>x.status==="contacted").length;
+}
+
+function addDetail(parent,label,value) {
+ const p = element("p");
+ const strong = element("strong",label+": ");
+ p.append(strong,document.createTextNode(value || "Not provided"));
+ parent.append(p);
+}
+
+function renderApplications() {
+ const root = $("applications");
+ root.replaceChildren();
+
+ const filter = $("filter").value;
+ const filtered = applications.filter(x =>
+  filter==="all" || x.status===filter
+ );
+
+ if(!filtered.length) {
+  root.append(element("p","No applications match this filter.","muted"));
+  return;
+ }
+
+ filtered.forEach(app=>{
+  const card = element("article",undefined,"card");
+  card.append(element("h3",app.full_name));
+
+  addDetail(card,"Email",app.contact_email);
+  addDetail(card,"Phone",app.phone);
+  addDetail(card,"Location",[app.city,app.state].filter(Boolean).join(", "));
+  addDetail(card,"Vehicle",app.vehicle_type);
+  addDetail(card,"Availability",app.availability);
+  addDetail(card,"Notes",app.notes);
+  addDetail(card,"Submitted",new Date(app.created_at).toLocaleString());
+
+  const label = element("label","Application Status");
+  const select = element("select");
+  select.setAttribute("aria-label","Status for "+app.full_name);
+
+  Object.entries(statusLabels).forEach(([value,text])=>{
+   const option = element("option",text);
+   option.value = value;
+   option.selected = app.status===value;
+   select.append(option);
+  });
+
+  const save = element("button","Save Status");
+  save.type = "button";
+
+  const result = element("p","");
+  result.setAttribute("role","status");
+
+  save.addEventListener("click",async()=>{
+   save.disabled = true;
+   result.textContent = "Saving...";
+
+   try {
+    const {data,error} = await db
+     .from("driver_applications")
+     .update({status:select.value})
+     .eq("id",app.id)
+     .select("id,status")
+     .single();
+
+    if(error) throw error;
+
+    app.status = data.status;
+    result.textContent = "Status saved.";
+    updateStats();
+
+   } catch(err) {
+    console.error(err);
+    result.textContent = "Unable to save status.";
+   } finally {
+    save.disabled = false;
+   }
+  });
+
+  card.append(label,select,save,result);
+  root.append(card);
+ });
+}
+
+$("refresh").addEventListener("click",loadApplications);
+$("filter").addEventListener("change",renderApplications);
+
+checkAccess();
+</script>
+</body>
+</html>
