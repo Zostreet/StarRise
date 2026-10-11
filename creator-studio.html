@@ -1,108 +1,467 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="StarRise studio for artists and creators: record, mix with effects, collaborate in private shared sessions, and export stems for a recording studio.">
-  <meta name="referrer" content="same-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self' https://rcnikxotdalxtuvpmlvm.supabase.co https://rcnikxotdalxtuvpmlvm.storage.supabase.co; object-src 'none'; base-uri 'self'; form-action 'none'">
-  <title>Creator Studio | StarRise</title>
-  <link rel="icon" type="image/png" href="starrise-logo.png">
-  <link rel="stylesheet" href="css/creator-studio.css">
-  <link rel="stylesheet" href="css/studio-pro.css">
-  <link rel="stylesheet" href="css/studio-sound.css">
-  <script src="css/creator-studio-core-v3.js" defer></script>
-  <script src="css/studio-audio.js" defer></script>
-  <script src="css/studio-sounds.js" defer></script>
-  <script src="css/studio-sound-ui.js" defer></script>
-  <script src="css/studio-package.js" defer></script>
-  <script src="css/creator-studio-v4.js" defer></script>
-  <script src="css/studio-collaboration.js" defer></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StarRise | Creator Studio</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0c0c18;color:#f7f3ff;font:15px Arial,sans-serif}
+header{padding:17px;background:#1b162b;display:flex;justify-content:space-between;gap:10px;align-items:center}
+header a{color:#e7baff}
+main{max-width:1200px;margin:auto;padding:16px}
+h1{color:#e4baff}
+h2{font-size:19px;margin-top:0}
+.panel{background:#1e1b30;border:1px solid #433956;border-radius:15px;padding:15px;margin:14px 0}
+button{border:0;background:#8f50d5;color:white;padding:11px;border-radius:8px;font-weight:bold;margin:3px;cursor:pointer}
+button.secondary{background:#49415f}
+button:disabled{opacity:.4}
+input,select,textarea{max-width:100%;padding:8px;border-radius:7px;border:1px solid #655979;background:#151324;color:white}
+input[type=color]{padding:2px;width:54px;height:38px}
+label{display:inline-block;margin:6px}
+textarea{width:100%;min-height:65px}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:5px}
+canvas{display:block;max-width:100%;height:auto;margin:auto;background:white;touch-action:none;border-radius:5px}
+.canvasWrap{overflow:auto;background:#100f1b;padding:12px;border-radius:10px}
+small{color:#c9bfd6}
+#status{color:#eacaff}
+#layers{display:grid;gap:6px}
+.layer{background:#342c48;border-radius:8px;padding:9px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.layer.active{outline:2px solid #c58aff}
+.layer span{flex:1;min-width:120px;overflow-wrap:anywhere}
+@media(min-width:850px){.layout{display:grid;grid-template-columns:290px minmax(0,1fr);gap:15px;align-items:start}}
+</style>
 </head>
 <body>
-  <a class="skip" href="#workspace">Skip to the studio</a>
-  <header class="site-header"><div class="header-inner">
-    <a class="brand" href="index.html" aria-label="StarRise home"><img src="starrise-logo.png" width="1697" height="927" alt="StarRise by FAM ENT"><span>Creator Studio</span></a>
-    <nav aria-label="Adult StarRise navigation"><a href="community.html">Community</a><a href="doing-it-big.html">Doing It Big</a><a href="marketplace.html">Store</a><a href="dashboard.html">Dashboard <span aria-hidden="true">↗</span></a></nav>
-  </div></header>
-  <main>
-    <section class="studio-hero wrap" aria-labelledby="heroTitle">
-      <div class="hero-copy"><p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> Your creative headquarters · Adults 18+</p><h1 id="heroTitle">Big ideas.<br><span>Made by you.</span></h1><p class="hero-description">For artists and creators. Write, record, shape your sound, and build with your collaborators. Take your session from this workspace to a recording studio.</p><div class="hero-actions"><a class="button primary" href="#workspace">Open your studio <span aria-hidden="true">↗</span></a><a class="button quiet" href="#studioGuide">See what you can make</a></div><div class="hero-details"><span>Six creative rooms</span><span>Free to create</span><span>Your work stays yours</span></div></div>
-      <div class="session-art" aria-hidden="true"><div class="art-top"><span>STARRISE / SESSION 001</span><span>✦</span></div><div class="session-title">MAKE<br>SOMETHING<br><em>THAT MOVES.</em></div><div class="visual-tracks"><span>01</span><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><span>02</span><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><span>03</span><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="art-bottom"><span>IDEA → CREATION → NEXT CHAPTER</span><strong>PLAY YOUR PART.</strong></div></div>
-    </section>
-    <section class="workspace wrap" id="workspace" aria-labelledby="workspaceTitle">
-      <div class="workspace-heading"><div><p class="eyebrow">One project. Every part of the process.</p><h2 id="workspaceTitle">Your workspace</h2></div><span class="save-state" id="saveState" role="status">Opening project library…</span></div>
-      <div class="project-bar"><div class="project-name"><label for="projectName">Project name</label><input id="projectName" value="Untitled session" maxlength="300" autocomplete="off"></div><div class="project-actions"><button class="button quiet" type="button" id="newProject">New project</button><button class="button quiet" type="button" id="openProjects">Saved projects</button><button class="button primary" type="button" id="openCollaboration">Collaborate</button><button class="button quiet" type="button" id="exportProject">Export backup</button><label class="button quiet file-button">Import backup<input id="projectImport" type="file" accept=".json,application/json" aria-label="Import project backup"></label></div></div>
-      <p class="storage-note" id="storageNote">Your working project saves in this browser. Publish a version in Collaborate to share it with invited members, or export a backup to move devices.</p>
-      <div class="studio-layout">
-        <aside class="room-sidebar"><p class="eyebrow">Creative rooms</p><div class="room-tabs" role="tablist" aria-label="Creative rooms" aria-orientation="vertical">
-          <button type="button" role="tab" id="tab-song" data-room="song" aria-controls="room-song" aria-selected="true" tabindex="0"><span class="room-number">01</span><span>Song room<small>Lyrics &amp; structure</small></span></button>
-          <button type="button" role="tab" id="tab-beat" data-room="beat" aria-controls="room-beat" aria-selected="false" tabindex="-1"><span class="room-number">02</span><span>Beat desk<small>Rhythm &amp; arrangement</small></span></button>
-          <button type="button" role="tab" id="tab-audio" data-room="audio" aria-controls="room-audio" aria-selected="false" tabindex="-1"><span class="room-number">03</span><span>Recording studio<small>Vocals, takes &amp; mixing</small></span></button>
-          <button type="button" role="tab" id="tab-art" data-room="art" aria-controls="room-art" aria-selected="false" tabindex="-1"><span class="room-number">04</span><span>Art room<small>Layers &amp; cover design</small></span></button>
-          <button type="button" role="tab" id="tab-story" data-room="story" aria-controls="room-story" aria-selected="false" tabindex="-1"><span class="room-number">05</span><span>Story board<small>Scripts &amp; shot lists</small></span></button>
-          <button type="button" role="tab" id="tab-stage" data-room="stage" aria-controls="room-stage" aria-selected="false" tabindex="-1"><span class="room-number">06</span><span>Stage room<small>Setlist &amp; rehearsal</small></span></button>
-        </div><div class="sidebar-note"><span aria-hidden="true">✦</span><strong>Create it your way.</strong><p>Space for your voice, your style, and your next chapter.</p></div></aside>
-        <div class="room-shell">
-          <section class="room" role="tabpanel" id="room-song" aria-labelledby="tab-song">
-            <div class="room-heading"><div><p class="eyebrow">01 / Song room</p><h3>Give the idea a voice.</h3><p>Build a complete song section by section. Rearrange it until it feels right.</p></div><button class="button quiet" type="button" id="songPrompt">Creative prompt</button></div>
-            <p class="prompt-box" id="songPromptText">Start with a moment that changed your direction. Write the line you wish someone had said to you.</p>
-            <div class="two-fields"><label>Key or tonal center<input id="songKey" placeholder="A minor, C major, free-form…"></label><label>Mood &amp; direction<input id="songMood" placeholder="Soulful, raw, hopeful, late-night…"></label></div>
-            <div class="section-toolbar"><label>Add a section<select id="sectionType"><option>Verse</option><option>Hook</option><option>Chorus</option><option>Intro</option><option>Pre-chorus</option><option>Bridge</option><option>Outro</option><option>Notes</option></select></label><button class="button primary" type="button" id="addSongSection">Add section</button><span id="songWordCount">0 words</span></div>
-            <div id="songSections" class="draft-list"></div>
-            <div class="room-footer"><p>Your original words. Your structure.</p><div class="actions"><button class="button quiet" type="button" id="copySong">Copy song</button><button class="button primary" type="button" id="exportSong">Export lyrics TXT</button></div></div>
-          </section>
-          <section class="room" role="tabpanel" id="room-beat" aria-labelledby="tab-beat" hidden>
-            <div class="room-heading"><div><p class="eyebrow">02 / Beat desk</p><h3>Build a sound of your own.</h3><p>Play instruments, shape your drums, and flip samples into a new beat. Everything follows your two pattern banks and arrangement.</p></div><span class="room-badge">Instruments · Sampler · Drums</span></div>
-            <label class="drum-kit-select">Drum sound kit<select id="drumKit"><option>Classic</option><option>808</option><option>Electronic</option><option>Soft acoustic</option></select></label>
-            <div class="beat-top"><div class="bank-switch" role="group" aria-label="Edit pattern bank"><button type="button" data-bank="A" aria-pressed="true">Pattern A</button><button type="button" data-bank="B" aria-pressed="false">Pattern B</button></div><label>Starter groove<select id="grooveType"><option value="hiphop">Hip-hop</option><option value="rnb">R&amp;B / soul</option><option value="trap">Trap</option><option value="house">House</option><option value="blank">Empty grid</option></select></label><button class="button quiet" type="button" id="loadGroove">Load groove</button><button class="button quiet" type="button" id="copyBank">Copy A to B</button></div>
-            <div class="beat-knobs"><label for="beatTempo">Tempo <output id="beatTempoValue">92 BPM</output><input id="beatTempo" type="range" min="40" max="220" value="92"></label><label for="beatSwing">Swing <output id="beatSwingValue">0%</output><input id="beatSwing" type="range" min="0" max="50" value="0"></label><label for="beatMaster">Master level <output id="beatMasterValue">45%</output><input id="beatMaster" type="range" min="0" max="100" value="45"></label></div>
-            <div class="sequencer-scroll" tabindex="0" aria-label="Scrollable sixteen-step drum sequencer"><div id="beatGrid" class="beat-grid"></div></div><p class="small muted">Tap to switch a step on or off. Shift + tap cycles soft, medium, and strong hits. Each group of four steps is one beat.</p>
-            <details class="mixer-details"><summary>Track mixer · levels, pan &amp; mute</summary><div class="mixer" id="beatMixer"></div></details>
-            <section class="sound-panel" aria-labelledby="instrumentTitle"><div class="section-toolbar"><div><p class="eyebrow">Play your part</p><h4 id="instrumentTitle">Instrument rack</h4></div><span class="room-badge">8 instrument tracks</span></div><div class="sound-add"><label>New instrument sound<select id="newInstrumentSound"><option>Piano keys</option><option>Electric keys</option><option>Organ</option><option>Pluck</option><option>Sub bass</option><option>Strings</option><option>Warm pad</option><option>Lead</option></select></label><button id="addInstrument" class="button primary" type="button">Add instrument</button></div><div id="instrumentTools"></div><p class="small muted">Tap keys to play. Turn on “Write played keys to pattern” to enter notes, or choose a note and tap its steps. Layer instrument tracks to build chords. Note length is measured in sixteenth-note steps.</p></section>
-            <section class="sound-panel" aria-labelledby="samplerTitle"><div class="section-toolbar"><div><p class="eyebrow">Find a sound. Flip the idea.</p><h4 id="samplerTitle">Sample lab</h4></div><label class="button primary file-button">Import sample<input id="sampleImport" type="file" accept="audio/*,.wav,.mp3,.m4a,.ogg,.flac" aria-label="Import sample audio"></label></div><div class="sample-source-actions"><button id="sampleFromClip" class="button quiet" type="button">Use clip region</button><label>Recording source<select id="sampleTake"><option value="">Choose a recorded / imported take</option></select></label><button id="sampleFromTake" class="button quiet" type="button">Use selected take</button></div><div id="samplerTools"></div><p class="small muted">Import mono or stereo audio up to two minutes. Chop a region into 4, 8, or 16 pads, then rearrange the steps. Pads play their whole slice; speed changes also change pitch. Use your own audio, licensed samples, or sounds you have permission to reuse.</p></section>
-            <div class="beat-transport"><label>Arrangement<select id="beatArrangement"><option value="A">Loop A</option><option value="B">Loop B</option><option value="AB">A → B</option><option value="AABB">A → A → B → B</option></select></label><label>Export repeats<input id="beatCycles" type="number" min="1" max="8" value="1"></label><button class="button primary" type="button" id="playBeat" aria-pressed="false">Play arrangement</button><span class="transport-state" id="beatState">Ready to play</span></div>
-            <div class="room-footer"><label>WAV export<select id="beatStem"><option value="-1">Full drum mix</option><option value="0">Kick stem</option><option value="1">Snare stem</option><option value="2">Clap stem</option><option value="3">Closed hat stem</option><option value="4">Open hat stem</option><option value="5">Percussion stem</option></select></label><button class="button primary" type="button" id="exportBeat">Export WAV</button></div>
-          </section>
-          <section class="room" role="tabpanel" id="room-audio" aria-labelledby="tab-audio" hidden>
-            <div class="room-heading"><div><p class="eyebrow">03 / Digital recording studio</p><h3>Put your voice on the record.</h3><p>Record vocals over your beat and existing takes. Layer performances, adjust the mix, and export a stereo WAV.</p></div><label class="button quiet file-button">Import takes<input id="takeImport" type="file" accept="audio/*,.wav,.mp3,.m4a,.ogg,.flac" multiple aria-label="Import recording takes"></label></div>
-            <div class="record-controls"><label class="inline-check"><input id="recordBeat" type="checkbox" checked> Include beat maker arrangement</label><label>Beat repeats<input id="recordRepeats" type="number" min="1" max="16" value="4"></label><label>Count-in<select id="recordCountIn"><option value="1">One bar</option><option value="0">None</option></select></label><label for="recordMaster">Mix level <input id="recordMaster" type="range" min="0" max="100" value="75"></label></div>
-            <div class="record-transport"><div class="record-readout"><span id="recordState">Ready for your next take</span><strong id="recordClock" role="timer" aria-live="off">00:00</strong></div><div class="actions"><button class="button record-button" type="button" id="recordTake">Record vocal take</button><button class="button primary" type="button" id="playMix">Play session</button><button class="button quiet" type="button" id="stopRecording" disabled>Stop</button><button class="button quiet" type="button" id="exportMix">Export session WAV</button></div></div>
-            <p class="small muted">Recording asks for microphone permission when you start. Use headphones to keep the backing mix out of your microphone. Live microphone monitoring is off. Each take starts at the beginning; use its offset to adjust alignment. Projects support 32 takes; microphone takes stop after 10 minutes.</p>
-            <div class="actions"><button class="button quiet" type="button" id="demoTake">Try a demo take</button><span class="small muted">A short synthesized tone, with no microphone access.</span></div><div class="production-panel"><div class="section-toolbar"><h4>Studio sound &amp; handoff</h4><span class="room-badge">Nondestructive effects · Lossless WAV</span></div><div class="production-fields"><label>Artist / creator<input id="productionArtist" maxlength="1000" placeholder="Artist name or project team"></label><label>Export sample rate<select id="productionRate"><option value="48000">48 kHz</option><option value="44100">44.1 kHz</option></select></label><label>WAV precision<select id="productionFormat"><option value="pcm24">24-bit PCM · Studio handoff</option><option value="float32">32-bit float · Headroom</option><option value="pcm16">16-bit PCM</option></select></label></div><p class="small muted" id="captureInfo">Microphone capture uses the browser audio engine’s rate. Export settings do not improve a noisy or distorted recording.</p><div class="mix-meter"><meter id="mixMeter" min="0" max="1" optimum="0.6" high="0.95" value="0" aria-label="Mix peak level"></meter><span id="mixMeterText">Play your session to check its level.</span></div><details class="effects-panel"><summary>Master effects rack</summary><div id="masterFx"></div></details><label>Credits<textarea id="productionCredits" rows="2" maxlength="5000" placeholder="Artists, writers, producers, engineers, collaborators…"></textarea></label><label>Engineer / collaboration notes<textarea id="productionNotes" rows="3" placeholder="Arrangement, reference sound, edits, mix direction, studio instructions…"></textarea></label><div class="room-footer"><label>Handoff contents<select id="handoffType"><option value="complete">Clean + processed stems, source files, mix &amp; notes</option><option value="clean">Clean stems, source files &amp; notes</option><option value="sources">Original source files, project &amp; notes</option></select></label><button class="button primary" type="button" id="exportHandoff">Export studio ZIP</button></div><p class="small muted">Stems start at the same session origin. The package includes the original source files and a manifest with tempo, key, offsets, edits, effects, and credits. Built-in effects run here; desktop VST / AU / AAX plug-ins run in your recording studio software.</p></div><div id="recordTracks" class="record-tracks"><p class="empty-note">Record a take or import audio to start layering your session.</p></div>
-            <div class="clip-editor-heading"><h4>Audio clip editor</h4><label class="button quiet file-button">Add audio clip<input id="audioImport" type="file" accept="audio/*,.wav,.mp3,.m4a,.ogg,.flac" aria-label="Add audio file"></label></div>
-            <div class="audio-empty" id="audioEmpty"><span aria-hidden="true">≋</span><h4>Your next sound starts here.</h4><p>Add a file from your device. The audio stays with your project in this browser.</p></div>
-            <div id="audioLoaded" hidden><p class="clip-name"><strong id="audioName"></strong><span id="audioLength"></span></p><canvas id="audioWave" width="1100" height="210" aria-label="Audio waveform with selected export region"></canvas><div class="audio-fields"><label>Start (seconds)<input id="audioStart" type="number" min="0" step=".01"></label><label>End (seconds)<input id="audioEnd" type="number" min=".01" step=".01"></label><label>Speed &amp; pitch<select id="audioRate"><option value=".5">0.5×</option><option value=".75">0.75×</option><option value="1">Original · 1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label><label>Fade in / out (seconds)<input id="audioFade" type="number" min="0" max="2" step=".01"></label><label for="audioVolume">Clip level <input id="audioVolume" type="range" min="0" max="100"></label></div><p class="small muted">Speed changes also change pitch. Fades apply to both ends of the selected region.</p><div class="room-footer"><p id="clipState">Ready to preview</p><div class="actions"><button class="button quiet" type="button" id="previewAudio">Preview region</button><button class="button primary" type="button" id="exportAudio">Export clip WAV</button></div></div></div>
-          </section>
-          <section class="room" role="tabpanel" id="room-art" aria-labelledby="tab-art" hidden>
-            <div class="room-heading"><div><p class="eyebrow">04 / Art room</p><h3>Make it unmistakably yours.</h3><p>Design a square cover or graphic on three layers. Export a 1200 × 1200 PNG.</p></div><label class="button quiet file-button">Add image<input id="imageImport" type="file" accept="image/png,image/jpeg,image/webp" aria-label="Add image to selected layer"></label></div>
-            <div class="art-toolbar"><label>Tool<select id="artTool"><option value="brush">Brush</option><option value="eraser">Eraser</option><option value="line">Line</option><option value="rectangle">Rectangle</option></select></label><label>Ink<input id="artColor" type="color" value="#8f7bff"></label><label>Background<input id="artBackground" type="color" value="#f5efe4"></label><label for="artSize">Brush size <output id="artSizeValue">18 px</output><input id="artSize" type="range" min="2" max="100" value="18"></label></div>
-            <div class="art-workspace"><div class="canvas-wrap"><canvas id="artCanvas" width="1200" height="1200" tabindex="0" aria-label="Layered artwork canvas. Draw with a finger or pointer. Arrow keys move the brush; Space draws a mark." aria-describedby="artHelp">Use a browser that supports canvas to create artwork.</canvas></div><div class="layer-panel"><p class="eyebrow">Layers</p><div id="artLayers"></div><div class="art-history"><button class="button quiet" type="button" id="undoArt">Undo</button><button class="button quiet" type="button" id="redoArt">Redo</button><button class="button quiet" type="button" id="clearLayer">Clear layer</button></div></div></div>
-            <p class="small muted" id="artHelp">Finger or pointer to draw. Keyboard: arrows move; Space marks; Shift + arrows moves farther. Undo and redo work on the current session.</p>
-            <div class="text-stamp"><label>Cover lettering<input id="artText" placeholder="Release title, artist name, a phrase…"></label><label>Font size<input id="artFontSize" type="number" min="12" max="200" value="90"></label><button class="button quiet" type="button" id="stampText">Add centered text</button></div><div class="room-footer"><p id="artState">Three layers. One original vision.</p><button class="button primary" type="button" id="exportArt">Export artwork PNG</button></div>
-          </section>
-          <section class="room" role="tabpanel" id="room-story" aria-labelledby="tab-story" hidden>
-            <div class="room-heading"><div><p class="eyebrow">05 / Story board</p><h3>See the story before the shoot.</h3><p>Plan a music video, short film, comic, or stage scene with shots, timing, action, and dialogue.</p></div><button class="button quiet" type="button" id="storyPrompt">Story prompt</button></div>
-            <p class="prompt-box" id="storyPromptText">A creator comes home to the place that shaped them. The same streets reveal a different future.</p><label>Logline<textarea id="storyLogline" rows="2" placeholder="Your story in one or two sentences."></textarea></label><div class="section-toolbar"><button class="button primary" type="button" id="addScene">Add scene</button><span id="storyDuration">3 scenes · 45 seconds planned</span></div><div id="storyScenes" class="draft-list"></div><div class="room-footer"><p>Reorder scenes to find the strongest flow.</p><div class="actions"><button class="button quiet" type="button" id="copyScript">Copy script</button><button class="button quiet" type="button" id="exportShotlist">Export shot list CSV</button><button class="button primary" type="button" id="exportScript">Export script TXT</button></div></div>
-          </section>
-          <section class="room" role="tabpanel" id="room-stage" aria-labelledby="tab-stage" hidden>
-            <div class="room-heading"><div><p class="eyebrow">06 / Stage room</p><h3>Walk in ready.</h3><p>Build your set, run a timed rehearsal, and practice your lyrics or script with a scrolling prompt.</p></div><button class="button quiet" type="button" id="addSetNumber">Add setlist entry</button></div>
-            <div class="section-toolbar"><h4>Your setlist</h4><span id="setDuration">1 entry · 3 minutes</span></div><div id="setlist" class="draft-list"></div><label>Rehearsal notes<textarea id="stageNotes" rows="3" placeholder="Entrances, transitions, energy, cues, things to try…"></textarea></label>
-            <div class="rehearsal-timer"><div><p class="eyebrow">Rehearsal clock</p><strong id="stageClock" role="timer" aria-live="off">03:00</strong></div><label>Minutes<input id="stageMinutes" type="number" min=".25" max="120" step=".25" value="3"></label><div class="actions"><button class="button primary" type="button" id="startTimer">Start rehearsal</button><button class="button quiet" type="button" id="resetTimer">Reset clock</button></div></div>
-            <div class="prompter-heading"><h4>Your rehearsal prompt</h4><button class="button quiet" type="button" id="useLyrics">Use song draft</button></div><label class="sr-only" for="stagePrompter">Rehearsal prompt text</label><textarea id="stagePrompter" rows="5" placeholder="Paste lyrics, a script, or your opening words."></textarea><div class="prompter-window" id="prompterWindow" tabindex="0" aria-label="Scrolling rehearsal prompt"><p id="prompterText">Your words will appear here.</p></div><div class="room-footer"><label for="prompterSpeed">Scroll speed <input id="prompterSpeed" type="range" min="5" max="80" value="24"></label><div class="actions"><button class="button quiet" type="button" id="scrollPrompter">Start scrolling</button><button class="button primary" type="button" id="exportSetlist">Export setlist TXT</button></div></div>
-          </section>
-        </div>
-      </div>
-      <p class="studio-status" id="studioStatus" role="status" aria-live="polite"></p>
-      <noscript><p class="notice">Enable JavaScript to use the studio. Existing StarRise pages remain available through the navigation.</p></noscript>
-    </section>
-    <section class="wrap guide" id="studioGuide" aria-labelledby="guideTitle"><div><p class="eyebrow">Create. Keep. Take the next step.</p><h2 id="guideTitle">Your process, connected.</h2></div><div class="guide-grid"><article><span>01</span><h3>Build your project</h3><p>Keep lyrics, beat patterns, vocal takes, artwork, scenes and rehearsal notes together. Open saved projects and pick up where you left off.</p></article><article><span>02</span><h3>Take your work with you</h3><p>Export lyrics, stereo WAV beats and stems, a mixed recording session, edited audio, PNG covers, scripts and shot lists. Studio ZIP packages include aligned clean and processed stems, original files, a reference mix, and engineer notes. A project backup includes your layers and audio files.</p></article><article><span>03</span><h3>Bring it to StarRise</h3><p>Invite other StarRise members to a private shared session. Publish versions, exchange comments, and open a version as your own working copy. You can also share exported work through the adult community or marketplace.</p><div class="guide-links"><a href="community.html">Open Community ↗</a><a href="create-marketplace-item.html">Create a listing ↗</a></div></article></div><div class="notice"><strong>About saved projects</strong><p>This studio saves to the current browser. Anyone using the same browser profile may be able to open those projects. Clearing browser data can remove them. Keep exported backups for important work. Recording supports one microphone take at a time with playback of the existing session. Cloud sharing is optional and requires a signed-in adult account. Only the session owner and accepted collaborators can access published project files. Cloud versions are snapshots you publish deliberately, with a 50 MB limit per version; local edits do not sync automatically. Downloaded files remain with their recipients after access is removed. This workspace does not replace recording hardware, a mastering engineer, or distribution to streaming platforms.</p><a href="privacy.html">Privacy details</a></div></section>
-  </main>
-  <footer class="wrap site-footer"><span>StarRise by FAM ENT · Your talent. Your next chapter.</span><nav aria-label="Studio footer"><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="support.html">Help</a></nav></footer>
-  <dialog id="downloadDialog" aria-labelledby="downloadTitle"><h2 id="downloadTitle">Your export is ready.</h2><p id="downloadDescription"></p><p class="small muted">Tap Download file to save this export to your device.</p><div class="actions"><a id="downloadFile" class="button primary">Download file</a><button id="closeDownload" class="button quiet" type="button">Close</button></div></dialog>
-  <dialog id="collaborationDialog" class="cloud-dialog" aria-labelledby="collaborationTitle"><div class="dialog-heading"><div><p class="eyebrow">Artists &amp; creators · Private team sessions</p><h2 id="collaborationTitle">Make it together.</h2></div><button class="button quiet" type="button" id="closeCollaboration">Close</button></div><p class="cloud-notice">Publish a snapshot when you want to share. Invite members as collaborators or reviewers. Open any published version as a new local working copy, then publish your changes as another version. This is version sharing; it does not merge simultaneous edits.</p><p id="collaborationStatus" class="cloud-status" role="status" aria-live="polite"></p><div id="cloudSignedOut" class="cloud-signin" hidden><p>Sign in to your StarRise account to publish or open shared sessions. Your local creative tools remain available.</p><a id="collaborationLogin" class="button primary" href="login.html?redirect=creator-studio.html">Sign in for collaboration</a></div><div id="cloudSignedIn" hidden><div class="cloud-layout"><aside class="cloud-sidebar"><div class="actions"><button class="button primary" type="button" id="createSharedSession">Share current project</button><button class="button quiet" type="button" id="refreshSharedSessions">Refresh sessions</button></div><h3>Your shared sessions</h3><div id="sharedSessionList" class="cloud-session-list"></div></aside><section class="cloud-detail" id="sharedSessionDetail" aria-label="Selected shared session"><p class="empty-note">Choose a session, or share your current project to start a team workspace.</p></section></div></div><p class="small muted">Cloud snapshots support up to 50 MB per version. For larger work, export a studio ZIP or project backup and transfer that file through your preferred file service. Files that a collaborator downloads stay with them after access is removed.</p></dialog>
-  <dialog id="libraryDialog" aria-labelledby="libraryTitle"><div class="dialog-heading"><div><p class="eyebrow">This browser</p><h2 id="libraryTitle">Your projects</h2></div><button class="button quiet" type="button" id="closeLibrary">Close</button></div><label class="trash-toggle"><input id="showArchived" type="checkbox"> Show projects in trash</label><div id="projectList" class="project-list"></div><p class="small muted">Moving a project to trash keeps it here so you can restore it. Backups are separate files on your device.</p></dialog>
-  <dialog id="confirmDialog" aria-labelledby="confirmTitle"><h2 id="confirmTitle"></h2><p id="confirmDescription"></p><div class="actions"><button class="button primary" type="button" id="confirmYes">Continue</button><button class="button quiet" type="button" id="confirmNo">Cancel</button></div></dialog>
-  <dialog id="copyDialog" aria-labelledby="copyTitle"><h2 id="copyTitle">Copy your work</h2><p>Use your device's Copy command on the selected text, or close this and export a file.</p><label for="copyText">Full creation</label><textarea id="copyText" rows="10" readonly></textarea><button class="button primary" type="button" id="closeCopy">Back to studio</button></dialog>
+<header>
+<strong>StarRise Creator Studio</strong>
+<a href="index.html">Home</a>
+</header>
+<main>
+<h1>Creator Studio</h1>
+<p>Create cover art, flyers, promotional graphics, thumbnails, and social posts.</p>
+<p id="status" role="status">Ready to create.</p>
+
+<div class="layout">
+<div>
+<section class="panel">
+<h2>Project Setup</h2>
+<label>Project Name
+<input id="projectName" value="My StarRise Design">
+</label>
+<label>Canvas Size
+<select id="preset">
+<option value="1080x1080">Square Post 1080 × 1080</option>
+<option value="1080x1920">Story 1080 × 1920</option>
+<option value="1920x1080">Video Thumbnail 1920 × 1080</option>
+<option value="1600x1600">Cover Art 1600 × 1600</option>
+</select>
+</label>
+<button id="resize">New Canvas</button>
+<label>Background
+<input type="color" id="background" value="#191529">
+</label>
+<button id="setBackground">Set Background</button>
+</section>
+
+<section class="panel">
+<h2>Add Content</h2>
+<textarea id="textInput" placeholder="Enter title, artist name, message..."></textarea>
+<label>Font Size
+<input id="fontSize" type="number" min="12" max="500" value="90">
+</label>
+<label>Text Color
+<input id="textColor" type="color" value="#ffffff">
+</label>
+<button id="addText">Add Text</button>
+<div>
+<label>Upload Image
+<input id="imageUpload" type="file" accept="image/*">
+</label>
+</div>
+<div class="toolbar">
+<button id="addRect">Rectangle</button>
+<button id="addCircle">Circle</button>
+</div>
+<label>Shape Color
+<input id="shapeColor" type="color" value="#b26aff">
+</label>
+</section>
+
+<section class="panel">
+<h2>Selected Element</h2>
+<p id="selection">Nothing selected</p>
+<label>Size
+<input id="size" type="range" min="10" max="300" value="100">
+</label>
+<label>Rotation
+<input id="rotation" type="range" min="-180" max="180" value="0">
+</label>
+<label>Opacity
+<input id="opacity" type="range" min="0" max="100" value="100">
+</label>
+<div class="toolbar">
+<button id="front">Bring Forward</button>
+<button id="back">Send Backward</button>
+<button id="duplicate">Duplicate</button>
+<button id="remove" class="secondary">Delete</button>
+</div>
+<small>Tap an element on the canvas to select it. Drag to move it.</small>
+</section>
+
+<section class="panel">
+<h2>Layers</h2>
+<div id="layers"></div>
+</section>
+</div>
+
+<div>
+<section class="panel">
+<h2>Design Canvas</h2>
+<div class="toolbar">
+<button id="undo" class="secondary">Undo</button>
+<button id="save">Save Project</button>
+<button id="load">Load Saved Project</button>
+<button id="export">Export PNG</button>
+</div>
+<div class="canvasWrap">
+<canvas id="canvas" width="1080" height="1080"></canvas>
+</div>
+<p><small>Export creates a full-resolution PNG. Projects are saved locally in this browser, subject to available storage.</small></p>
+</section>
+</div>
+</div>
+</main>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const canvas=$("canvas");
+const g=canvas.getContext("2d");
+let elements=[];
+let selected=-1;
+let background="#191529";
+let history=[];
+let dragging=false;
+let dragX=0,dragY=0;
+let imageCache=new Map();
+let idCounter=1;
+
+function status(t){$("status").textContent=t}
+function uid(){return idCounter++}
+function snapshot(){
+ history.push(JSON.stringify({
+  elements,background,w:canvas.width,h:canvas.height
+ }));
+ if(history.length>25)history.shift();
+}
+function makeImage(src){
+ if(imageCache.has(src))return imageCache.get(src);
+ const image=new Image();
+ image.src=src;
+ image.onload=render;
+ imageCache.set(src,image);
+ return image;
+}
+function drawElement(e){
+ g.save();
+ g.globalAlpha=e.opacity??1;
+ g.translate(e.x,e.y);
+ g.rotate((e.rotation||0)*Math.PI/180);
+ if(e.type==="text"){
+  g.fillStyle=e.color;
+  g.font="bold "+e.fontSize+"px Arial";
+  g.textBaseline="middle";
+  e.w=Math.max(1,g.measureText(e.text).width);
+  e.h=e.fontSize*1.3;
+  e.text.split("\n").forEach((line,i)=>{
+   g.fillText(line,0,i*e.fontSize*1.2);
+  });
+ }else if(e.type==="rect"){
+  g.fillStyle=e.color;
+  g.fillRect(-e.w/2,-e.h/2,e.w,e.h);
+ }else if(e.type==="circle"){
+  g.fillStyle=e.color;
+  g.beginPath();
+  g.ellipse(0,0,e.w/2,e.h/2,0,0,Math.PI*2);
+  g.fill();
+ }else if(e.type==="image"){
+  const img=makeImage(e.src);
+  if(img.complete&&img.naturalWidth){
+   g.drawImage(img,-e.w/2,-e.h/2,e.w,e.h);
+  }
+ }
+ g.restore();
+}
+function render(){
+ g.clearRect(0,0,canvas.width,canvas.height);
+ g.fillStyle=background;
+ g.fillRect(0,0,canvas.width,canvas.height);
+ elements.forEach(drawElement);
+ renderLayers();
+}
+function addElement(e){
+ snapshot();
+ elements.push({
+  id:uid(),opacity:1,rotation:0,...e
+ });
+ selected=elements.length-1;
+ syncSelection();
+ render();
+}
+function syncSelection(){
+ const e=elements[selected];
+ $("selection").textContent=e?
+  e.type.toUpperCase()+" • Layer "+(selected+1):
+  "Nothing selected";
+ $("rotation").value=e?.rotation||0;
+ $("opacity").value=Math.round((e?.opacity??1)*100);
+ $("size").value=100;
+}
+function renderLayers(){
+ const box=$("layers");
+ box.replaceChildren();
+ elements.slice().reverse().forEach(e=>{
+  const index=elements.indexOf(e);
+  const row=document.createElement("div");
+  row.className="layer"+(index===selected?" active":"");
+  const name=document.createElement("span");
+  name.textContent=e.type==="text"?
+   "Text: "+e.text.slice(0,24):
+   e.type+" "+e.id;
+  const choose=document.createElement("button");
+  choose.textContent="Select";
+  choose.onclick=()=>{
+   selected=index;
+   syncSelection();
+   render();
+  };
+  row.append(name,choose);
+  box.append(row);
+ });
+}
+$("addText").onclick=()=>{
+ const text=$("textInput").value.trim();
+ if(!text)return status("Enter text first.");
+ addElement({
+  type:"text",text,
+  x:canvas.width*.1,y:canvas.height*.3,
+  fontSize:Number($("fontSize").value)||90,
+  color:$("textColor").value,
+  w:300,h:100
+ });
+};
+$("addRect").onclick=()=>addElement({
+ type:"rect",x:canvas.width/2,y:canvas.height/2,
+ w:canvas.width*.4,h:canvas.height*.2,
+ color:$("shapeColor").value
+});
+$("addCircle").onclick=()=>addElement({
+ type:"circle",x:canvas.width/2,y:canvas.height/2,
+ w:canvas.width*.3,h:canvas.width*.3,
+ color:$("shapeColor").value
+});
+$("imageUpload").onchange=async event=>{
+ const file=event.target.files[0];
+ if(!file)return;
+ try{
+  const src=await new Promise((resolve,reject)=>{
+   const reader=new FileReader();
+   reader.onload=()=>resolve(reader.result);
+   reader.onerror=reject;
+   reader.readAsDataURL(file);
+  });
+  const img=makeImage(src);
+  await img.decode();
+  const scale=Math.min(
+   canvas.width*.7/img.width,
+   canvas.height*.7/img.height
+  );
+  addElement({
+   type:"image",src,
+   x:canvas.width/2,y:canvas.height/2,
+   w:img.width*scale,h:img.height*scale
+  });
+  status("Image added.");
+ }catch(err){
+  status("Image could not be loaded.");
+ }
+ event.target.value="";
+};
+$("setBackground").onclick=()=>{
+ snapshot();
+ background=$("background").value;
+ render();
+};
+$("resize").onclick=()=>{
+ if(elements.length&&!confirm("Start a new canvas? Current unsaved design will be cleared."))return;
+ snapshot();
+ const [w,h]=$("preset").value.split("x").map(Number);
+ canvas.width=w;
+ canvas.height=h;
+ elements=[];
+ selected=-1;
+ syncSelection();
+ render();
+};
+function editSelected(fn){
+ if(selected<0)return status("Select an element first.");
+ snapshot();
+ fn(elements[selected]);
+ syncSelection();
+ render();
+}
+$("rotation").onchange=()=>editSelected(e=>{
+ e.rotation=Number($("rotation").value);
+});
+$("opacity").onchange=()=>editSelected(e=>{
+ e.opacity=Number($("opacity").value)/100;
+});
+$("size").onchange=()=>editSelected(e=>{
+ const factor=Number($("size").value)/100;
+ if(e.type==="text")e.fontSize=Math.max(12,e.fontSize*factor);
+ else{
+  e.w*=factor;
+  e.h*=factor;
+ }
+ $("size").value=100;
+});
+$("front").onclick=()=>{
+ if(selected<0||selected===elements.length-1)return;
+ snapshot();
+ [elements[selected],elements[selected+1]]=
+ [elements[selected+1],elements[selected]];
+ selected++;
+ render();
+};
+$("back").onclick=()=>{
+ if(selected<=0)return;
+ snapshot();
+ [elements[selected],elements[selected-1]]=
+ [elements[selected-1],elements[selected]];
+ selected--;
+ render();
+};
+$("duplicate").onclick=()=>{
+ if(selected<0)return;
+ const e=structuredClone(elements[selected]);
+ e.x+=40;e.y+=40;
+ addElement(e);
+};
+$("remove").onclick=()=>{
+ if(selected<0)return;
+ snapshot();
+ elements.splice(selected,1);
+ selected=-1;
+ syncSelection();
+ render();
+};
+$("undo").onclick=()=>{
+ if(!history.length)return;
+ const old=JSON.parse(history.pop());
+ elements=old.elements;
+ background=old.background;
+ canvas.width=old.w;
+ canvas.height=old.h;
+ selected=-1;
+ syncSelection();
+ render();
+};
+function point(event){
+ const r=canvas.getBoundingClientRect();
+ return {
+  x:(event.clientX-r.left)*canvas.width/r.width,
+  y:(event.clientY-r.top)*canvas.height/r.height
+ };
+}
+function hit(e,x,y){
+ const angle=-(e.rotation||0)*Math.PI/180;
+ const dx=x-e.x,dy=y-e.y;
+ const lx=dx*Math.cos(angle)-dy*Math.sin(angle);
+ const ly=dx*Math.sin(angle)+dy*Math.cos(angle);
+ if(e.type==="text"){
+  return lx>=0&&lx<=e.w&&ly>=-e.h/2&&ly<=e.h;
+ }
+ return Math.abs(lx)<=e.w/2&&Math.abs(ly)<=e.h/2;
+}
+canvas.addEventListener("pointerdown",event=>{
+ const p=point(event);
+ selected=-1;
+ for(let i=elements.length-1;i>=0;i--){
+  if(hit(elements[i],p.x,p.y)){
+   selected=i;
+   break;
+  }
+ }
+ if(selected>=0){
+  snapshot();
+  dragging=true;
+  dragX=p.x-elements[selected].x;
+  dragY=p.y-elements[selected].y;
+  canvas.setPointerCapture(event.pointerId);
+ }
+ syncSelection();
+ render();
+});
+canvas.addEventListener("pointermove",event=>{
+ if(!dragging||selected<0)return;
+ const p=point(event);
+ elements[selected].x=p.x-dragX;
+ elements[selected].y=p.y-dragY;
+ render();
+});
+function endDrag(){dragging=false}
+canvas.addEventListener("pointerup",endDrag);
+canvas.addEventListener("pointercancel",endDrag);
+$("export").onclick=()=>{
+ render();
+ canvas.toBlob(blob=>{
+  if(!blob)return status("Export failed.");
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=($("projectName").value||"starrise-design")
+   .replace(/[^a-z0-9_-]/gi,"-")+".png";
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  status("PNG export requested.");
+ },"image/png");
+};
+$("save").onclick=()=>{
+ try{
+  localStorage.setItem("starrise-creator-project",
+   JSON.stringify({
+    name:$("projectName").value,
+    elements,background,
+    w:canvas.width,h:canvas.height
+   })
+  );
+  status("Project saved in this browser.");
+ }catch(error){
+  status("Save failed. Browser storage may be full. Export a PNG.");
+ }
+};
+$("load").onclick=()=>{
+ try{
+  const raw=localStorage.getItem("starrise-creator-project");
+  if(!raw)return status("No saved project found.");
+  const data=JSON.parse(raw);
+  snapshot();
+  elements=data.elements||[];
+  background=data.background||"#191529";
+  canvas.width=data.w||1080;
+  canvas.height=data.h||1080;
+  $("projectName").value=data.name||"My StarRise Design";
+  selected=-1;
+  syncSelection();
+  render();
+  status("Saved project loaded.");
+ }catch(error){
+  status("Could not load saved project.");
+ }
+};
+render();
+</script>
 </body>
 </html>
