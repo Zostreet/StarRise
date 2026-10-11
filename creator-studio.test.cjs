@@ -2,12 +2,12 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
-const C = require('./css/creator-studio-core.js');
+const C = require('./css/creator-studio-core-v2.js');
 
 test('projects restore all rooms, original text and recording metadata without extra properties',()=>{
   const p=C.createProject('project-1','Original session','2026-10-11T05:00:00Z');
   p.song.sections[0].text='<script>original lyrics, rendered as text</script>';
-  p.recording.tracks=[{id:'take-1',name:'Vocal',start:.15,seconds:12.5,volume:73,pan:-.2,muted:false}];
+  p.recording.tracks=[{id:'take-1',name:'Vocal',start:.15,seconds:12.5,volume:73,pan:-.2,muted:false,trimStart:0,trimEnd:0,fade:.01,fx:C.fxDefaults()}];
   const input=JSON.parse(JSON.stringify(p));input.untrusted='<iframe>';input.__proto__={polluted:true};
   const restored=C.normalizeProject(input);
   assert.deepEqual(restored,p);assert.equal(restored.untrusted,undefined);assert.equal({}.polluted,undefined);
