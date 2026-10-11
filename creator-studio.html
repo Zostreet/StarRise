@@ -10,17 +10,20 @@
   <link rel="icon" type="image/png" href="starrise-logo.png">
   <link rel="stylesheet" href="css/creator-studio.css">
   <link rel="stylesheet" href="css/studio-pro.css">
-  <script src="css/creator-studio-core-v2.js" defer></script>
+  <link rel="stylesheet" href="css/studio-sound.css">
+  <script src="css/creator-studio-core-v3.js" defer></script>
   <script src="css/studio-audio.js" defer></script>
+  <script src="css/studio-sounds.js" defer></script>
+  <script src="css/studio-sound-ui.js" defer></script>
   <script src="css/studio-package.js" defer></script>
-  <script src="css/creator-studio-v3.js" defer></script>
+  <script src="css/creator-studio-v4.js" defer></script>
   <script src="css/studio-collaboration.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#workspace">Skip to the studio</a>
   <header class="site-header"><div class="header-inner">
     <a class="brand" href="index.html" aria-label="StarRise home"><img src="starrise-logo.png" width="1697" height="927" alt="StarRise by FAM ENT"><span>Creator Studio</span></a>
-    <nav aria-label="Adult StarRise navigation"><a href="community.html">Community</a><a href="marketplace.html">Store</a><a href="dashboard.html">Dashboard <span aria-hidden="true">↗</span></a></nav>
+    <nav aria-label="Adult StarRise navigation"><a href="community.html">Community</a><a href="doing-it-big.html">Doing It Big</a><a href="marketplace.html">Store</a><a href="dashboard.html">Dashboard <span aria-hidden="true">↗</span></a></nav>
   </div></header>
   <main>
     <section class="studio-hero wrap" aria-labelledby="heroTitle">
@@ -50,11 +53,14 @@
             <div class="room-footer"><p>Your original words. Your structure.</p><div class="actions"><button class="button quiet" type="button" id="copySong">Copy song</button><button class="button primary" type="button" id="exportSong">Export lyrics TXT</button></div></div>
           </section>
           <section class="room" role="tabpanel" id="room-beat" aria-labelledby="tab-beat" hidden>
-            <div class="room-heading"><div><p class="eyebrow">02 / Beat desk</p><h3>Build a sound of your own.</h3><p>Six drum tracks. Sixteen steps. Two pattern banks. Mix, swing, and arrange your rhythm.</p></div><span class="room-badge">Synthesized drums</span></div>
+            <div class="room-heading"><div><p class="eyebrow">02 / Beat desk</p><h3>Build a sound of your own.</h3><p>Play instruments, shape your drums, and flip samples into a new beat. Everything follows your two pattern banks and arrangement.</p></div><span class="room-badge">Instruments · Sampler · Drums</span></div>
+            <label class="drum-kit-select">Drum sound kit<select id="drumKit"><option>Classic</option><option>808</option><option>Electronic</option><option>Soft acoustic</option></select></label>
             <div class="beat-top"><div class="bank-switch" role="group" aria-label="Edit pattern bank"><button type="button" data-bank="A" aria-pressed="true">Pattern A</button><button type="button" data-bank="B" aria-pressed="false">Pattern B</button></div><label>Starter groove<select id="grooveType"><option value="hiphop">Hip-hop</option><option value="rnb">R&amp;B / soul</option><option value="trap">Trap</option><option value="house">House</option><option value="blank">Empty grid</option></select></label><button class="button quiet" type="button" id="loadGroove">Load groove</button><button class="button quiet" type="button" id="copyBank">Copy A to B</button></div>
             <div class="beat-knobs"><label for="beatTempo">Tempo <output id="beatTempoValue">92 BPM</output><input id="beatTempo" type="range" min="40" max="220" value="92"></label><label for="beatSwing">Swing <output id="beatSwingValue">0%</output><input id="beatSwing" type="range" min="0" max="50" value="0"></label><label for="beatMaster">Master level <output id="beatMasterValue">45%</output><input id="beatMaster" type="range" min="0" max="100" value="45"></label></div>
             <div class="sequencer-scroll" tabindex="0" aria-label="Scrollable sixteen-step drum sequencer"><div id="beatGrid" class="beat-grid"></div></div><p class="small muted">Tap to switch a step on or off. Shift + tap cycles soft, medium, and strong hits. Each group of four steps is one beat.</p>
             <details class="mixer-details"><summary>Track mixer · levels, pan &amp; mute</summary><div class="mixer" id="beatMixer"></div></details>
+            <section class="sound-panel" aria-labelledby="instrumentTitle"><div class="section-toolbar"><div><p class="eyebrow">Play your part</p><h4 id="instrumentTitle">Instrument rack</h4></div><span class="room-badge">8 instrument tracks</span></div><div class="sound-add"><label>New instrument sound<select id="newInstrumentSound"><option>Piano keys</option><option>Electric keys</option><option>Organ</option><option>Pluck</option><option>Sub bass</option><option>Strings</option><option>Warm pad</option><option>Lead</option></select></label><button id="addInstrument" class="button primary" type="button">Add instrument</button></div><div id="instrumentTools"></div><p class="small muted">Tap keys to play. Turn on “Write played keys to pattern” to enter notes, or choose a note and tap its steps. Layer instrument tracks to build chords. Note length is measured in sixteenth-note steps.</p></section>
+            <section class="sound-panel" aria-labelledby="samplerTitle"><div class="section-toolbar"><div><p class="eyebrow">Find a sound. Flip the idea.</p><h4 id="samplerTitle">Sample lab</h4></div><label class="button primary file-button">Import sample<input id="sampleImport" type="file" accept="audio/*,.wav,.mp3,.m4a,.ogg,.flac" aria-label="Import sample audio"></label></div><div class="sample-source-actions"><button id="sampleFromClip" class="button quiet" type="button">Use clip region</button><label>Recording source<select id="sampleTake"><option value="">Choose a recorded / imported take</option></select></label><button id="sampleFromTake" class="button quiet" type="button">Use selected take</button></div><div id="samplerTools"></div><p class="small muted">Import mono or stereo audio up to two minutes. Chop a region into 4, 8, or 16 pads, then rearrange the steps. Pads play their whole slice; speed changes also change pitch. Use your own audio, licensed samples, or sounds you have permission to reuse.</p></section>
             <div class="beat-transport"><label>Arrangement<select id="beatArrangement"><option value="A">Loop A</option><option value="B">Loop B</option><option value="AB">A → B</option><option value="AABB">A → A → B → B</option></select></label><label>Export repeats<input id="beatCycles" type="number" min="1" max="8" value="1"></label><button class="button primary" type="button" id="playBeat" aria-pressed="false">Play arrangement</button><span class="transport-state" id="beatState">Ready to play</span></div>
             <div class="room-footer"><label>WAV export<select id="beatStem"><option value="-1">Full drum mix</option><option value="0">Kick stem</option><option value="1">Snare stem</option><option value="2">Clap stem</option><option value="3">Closed hat stem</option><option value="4">Open hat stem</option><option value="5">Percussion stem</option></select></label><button class="button primary" type="button" id="exportBeat">Export WAV</button></div>
           </section>

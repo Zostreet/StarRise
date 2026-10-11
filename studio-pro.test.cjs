@@ -1,6 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{execFileSync}=require('node:child_process');
-const C=require('./css/creator-studio-core-v2.js'),A=require('./css/studio-audio.js'),P=require('./css/studio-package.js');
+const C=require('./css/creator-studio-core-v3.js'),A=require('./css/studio-audio.js'),P=require('./css/studio-package.js');
 test('older projects restore safe production defaults and reject arbitrary plug-in code',()=>{
   const p=C.createProject('legacy');delete p.production;delete p.collaboration;p.recording.tracks=[{id:'voice',seconds:5}];
   const restored=C.normalizeProject(p);assert.equal(restored.production.sampleRate,48000);assert.equal(restored.production.format,'pcm24');assert.equal(restored.recording.tracks[0].fx.enabled,false);
