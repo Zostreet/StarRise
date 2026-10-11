@@ -1,0 +1,396 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StarRise | Digital Recording Studio</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#090914;color:#fff;
+ font-family:Arial,sans-serif;line-height:1.5
+}
+header{
+ padding:18px;background:#181527;
+ display:flex;justify-content:space-between;
+ align-items:center;gap:12px
+}
+header a{color:#dfb8ff;text-decoration:none}
+main{max-width:1000px;margin:auto;padding:18px}
+h1{color:#e8bdff}
+.panel{
+ background:#1b1930;padding:20px;
+ border:1px solid #403856;border-radius:16px;
+ margin-bottom:18px
+}
+button{
+ background:#9256dc;color:white;border:0;
+ padding:12px;border-radius:9px;
+ margin:5px;cursor:pointer;font-weight:bold
+}
+button:disabled{opacity:.45}
+input{max-width:100%}
+.track{
+ background:#302b46;border-radius:10px;
+ padding:12px;margin:10px 0
+}
+audio{width:100%;margin:8px 0}
+label{display:block;margin:8px 0}
+small{color:#bdb6d0}
+#status{color:#d6baff}
+</style>
+</head>
+<body>
+
+<header>
+<strong>StarRise Studio</strong>
+<a href="index.html">Back to StarRise</a>
+</header>
+
+<main>
+<h1>StarRise Digital Studio</h1>
+<p>Create music. Record vocals. Build your sound.</p>
+
+<section class="panel">
+<h2>Recording Booth</h2>
+<button id="record">Record Vocals</button>
+<button id="stopRecord" disabled>Stop Recording</button>
+<p id="status" role="status">Studio ready.</p>
+</section>
+
+<section class="panel">
+<h2>Audio Tracks</h2>
+<label>
+Import beats, vocals, or samples
+<input type="file" id="upload" accept="audio/*" multiple>
+</label>
+<div id="tracks"></div>
+<button id="play">Play Mix</button>
+<button id="stopPlay">Stop Playback</button>
+<button id="export">Export WAV Mix</button>
+</section>
+
+<section class="panel">
+<h2>Beat Maker</h2>
+<p>Tap the drum pads to create sounds.</p>
+<button data-drum="kick">Kick</button>
+<button data-drum="snare">Snare</button>
+<button data-drum="hat">Hi-Hat</button>
+</section>
+
+<section class="panel">
+<h2>Studio Information</h2>
+<p>Audio stays in this browser session until exported.</p>
+<small>
+This is the first studio version.
+Cloud projects, collaboration, advanced vocal
+effects, licensed samples, and professional
+plugin support are planned upgrades.
+Use headphones when recording over a beat.
+</small>
+</section>
+</main>
+
+<script>
+let context;
+let recorder;
+let microphone;
+let chunks=[];
+let tracks=[];
+let playing=[];
+
+const $=id=>document.getElementById(id);
+
+function audioContext(){
+ if(!context){
+  context=new (
+   window.AudioContext||
+   window.webkitAudioContext
+  )();
+ }
+ return context;
+}
+
+function status(message){
+ $("status").textContent=message;
+}
+
+function addTrack(blob,name){
+ const url=URL.createObjectURL(blob);
+ const container=document.createElement("div");
+ container.className="track";
+
+ const title=document.createElement("strong");
+ title.textContent=name;
+
+ const player=document.createElement("audio");
+ player.controls=true;
+ player.src=url;
+
+ const volume=document.createElement("input");
+ volume.type="range";
+ volume.min=0;
+ volume.max=1;
+ volume.step=.01;
+ volume.value=1;
+ volume.setAttribute(
+  "aria-label","Volume for "+name
+ );
+
+ const label=document.createElement("label");
+ label.textContent="Volume";
+ label.appendChild(volume);
+
+ container.append(title,player,label);
+ $("tracks").appendChild(container);
+
+ tracks.push({blob,name,volume});
+ status("Track added: "+name);
+}
+
+$("upload").onchange=event=>{
+ for(const file of event.target.files){
+  addTrack(file,file.name);
+ }
+};
+
+$("record").onclick=async()=>{
+ try{
+  microphone=await navigator.mediaDevices
+   .getUserMedia({audio:true});
+
+  chunks=[];
+  recorder=new MediaRecorder(microphone);
+
+  recorder.ondataavailable=event=>{
+   if(event.data.size)chunks.push(event.data);
+  };
+
+  recorder.onstop=()=>{
+   const blob=new Blob(chunks,{
+    type:recorder.mimeType
+   });
+
+   addTrack(blob,"Vocal Recording");
+   microphone.getTracks().forEach(
+    track=>track.stop()
+   );
+
+   $("record").disabled=false;
+   $("stopRecord").disabled=true;
+  };
+
+  recorder.start();
+  $("record").disabled=true;
+  $("stopRecord").disabled=false;
+  status("Recording vocals...");
+ }catch(error){
+  status("Microphone error: "+error.message);
+ }
+};
+
+$("stopRecord").onclick=()=>{
+ if(recorder && recorder.state==="recording"){
+  recorder.stop();
+ }
+};
+
+$("stopPlay").onclick=()=>{
+ playing.forEach(source=>{
+  try{source.stop()}catch(error){}
+ });
+ playing=[];
+ status("Playback stopped.");
+};
+
+async function decodedTracks(){
+ const ctx=audioContext();
+ await ctx.resume();
+
+ return Promise.all(tracks.map(async track=>{
+  const data=await track.blob.arrayBuffer();
+  const buffer=await ctx.decodeAudioData(data);
+
+  return {
+   buffer,
+   volume:Number(track.volume.value)
+  };
+ }));
+}
+
+$("play").onclick=async()=>{
+ try{
+  $("stopPlay").click();
+
+  const ctx=audioContext();
+  const decoded=await decodedTracks();
+  const start=ctx.currentTime+.05;
+
+  for(const track of decoded){
+   const source=ctx.createBufferSource();
+   const gain=ctx.createGain();
+
+   source.buffer=track.buffer;
+   gain.gain.value=track.volume;
+
+   source.connect(gain);
+   gain.connect(ctx.destination);
+   source.start(start);
+
+   playing.push(source);
+  }
+
+  status("Playing "+decoded.length+" tracks.");
+ }catch(error){
+  status("Playback error: "+error.message);
+ }
+};
+
+function createWav(buffer){
+ const channels=buffer.numberOfChannels;
+ const length=buffer.length;
+ const bytes=new ArrayBuffer(
+  44+length*channels*2
+ );
+ const view=new DataView(bytes);
+
+ function write(offset,string){
+  for(let i=0;i<string.length;i++){
+   view.setUint8(
+    offset+i,string.charCodeAt(i)
+   );
+  }
+ }
+
+ write(0,"RIFF");
+ view.setUint32(4,36+length*channels*2,true);
+ write(8,"WAVE");
+ write(12,"fmt ");
+ view.setUint32(16,16,true);
+ view.setUint16(20,1,true);
+ view.setUint16(22,channels,true);
+ view.setUint32(24,buffer.sampleRate,true);
+ view.setUint32(
+  28,buffer.sampleRate*channels*2,true
+ );
+ view.setUint16(32,channels*2,true);
+ view.setUint16(34,16,true);
+ write(36,"data");
+ view.setUint32(
+  40,length*channels*2,true
+ );
+
+ let offset=44;
+
+ for(let i=0;i<length;i++){
+  for(let channel=0;channel<channels;channel++){
+   const sample=Math.max(
+    -1,Math.min(
+     1,buffer.getChannelData(channel)[i]
+    )
+   );
+
+   view.setInt16(
+    offset,
+    sample<0?sample*32768:sample*32767,
+    true
+   );
+   offset+=2;
+  }
+ }
+
+ return new Blob([bytes],{
+  type:"audio/wav"
+ });
+}
+
+$("export").onclick=async()=>{
+ try{
+  const decoded=await decodedTracks();
+
+  if(!decoded.length){
+   status("Add a track first.");
+   return;
+  }
+
+  const sampleRate=44100;
+  const duration=Math.max(
+   ...decoded.map(t=>t.buffer.duration)
+  );
+
+  const offline=new OfflineAudioContext(
+   2,Math.ceil(duration*sampleRate),sampleRate
+  );
+
+  for(const track of decoded){
+   const source=offline.createBufferSource();
+   const gain=offline.createGain();
+
+   source.buffer=track.buffer;
+   gain.gain.value=track.volume;
+   source.connect(gain);
+   gain.connect(offline.destination);
+   source.start(0);
+  }
+
+  status("Rendering mix...");
+
+  const rendered=await offline.startRendering();
+  const blob=createWav(rendered);
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement("a");
+
+  link.href=url;
+  link.download="starrise-mix.wav";
+  link.click();
+
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  status("WAV mix exported.");
+ }catch(error){
+  status("Export error: "+error.message);
+ }
+};
+
+document.querySelectorAll("[data-drum]")
+.forEach(button=>{
+ button.onclick=async()=>{
+  const ctx=audioContext();
+  await ctx.resume();
+
+  const type=button.dataset.drum;
+  const now=ctx.currentTime;
+  const oscillator=ctx.createOscillator();
+  const gain=ctx.createGain();
+
+  oscillator.type=type==="hat"?"sawtooth":"sine";
+
+  const frequency=
+   type==="kick"?130:
+   type==="snare"?190:7000;
+
+  oscillator.frequency.setValueAtTime(
+   frequency,now
+  );
+
+  if(type==="kick"){
+   oscillator.frequency.exponentialRampToValueAtTime(
+    48,now+.16
+   );
+  }
+
+  gain.gain.setValueAtTime(.2,now);
+  gain.gain.exponentialRampToValueAtTime(
+   .001,now+(type==="hat"?.06:.18)
+  );
+
+  oscillator.connect(gain);
+  gain.connect(ctx.destination);
+  oscillator.start(now);
+  oscillator.stop(now+.2);
+ };
+});
+</script>
+</body>
+  </html>
+  
