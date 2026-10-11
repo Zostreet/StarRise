@@ -1266,9 +1266,13 @@
                 user.id,
 
               message,
+message,
 
-              status:
-                'pending'
+fit_role:
+  selectedOpportunity.type || 'Collaboration',
+
+status:
+  'pending''
             });
 
         if (insertResult.error) {
