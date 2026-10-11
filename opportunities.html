@@ -1257,6 +1257,13 @@
 
         const insertResult =
           await supabaseClient
+          .insert({
+  opportunity_id: selectedOpportunity.id,
+  applicant_id: user.id,
+  message,
+  fit_role: selectedOpportunity.type || 'Collaboration',
+  status: 'pending'
+});
             .from('opportunity_applications')
             .insert({
               opportunity_id:
