@@ -4,10 +4,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Explore Food | StarRise Eats</title>
-<meta name="description" content="Discover food vendors and menus in the upcoming StarRise Eats marketplace.">
+<title>Food Marketplace & Cart | StarRise Eats</title>
+<meta name="description" content="Explore local food businesses, browse menus and build your StarRise Eats cart.">
 <link rel="stylesheet" href="starrise-brand.css">
-<link rel="icon" type="image/png" href="starrise-logo.png">
+<link rel="icon" href="starrise-logo.png" type="image/png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
@@ -16,25 +16,34 @@ header{padding:18px 5%;display:flex;justify-content:space-between;align-items:ce
 header img{width:130px}
 nav{display:flex;gap:15px;flex-wrap:wrap}
 a{color:#f3ca71}
-nav a{color:white;text-decoration:none}
+nav a{color:#fff;text-decoration:none}
 main{max-width:1200px;margin:auto;padding:35px 20px 80px}
 h1{font-size:clamp(36px,7vw,65px);margin:10px 0}
-.gold{color:#f3ca71}
+h2{margin-top:0}
+.gold,.price{color:#f3ca71}
 .muted{color:#bbb}
 .notice{background:#302443;border:1px solid #a787d6;border-radius:12px;padding:16px;margin:22px 0}
 .filters{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin:25px 0}
 input,select{width:100%;background:#19152a;color:#fff;border:1px solid #777;border-radius:10px;padding:14px;font:inherit}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(265px,1fr));gap:20px}
 .card{background:#19152a;border:1px solid #ffffff25;border-radius:17px;padding:24px}
-.card h2{margin:0 0 8px;font-size:23px}
-.card h3{margin:12px 0 5px}
+.card h2{font-size:23px}
 .card p{color:#bbb}
-.price{color:#f3ca71;font-weight:bold;font-size:21px}
+.price{font-weight:bold;font-size:21px}
 .tag{display:inline-block;background:#332545;color:#f3ca71;border-radius:18px;padding:5px 12px;font-size:12px}
-.btn{display:inline-block;background:#f3ca71;color:#171021;border-radius:25px;padding:12px 20px;text-decoration:none;font-weight:bold}
+.btn,button{display:inline-block;background:#f3ca71;color:#171021;border:0;border-radius:25px;padding:12px 18px;text-decoration:none;font-weight:bold;cursor:pointer;font:inherit}
+button:disabled{opacity:.5;cursor:not-allowed}
+.secondary{background:#332545;color:#fff;border:1px solid #a787d6}
 .menu{border-top:1px solid #ffffff25;margin-top:18px;padding-top:14px}
-.menu-item{padding:12px 0;border-bottom:1px solid #ffffff18}
+.menu-item{padding:14px 0;border-bottom:1px solid #ffffff18}
 .menu-item:last-child{border-bottom:0}
+.menu-item p{margin:5px 0}
+.cart{margin-top:35px}
+.cart-row{display:flex;justify-content:space-between;align-items:center;gap:15px;border-bottom:1px solid #ffffff25;padding:15px 0;flex-wrap:wrap}
+.controls{display:flex;align-items:center;gap:10px}
+.controls button{padding:7px 13px}
+.total{font-size:26px;color:#f3ca71;font-weight:bold}
+.cart-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
 .hidden{display:none!important}
 footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
 @media(max-width:600px){.filters{grid-template-columns:1fr}}
@@ -48,17 +57,18 @@ footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
 <a href="index.html">Home</a>
 <a href="eats.html">StarRise Eats</a>
 <a href="eats-vendor.html">Vendor Dashboard</a>
+<a href="#shoppingCart">Cart (<span id="cartCount">0</span>)</a>
 </nav>
 </header>
 
 <main>
 <p class="gold">STARRISE EATS</p>
 <h1>Discover Local Food</h1>
-<p class="muted">Explore food businesses and menus joining the StarRise Eats network.</p>
+<p class="muted">Explore local food businesses, browse menus, and prepare your future pickup order.</p>
 
 <div class="notice">
-<strong>Marketplace Preview:</strong>
-Food ordering, payment processing, pickup scheduling, and delivery are not available yet. Listings are informational while we prepare the platform.
+<strong>MARKETPLACE PREVIEW:</strong>
+You can build and save a shopping cart, but orders cannot be submitted or paid for yet. Listed prices are menu prices only; taxes and other applicable charges are not calculated.
 </div>
 
 <div class="filters">
@@ -77,10 +87,25 @@ Food ordering, payment processing, pickup scheduling, and delivery are not avail
 <p id="status" role="status" aria-live="polite">Loading marketplace...</p>
 <div id="vendors" class="grid"></div>
 
-<section style="margin-top:60px">
+<section id="shoppingCart" class="card cart">
+<h2>Your Shopping Cart</h2>
+<p class="muted">Pickup order preview. One food business per cart.</p>
+<p id="cartVendor"></p>
+<div id="cartItems"></div>
+<p id="emptyCart">Your cart is empty. Add something delicious from the menus above.</p>
+<p>Subtotal: <span id="subtotal" class="total">$0.00</span></p>
+<p class="muted">Estimated taxes, service fees, tips, and delivery fees are not included.</p>
+<div class="cart-actions">
+<button id="clearCart" class="secondary" type="button">Clear Cart</button>
+<button disabled type="button" title="Checkout is not available yet">Checkout Coming Soon</button>
+</div>
+<p id="cartMessage" role="status" aria-live="polite"></p>
+</section>
+
+<section style="margin-top:50px">
 <div class="card">
 <h2>Own a Restaurant or Food Truck?</h2>
-<p>Join StarRise Eats and begin preparing your food menu for our future marketplace.</p>
+<p>Join StarRise Eats and prepare your menu for the upcoming ordering platform.</p>
 <a class="btn" href="register.html?role=Vendor">Register Your Business</a>
 <p><a href="eats-vendor.html">Already registered? Manage your menu.</a></p>
 </div>
@@ -100,19 +125,164 @@ const db=window.supabase.createClient(
 );
 
 const $=id=>document.getElementById(id);
+const CART_KEY="starrise_eats_cart_v1";
 let vendors=[];
 let menus=[];
+let cart=[];
 
 function node(tag,text){
-const el=document.createElement(tag);
-if(text!==undefined)el.textContent=text;
-return el;
+const e=document.createElement(tag);
+if(text!==undefined)e.textContent=text;
+return e;
 }
 
 function money(cents){
 return new Intl.NumberFormat("en-US",{
 style:"currency",currency:"USD"
 }).format(cents/100);
+}
+
+function menuItem(id){
+return menus.find(m=>m.id===id);
+}
+
+function vendorName(id){
+return vendors.find(v=>v.user_id===id)?.business_name||"Food Business";
+}
+
+function saveCart(){
+try{
+localStorage.setItem(CART_KEY,JSON.stringify(cart));
+}catch(e){
+console.warn("Cart storage unavailable",e);
+}
+}
+
+function restoreCart(){
+try{
+const saved=JSON.parse(localStorage.getItem(CART_KEY)||"[]");
+if(Array.isArray(saved)){
+cart=saved.filter(x=>
+x&&typeof x.id==="string"&&
+Number.isInteger(x.qty)&&x.qty>0&&x.qty<=99
+);
+}
+}catch(e){
+cart=[];
+}
+}
+
+function syncCart(){
+const valid=[];
+let vendorId=null;
+
+for(const entry of cart){
+const item=menuItem(entry.id);
+if(!item||!item.available)continue;
+if(!vendors.some(v=>v.user_id===item.vendor_id))continue;
+if(vendorId!==null&&vendorId!==item.vendor_id)continue;
+if(valid.some(x=>x.id===item.id))continue;
+vendorId=item.vendor_id;
+valid.push({id:item.id,qty:entry.qty});
+}
+
+cart=valid;
+saveCart();
+renderCart();
+}
+
+function addToCart(id){
+const item=menuItem(id);
+if(!item||!item.available)return;
+
+const first=menuItem(cart[0]?.id);
+if(first&&first.vendor_id!==item.vendor_id){
+if(!confirm("Your cart contains food from another business. Clear that cart and start a new one?"))return;
+cart=[];
+}
+
+const existing=cart.find(x=>x.id===id);
+if(existing){
+if(existing.qty>=99){
+$("cartMessage").textContent="Maximum quantity is 99 per item.";
+return;
+}
+existing.qty++;
+}else{
+cart.push({id,qty:1});
+}
+
+saveCart();
+renderCart();
+$("cartMessage").textContent=item.name+" added to cart.";
+}
+
+function changeQuantity(id,delta){
+const entry=cart.find(x=>x.id===id);
+if(!entry)return;
+entry.qty+=delta;
+if(entry.qty<=0){
+cart=cart.filter(x=>x.id!==id);
+}else{
+entry.qty=Math.min(entry.qty,99);
+}
+saveCart();
+renderCart();
+}
+
+function renderCart(){
+const root=$("cartItems");
+root.replaceChildren();
+
+let subtotal=0;
+let count=0;
+
+for(const entry of cart){
+const item=menuItem(entry.id);
+if(!item)continue;
+
+const row=node("div");
+row.className="cart-row";
+
+const info=node("div");
+const name=node("strong",item.name);
+const price=node("p",money(item.price_cents)+" each");
+info.append(name,price);
+
+const controls=node("div");
+controls.className="controls";
+
+const minus=node("button","−");
+minus.type="button";
+minus.className="secondary";
+minus.setAttribute("aria-label","Decrease "+item.name);
+minus.addEventListener("click",()=>changeQuantity(item.id,-1));
+
+const qty=node("strong",String(entry.qty));
+
+const plus=node("button","+");
+plus.type="button";
+plus.className="secondary";
+plus.setAttribute("aria-label","Increase "+item.name);
+plus.addEventListener("click",()=>changeQuantity(item.id,1));
+
+const lineTotal=node("strong",money(item.price_cents*entry.qty));
+controls.append(minus,qty,plus,lineTotal);
+row.append(info,controls);
+root.append(row);
+
+subtotal+=item.price_cents*entry.qty;
+count+=entry.qty;
+}
+
+$("cartCount").textContent=String(count);
+$("subtotal").textContent=money(subtotal);
+$("emptyCart").classList.toggle("hidden",cart.length>0);
+$("clearCart").disabled=cart.length===0;
+
+const first=menuItem(cart[0]?.id);
+$("cartVendor").textContent=first?
+"Business: "+vendorName(first.vendor_id):"";
 }
 
 async function load(){
@@ -122,7 +292,7 @@ db.from("vendor_profiles")
 .select("user_id,business_name,category,description,location,is_active")
 .eq("is_active",true),
 db.from("eats_menu_items")
-.select("vendor_id,name,description,category,price_cents,available")
+.select("id,vendor_id,name,description,category,price_cents,available")
 .eq("available",true)
 ]);
 
@@ -132,14 +302,14 @@ if(menuResult.error)throw menuResult.error;
 menus=menuResult.data||[];
 const ids=new Set(menus.map(x=>x.vendor_id));
 
-vendors=(vendorResult.data||[])
-.filter(v=>ids.has(v.user_id));
+vendors=(vendorResult.data||[]).filter(v=>ids.has(v.user_id));
 
+syncCart();
 render();
 }catch(error){
 console.error(error);
-$("status").textContent=
-"Marketplace listings are temporarily unavailable.";
+$("status").textContent="Marketplace listings are temporarily unavailable.";
+$("cartMessage").textContent="Unable to verify current menu prices. Please try again later.";
 }
 }
 
@@ -153,7 +323,6 @@ const matching=vendors.filter(v=>{
 const items=menus.filter(m=>m.vendor_id===v.user_id);
 const relevant=category==="all"?
 items:items.filter(m=>m.category===category);
-
 if(!relevant.length)return false;
 
 const text=[
@@ -194,7 +363,11 @@ const price=node("div",money(item.price_cents));
 price.className="price";
 const details=node("p",item.description||"");
 
-row.append(name,price,details);
+const add=node("button","Add to Cart");
+add.type="button";
+add.addEventListener("click",()=>addToCart(item.id));
+
+row.append(name,price,details,add);
 menu.append(row);
 });
 
@@ -203,9 +376,20 @@ root.append(card);
 });
 }
 
+$("clearCart").addEventListener("click",()=>{
+if(!cart.length)return;
+if(!confirm("Remove all items from your cart?"))return;
+cart=[];
+saveCart();
+renderCart();
+$("cartMessage").textContent="Cart cleared.";
+});
+
 $("search").addEventListener("input",render);
 $("category").addEventListener("change",render);
 
+restoreCart();
+renderCart();
 load();
 </script>
 </body>
