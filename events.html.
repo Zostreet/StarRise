@@ -1,0 +1,402 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="StarRise Countdown to Stardom, a New Year's Eve talent showcase presented by FAM Entertainment.">
+  <title>Countdown to Stardom | StarRise</title>
+  <style>
+    :root {
+      --bg: #090914;
+      --panel: #17172b;
+      --gold: #ffd36b;
+      --pink: #f45ab9;
+      --white: #fff;
+      --muted: #c9c7d7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--white);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+    a { color: inherit; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      padding: 18px 6%;
+      background: #101020;
+      flex-wrap: wrap;
+    }
+    .brand {
+      font-weight: 900;
+      font-size: 1.5rem;
+      color: var(--gold);
+      text-decoration: none;
+    }
+    nav {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    nav a { text-decoration: none; font-size: .95rem; }
+    .hero {
+      padding: 95px 6% 80px;
+      text-align: center;
+      background:
+        radial-gradient(circle at 80% 20%, #782f7b 0%, transparent 38%),
+        radial-gradient(circle at 15% 70%, #3c2c85 0%, transparent 40%),
+        #090914;
+    }
+    .eyebrow {
+      color: var(--gold);
+      font-weight: bold;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-size: clamp(2.6rem, 8vw, 5.5rem);
+      line-height: 1.05;
+      margin: 20px auto;
+      max-width: 900px;
+    }
+    h1 span { color: var(--gold); }
+    h2 { font-size: clamp(1.7rem, 5vw, 2.5rem); }
+    h3 { color: var(--gold); }
+    .lead {
+      max-width: 720px;
+      margin: 0 auto 30px;
+      font-size: 1.15rem;
+      color: var(--muted);
+    }
+    .btn {
+      display: inline-block;
+      padding: 13px 22px;
+      border-radius: 9px;
+      background: var(--gold);
+      color: #101020;
+      font-weight: bold;
+      text-decoration: none;
+      border: 0;
+      cursor: pointer;
+      margin: 6px;
+    }
+    .btn.alt {
+      background: transparent;
+      color: white;
+      border: 1px solid var(--gold);
+    }
+    .btn.disabled {
+      background: #55536b;
+      color: #eee;
+      cursor: not-allowed;
+    }
+    section { padding: 55px 6%; }
+    .wrap { max-width: 1120px; margin: auto; }
+    .center { text-align: center; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 20px;
+      margin-top: 28px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid #37334f;
+      border-radius: 16px;
+      padding: 26px;
+    }
+    .price {
+      font-size: 2.2rem;
+      color: var(--gold);
+      font-weight: 900;
+    }
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 5px 12px;
+      border-radius: 30px;
+      font-size: .85rem;
+    }
+    .prize {
+      background: linear-gradient(135deg, #32264c, #17172b);
+      border: 1px solid var(--gold);
+    }
+    .prize strong {
+      color: var(--gold);
+      font-size: 2.7rem;
+    }
+    .notice {
+      padding: 17px;
+      background: #25213a;
+      border-left: 4px solid var(--gold);
+      border-radius: 6px;
+      color: var(--muted);
+      margin: 22px auto;
+      max-width: 850px;
+    }
+    .steps {
+      padding-left: 24px;
+      max-width: 700px;
+      margin: auto;
+    }
+    .steps li { margin: 12px 0; }
+    footer {
+      text-align: center;
+      background: #101020;
+      padding: 30px 6%;
+      color: var(--muted);
+    }
+    footer a { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="index.html">StarRise</a>
+    <nav aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="opportunities.html">Opportunities</a>
+      <a href="doing-it-big.html">Doing It Big</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div class="eyebrow">FAM Entertainment Presents</div>
+      <h1>COUNTDOWN TO <span>STARDOM</span></h1>
+      <p class="lead">
+        New Year's Eve 2026 Talent Showcase.
+        One stage. One night. A chance to rise.
+      </p>
+      <p>
+        <strong>Thursday, December 31, 2026</strong><br>
+        Charlotte / Kannapolis, North Carolina<br>
+        Venue and final event hours to be announced
+      </p>
+      <span class="tag">Coming Soon · Planning in Progress</span>
+      <div style="margin-top:25px">
+        <a class="btn" href="#tickets">Explore Tickets</a>
+        <a class="btn alt" href="#contestants">Enter the Competition</a>
+      </div>
+    </div>
+
+    <section>
+      <div class="wrap center">
+        <h2>North Carolina's Next Stars</h2>
+        <p class="lead">
+          StarRise is bringing emerging singers, rappers,
+          musicians, and other performers together for a
+          New Year's Eve celebration of talent, creativity,
+          and opportunity.
+        </p>
+        <p>
+          We're planning live performances, a judged
+          competition, special guests, and a midnight
+          celebration.
+        </p>
+        <div class="notice">
+          This event is currently in development. Venue,
+          judges, performers, and prize arrangements are
+          not yet confirmed.
+        </div>
+      </div>
+    </section>
+
+    <section id="prizes">
+      <div class="wrap">
+        <h2 class="center">Proposed Grand Prize</h2>
+        <div class="card prize center">
+          <p class="eyebrow">First Place</p>
+          <strong>$2,500 CASH</strong>
+          <h3>Plus an Artist Development Package</h3>
+          <p>8 hours of professional studio time</p>
+          <p>
+            A proposed recorded feature with an established
+            local artist
+          </p>
+          <p>StarRise artist spotlight and promotion</p>
+          <p>Performance photography and video</p>
+          <p style="font-size:.85rem;color:var(--muted)">
+            Proposed prizes are subject to funding,
+            agreements, and final competition rules.
+            No featured artist has been contracted yet.
+          </p>
+        </div>
+        <div class="grid">
+          <div class="card center">
+            <h3>Second Place</h3>
+            <p class="price">$500</p>
+            <p>Plus proposed studio time</p>
+          </div>
+          <div class="card center">
+            <h3>Third Place</h3>
+            <p class="price">$250</p>
+            <p>Plus proposed StarRise promotion</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tickets">
+      <div class="wrap">
+        <h2 class="center">Ticket Options</h2>
+        <p class="center">
+          Proposed ticket tiers. Sales have not opened.
+        </p>
+        <div class="grid">
+          <div class="card center">
+            <h3>Early Bird</h3>
+            <div class="price">$20</div>
+            <p>Limited introductory admission</p>
+            <button class="btn disabled" disabled>
+              Coming Soon
+            </button>
+          </div>
+          <div class="card center">
+            <h3>General Admission</h3>
+            <div class="price">$30</div>
+            <p>Access to the live showcase</p>
+            <button class="btn disabled" disabled>
+              Coming Soon
+            </button>
+          </div>
+          <div class="card center">
+            <h3>VIP Experience</h3>
+            <div class="price">$75</div>
+            <p>Proposed premium seating and VIP benefits</p>
+            <button class="btn disabled" disabled>
+              Coming Soon
+            </button>
+          </div>
+        </div>
+        <div class="notice">
+          Final ticket prices, availability, taxes, fees,
+          refund policies, and VIP benefits will be
+          disclosed before checkout opens.
+        </div>
+      </div>
+    </section>
+
+    <section id="contestants">
+      <div class="wrap center">
+        <h2>Think You Have What It Takes?</h2>
+        <p class="lead">
+          We're planning to select approximately 20
+          performers to compete for prizes and recognition.
+        </p>
+        <div class="card">
+          <h3>Contestant Interest</h3>
+          <p>
+            Initial interest is free. A proposed $50
+            competition entry fee would apply only after
+            acceptance, if approved under the final rules.
+          </p>
+          <p>
+            Send your stage name, performance category,
+            location, and a link to your work.
+          </p>
+          <a class="btn" id="contestantEmail"
+             href="mailto:streetsoul8316@gmail.com?subject=StarRise%20NYE%202026%20Contestant%20Interest">
+            Express Interest
+          </a>
+        </div>
+        <div class="notice">
+          Submitting interest does not guarantee a place
+          in the competition. Official eligibility,
+          judging, and refund terms will be published
+          before paid registration.
+        </div>
+      </div>
+    </section>
+
+    <section id="sponsors">
+      <div class="wrap center">
+        <h2>Become a Sponsor</h2>
+        <p class="lead">
+          Help create opportunities for emerging talent
+          while connecting your brand with the local
+          creative community.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <h3>Community Sponsor</h3>
+            <div class="price">$500</div>
+            <p>Proposed event and digital recognition</p>
+          </div>
+          <div class="card">
+            <h3>Gold Sponsor</h3>
+            <div class="price">$1,000</div>
+            <p>Expanded recognition and guest benefits</p>
+          </div>
+          <div class="card">
+            <h3>Presenting Sponsor</h3>
+            <div class="price">$2,500</div>
+            <p>Premium branding and event recognition</p>
+          </div>
+        </div>
+        <p>
+          <a class="btn"
+             href="mailto:streetsoul8316@gmail.com?subject=StarRise%20NYE%202026%20Sponsorship">
+            Request Sponsorship Details
+          </a>
+        </p>
+      </div>
+    </section>
+
+    <section id="vendors">
+      <div class="wrap center">
+        <h2>Vendors & Local Businesses</h2>
+        <p class="lead">
+          Interested in selling products or showcasing
+          your business at the event?
+        </p>
+        <div class="card">
+          <h3>Proposed Vendor Booths</h3>
+          <div class="price">From $150</div>
+          <p>
+            Food, fashion, art, merchandise, and other
+            approved vendors are welcome to inquire.
+          </p>
+          <a class="btn"
+             href="mailto:streetsoul8316@gmail.com?subject=StarRise%20NYE%202026%20Vendor%20Interest">
+            Request Vendor Information
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2 class="center">How the Launch Will Work</h2>
+        <ol class="steps">
+          <li>Confirm the venue and production arrangements.</li>
+          <li>Secure judges, sponsors, and prize funding.</li>
+          <li>Publish official competition and ticket terms.</li>
+          <li>Open contestant applications and ticket sales.</li>
+          <li>Announce confirmed performers and special guests.</li>
+          <li>Celebrate New Year's Eve with StarRise.</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>StarRise by FAM Entertainment LLC</strong></p>
+    <p>Where Talent Rises</p>
+    <p>
+      <a href="index.html">Home</a> ·
+      <a href="mailto:streetsoul8316@gmail.com">
+        Contact Us
+      </a>
+    </p>
+    <p>&copy; 2026 FAM Entertainment LLC.</p>
+  </footer>
+</body>
+</html>
