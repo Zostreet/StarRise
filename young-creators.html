@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="A free creative space for young artists. Try songwriting, beatmaking, drawing, acting and storytelling with StarRise Young Creators.">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; connect-src 'none'; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <title>Young Creators | StarRise</title>
+  <link rel="icon" type="image/png" href="starrise-logo.png">
+  <link rel="stylesheet" href="css/young-creators.css">
+  <script src="css/young-creators.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to activities</a>
+  <header class="youth-header">
+    <div class="header-inner">
+      <a class="brand" href="young-creators.html" aria-label="StarRise Young Creators home"><img src="starrise-logo.png" alt="StarRise by FAM ENT" width="1697" height="927"><span>Young Creators</span></a>
+      <nav aria-label="Young Creators navigation"><a href="#explore">Explore</a><a href="#studio">Create</a><button type="button" class="nav-button" id="grownupLink">Parents &amp; teachers</button></nav>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero wrap" aria-labelledby="heroTitle">
+      <div class="hero-copy">
+        <p class="eyebrow">A little spark. A big possibility.</p>
+        <h1 id="heroTitle">Your ideas<br>deserve to <span>shine.</span></h1>
+        <p class="lead">Make a beat. Write your first hook. Draw something only you could imagine. This is your space to try, practice, and find your creative voice.</p>
+        <div class="actions"><a class="button primary" href="#studio">Let's create <span aria-hidden="true">↗</span></a><a class="button secondary" href="#explore">Find an activity</a></div>
+        <div class="hero-tags"><span>Free to explore</span><span>No account needed</span><span>Made for young creators</span></div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
+        <div class="art-note note-one">♪</div><div class="art-note note-two">♫</div>
+        <div class="art-star star-one">✦</div><div class="art-star star-two">✧</div>
+        <div class="creative-card"><span>THE NEXT BIG IDEA</span><strong>starts<br>with you.</strong><div class="sound-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        <div class="art-sticker">MAKE SOMETHING<br>THAT FEELS LIKE YOU</div>
+      </div>
+    </section>
+    <div class="welcome-strip"><div class="wrap"><strong>Start small. Try anything.</strong><span>No likes to chase. No pressure to be perfect. Just room to create.</span></div></div>
+    <section class="wrap section" id="explore" aria-labelledby="exploreTitle">
+      <div class="section-heading"><div><p class="eyebrow">Find your spark</p><h2 id="exploreTitle">What will you try today?</h2></div><p>Pick a path or mix them up.<br>Every artist starts somewhere.</p></div>
+      <div class="path-filters" role="group" aria-label="Filter creative activities">
+        <button type="button" data-path="all" aria-pressed="true">All ideas</button>
+        <button type="button" data-path="music" aria-pressed="false">Music &amp; words</button>
+        <button type="button" data-path="art" aria-pressed="false">Art &amp; design</button>
+        <button type="button" data-path="stage" aria-pressed="false">Stage &amp; acting</button>
+        <button type="button" data-path="film" aria-pressed="false">Film &amp; stories</button>
+      </div>
+      <div class="activity-grid" id="activities"></div>
+      <noscript><p>Enable JavaScript to use the creative tools. You can still try this activity: write four lines about a place you imagine, then read them with a rhythm you like.</p></noscript>
+    </section>
+    <section class="studio-section" id="studio" aria-labelledby="studioTitle">
+      <div class="wrap">
+        <div class="section-heading"><div><p class="eyebrow">Your creation space</p><h2 id="studioTitle">From idea to something real.</h2></div><p>Your creations stay in this tab.<br>Save a copy before you close it.</p></div>
+        <div class="studio-tabs" role="tablist" aria-label="Creative tools">
+          <button type="button" role="tab" id="tab-words" aria-selected="true" aria-controls="tool-words" tabindex="0" data-tool="words">Song &amp; story</button>
+          <button type="button" role="tab" id="tab-beats" aria-selected="false" aria-controls="tool-beats" tabindex="-1" data-tool="beats">Beat lab</button>
+          <button type="button" role="tab" id="tab-art" aria-selected="false" aria-controls="tool-art" tabindex="-1" data-tool="art">Art canvas</button>
+          <button type="button" role="tab" id="tab-film" aria-selected="false" aria-controls="tool-film" tabindex="-1" data-tool="film">Story planner</button>
+          <button type="button" role="tab" id="tab-stage" aria-selected="false" aria-controls="tool-stage" tabindex="-1" data-tool="stage">Stage practice</button>
+        </div>
+        <div class="tool-panel" id="tool-words" role="tabpanel" aria-labelledby="tab-words">
+          <div class="tool-heading"><div><h3>Give your idea a voice.</h3><p>Write a song, a verse, or a short story. Use an imaginary name if your story needs one.</p></div><button type="button" class="button outline" id="wordsPrompt">Give me a prompt</button></div>
+          <p class="prompt-box" id="writingPrompt">Imagine a city where music makes the streetlights glow. What would your first song sound like?</p>
+          <label for="writing">Your words</label><textarea id="writing" rows="10" maxlength="8000" placeholder="Start with one line. The rest can come later." spellcheck="false"></textarea>
+          <div class="tool-footer"><span id="wordCount">0 words</span><div class="actions"><button type="button" class="button outline" id="addStructure">Add verse &amp; hook headings</button><button type="button" class="button outline" id="copyWords">Copy words</button><button type="button" class="button primary" id="saveWords">Save text</button></div></div>
+        </div>
+        <div class="tool-panel" id="tool-beats" role="tabpanel" aria-labelledby="tab-beats" hidden>
+          <div class="tool-heading"><div><h3>Find your rhythm.</h3><p>Tap squares to add sounds. Eight steps make one loop. Start with a comfortable volume.</p></div><button type="button" class="button outline" id="resetBeat">Starter beat</button></div>
+          <div class="beat-controls"><label for="tempo">Speed <output id="tempoValue" for="tempo">96 BPM</output><input id="tempo" type="range" min="60" max="140" value="96"></label><label for="beatVolume">Volume <input id="beatVolume" type="range" min="0" max="100" value="25"></label></div>
+          <div class="sequencer" id="sequencer" aria-label="Beat pattern"></div>
+          <div class="tool-footer"><p id="beatState">Ready when you are.</p><div class="actions"><button type="button" class="button primary" id="playBeat" aria-pressed="false">Play beat</button><button type="button" class="button outline" id="saveBeat">Save WAV</button></div></div>
+        </div>
+        <div class="tool-panel" id="tool-art" role="tabpanel" aria-labelledby="tab-art" hidden>
+          <div class="tool-heading"><div><h3>Make your own mark.</h3><p>Draw a poster, an imaginary album cover, or something from your story.</p></div><button type="button" class="button outline" id="artPrompt">Give me an idea</button></div>
+          <p class="prompt-box" id="drawingPrompt">Design the cover for an album called “A Brighter Tomorrow.” What colors tell its story?</p>
+          <div class="art-controls"><fieldset class="palette"><legend>Brush color</legend><button type="button" data-color="#14253d" class="swatch ink" aria-label="Ink" aria-pressed="true"></button><button type="button" data-color="#ec6852" class="swatch coral" aria-label="Coral" aria-pressed="false"></button><button type="button" data-color="#19776e" class="swatch teal" aria-label="Teal" aria-pressed="false"></button><button type="button" data-color="#7358ad" class="swatch purple" aria-label="Purple" aria-pressed="false"></button><button type="button" data-color="#f2b849" class="swatch gold" aria-label="Gold" aria-pressed="false"></button><button type="button" data-color="#ffffff" class="swatch white" aria-label="White eraser" aria-pressed="false"></button></fieldset><label for="brushSize">Brush size <input id="brushSize" type="range" min="2" max="30" value="7"></label></div>
+          <canvas id="artCanvas" width="900" height="560" tabindex="0" aria-label="Drawing canvas. Draw with a finger or pointer, or use arrow keys to move the brush and Space to draw a dot." aria-describedby="canvasHelp">Your browser does not support the drawing canvas. Try a drawing on paper instead.</canvas>
+          <p class="small" id="canvasHelp">Use a finger or pointer. Keyboard: arrows move the brush; Space draws a dot. Shift + arrows moves farther.</p>
+          <div class="tool-footer"><span>Only you choose where your work goes.</span><div class="actions"><button type="button" class="button outline" id="undoArt">Undo</button><button type="button" class="button outline" id="clearArt">Clear canvas</button><button type="button" class="button primary" id="saveArt">Save PNG</button></div></div>
+        </div>
+        <div class="tool-panel" id="tool-film" role="tabpanel" aria-labelledby="tab-film" hidden>
+          <div class="tool-heading"><div><h3>Plan a story worth telling.</h3><p>Imagine a short film, animation, or comic. Describe what happens before you pick up a camera.</p></div><button type="button" class="button outline" id="filmPrompt">Story idea</button></div>
+          <p class="prompt-box" id="storyPrompt">A tiny robot finds a musical note that has lost its song. How can they find the rest of the melody?</p>
+          <div class="story-grid"><div><label for="sceneStart">1. The beginning</label><textarea id="sceneStart" rows="6" maxlength="2000" placeholder="Where does our imaginary story start?"></textarea></div><div><label for="sceneMiddle">2. The surprise</label><textarea id="sceneMiddle" rows="6" maxlength="2000" placeholder="What changes? What challenge appears?"></textarea></div><div><label for="sceneEnd">3. The ending</label><textarea id="sceneEnd" rows="6" maxlength="2000" placeholder="What does our character discover?"></textarea></div></div>
+          <div class="tool-footer"><span>Tell an imaginary story. Keep real personal details private.</span><div class="actions"><button type="button" class="button outline" id="copyStory">Copy story</button><button type="button" class="button primary" id="saveStory">Save story plan</button></div></div>
+        </div>
+        <div class="tool-panel" id="tool-stage" role="tabpanel" aria-labelledby="tab-stage" hidden>
+          <div class="tool-heading"><div><h3>Step into a new character.</h3><p>Act out a scene, practice a spoken verse, or tell a story out loud. Solo performing is always optional.</p></div><button type="button" class="button outline" id="stagePrompt">Another scene</button></div>
+          <div class="stage-scene"><span class="eyebrow">Your scene</span><h4 id="actingPrompt">You are the first explorer to find a garden on the moon. Show the moment you discover it.</h4><p>Try it once with excitement, once with surprise, and once with quiet confidence.</p></div>
+          <ol class="practice-steps"><li>Relax your shoulders and take one comfortable breath.</li><li>Choose a clear beginning, middle, and ending.</li><li>Try the scene for 30 seconds. You can also draw or write it.</li><li>Notice one thing you liked and one thing you want to try next.</li></ol>
+          <div class="tool-footer"><p id="practiceTimer" role="timer" aria-live="off">30 seconds</p><div class="actions"><button type="button" class="button primary" id="startPractice">Start 30-second practice</button><button type="button" class="button outline" id="stopPractice">Reset timer</button></div></div>
+        </div>
+        <p class="studio-note">Keep names, school details, addresses, and contact information out of your creations. Ask a parent or teacher before sharing a saved copy anywhere.</p>
+        <p class="status" id="toolStatus" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+    <section class="wrap section" aria-labelledby="journeyTitle">
+      <div class="journey"><div><p class="eyebrow">Practice is progress</p><h2 id="journeyTitle">Small steps. Your own pace.</h2><p>Mark an activity when you've tried it. Your progress lasts for this visit; it isn't a score or a competition.</p></div><div class="progress-card"><strong id="progressCount">0 of 8 activities tried</strong><progress id="journeyProgress" value="0" max="8" aria-label="Activities tried"></progress><span>Trying is already a creative win.</span></div></div>
+    </section>
+    <section class="wrap section grownup-section" id="families" aria-labelledby="familiesTitle"><div><p class="eyebrow">For the people cheering them on</p><h2 id="familiesTitle">Room to grow. Together.</h2><p>Parents and teachers can explore the tools alongside young creators and learn about our proposed school arts program.</p></div><button type="button" class="button primary" id="grownupCard">Parent &amp; teacher information</button></section>
+  </main>
+  <footer class="wrap youth-footer"><span>StarRise Young Creators · Everyone has a spark.</span><a href="young-creators-privacy.html">Privacy in this space</a><button type="button" class="nav-button" id="grownupFooter">Grown-up help</button></footer>
+  <dialog id="activityDialog" aria-labelledby="activityTitle"><button type="button" class="dialog-close" id="closeActivity" aria-label="Close activity">×</button><p class="eyebrow" id="activityCategory"></p><h2 id="activityTitle"></h2><p id="activityDescription"></p><ol id="activitySteps"></ol><div class="actions"><button type="button" class="button primary" id="activityOpen">Open creative tool</button><button type="button" class="button outline" id="activityComplete">I've tried this</button></div></dialog>
+  <dialog id="grownupDialog" aria-labelledby="grownupTitle"><h2 id="grownupTitle">Parent or teacher information</h2><p>This opens information for adults about the youth space and proposed school program. It also includes links to the main StarRise website.</p><div class="actions"><a class="button primary" href="youth-program.html">Continue to adult information</a><button type="button" class="button outline" id="stayYouth">Stay in Young Creators</button></div></dialog>
+  <dialog id="clearDialog" aria-labelledby="clearTitle"><h2 id="clearTitle">Start a fresh canvas?</h2><p>Save a copy first if you want to keep your drawing.</p><div class="actions"><button type="button" class="button primary" id="confirmClear">Clear drawing</button><button type="button" class="button outline" id="cancelClear">Keep drawing</button></div></dialog>
+  <dialog id="copyDialog" aria-labelledby="copyTitle"><h2 id="copyTitle">Copy your creation</h2><p>Automatic copy isn't available in this browser. Your full creation is selected below. Use your device's Copy command, or close this and save a text file.</p><label for="copyText">Your creation</label><textarea id="copyText" rows="8" readonly></textarea><div class="actions"><button type="button" class="button primary" id="closeCopy">Back to creating</button></div></dialog>
+</body>
+</html>
