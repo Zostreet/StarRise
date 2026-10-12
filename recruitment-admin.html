@@ -421,8 +421,14 @@ function render(){
    p.prospect_name,p.category,p.notes
   ].join(" ").toLowerCase();
 
-  return
-   (type==="all"||p.prospect_type===type)&&
+  
+  return (
+    (type==="all" || p.prospect_type===type) &&
+    (status==="all" || p.outreach_status===status) &&
+    (due==="all" || dueState(p)===due) &&
+    searchable.includes(term)
+  );
+
    (status==="all"||p.outreach_status===status)&&
    (due==="all"||dueState(p)===due)&&
    searchable.includes(term);
