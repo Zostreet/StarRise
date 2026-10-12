@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Battle Rap Tournaments | StarRise</title>
+<meta name="description" content="Explore upcoming StarRise Battle Rap tournaments and artist registration.">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:white;font:16px/1.6 Arial,sans-serif}
+header{padding:20px 5%;border-bottom:1px solid #ffffff25;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+nav{display:flex;gap:14px;flex-wrap:wrap}
+nav a{color:white;text-decoration:none}
+a{color:#f3ca71}
+main{max-width:1050px;margin:auto;padding:35px 20px 80px}
+h1{font-size:clamp(36px,8vw,65px);margin:10px 0}
+.gold{color:#f3ca71}
+.muted{color:#bbb}
+.card{background:#19152a;border:1px solid #ffffff25;border-radius:16px;padding:24px;margin:18px 0}
+.notice{background:#302443;border:1px solid #a787d6;border-radius:12px;padding:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+input{width:100%;background:#100e1e;color:white;border:1px solid #777;border-radius:10px;padding:12px;font:inherit}
+label{display:block;margin:12px 0 6px}
+button,.btn{display:inline-block;background:#f3ca71;color:#171021;border:0;border-radius:24px;padding:12px 18px;font-weight:bold;cursor:pointer;text-decoration:none}
+button:disabled{opacity:.5}
+.tag{display:inline-block;background:#302443;color:#f3ca71;border-radius:20px;padding:5px 12px}
+footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
+</style>
+</head>
+<body>
+
+<header>
+<strong class="gold">STARRISE BATTLE RAP</strong>
+<nav>
+<a href="index.html">Home</a>
+<a href="battle-rap.html">Arena</a>
+<a href="battle-community.html">Watch Battles</a>
+<a href="battle-leaderboard.html">Leaderboard</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
+</header>
+
+<main>
+<p class="gold">THE NEXT GENERATION OF BATTLE RAP</p>
+<h1>Tournament Center</h1>
+<p>Discover upcoming competitions and register to compete when applications open.</p>
+
+<div class="notice">
+<strong>Prelaunch:</strong> Tournament registration does not guarantee selection, an event appearance, a prize, or a scheduled performance. Competition dates and formats are subject to organizer confirmation. This registration page is intended for adults 18 and older.
+</div>
+
+<section>
+<h2>Upcoming Tournaments</h2>
+<p id="status" role="status">Loading tournaments...</p>
+<div id="tournaments" class="grid"></div>
+</section>
+
+<section class="card">
+<h2>My Tournament Registrations</h2>
+<div id="myEntries">Sign in to view your registrations.</div>
+</section>
+
+<section class="card">
+<h2>Prepare for Competition</h2>
+<p>Practice your performance, create a battle challenge, and connect with the StarRise Battle Rap community.</p>
+<a class="btn" href="battle-rap.html">Enter Battle Arena</a>
+</section>
+</main>
+
+<footer>
+<p>StarRise by FAM Entertainment LLC</p>
+<a href="privacy.html">Privacy</a> |
+<a href="support.html">Support</a>
+</footer>
+
+<script>
+const db=window.supabase.createClient(
+"https://rcnikxotdalxtuvpmlvm.supabase.co",
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+const $=id=>document.getElementById(id);
+let user=null;
+
+function el(tag,text){
+const e=document.createElement(tag);
+if(text!==undefined)e.textContent=text;
+return e;
+}
+
+function formatDate(value){
+return value?new Date(value).toLocaleString():"To be announced";
+}
+
+async function init(){
+const {data}=await db.auth.getUser();
+user=data?.user||null;
+await Promise.all([loadTournaments(),loadEntries()]);
+}
+
+async function loadTournaments(){
+const root=$("tournaments");
+root.replaceChildren();
+
+const [tournaments,counts]=await Promise.all([
+db.from("battle_rap_tournaments")
+.select("id,title,description,starts_at,registration_closes_at,max_entrants,status")
+.neq("status","draft")
+.order("created_at",{ascending:false}),
+db.rpc("battle_tournament_counts")
+]);
+
+if(tournaments.error){
+$("status").textContent="Unable to load tournaments.";
+return;
+}
+
+const items=tournaments.data||[];
+const totals=new Map((counts.data||[]).map(x=>[x.tournament_id,Number(x.entrant_count)]));
+
+$("status").textContent=items.length?
+items.length+" tournament(s) listed.":
+"No tournaments announced yet.";
+
+items.forEach(t=>{
+const card=el("article");
+card.className="card";
+
+card.append(
+el("span",t.status.toUpperCase()),
+el("h2",t.title),
+el("p",t.description||"Competition details coming soon."),
+el("p","Event: "+formatDate(t.starts_at)),
+el("p","Registration closes: "+formatDate(t.registration_closes_at)),
+el("p","Registered: "+(totals.get(t.id)||0)+" / "+t.max_entrants)
+);
+
+if(t.status==="open"){
+const form=el("form");
+
+const label=el("label","Your Stage Name");
+const input=el("input");
+input.required=true;
+input.maxLength=80;
+input.minLength=2;
+input.placeholder="Enter stage name";
+
+const adultLabel=el("label");
+const adult=el("input");
+adult.type="checkbox";
+adult.required=true;
+adult.style.width="auto";
+adultLabel.append(adult,document.createTextNode(" I confirm I am at least 18 years old."));
+
+const button=el("button","Register for Tournament");
+button.type="submit";
+
+const message=el("p");
+message.setAttribute("role","status");
+
+form.append(label,input,adultLabel,button,message);
+
+form.addEventListener("submit",async e=>{
+e.preventDefault();
+
+if(!user){
+message.textContent="Sign in to register.";
+return;
+}
+
+button.disabled=true;
+message.textContent="Submitting registration...";
+
+const {error}=await db.rpc("register_battle_tournament",{
+p_tournament:t.id,
+p_stage_name:input.value.trim()
+});
+
+if(error){
+message.textContent="Registration unsuccessful. You may already be registered, or registration may be closed or full.";
+}else{
+message.textContent="Registration received. Await official tournament instructions.";
+form.reset();
+await Promise.all([loadEntries(),loadTournaments()]);
+}
+
+button.disabled=false;
+});
+
+card.append(form);
+}
+
+root.append(card);
+});
+}
+
+async function loadEntries(){
+const root=$("myEntries");
+root.replaceChildren();
+
+if(!user){
+root.textContent="Sign in to see your tournament registrations.";
+return;
+}
+
+const {data,error}=await db
+.from("battle_rap_tournament_entries")
+.select("tournament_id,stage_name,status,created_at")
+.eq("artist_id",user.id)
+.order("created_at",{ascending:false});
+
+if(error){
+root.textContent="Unable to load registrations.";
+return;
+}
+
+if(!data?.length){
+root.textContent="You have not registered for a tournament.";
+return;
+}
+
+for(const entry of data){
+const card=el("div");
+card.className="card";
+card.append(
+el("p","Tournament ID: "+entry.tournament_id),
+el("p","Stage name: "+entry.stage_name),
+el("p","Status: "+entry.status),
+el("p","Registered: "+formatDate(entry.created_at))
+);
+root.append(card);
+}
+}
+
+init();
+</script>
+</body>
+</html>
