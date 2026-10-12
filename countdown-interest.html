@@ -1,0 +1,478 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Countdown to Stardom | StarRise</title>
+
+  <meta name="description" content="Register your interest as an artist, performer, or vendor for StarRise Countdown to Stardom, New Year's Eve 2026.">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(145deg, #140921, #35115e);
+      color: white;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 22px;
+      text-align: center;
+      background: #11071d;
+      border-bottom: 2px solid #d6a936;
+    }
+
+    header h2 {
+      color: #ffd166;
+      margin: 0;
+    }
+
+    header a {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: auto;
+      padding: 25px 16px 70px;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 35px 5px;
+    }
+
+    .hero h1 {
+      font-size: clamp(34px, 8vw, 58px);
+      color: #ffd166;
+      margin: 10px 0;
+    }
+
+    .hero p {
+      line-height: 1.6;
+      font-size: 17px;
+    }
+
+    .notice {
+      background: #fff2cc;
+      color: #4a3400;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    .card {
+      background: white;
+      color: #24152f;
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 10px 30px #0004;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #552099;
+    }
+
+    label {
+      display: block;
+      margin: 17px 0 7px;
+      font-weight: bold;
+    }
+
+    input:not([type="checkbox"]),
+    select,
+    textarea {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #bdb4c9;
+      border-radius: 9px;
+      font-size: 16px;
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 20px;
+      line-height: 1.5;
+    }
+
+    .checkbox-row input {
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+
+    .checkbox-row label {
+      margin: 0;
+      font-weight: normal;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 24px;
+      padding: 16px;
+      border: none;
+      border-radius: 10px;
+      background: #6624b5;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    #message {
+      margin-top: 16px;
+      font-weight: bold;
+      line-height: 1.5;
+    }
+
+    .privacy {
+      font-size: 13px;
+      color: #62566c;
+      line-height: 1.6;
+      margin-top: 20px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      font-size: 14px;
+    }
+
+    footer a {
+      color: #ffd166;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h2>STAR RISE</h2>
+  <p>Where Talent Rises</p>
+  <a href="index.html">Return to StarRise Home</a>
+</header>
+
+<main class="container">
+
+  <section class="hero">
+    <h1>COUNTDOWN TO STARDOM</h1>
+
+    <p>
+      StarRise Presents
+      <br>
+      New Year's Eve 2026
+      <br>
+      Emerging Talent Showcase
+    </p>
+
+    <p>
+      Calling singers, rappers, dancers, DJs,
+      entertainers, entrepreneurs, and vendors!
+    </p>
+  </section>
+
+  <div class="notice">
+    <strong>Free interest registration.</strong>
+    This event is currently being planned.
+    The venue, lineup, and vendor spaces
+    are not yet confirmed. Submitting this
+    form does not guarantee participation.
+    No payment is required.
+  </div>
+
+  <section class="card">
+
+    <h2>Artist & Vendor Registration</h2>
+
+    <p>
+      Tell us about yourself or your business.
+      Our team will review your interest.
+    </p>
+
+    <form id="registrationForm">
+
+      <label for="applicantType">
+        Registration Type *
+      </label>
+
+      <select id="applicantType" required>
+        <option value="">Choose your category</option>
+        <option value="performer">
+          Artist / Performer
+        </option>
+        <option value="vendor">
+          Vendor / Business
+        </option>
+      </select>
+
+      <label for="displayName">
+        Artist Name or Business Name *
+      </label>
+
+      <input
+        id="displayName"
+        type="text"
+        minlength="2"
+        maxlength="120"
+        required
+      >
+
+      <label for="email">
+        Email Address *
+      </label>
+
+      <input
+        id="email"
+        type="email"
+        maxlength="254"
+        required
+      >
+
+      <label for="phone">
+        Phone Number
+      </label>
+
+      <input
+        id="phone"
+        type="tel"
+        maxlength="35"
+      >
+
+      <label for="city">
+        City / Location
+      </label>
+
+      <input
+        id="city"
+        type="text"
+        maxlength="100"
+      >
+
+      <label for="category">
+        Music Genre or Business Category *
+      </label>
+
+      <input
+        id="category"
+        type="text"
+        maxlength="120"
+        placeholder="R&B, Hip-Hop, Dance, Clothing, Art..."
+        required
+      >
+
+      <label for="socialLink">
+        Website or Social Media Link
+      </label>
+
+      <input
+        id="socialLink"
+        type="url"
+        maxlength="500"
+        placeholder="https://"
+      >
+
+      <label for="details">
+        Tell Us About Your Talent or Business
+      </label>
+
+      <textarea
+        id="details"
+        maxlength="1500"
+        placeholder="Describe your performance, products, or services..."
+      ></textarea>
+
+      <div class="checkbox-row">
+        <input
+          id="consent"
+          type="checkbox"
+          required
+        >
+
+        <label for="consent">
+          I agree to be contacted by StarRise
+          regarding this proposed event.
+          I understand this is an interest
+          application, not a confirmed booking.
+        </label>
+      </div>
+
+      <button type="submit" id="submitButton">
+        Submit Free Registration
+      </button>
+
+      <div
+        id="message"
+        role="status"
+        aria-live="polite"
+      ></div>
+
+    </form>
+
+    <p class="privacy">
+      Your application information is collected
+      for private event planning and review.
+      Do not submit payment information.
+      For applicants under 18, a parent or
+      guardian should contact StarRise.
+    </p>
+
+  </section>
+
+</main>
+
+<footer>
+  <p>
+    StarRise by Fam Entertainment LLC
+  </p>
+
+  <p>
+    <a href="terms.html">Terms</a> |
+    <a href="privacy.html">Privacy</a> |
+    <a href="support.html">Support</a>
+  </p>
+</footer>
+
+<script>
+  const SUPABASE_URL =
+    "https://rcnikxotdalxtuvpmlvm.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+
+  const db = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  const form = document.getElementById(
+    "registrationForm"
+  );
+
+  const message = document.getElementById(
+    "message"
+  );
+
+  const submitButton = document.getElementById(
+    "submitButton"
+  );
+
+  function getValue(id) {
+    return document.getElementById(id).value.trim();
+  }
+
+  form.addEventListener(
+    "submit",
+    async function(event) {
+
+      event.preventDefault();
+
+      submitButton.disabled = true;
+      submitButton.textContent = "Submitting...";
+
+      message.textContent =
+        "Saving your registration...";
+
+      message.style.color = "#552099";
+
+      try {
+
+        const registration = {
+
+          applicant_type:
+            getValue("applicantType"),
+
+          display_name:
+            getValue("displayName"),
+
+          email:
+            getValue("email"),
+
+          phone:
+            getValue("phone") || null,
+
+          city:
+            getValue("city") || null,
+
+          category:
+            getValue("category"),
+
+          social_link:
+            getValue("socialLink") || null,
+
+          details:
+            getValue("details") || null,
+
+          consent:
+            document.getElementById(
+              "consent"
+            ).checked
+
+        };
+
+        const { error } = await db
+          .from("showcase_interest")
+          .insert(registration);
+
+        if (error) {
+          throw error;
+        }
+
+        form.reset();
+
+        message.style.color = "#176b45";
+
+        message.textContent =
+          "Registration received! Thank you for your interest. StarRise will contact you if an opportunity becomes available.";
+
+      } catch (error) {
+
+        console.error(
+          "Registration error:",
+          error
+        );
+
+        message.style.color = "#b42318";
+
+        message.textContent =
+          "We could not submit your registration. Please try again later.";
+
+      } finally {
+
+        submitButton.disabled = false;
+
+        submitButton.textContent =
+          "Submit Free Registration";
+
+      }
+
+    }
+  );
+</script>
+
+</body>
+</html>
