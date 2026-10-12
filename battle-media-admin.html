@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Battle Media Review | StarRise</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:#fff;font:16px/1.6 Arial,sans-serif}
+header,main,footer{padding:24px;max-width:1050px;margin:auto}
+nav{display:flex;gap:18px;flex-wrap:wrap}
+a{color:#f3ca71}
+h1{font-size:clamp(32px,6vw,54px)}
+.card{background:#19152a;border:1px solid #ffffff25;border-radius:16px;padding:22px;margin:18px 0}
+.gold{color:#f3ca71}
+.muted{color:#bbb}
+button{background:#f3ca71;color:#171021;border:0;border-radius:25px;padding:12px 18px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5}
+select{background:#100e1e;color:white;border:1px solid #777;border-radius:10px;padding:12px;font:inherit}
+audio,video{width:100%;max-height:440px;margin:15px 0}
+.hidden{display:none!important}
+.notice{padding:15px;background:#302443;border-radius:12px}
+.actions{display:flex;gap:12px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<header>
+<strong class="gold">STARRISE MANAGEMENT</strong>
+<nav>
+<a href="index.html">Home</a>
+<a href="battle-admin.html">Challenge Review</a>
+<a href="battle-community.html">Community</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
+</header>
+
+<main>
+<h1>Battle Performance Review</h1>
+<p class="muted">Private administrator review of artist recordings.</p>
+
+<div class="notice">
+Approval here records a moderation decision. It does not publish the recording or certify music rights, participant identity, or consent.
+</div>
+
+<div id="loading" class="card">Verifying administrator access...</div>
+
+<div id="denied" class="card hidden">
+<h2>Access Restricted</h2>
+<p>Sign in with an authorized StarRise administrator account.</p>
+<a href="dashboard.html">Go to Sign In</a>
+</div>
+
+<div id="workspace" class="hidden">
+<section class="card">
+<h2>Performance Submissions</h2>
+<label for="filter">Filter:</label>
+<select id="filter">
+<option value="all">All Submissions</option>
+<option value="pending">Pending</option>
+<option value="approved">Approved</option>
+<option value="rejected">Rejected</option>
+</select>
+<button id="refresh">Refresh</button>
+<p id="message" role="status"></p>
+<div id="results"></div>
+</section>
+</div>
+</main>
+
+<footer>StarRise by FAM Entertainment LLC</footer>
+
+<script>
+const db=window.supabase.createClient(
+"https://rcnikxotdalxtuvpmlvm.supabase.co",
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+const $=id=>document.getElementById(id);
+const states=["pending","approved","rejected"];
+let submissions=[];
+
+function el(tag,text){
+const x=document.createElement(tag);
+if(text!==undefined)x.textContent=text;
+return x;
+}
+
+async function init(){
+try{
+const {data:{user},error}=await db.auth.getUser();
+if(error||!user)throw Error("Sign-in required");
+
+const {data:admin,error:adminError}=await db
+.from("driver_admins")
+.select("user_id")
+.eq("user_id",user.id)
+.maybeSingle();
+
+if(adminError||!admin)throw Error("Unauthorized");
+
+$("loading").classList.add("hidden");
+$("workspace").classList.remove("hidden");
+await load();
+}catch(e){
+console.error(e);
+$("loading").classList.add("hidden");
+$("denied").classList.remove("hidden");
+}
+}
+
+async function load(){
+$("refresh").disabled=true;
+$("message").textContent="Loading submissions...";
+
+const {data,error}=await db
+.from("battle_rap_performances")
+.select("id,battle_id,artist_id,storage_path,media_type,status,created_at")
+.order("created_at",{ascending:false});
+
+$("refresh").disabled=false;
+
+if(error){
+$("message").textContent="Could not load submissions.";
+return;
+}
+
+submissions=data||[];
+render();
+}
+
+function render(){
+const root=$("results");
+root.replaceChildren();
+
+const filter=$("filter").value;
+const items=submissions.filter(s=>filter==="all"||s.status===filter);
+
+$("message").textContent=items.length+
+" submission(s) displayed.";
+
+for(const item of items){
+const card=el("article");
+card.className="card";
+
+card.append(el("h3","Performance Submission"));
+card.append(el("p","Battle ID: "+item.battle_id));
+card.append(el("p","Artist ID: "+item.artist_id));
+card.append(el("p","Type: "+item.media_type));
+card.append(el("p","Status: "+item.status));
+card.append(el("p","Submitted: "+new Date(item.created_at).toLocaleString()));
+
+const preview=el("button","Load Private Preview");
+const media=el(item.media_type==="video"?"video":"audio");
+media.controls=true;
+media.preload="none";
+
+preview.addEventListener("click",async()=>{
+preview.disabled=true;
+
+const {data,error}=await db.storage
+.from("battle-performances")
+.createSignedUrl(item.storage_path,300);
+
+if(error||!data?.signedUrl){
+alert("Unable to load this recording.");
+preview.disabled=false;
+return;
+}
+
+media.src=data.signedUrl;
+media.load();
+if(!media.isConnected)card.insertBefore(media,actions);
+preview.disabled=false;
+});
+
+const select=el("select");
+for(const state of states){
+const option=el("option",state);
+option.value=state;
+select.append(option);
+}
+select.value=item.status;
+
+const save=el("button","Save Review");
+save.addEventListener("click",async()=>{
+if(select.value===item.status)return;
+
+if(!confirm("Set this performance to "+select.value+"?"))return;
+
+save.disabled=true;
+
+const {data,error}=await db
+.from("battle_rap_performances")
+.update({status:select.value})
+.eq("id",item.id)
+.select("id,status")
+.single();
+
+if(error){
+alert("Review update failed.");
+save.disabled=false;
+return;
+}
+
+item.status=data.status;
+render();
+});
+
+const actions=el("div");
+actions.className="actions";
+actions.append(preview,select,save);
+card.append(actions);
+root.append(card);
+}
+}
+
+$("filter").addEventListener("change",render);
+$("refresh").addEventListener("click",load);
+init();
+</script>
+</body>
+</html>
