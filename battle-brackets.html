@@ -8,14 +8,14 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0b0917;color:white;font:16px/1.6 Arial,sans-serif}
+body{margin:0;background:#0b0917;color:#fff;font:16px/1.6 Arial,sans-serif}
 header{padding:20px 5%;border-bottom:1px solid #ffffff25;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 nav{display:flex;gap:14px;flex-wrap:wrap}
-nav a{color:white;text-decoration:none}
+nav a{color:#fff;text-decoration:none}
 a{color:#f3ca71}
 main{max-width:1150px;margin:auto;padding:30px 18px 80px}
 h1{font-size:clamp(34px,7vw,60px)}
-h2{color:#f3ca71}
+h2,h3{color:#f3ca71}
 .card{background:#19152a;border:1px solid #ffffff25;border-radius:16px;padding:20px;margin:15px 0}
 .notice{background:#302443;border:1px solid #a787d6;border-radius:12px;padding:16px}
 .rounds{display:flex;gap:20px;overflow-x:auto;padding:15px 0;align-items:flex-start}
@@ -35,6 +35,9 @@ select{background:#100e1e;color:white;border:1px solid #777;max-width:100%}
 .review button{display:block;width:100%}
 .saved{color:#85d6a3;font-weight:bold}
 .warning{color:#ffd28b;font-weight:bold}
+.scorebox{background:#211b34;border:1px solid #ffffff30;border-radius:12px;padding:14px;margin:12px 0}
+.scoreline{display:flex;justify-content:space-between;gap:12px;padding:7px 0}
+.leader{color:#85d6a3;font-weight:bold}
 footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
 </style>
 </head>
@@ -58,8 +61,8 @@ footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
 
 <div class="notice">
 Official results are confirmed by authorized StarRise administrators.
-Provisional selections remain private until confirmed.
-Changes must be saved before official confirmation is enabled.
+Judge recommendations are advisory. When judges are assigned,
+all their scorecards must be complete before official confirmation.
 </div>
 
 <section class="card">
@@ -92,7 +95,6 @@ const db=window.supabase.createClient(
 );
 
 const $=id=>document.getElementById(id);
-
 let admin=false;
 let tournaments=[];
 let busy=false;
@@ -194,9 +196,7 @@ db.from("battle_rap_tournament_matches")
 );
 
 requests.push(
-db.rpc("battle_bracket_admin_reviews",{
-p_tournament:id
-})
+db.rpc("battle_bracket_admin_reviews",{p_tournament:id})
 );
 }
 
@@ -293,13 +293,14 @@ const privateMatch=privateMatches.get(match.id);
 if(privateMatch){
 const review=el("div");
 review.className="review";
+review.append(el("strong","Administrator Result Review"));
 
-review.append(
-el("strong","Administrator Result Review")
-);
+const scorebox=el("div");
+scorebox.className="scorebox";
+scorebox.append(el("p","Loading judge scores..."));
+review.append(scorebox);
 
 const pick=el("select");
-
 const option1=el("option",match.artist_one_name);
 option1.value=privateMatch.artist_one;
 
@@ -309,10 +310,7 @@ option2.value=privateMatch.artist_two;
 pick.append(option1,option2);
 
 let savedWinner=reviews.get(match.id)||null;
-
-if(savedWinner){
-pick.value=savedWinner;
-}
+if(savedWinner)pick.value=savedWinner;
 
 const savedText=el("p");
 const warning=el("p");
@@ -333,6 +331,11 @@ confirmButton.className="confirm";
 const feedback=el("p");
 feedback.setAttribute("role","status");
 
+let scoresReady=false;
+let scoreRows=[];
+let recommendation=null;
+let scoreLoadFailed=false;
+
 function artistName(artistId){
 return artistId===privateMatch.artist_one?
 match.artist_one_name:
@@ -345,6 +348,7 @@ const changed=pick.value!==savedWinner;
 savedText.textContent=savedWinner?
 "Saved provisional winner: "+artistName(savedWinner):
 "No provisional winner saved.";
+
 savedText.className=savedWinner?"saved":"muted";
 
 warning.textContent=changed?
@@ -356,10 +360,123 @@ savedWinner?
 warning.className=changed?"warning":"muted";
 
 save.disabled=busy||(!changed&&!!savedWinner);
+
 confirmButton.disabled=
 busy||
 !savedWinner||
-changed;
+changed||
+!scoresReady||
+scoreLoadFailed;
+}
+
+async function loadScores(){
+scoresReady=false;
+scoreLoadFailed=false;
+scorebox.replaceChildren(el("p","Loading judge scores..."));
+updateReview();
+
+const {data,error}=await db.rpc(
+"battle_judge_admin_recommendation",
+{p_match:match.id}
+);
+
+if(version!==requestVersion)return;
+
+scorebox.replaceChildren();
+
+if(error){
+scoreLoadFailed=true;
+scorebox.append(el(
+"p","Score verification unavailable: "+error.message
+));
+updateReview();
+return;
+}
+
+scoreRows=data||[];
+
+for(const row of scoreRows){
+const line=el("div");
+line.className="scoreline";
+
+const name=el("span",row.artist_name);
+const points=el("strong",row.total_points+" points");
+
+if(row.recommendation==="LEADER"){
+points.className="leader";
+}
+
+line.append(name,points);
+scorebox.append(line);
+
+scorebox.append(el(
+"p",
+row.scorecards+" / "+
+(row.assigned_judges*3)+
+" round entries"
+));
+}
+
+const noJudges=scoreRows.some(
+r=>r.recommendation==="NO_JUDGES"
+);
+const incomplete=scoreRows.some(
+r=>r.recommendation==="INCOMPLETE"
+);
+const tied=scoreRows.some(
+r=>r.recommendation==="TIE"
+);
+
+recommendation=scoreRows.find(
+r=>r.recommendation==="LEADER"
+)||null;
+
+const info=el("p");
+
+if(noJudges){
+info.textContent=
+"No judges assigned. Administrator review required.";
+scoresReady=true;
+}else if(incomplete){
+info.textContent=
+"Judging incomplete. Official confirmation is blocked.";
+info.className="warning";
+scoresReady=false;
+}else if(tied){
+info.textContent=
+"Tied scores. Administrator review required.";
+scoresReady=true;
+}else if(recommendation){
+info.textContent=
+"Recommended winner: "+
+recommendation.artist_name+
+" ("+recommendation.total_points+" points).";
+info.className="leader";
+scoresReady=true;
+}else{
+info.textContent="Score recommendation unavailable.";
+scoresReady=false;
+}
+
+scorebox.append(info);
+
+if(recommendation){
+const use=el("button","Select Recommended Winner");
+use.type="button";
+use.className="secondary";
+
+use.addEventListener("click",()=>{
+if(busy)return;
+pick.value=recommendation.artist_id;
+feedback.textContent=
+"Recommended artist selected. Save the provisional winner before confirming.";
+updateReview();
+});
+
+scorebox.append(use);
+}
+
+updateReview();
 }
 
 pick.addEventListener("change",()=>{
@@ -376,10 +493,9 @@ updateReview();
 feedback.textContent="Saving provisional result...";
 
 const {data,error}=await db.rpc(
-"battle_bracket_propose_winner",{
-p_match:match.id,
-p_winner:selected
-});
+"battle_bracket_propose_winner",
+{p_match:match.id,p_winner:selected}
+);
 
 busy=false;
 
@@ -401,12 +517,26 @@ if(busy)return;
 
 if(!savedWinner||pick.value!==savedWinner){
 feedback.textContent=
-"Unsaved change detected. Save the selected winner first.";
+"Save the selected provisional winner first.";
+updateReview();
+return;
+}
+
+if(!scoresReady||scoreLoadFailed){
+feedback.textContent=
+"Score verification is incomplete or unavailable.";
 updateReview();
 return;
 }
 
 const selectedName=artistName(savedWinner);
+
+if(recommendation&&savedWinner!==recommendation.artist_id){
+if(!confirm(
+"WARNING: "+selectedName+
+" is not the scoring leader. Continue with administrator override?"
+))return;
+}
 
 if(!confirm(
 "OFFICIAL RESULT: Confirm "+selectedName+
@@ -419,15 +549,16 @@ updateReview();
 feedback.textContent="Confirming official result...";
 
 const {data,error}=await db.rpc(
-"battle_bracket_confirm_winner",{
-p_match:match.id
-});
+"battle_bracket_confirm_winner",
+{p_match:match.id}
+);
 
 busy=false;
 
 if(error){
 feedback.textContent=
 error.message||"Unable to confirm winner.";
+await loadScores();
 updateReview();
 return;
 }
@@ -447,6 +578,7 @@ feedback
 
 card.append(review);
 updateReview();
+await loadScores();
 }
 }
 
@@ -472,9 +604,9 @@ $("generate").disabled=true;
 message("Generating first round...");
 
 const {data,error}=await db.rpc(
-"battle_bracket_generate",{
-p_tournament:id
-});
+"battle_bracket_generate",
+{p_tournament:id}
+);
 
 busy=false;
 
