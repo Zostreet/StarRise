@@ -32,6 +32,7 @@ footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
 </style>
 </head>
 <body>
+
 <header>
 <strong>STARRISE BATTLE RAP</strong>
 <nav>
@@ -57,9 +58,13 @@ Preliminary fan voting does not automatically determine tournament winners.
 <h2>Select Tournament</h2>
 <select id="tournament"></select>
 <p id="status" role="status">Loading...</p>
+
 <div id="adminActions" hidden>
 <button id="generate" type="button">Generate First Round</button>
-<p class="muted">Registration must be closed and the number of active entrants must be 2, 4, 8, 16, 32, 64 or 128. Existing brackets cannot be regenerated here.</p>
+<p class="muted">
+Registration must be closed. The number of active entrants must be
+2, 4, 8, 16, 32, 64 or 128. Existing brackets cannot be regenerated here.
+</p>
 </div>
 </section>
 
@@ -78,6 +83,7 @@ const db=window.supabase.createClient(
 );
 
 const $=id=>document.getElementById(id);
+
 let admin=false;
 let tournaments=[];
 let busy=false;
@@ -97,10 +103,12 @@ async function init(){
 const {data:auth}=await db.auth.getUser();
 
 if(auth?.user){
-const {data}=await db.from("driver_admins")
+const {data}=await db
+.from("driver_admins")
 .select("user_id")
 .eq("user_id",auth.user.id)
 .maybeSingle();
+
 admin=!!data;
 }
 
@@ -125,7 +133,10 @@ return;
 
 tournaments=data||[];
 const select=$("tournament");
-const previous=selectedId||select.value;
+
+const previous=selectedId||
+new URLSearchParams(window.location.search).get("tournament")||
+select.value;
 
 select.replaceChildren();
 
@@ -153,8 +164,8 @@ async function loadBracket(){
 const version=++requestVersion;
 const id=$("tournament").value;
 const root=$("bracket");
-root.replaceChildren();
 
+root.replaceChildren();
 if(!id)return;
 
 const tournament=tournaments.find(t=>t.id===id);
@@ -176,6 +187,7 @@ db.from("battle_rap_tournament_matches")
 }
 
 const results=await Promise.all(requests);
+
 if(version!==requestVersion)return;
 
 const publicResult=results[0];
@@ -188,6 +200,7 @@ return;
 }
 
 const matches=publicResult.data||[];
+
 const privateMatches=new Map(
 (adminResult?.data||[]).map(m=>[m.id,m])
 );
@@ -202,8 +215,9 @@ message("Bracket not generated yet.");
 return;
 }
 
-const rounds=[...new Set(matches.map(m=>m.round_number))]
-.sort((a,b)=>a-b);
+const rounds=[...new Set(
+matches.map(m=>m.round_number)
+)].sort((a,b)=>a-b);
 
 message(
 matches.length+" match(es) across "+
