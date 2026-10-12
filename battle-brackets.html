@@ -8,16 +8,16 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0b0917;color:white;font:16px/1.6 Arial,sans-serif}
+body{margin:0;background:#0b0917;color:#fff;font:16px/1.6 Arial,sans-serif}
 header{padding:20px 5%;border-bottom:1px solid #ffffff25;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-a{color:#f3ca71}
 nav{display:flex;gap:14px;flex-wrap:wrap}
-nav a{color:white;text-decoration:none}
-main{max-width:1100px;margin:auto;padding:30px 18px 80px}
-h1{font-size:clamp(34px,7vw,60px)}
+nav a{color:#fff;text-decoration:none}
+a{color:#f3ca71}
+main{max-width:1150px;margin:auto;padding:30px 18px 80px}
+h1{font-size:clamp(34px,7vw,60px);margin:10px 0}
 h2{color:#f3ca71}
 .card{background:#19152a;border:1px solid #ffffff25;border-radius:16px;padding:20px;margin:15px 0}
-.notice{padding:15px;background:#302443;border-radius:12px}
+.notice{background:#302443;border:1px solid #a787d6;border-radius:12px;padding:16px}
 .rounds{display:flex;gap:20px;overflow-x:auto;padding:15px 0;align-items:flex-start}
 .round{min-width:245px;flex:1}
 .match{background:#100e1e;border:1px solid #ffffff30;border-radius:12px;padding:15px;margin:14px 0}
@@ -25,42 +25,46 @@ h2{color:#f3ca71}
 button,select{padding:12px;border-radius:10px;font:inherit}
 button{background:#f3ca71;color:#171021;border:0;font-weight:bold;cursor:pointer;margin:6px 0}
 button:disabled{opacity:.5}
-select{background:#100e1e;color:white;border:1px solid #777;max-width:100%}
+select{background:#100e1e;color:#fff;border:1px solid #777;max-width:100%}
 .muted{color:#bbb}
-footer{text-align:center;padding:25px}
+.tag{display:inline-block;background:#302443;color:#f3ca71;border-radius:20px;padding:5px 12px}
+footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
 </style>
 </head>
 <body>
-
 <header>
 <strong>STARRISE BATTLE RAP</strong>
 <nav>
 <a href="index.html">Home</a>
 <a href="battle-tournaments.html">Tournaments</a>
+<a href="battle-community.html">Watch Battles</a>
 <a href="battle-leaderboard.html">Leaderboard</a>
 <a href="battle-tournament-admin.html">Admin</a>
 </nav>
 </header>
 
 <main>
+<p class="tag">STARRISE COMPETITION CENTER</p>
 <h1>Tournament Brackets</h1>
-<p>Follow matchups, tournament rounds and administrator-recorded results.</p>
+<p>Follow matchups, rounds, and tournament results.</p>
+
 <div class="notice">
-Bracket winners are recorded by StarRise administrators. They are not automatically determined by preliminary fan voting. Official results require organizer verification.
+Results are recorded by authorized StarRise administrators.
+Preliminary fan voting does not automatically determine tournament winners.
 </div>
 
 <section class="card">
 <h2>Select Tournament</h2>
-<select id="tournament"><option value="">Loading...</option></select>
-<p id="status" role="status"></p>
+<select id="tournament"></select>
+<p id="status" role="status">Loading...</p>
 <div id="adminActions" hidden>
-<button id="generate">Generate First Round</button>
-<p class="muted">Registration must be closed, and the number of active entrants must be a power of two. Once generated, the bracket cannot be reset from this page.</p>
+<button id="generate" type="button">Generate First Round</button>
+<p class="muted">Registration must be closed and the number of active entrants must be 2, 4, 8, 16, 32, 64 or 128. Existing brackets cannot be regenerated here.</p>
 </div>
 </section>
 
 <section>
-<h2 id="heading">Bracket</h2>
+<h2 id="heading">Competition Bracket</h2>
 <div id="bracket" class="rounds"></div>
 </section>
 </main>
@@ -72,41 +76,63 @@ const db=window.supabase.createClient(
 "https://rcnikxotdalxtuvpmlvm.supabase.co",
 "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
 );
+
 const $=id=>document.getElementById(id);
 let admin=false;
 let tournaments=[];
 let busy=false;
+let requestVersion=0;
 
 function el(tag,value){
-const n=document.createElement(tag);
-if(value!==undefined)n.textContent=String(value);
-return n;
+const e=document.createElement(tag);
+if(value!==undefined)e.textContent=String(value);
+return e;
 }
-function message(s){$("status").textContent=s;}
+
+function message(value){
+$("status").textContent=value;
+}
 
 async function init(){
 const {data:auth}=await db.auth.getUser();
+
 if(auth?.user){
 const {data}=await db.from("driver_admins")
-.select("user_id").eq("user_id",auth.user.id).maybeSingle();
+.select("user_id")
+.eq("user_id",auth.user.id)
+.maybeSingle();
 admin=!!data;
 }
-$("adminActions").hidden=!admin;
 
-const {data,error}=await db.from("battle_rap_tournaments")
+$("adminActions").hidden=!admin;
+$("tournament").addEventListener("change",loadBracket);
+$("generate").addEventListener("click",generate);
+
+await loadTournaments();
+}
+
+async function loadTournaments(selectedId){
+const {data,error}=await db
+.from("battle_rap_tournaments")
 .select("id,title,status")
 .neq("status","draft")
 .order("created_at",{ascending:false});
 
-if(error){message("Unable to load tournaments.");return;}
+if(error){
+message("Unable to load tournaments.");
+return;
+}
 
 tournaments=data||[];
 const select=$("tournament");
+const previous=selectedId||select.value;
+
 select.replaceChildren();
 
 if(!tournaments.length){
-select.append(el("option","No tournaments available"));
-message("No announced tournaments yet.");
+select.append(el("option","No tournaments announced"));
+message("No tournaments available yet.");
+$("bracket").replaceChildren();
 return;
 }
 
@@ -116,167 +142,203 @@ option.value=t.id;
 select.append(option);
 }
 
-select.addEventListener("change",loadBracket);
-$("generate").addEventListener("click",generate);
+if(tournaments.some(t=>t.id===previous)){
+select.value=previous;
+}
+
 await loadBracket();
 }
 
 async function loadBracket(){
+const version=++requestVersion;
 const id=$("tournament").value;
 const root=$("bracket");
 root.replaceChildren();
+
 if(!id)return;
 
-const t=tournaments.find(x=>x.id===id);
-$("heading").textContent=t.title+" Bracket";
+const tournament=tournaments.find(t=>t.id===id);
+if(!tournament)return;
+
+$("heading").textContent=tournament.title+" Bracket";
 message("Loading bracket...");
 
-const [matchesResult,entriesResult]=await Promise.all([
-db.from("battle_rap_tournament_matches")
-.select("id,round_number,match_number,artist_one,artist_two,winner_id")
-.eq("tournament_id",id)
-.order("round_number")
-.order("match_number"),
-db.from("battle_rap_tournament_entries")
-.select("artist_id,stage_name")
-.eq("tournament_id",id)
-]);
+const requests=[
+db.rpc("battle_public_bracket",{p_tournament:id})
+];
 
-if(matchesResult.error){
-message("Unable to load bracket.");
+if(admin){
+requests.push(
+db.from("battle_rap_tournament_matches")
+.select("id,artist_one,artist_two,winner_id")
+.eq("tournament_id",id)
+);
+}
+
+const results=await Promise.all(requests);
+if(version!==requestVersion)return;
+
+const publicResult=results[0];
+const adminResult=results[1];
+
+if(publicResult.error){
+console.error(publicResult.error);
+message("Unable to load public bracket.");
 return;
 }
 
-const matches=matchesResult.data||[];
-const names=new Map((entriesResult.data||[]).map(x=>[x.artist_id,x.stage_name]));
+const matches=publicResult.data||[];
+const privateMatches=new Map(
+(adminResult?.data||[]).map(m=>[m.id,m])
+);
 
-$("generate").disabled=busy||matches.length>0||
-!["closed","in_progress"].includes(t.status);
+$("generate").disabled=
+busy||
+matches.length>0||
+!["closed","in_progress"].includes(tournament.status);
 
 if(!matches.length){
 message("Bracket not generated yet.");
 return;
 }
 
-message(matches.length+" match(es) across "+
-new Set(matches.map(m=>m.round_number)).size+" round(s).");
+const rounds=[...new Set(matches.map(m=>m.round_number))]
+.sort((a,b)=>a-b);
 
-const rounds=[...new Set(matches.map(m=>m.round_number))];
+message(
+matches.length+" match(es) across "+
+rounds.length+" round(s)."
+);
 
 for(const roundNumber of rounds){
-const col=el("div");
-col.className="round";
-col.append(el("h2","Round "+roundNumber));
+const column=el("div");
+column.className="round";
+column.append(el("h2","Round "+roundNumber));
 
-for(const m of matches.filter(x=>x.round_number===roundNumber)){
+const roundMatches=matches
+.filter(m=>m.round_number===roundNumber)
+.sort((a,b)=>a.match_number-b.match_number);
+
+for(const match of roundMatches){
 const card=el("article");
 card.className="match";
-card.append(el("strong","Match "+m.match_number));
 
-const one=names.get(m.artist_one)||"Artist "+m.artist_one.slice(0,8);
-const two=names.get(m.artist_two)||"Artist "+m.artist_two.slice(0,8);
+card.append(el("strong","Match "+match.match_number));
 
-const first=el("p",one+(m.winner_id===m.artist_one?" ✓":""));
-const second=el("p",two+(m.winner_id===m.artist_two?" ✓":""));
+const first=el("p",match.artist_one_name);
+const second=el("p",match.artist_two_name);
 
-if(m.winner_id===m.artist_one)first.className="winner";
-if(m.winner_id===m.artist_two)second.className="winner";
+if(match.has_winner){
+if(match.winner_name===match.artist_one_name){
+first.className="winner";
+}
+if(match.winner_name===match.artist_two_name){
+second.className="winner";
+}
+}
 
 card.append(first,second);
 
-if(m.winner_id){
-card.append(el("p","Winner recorded"));
-}else if(admin&&t.status==="in_progress"){
+if(match.has_winner){
+card.append(
+el("p","Recorded winner: "+match.winner_name)
+);
+}else if(admin&&tournament.status==="in_progress"){
+const privateMatch=privateMatches.get(match.id);
+
+if(privateMatch){
 const pick=el("select");
 
-const option1=el("option",one);
-option1.value=m.artist_one;
-const option2=el("option",two);
-option2.value=m.artist_two;
-pick.append(option1,option2);
+const firstOption=el("option",match.artist_one_name);
+firstOption.value=privateMatch.artist_one;
+
+const secondOption=el("option",match.artist_two_name);
+secondOption.value=privateMatch.artist_two;
+
+pick.append(firstOption,secondOption);
 
 const save=el("button","Record Winner");
+save.type="button";
+
 const result=el("p");
 result.setAttribute("role","status");
 
 save.addEventListener("click",async()=>{
 if(busy)return;
-const chosen=pick.options[pick.selectedIndex].textContent;
 
-if(!confirm("Confirm verified winner: "+chosen+"? This action cannot be undone here."))return;
+const selectedName=
+pick.options[pick.selectedIndex].textContent;
+
+if(!confirm(
+"Confirm verified winner: "+selectedName+
+"? This cannot be undone from this page."
+))return;
 
 busy=true;
 save.disabled=true;
-result.textContent="Recording...";
+result.textContent="Recording winner...";
 
-const {data,error}=await db.rpc("battle_bracket_record_winner",{
-p_match:m.id,
+const {data,error}=await db.rpc(
+"battle_bracket_record_winner",{
+p_match:match.id,
 p_winner:pick.value
 });
 
 busy=false;
 
 if(error){
-result.textContent=error.message||"Unable to record winner.";
+console.error(error);
+result.textContent=
+error.message||"Unable to record winner.";
 save.disabled=false;
 return;
 }
 
+await loadTournaments(id);
 message(data||"Winner recorded.");
-await refreshTournament();
-await loadBracket();
 });
 
 card.append(pick,save,result);
 }
-
-col.append(card);
-}
-root.append(col);
-}
 }
 
-async function refreshTournament(){
-const {data}=await db.from("battle_rap_tournaments")
-.select("id,title,status")
-.neq("status","draft");
-
-if(data){
-tournaments=data;
-const t=data.find(x=>x.id===$("tournament").value);
-if(t){
-const option=$("tournament").selectedOptions[0];
-option.textContent=t.title+" ("+t.status+")";
+column.append(card);
 }
+
+root.append(column);
 }
 }
 
 async function generate(){
 if(busy)return;
+
 const id=$("tournament").value;
 if(!id)return;
 
-if(!confirm("Generate the tournament bracket? Registration must already be closed."))return;
+if(!confirm(
+"Generate the first round? This action cannot be reset here."
+))return;
 
 busy=true;
 $("generate").disabled=true;
 message("Generating first round...");
 
-const {data,error}=await db.rpc("battle_bracket_generate",{
+const {data,error}=await db.rpc(
+"battle_bracket_generate",{
 p_tournament:id
 });
 
 busy=false;
 
 if(error){
+console.error(error);
 message(error.message||"Bracket generation failed.");
 $("generate").disabled=false;
 return;
 }
 
-await refreshTournament();
-await loadBracket();
-message("Bracket generated with "+data+" first-round matches.");
+await loadTournaments(id);
+message("First round generated: "+data+" matches.");
 }
 
 init();
