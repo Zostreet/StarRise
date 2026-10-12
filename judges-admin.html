@@ -1,0 +1,424 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StarRise | Judges Management</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#090b17;color:#fff;font-family:Arial,sans-serif}
+header{padding:24px;background:linear-gradient(120deg,#26164e,#0c1025);border-bottom:2px solid #d6ae55}
+main{max-width:1100px;margin:auto;padding:20px}
+h1{margin:0;color:#f4d58d}
+h2{color:#f4d58d}
+p{line-height:1.5}
+a{color:#f4d58d}
+.panel{background:#171b30;border:1px solid #333954;border-radius:14px;padding:20px;margin:18px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+label{display:block;margin:12px 0 5px;font-size:14px;color:#d5d8eb}
+input,select,textarea{width:100%;padding:12px;border:1px solid #4a506b;border-radius:8px;background:#0c1022;color:white;font:inherit}
+textarea{min-height:80px}
+button{background:#d6ae55;color:#151525;border:0;padding:12px 18px;border-radius:8px;font-weight:bold;cursor:pointer;margin-top:12px}
+button.secondary{background:#343a57;color:white}
+button.danger{background:#8c3040;color:white}
+button:disabled{opacity:.5;cursor:wait}
+.card{background:#1c213a;border:1px solid #454b66;border-radius:12px;padding:18px;margin:12px 0}
+.card h3{margin-top:0;color:#f4d58d}
+.small{font-size:13px;color:#c4c9db}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat{background:#222844;border-radius:10px;padding:16px;text-align:center}
+.stat strong{display:block;font-size:26px;color:#f4d58d}
+.hidden{display:none}
+#notice{padding:12px;margin:12px 0;border-radius:8px;background:#262d4b;white-space:pre-wrap}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header>
+<h1>StarRise Judges Management</h1>
+<p>Countdown to Stardom | December 31, 2026</p>
+<a href="event-admin.html">Event Admin</a> |
+<a href="recruitment-admin.html">Recruitment</a> |
+<a href="index.html">Home</a>
+</header>
+
+<main>
+<div id="notice">Checking administrator access...</div>
+
+<section id="dashboard" class="hidden">
+<div class="stats">
+<div class="stat"><strong id="total">0</strong>Candidates</div>
+<div class="stat"><strong id="invited">0</strong>Invited</div>
+<div class="stat"><strong id="interested">0</strong>Interested</div>
+<div class="stat"><strong id="selected">0</strong>Selected</div>
+</div>
+
+<section class="panel">
+<h2>Add Judge Candidate</h2>
+<form id="judgeForm">
+<div class="grid">
+<div>
+<label for="full_name">Full name *</label>
+<input id="full_name" required maxlength="150">
+</div>
+<div>
+<label for="specialty">Primary specialty *</label>
+<select id="specialty" required>
+<option value="vocals">Vocals / Singing</option>
+<option value="rap">Rap / Hip-Hop</option>
+<option value="dance">Dance / Choreography</option>
+<option value="variety">Acting / Variety</option>
+<option value="industry">Entertainment Industry</option>
+<option value="alternate">Alternate / Guest Judge</option>
+</select>
+</div>
+<div>
+<label for="organization">Organization</label>
+<input id="organization">
+</div>
+<div>
+<label for="contact_email">Contact email</label>
+<input id="contact_email" type="email">
+</div>
+<div>
+<label for="profile_url">Website or profile URL</label>
+<input id="profile_url" type="url">
+</div>
+<div>
+<label for="availability">December 31 availability</label>
+<select id="availability">
+<option value="unknown">Unknown</option>
+<option value="pending">Awaiting confirmation</option>
+<option value="available">Available</option>
+<option value="unavailable">Unavailable</option>
+</select>
+</div>
+<div>
+<label for="fee_expectation">Fee expectations</label>
+<input id="fee_expectation" placeholder="Not yet discussed">
+</div>
+<div>
+<label for="outreach_status">Recruitment status</label>
+<select id="outreach_status">
+<option value="researching">Researching</option>
+<option value="invited">Invited</option>
+<option value="responded">Responded</option>
+<option value="interested">Interested</option>
+<option value="declined">Declined</option>
+<option value="selected">Selected</option>
+</select>
+</div>
+</div>
+<label for="qualifications">Qualifications</label>
+<textarea id="qualifications"></textarea>
+<label for="conflict_notes">Conflicts of interest</label>
+<textarea id="conflict_notes"></textarea>
+<label for="notes">Internal notes</label>
+<textarea id="notes"></textarea>
+<button id="addButton" type="submit">Add Candidate</button>
+</form>
+</section>
+
+<section class="panel">
+<h2>Judge Recruitment Roster</h2>
+<div class="grid">
+<div>
+<label for="filterSpecialty">Filter specialty</label>
+<select id="filterSpecialty">
+<option value="">All specialties</option>
+<option value="vocals">Vocals</option>
+<option value="rap">Rap</option>
+<option value="dance">Dance</option>
+<option value="variety">Variety</option>
+<option value="industry">Industry</option>
+<option value="alternate">Alternate</option>
+</select>
+</div>
+<div>
+<label for="filterStatus">Filter status</label>
+<select id="filterStatus">
+<option value="">All statuses</option>
+<option value="researching">Researching</option>
+<option value="invited">Invited</option>
+<option value="responded">Responded</option>
+<option value="interested">Interested</option>
+<option value="declined">Declined</option>
+<option value="selected">Selected</option>
+</select>
+</div>
+</div>
+<button class="secondary" id="refreshButton" type="button">Refresh Roster</button>
+<div id="roster"></div>
+</section>
+</section>
+</main>
+
+<script>
+const SUPABASE_URL =
+"https://rcnikxotdalxtuvpmlvm.supabase.co";
+const SUPABASE_KEY =
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const TABLE = "showcase_judge_candidates";
+const EVENT = "countdown-to-stardom-2026";
+const $ = id => document.getElementById(id);
+
+let candidates = [];
+
+function notice(message) {
+  $("notice").textContent = message;
+}
+
+function safe(value) {
+  return String(value ?? "").replace(
+    /[&<>"']/g,
+    char => ({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#39;"
+    })[char]
+  );
+}
+
+async function initialize() {
+  try {
+    const {data:{user},error:userError} =
+      await db.auth.getUser();
+
+    if(userError || !user) {
+      notice("Please sign in to StarRise first, then reopen this page.");
+      return;
+    }
+
+    const {data:allowed,error:adminError} =
+      await db.rpc("is_starrise_event_admin");
+
+    if(adminError || allowed !== true) {
+      notice("Access restricted to authorized StarRise administrators.");
+      return;
+    }
+
+    $("dashboard").classList.remove("hidden");
+    notice("Administrator access verified.");
+    await loadCandidates();
+  } catch(error) {
+    notice("Unable to load dashboard: " + error.message);
+  }
+}
+
+async function loadCandidates() {
+  const {data,error} = await db
+    .from(TABLE)
+    .select("*")
+    .eq("event_key",EVENT)
+    .order("created_at",{ascending:false});
+
+  if(error) {
+    notice("Unable to load judges: " + error.message);
+    return;
+  }
+
+  candidates = data || [];
+  updateStats();
+  renderRoster();
+}
+
+function updateStats() {
+  $("total").textContent = candidates.length;
+  ["invited","interested","selected"].forEach(status => {
+    $(status).textContent = candidates.filter(
+      c => c.outreach_status === status
+    ).length;
+  });
+}
+
+$("judgeForm").addEventListener("submit",async event => {
+  event.preventDefault();
+  const button = $("addButton");
+  button.disabled = true;
+
+  const fields = [
+    "full_name","specialty","organization",
+    "contact_email","profile_url","availability",
+    "fee_expectation","outreach_status",
+    "qualifications","conflict_notes","notes"
+  ];
+
+  const candidate = {event_key:EVENT};
+
+  fields.forEach(field => {
+    candidate[field] = $(field).value.trim() || null;
+  });
+
+  candidate.full_name = $("full_name").value.trim();
+  candidate.specialty = $("specialty").value;
+  candidate.availability = $("availability").value;
+  candidate.outreach_status = $("outreach_status").value;
+
+  const {error} = await db.from(TABLE).insert(candidate);
+
+  button.disabled = false;
+
+  if(error) {
+    notice("Save failed: " + error.message);
+    return;
+  }
+
+  $("judgeForm").reset();
+  notice("Judge candidate added successfully.");
+  await loadCandidates();
+});
+
+function optionList(values,current) {
+  return values.map(value =>
+    `<option value="${safe(value)}"
+      ${value===current?"selected":""}>
+      ${safe(value.replaceAll("_"," "))}
+    </option>`
+  ).join("");
+}
+
+function renderRoster() {
+  const specialty = $("filterSpecialty").value;
+  const status = $("filterStatus").value;
+
+  const visible = candidates.filter(c =>
+    (!specialty || c.specialty===specialty) &&
+    (!status || c.outreach_status===status)
+  );
+
+  if(!visible.length) {
+    $("roster").innerHTML =
+      '<p class="small">No matching judge candidates.</p>';
+    return;
+  }
+
+  $("roster").innerHTML = visible.map(c => `
+    <article class="card">
+      <h3>${safe(c.full_name)}</h3>
+      <p class="small">
+        ${safe(c.specialty)} |
+        ${safe(c.organization || "Independent")}
+      </p>
+      <p><strong>Contact:</strong>
+        ${safe(c.contact_email || "Not provided")}
+      </p>
+      <p><strong>Qualifications:</strong>
+        ${safe(c.qualifications || "Not recorded")}
+      </p>
+      <p><strong>Fee:</strong>
+        ${safe(c.fee_expectation || "Not discussed")}
+      </p>
+      <p><strong>Conflicts:</strong>
+        ${safe(c.conflict_notes || "Not reviewed")}
+      </p>
+      <p><strong>Notes:</strong>
+        ${safe(c.notes || "None")}
+      </p>
+      ${c.profile_url
+        ? `<p><a href="${safe(c.profile_url)}"
+             target="_blank" rel="noopener noreferrer">
+             View Profile
+           </a></p>`
+        : ""}
+      <div class="grid">
+        <div>
+          <label>Recruitment status</label>
+          <select id="status-${c.id}">
+            ${optionList(
+              ["researching","invited","responded",
+               "interested","declined","selected"],
+              c.outreach_status
+            )}
+          </select>
+        </div>
+        <div>
+          <label>Availability</label>
+          <select id="availability-${c.id}">
+            ${optionList(
+              ["unknown","pending","available","unavailable"],
+              c.availability
+            )}
+          </select>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button"
+          data-save="${c.id}">Save Changes</button>
+        <button type="button" class="danger"
+          data-delete="${c.id}">Remove</button>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function saveCandidate(id) {
+  const status = $("status-"+id).value;
+  const availability = $("availability-"+id).value;
+
+  const {error} = await db.from(TABLE)
+    .update({
+      outreach_status:status,
+      availability:availability,
+      updated_at:new Date().toISOString()
+    })
+    .eq("id",id)
+    .eq("event_key",EVENT);
+
+  if(error) {
+    notice("Update failed: " + error.message);
+    return;
+  }
+
+  notice("Judge candidate updated.");
+  await loadCandidates();
+}
+
+async function removeCandidate(id) {
+  const candidate = candidates.find(c => c.id===id);
+  if(!candidate) return;
+
+  if(!confirm(
+    "Remove " + candidate.full_name + " from the judge roster?"
+  )) return;
+
+  const {error} = await db.from(TABLE)
+    .delete()
+    .eq("id",id)
+    .eq("event_key",EVENT);
+
+  if(error) {
+    notice("Remove failed: " + error.message);
+    return;
+  }
+
+  notice("Judge candidate removed.");
+  await loadCandidates();
+}
+
+$("roster").addEventListener("click",event => {
+  const save = event.target.closest("[data-save]");
+  const remove = event.target.closest("[data-delete]");
+
+  if(save) saveCandidate(save.dataset.save);
+  if(remove) removeCandidate(remove.dataset.delete);
+});
+
+$("filterSpecialty").addEventListener("change",renderRoster);
+$("filterStatus").addEventListener("change",renderRoster);
+$("refreshButton").addEventListener("click",loadCandidates);
+
+initialize();
+</script>
+</body>
+</html>
