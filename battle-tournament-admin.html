@@ -1,0 +1,347 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tournament Admin | StarRise</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:#fff;font:16px/1.6 Arial,sans-serif}
+header{padding:20px 5%;border-bottom:1px solid #ffffff25;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+a{color:#f3ca71}
+nav{display:flex;gap:14px;flex-wrap:wrap}
+nav a{color:#fff;text-decoration:none}
+main{max-width:1100px;margin:auto;padding:30px 20px 80px}
+h1{font-size:clamp(32px,7vw,56px)}
+h2{color:#f3ca71}
+.card{background:#19152a;border:1px solid #ffffff25;border-radius:16px;padding:22px;margin:18px 0}
+label{display:block;margin:12px 0 5px}
+input,textarea,select{width:100%;background:#100e1e;color:#fff;border:1px solid #777;border-radius:10px;padding:12px;font:inherit}
+textarea{min-height:100px}
+button{background:#f3ca71;color:#171021;border:0;border-radius:25px;padding:12px 18px;font-weight:bold;cursor:pointer;margin:8px 8px 8px 0}
+button:disabled{opacity:.5}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:15px}
+.muted{color:#bbb}
+.notice{padding:15px;background:#302443;border-radius:12px}
+.entry{border-bottom:1px solid #ffffff25;padding:12px 0}
+footer{text-align:center;padding:25px}
+</style>
+</head>
+<body>
+<header>
+<strong>STARRISE ADMIN</strong>
+<nav>
+<a href="index.html">Home</a>
+<a href="battle-tournaments.html">Tournament Center</a>
+<a href="battle-admin.html">Battle Review</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
+</header>
+
+<main>
+<h1>Tournament Administration</h1>
+<p>Create competitions, manage registration and review artist entries.</p>
+<p id="authStatus" role="status">Checking administrator access...</p>
+
+<div id="adminArea" hidden>
+
+<section class="card">
+<h2>Create Tournament</h2>
+<form id="createForm">
+<label for="title">Tournament Title</label>
+<input id="title" required minlength="3" maxlength="120">
+
+<label for="description">Description</label>
+<textarea id="description" maxlength="1500"></textarea>
+
+<div class="grid">
+<div>
+<label for="starts">Event Date and Time</label>
+<input id="starts" type="datetime-local">
+</div>
+<div>
+<label for="closes">Registration Deadline</label>
+<input id="closes" type="datetime-local">
+</div>
+</div>
+
+<label for="limit">Maximum Entrants</label>
+<input id="limit" type="number" min="2" max="128" value="16" required>
+
+<p class="muted">New tournaments start as drafts. Review the details before opening registration.</p>
+<button id="createBtn" type="submit">Create Draft Tournament</button>
+<p id="createStatus" role="status"></p>
+</form>
+</section>
+
+<section class="card">
+<h2>Manage Tournaments</h2>
+<button id="refresh" type="button">Refresh</button>
+<p id="listStatus" role="status"></p>
+<div id="tournamentList"></div>
+</section>
+
+<div class="notice">
+Only approved StarRise administrators can access tournament management. Official judging, brackets and payouts are not enabled here.
+</div>
+
+</div>
+</main>
+
+<footer>StarRise by FAM Entertainment LLC</footer>
+
+<script>
+const db=window.supabase.createClient(
+"https://rcnikxotdalxtuvpmlvm.supabase.co",
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+
+const $=id=>document.getElementById(id);
+const statuses=[
+"draft","open","closed",
+"in_progress","completed","cancelled"
+];
+
+function node(tag,text){
+const e=document.createElement(tag);
+if(text!==undefined)e.textContent=String(text);
+return e;
+}
+
+function dateValue(value){
+return value?new Date(value).toISOString():null;
+}
+
+function dateLabel(value){
+return value?new Date(value).toLocaleString():"Not scheduled";
+}
+
+async function init(){
+const {data:auth,error:authError}=await db.auth.getUser();
+
+if(authError||!auth?.user){
+$("authStatus").textContent="Administrator sign-in required.";
+return;
+}
+
+const {data,error}=await db
+.from("driver_admins")
+.select("user_id")
+.eq("user_id",auth.user.id)
+.maybeSingle();
+
+if(error||!data){
+$("authStatus").textContent="Access denied. Administrator privileges required.";
+return;
+}
+
+$("authStatus").textContent="Administrator access confirmed.";
+$("adminArea").hidden=false;
+await loadTournaments();
+}
+
+$("createForm").addEventListener("submit",async event=>{
+event.preventDefault();
+
+const title=$("title").value.trim();
+const description=$("description").value.trim();
+const starts=dateValue($("starts").value);
+const closes=dateValue($("closes").value);
+const limit=Number($("limit").value);
+
+if(title.length<3||title.length>120||
+!Number.isInteger(limit)||limit<2||limit>128){
+$("createStatus").textContent="Check title and entrant limit.";
+return;
+}
+
+if(starts&&closes&&new Date(closes)>=new Date(starts)){
+$("createStatus").textContent="Registration must close before the event starts.";
+return;
+}
+
+$("createBtn").disabled=true;
+$("createStatus").textContent="Creating tournament...";
+
+const {error}=await db
+.from("battle_rap_tournaments")
+.insert({
+title,
+description,
+starts_at:starts,
+registration_closes_at:closes,
+max_entrants:limit,
+status:"draft"
+});
+
+$("createBtn").disabled=false;
+
+if(error){
+console.error(error);
+$("createStatus").textContent="Tournament creation failed.";
+return;
+}
+
+$("createStatus").textContent="Draft tournament created.";
+$("createForm").reset();
+$("limit").value="16";
+await loadTournaments();
+});
+
+async function loadTournaments(){
+const root=$("tournamentList");
+root.replaceChildren();
+$("listStatus").textContent="Loading tournaments...";
+
+const {data,error}=await db
+.from("battle_rap_tournaments")
+.select("*")
+.order("created_at",{ascending:false});
+
+if(error){
+console.error(error);
+$("listStatus").textContent="Unable to load tournaments.";
+return;
+}
+
+$("listStatus").textContent=data?.length?
+data.length+" tournament(s) found.":
+"No tournaments created yet.";
+
+for(const t of data||[]){
+const card=node("article");
+card.className="card";
+
+card.append(
+node("h3",t.title),
+node("p",t.description||"No description"),
+node("p","Event: "+dateLabel(t.starts_at)),
+node("p","Registration closes: "+dateLabel(t.registration_closes_at)),
+node("p","Maximum entrants: "+t.max_entrants)
+);
+
+const statusLabel=node("label","Tournament Status");
+const select=node("select");
+
+statuses.forEach(s=>{
+const option=node("option",s.replaceAll("_"," ").toUpperCase());
+option.value=s;
+option.selected=s===t.status;
+select.append(option);
+});
+
+const save=node("button","Save Status");
+const message=node("p");
+message.setAttribute("role","status");
+
+save.addEventListener("click",async()=>{
+if(select.value==="open"&&
+t.registration_closes_at&&
+new Date(t.registration_closes_at)<=new Date()){
+message.textContent="The registration deadline has passed. Update the deadline before opening.";
+return;
+}
+
+if(!confirm("Change tournament status to "+select.value+"?"))return;
+
+save.disabled=true;
+
+const {error}=await db
+.from("battle_rap_tournaments")
+.update({status:select.value})
+.eq("id",t.id);
+
+save.disabled=false;
+
+if(error){
+console.error(error);
+message.textContent="Status update failed.";
+}else{
+message.textContent="Status updated.";
+t.status=select.value;
+}
+});
+
+card.append(statusLabel,select,save,message);
+
+const entriesTitle=node("h4","Registered Artists");
+const entriesRoot=node("div");
+entriesRoot.textContent="Loading entries...";
+card.append(entriesTitle,entriesRoot);
+
+const {data:entries,error:entryError}=await db
+.from("battle_rap_tournament_entries")
+.select("id,artist_id,stage_name,status,created_at")
+.eq("tournament_id",t.id)
+.order("created_at",{ascending:true});
+
+entriesRoot.replaceChildren();
+
+if(entryError){
+entriesRoot.textContent="Unable to load entrants.";
+}else if(!entries?.length){
+entriesRoot.textContent="No registrations yet.";
+}else{
+const active=entries.filter(e=>e.status==="registered").length;
+entriesRoot.append(node("p",active+" active registration(s)."));
+
+for(const entry of entries){
+const item=node("div");
+item.className="entry";
+
+item.append(
+node("strong",entry.stage_name),
+node("p","Status: "+entry.status),
+node("p","Registered: "+dateLabel(entry.created_at))
+);
+
+const entrySelect=node("select");
+
+["registered","withdrawn","disqualified"].forEach(s=>{
+const option=node("option",s);
+option.value=s;
+option.selected=entry.status===s;
+entrySelect.append(option);
+});
+
+const entrySave=node("button","Update Entrant");
+const entryMessage=node("p");
+entryMessage.setAttribute("role","status");
+
+entrySave.addEventListener("click",async()=>{
+if(!confirm("Update "+entry.stage_name+" to "+entrySelect.value+"?"))return;
+
+entrySave.disabled=true;
+
+const {error}=await db
+.from("battle_rap_tournament_entries")
+.update({status:entrySelect.value})
+.eq("id",entry.id);
+
+entrySave.disabled=false;
+
+if(error){
+console.error(error);
+entryMessage.textContent="Update failed.";
+}else{
+entryMessage.textContent="Entrant status updated.";
+entry.status=entrySelect.value;
+}
+});
+
+item.append(entrySelect,entrySave,entryMessage);
+entriesRoot.append(item);
+}
+}
+
+root.append(card);
+}
+}
+
+$("refresh").addEventListener("click",loadTournaments);
+init();
+</script>
+</body>
+</html>
