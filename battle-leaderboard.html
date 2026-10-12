@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Battle Rap Leaderboard | StarRise</title>
+<meta name="description" content="Discover battle rappers and preliminary fan rankings on StarRise.">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:#fff;font:16px/1.6 Arial,sans-serif}
+header{padding:20px 5%;border-bottom:1px solid #ffffff25;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+nav{display:flex;gap:15px;flex-wrap:wrap}
+a{color:#f3ca71}
+nav a{color:#fff;text-decoration:none}
+main{max-width:1050px;margin:auto;padding:35px 20px 80px}
+h1{font-size:clamp(36px,8vw,65px);margin:10px 0}
+.gold{color:#f3ca71}
+.muted{color:#bbb}
+.card{background:#19152a;border:1px solid #ffffff25;border-radius:16px;padding:24px;margin:18px 0}
+.notice{background:#302443;border:1px solid #a787d6;border-radius:12px;padding:16px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:14px;border-bottom:1px solid #ffffff20}
+th{color:#f3ca71}
+.table-wrap{overflow-x:auto}
+button,.btn{display:inline-block;background:#f3ca71;color:#171021;border:0;border-radius:25px;padding:12px 18px;font-weight:bold;cursor:pointer;text-decoration:none}
+button:disabled{opacity:.5}
+footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
+</style>
+</head>
+<body>
+
+<header>
+<strong class="gold">STARRISE BATTLE RAP</strong>
+<nav>
+<a href="index.html">Home</a>
+<a href="battle-rap.html">Arena</a>
+<a href="battle-community.html">Watch Battles</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
+</header>
+
+<main>
+<p class="gold">THE RISING ARTISTS</p>
+<h1>Battle Rap Leaderboard</h1>
+<p>See which participating artists are receiving the most preliminary fan support.</p>
+
+<div class="notice">
+<strong>Preliminary rankings:</strong>
+These rankings reflect fan votes from eligible battles with two approved performances. They are not official competition results, judged wins, prize standings, or tournament championships.
+</div>
+
+<section class="card">
+<h2>Fan Rankings</h2>
+<p class="muted">Ranked by total fan votes, then number of eligible battles.</p>
+<button id="refresh" type="button">Refresh Rankings</button>
+<p id="status" role="status">Loading rankings...</p>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>Artist</th>
+<th>Eligible Battles</th>
+<th>Fan Votes</th>
+</tr>
+</thead>
+<tbody id="rankings"></tbody>
+</table>
+</div>
+</section>
+
+<section class="card">
+<h2>Earn Your Place</h2>
+<p>Submit a challenge, get your opponent's acceptance, and upload your performance. After StarRise approves both recordings, eligible fans can vote.</p>
+<a class="btn" href="battle-rap.html">Create a Challenge</a>
+<a class="btn" href="battle-community.html">Watch Battles</a>
+</section>
+
+</main>
+
+<footer>
+<p>StarRise by FAM Entertainment LLC</p>
+<a href="privacy.html">Privacy</a> |
+<a href="support.html">Support</a>
+</footer>
+
+<script>
+const db=window.supabase.createClient(
+"https://rcnikxotdalxtuvpmlvm.supabase.co",
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+
+const $=id=>document.getElementById(id);
+
+function cell(value){
+const td=document.createElement("td");
+td.textContent=String(value);
+return td;
+}
+
+async function loadRankings(){
+$("refresh").disabled=true;
+$("status").textContent="Loading rankings...";
+
+const {data,error}=await db.rpc("battle_rap_leaderboard");
+
+$("refresh").disabled=false;
+$("rankings").replaceChildren();
+
+if(error){
+console.error(error);
+$("status").textContent="Unable to load rankings.";
+return;
+}
+
+if(!data?.length){
+$("status").textContent="No eligible battles have been ranked yet.";
+return;
+}
+
+$("status").textContent=data.length+" participating artist(s) ranked.";
+
+data.forEach((artist,index)=>{
+const row=document.createElement("tr");
+
+row.append(
+cell(index+1),
+cell(artist.stage_name),
+cell(artist.battles),
+cell(artist.fan_votes)
+);
+
+$("rankings").append(row);
+});
+}
+
+$("refresh").addEventListener("click",loadRankings);
+loadRankings();
+</script>
+</body>
+</html>
