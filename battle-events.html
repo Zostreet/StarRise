@@ -8,10 +8,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0b0917;color:white;font:16px/1.6 Arial,sans-serif}
+body{margin:0;background:#0b0917;color:#fff;font:16px/1.6 Arial,sans-serif}
 header{padding:20px 5%;border-bottom:1px solid #ffffff25}
+nav{display:flex;flex-wrap:wrap;gap:15px}
 a{color:#f3ca71}
-nav{display:flex;gap:15px;flex-wrap:wrap}
 main{max-width:950px;margin:auto;padding:30px 18px 80px}
 h1{font-size:clamp(34px,7vw,54px);line-height:1.15}
 h2,h3{color:#f3ca71}
@@ -22,14 +22,14 @@ input,textarea,select{width:100%;background:#100e1e;color:white;border:1px solid
 textarea{min-height:100px}
 label{display:block;margin:14px 0}
 button,.btn{display:inline-block;background:#f3ca71;color:#171021;border:0;border-radius:10px;padding:12px 18px;font-weight:bold;text-decoration:none;cursor:pointer;margin:6px 5px 6px 0}
-button:disabled{opacity:.5}
+button:disabled{opacity:.5;cursor:not-allowed}
+.secondary{background:#c5b9e2}
 .muted{color:#bbb}
-.tag{color:#85d6a3;font-weight:bold}
+.status{font-weight:bold;color:#85d6a3}
 footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
 </style>
 </head>
 <body>
-
 <header>
 <strong>STARRISE BATTLE RAP</strong>
 <nav>
@@ -43,11 +43,11 @@ footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
 
 <main>
 <h1>Battle Rap Events</h1>
-<p>Discover upcoming battles, tournament schedules and artist registration opportunities.</p>
+<p>Explore upcoming battles, tournament schedules and artist registration opportunities.</p>
 
 <div class="notice">
 Event schedules and venues are subject to confirmation.
-Registration follows the linked tournament's rules.
+Tournament registration follows the linked tournament's rules.
 Ticket sales and prize payouts are not enabled here.
 </div>
 
@@ -58,10 +58,10 @@ Ticket sales and prize payouts are not enabled here.
 </section>
 
 <section class="card" id="adminPanel" hidden>
-<h2>Create Battle Rap Event</h2>
+<h2 id="formHeading">Create Battle Rap Event</h2>
 <p class="muted">
-Administrator only. Link an existing tournament to an event.
-Each tournament can be linked to one event.
+Administrator controls. Create an event or edit an existing one.
+Each tournament may be linked to only one event.
 </p>
 
 <label>Event title
@@ -86,12 +86,19 @@ Each tournament can be linked to one event.
 </select>
 </label>
 
-<label>
-<input id="publish" type="checkbox" style="width:auto">
- Publish event publicly
+<label>Event status
+<select id="eventStatus">
+<option value="planning">Planning (private)</option>
+<option value="published">Published (public)</option>
+<option value="cancelled">Cancelled (private)</option>
+</select>
 </label>
 
 <button id="save" type="button">Create Event</button>
+<button id="cancelEdit" class="secondary" type="button" hidden>
+Cancel Editing
+</button>
+
 <p id="adminStatus" role="status"></p>
 
 <h3>Existing Event Records</h3>
@@ -106,6 +113,7 @@ const db=window.supabase.createClient(
 "https://rcnikxotdalxtuvpmlvm.supabase.co",
 "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
 );
+
 const $=id=>document.getElementById(id);
 const make=(tag,text)=>{
 const node=document.createElement(tag);
@@ -113,10 +121,39 @@ if(text!==undefined)node.textContent=String(text);
 return node;
 };
 
+let editingId=null;
+let adminEvents=[];
+let busy=false;
+
 function eventDate(value){
 return new Date(value).toLocaleString([],{
-dateStyle:"full",timeStyle:"short"
+dateStyle:"full",
+timeStyle:"short"
 });
+}
+
+function localInputDate(value){
+const d=new Date(value);
+const pad=n=>String(n).padStart(2,"0");
+
+return d.getFullYear()+"-"+
+pad(d.getMonth()+1)+"-"+
+pad(d.getDate())+"T"+
+pad(d.getHours())+":"+
+pad(d.getMinutes());
+}
+
+function clearForm(){
+editingId=null;
+$("title").value="";
+$("description").value="";
+$("date").value="";
+$("venue").value="";
+$("tournament").value="";
+$("eventStatus").value="planning";
+$("formHeading").textContent="Create Battle Rap Event";
+$("save").textContent="Create Event";
+$("cancelEdit").hidden=true;
 }
 
 async function loadPublic(){
@@ -124,24 +161,36 @@ const {data,error}=await db.rpc("battle_events_public");
 $("eventList").replaceChildren();
 
 if(error){
-$("publicStatus").textContent="Unable to load events: "+error.message;
+$("publicStatus").textContent=
+"Unable to load events: "+error.message;
 return;
 }
 
-$("publicStatus").textContent=
-data?.length?data.length+" published event(s).":"No published Battle Rap events yet.";
+$("publicStatus").textContent=data?.length?
+data.length+" published event(s).":
+"No published Battle Rap events yet.";
 
 for(const event of data||[]){
 const card=make("article");
 card.className="card";
+
 card.append(make("h3",event.title));
+
+if(event.description){
 card.append(make("p",event.description));
+}
+
 card.append(make("p","Date: "+eventDate(event.starts_at)));
 card.append(make("p","Location: "+event.venue_text));
 
 if(event.tournament_id){
-card.append(make("p","Tournament: "+event.tournament_title));
-card.append(make("p","Tournament status: "+event.tournament_status));
+card.append(make(
+"p","Tournament: "+event.tournament_title
+));
+
+card.append(make(
+"p","Tournament status: "+event.tournament_status
+));
 
 const register=make("a","View Tournament / Register");
 register.href="battle-tournaments.html";
@@ -163,7 +212,8 @@ async function initAdmin(){
 const {data:auth}=await db.auth.getUser();
 if(!auth?.user)return;
 
-const {data:admin}=await db.from("driver_admins")
+const {data:admin}=await db
+.from("driver_admins")
 .select("user_id")
 .eq("user_id",auth.user.id)
 .maybeSingle();
@@ -183,17 +233,25 @@ return;
 }
 
 for(const t of tournaments||[]){
-const option=make("option",t.title+" ("+t.status+")");
+const option=make(
+"option",t.title+" ("+t.status+")"
+);
 option.value=t.id;
 $("tournament").append(option);
 }
 
 $("save").addEventListener("click",saveEvent);
+$("cancelEdit").addEventListener("click",()=>{
+clearForm();
+$("adminStatus").textContent="Editing cancelled.";
+});
+
 await loadAdminEvents();
 }
 
 async function loadAdminEvents(){
 const {data,error}=await db.rpc("battle_events_admin");
+
 $("adminList").replaceChildren();
 
 if(error){
@@ -201,75 +259,145 @@ $("adminStatus").textContent=error.message;
 return;
 }
 
-if(!data?.length){
-$("adminList").append(make("p","No event records created yet."));
+adminEvents=data||[];
+
+if(!adminEvents.length){
+$("adminList").append(
+make("p","No event records created yet.")
+);
 return;
 }
 
-for(const event of data){
+for(const event of adminEvents){
 const card=make("div");
 card.className="card";
+
 card.append(make("h3",event.title));
 card.append(make("p",eventDate(event.starts_at)));
 card.append(make("p","Status: "+event.status));
 card.append(make("p","Location: "+event.venue_text));
+
+if(event.tournament_id){
+card.append(make(
+"p","Linked tournament ID: "+event.tournament_id
+));
+}
+
+const edit=make("button","Edit Event");
+edit.type="button";
+edit.className="secondary";
+
+edit.addEventListener("click",()=>editEvent(event.event_id));
+
+card.append(edit);
 $("adminList").append(card);
 }
 }
 
+function editEvent(id){
+const event=adminEvents.find(e=>e.event_id===id);
+if(!event)return;
+
+editingId=event.event_id;
+
+$("title").value=event.title;
+$("description").value=event.description||"";
+$("date").value=localInputDate(event.starts_at);
+$("venue").value=event.venue_text||"";
+$("tournament").value=event.tournament_id||"";
+$("eventStatus").value=event.status;
+
+$("formHeading").textContent="Edit Battle Rap Event";
+$("save").textContent="Save Changes";
+$("cancelEdit").hidden=false;
+
+$("adminStatus").textContent=
+"Editing "+event.title+". Changes are not saved yet.";
+
+$("adminPanel").scrollIntoView({
+behavior:"smooth",
+block:"start"
+});
+}
+
 async function saveEvent(){
+if(busy)return;
+
 const title=$("title").value.trim();
 const description=$("description").value.trim();
 const localDate=$("date").value;
 const venue=$("venue").value.trim();
 const tournament=$("tournament").value||null;
-const publish=$("publish").checked;
+const status=$("eventStatus").value;
 
 if(title.length<3||!localDate){
-$("adminStatus").textContent="Enter an event title and date.";
+$("adminStatus").textContent=
+"Enter an event title and date.";
 return;
 }
 
 const parsed=new Date(localDate);
+
 if(Number.isNaN(parsed.getTime())){
-$("adminStatus").textContent="Enter a valid date and time.";
+$("adminStatus").textContent=
+"Enter a valid date and time.";
 return;
 }
 
-if(publish&&!confirm(
-"Publish this event publicly? Confirm that the event details are accurate."
+if(status==="published"){
+if(!confirm(
+"Publish this event publicly? Confirm the date, venue, and event details are accurate."
+))return;
+}
+
+if(editingId&&!confirm(
+"Save changes to this existing event?"
 ))return;
 
+busy=true;
 $("save").disabled=true;
-$("adminStatus").textContent="Creating event...";
+$("adminStatus").textContent="Saving event...";
 
-const {error}=await db.rpc("battle_event_save",{
+let result;
+
+if(editingId){
+result=await db.rpc("battle_event_update",{
+p_event:editingId,
 p_title:title,
 p_description:description,
 p_starts_at:parsed.toISOString(),
 p_venue:venue||"Venue to be announced",
 p_tournament:tournament,
-p_publish:publish
+p_status:status
 });
+}else{
+result=await db.rpc("battle_event_save",{
+p_title:title,
+p_description:description,
+p_starts_at:parsed.toISOString(),
+p_venue:venue||"Venue to be announced",
+p_tournament:tournament,
+p_publish:status==="published"
+});
+}
 
+busy=false;
 $("save").disabled=false;
 
-if(error){
-$("adminStatus").textContent=error.message;
+if(result.error){
+$("adminStatus").textContent=result.error.message;
 return;
 }
 
+clearForm();
+
+await Promise.all([
+loadAdminEvents(),
+loadPublic()
+]);
+
 $("adminStatus").textContent=
-publish?"Event created and published.":"Event saved as private planning record.";
-
-$("title").value="";
-$("description").value="";
-$("date").value="";
-$("venue").value="";
-$("tournament").value="";
-$("publish").checked=false;
-
-await Promise.all([loadAdminEvents(),loadPublic()]);
+"Event saved successfully. Current status: "+status+".";
 }
 
 loadPublic();
