@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Battle Rap Events | StarRise</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:white;font:16px/1.6 Arial,sans-serif}
+header{padding:20px 5%;border-bottom:1px solid #ffffff25}
+a{color:#f3ca71}
+nav{display:flex;gap:15px;flex-wrap:wrap}
+main{max-width:950px;margin:auto;padding:30px 18px 80px}
+h1{font-size:clamp(34px,7vw,54px);line-height:1.15}
+h2,h3{color:#f3ca71}
+.card{background:#19152a;border:1px solid #ffffff30;border-radius:16px;padding:22px;margin:20px 0}
+.notice{background:#302443;padding:16px;border-radius:12px}
+input,textarea,select,button{font:inherit;padding:12px;border-radius:10px}
+input,textarea,select{width:100%;background:#100e1e;color:white;border:1px solid #777}
+textarea{min-height:100px}
+label{display:block;margin:14px 0}
+button,.btn{display:inline-block;background:#f3ca71;color:#171021;border:0;border-radius:10px;padding:12px 18px;font-weight:bold;text-decoration:none;cursor:pointer;margin:6px 5px 6px 0}
+button:disabled{opacity:.5}
+.muted{color:#bbb}
+.tag{color:#85d6a3;font-weight:bold}
+footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
+</style>
+</head>
+<body>
+
+<header>
+<strong>STARRISE BATTLE RAP</strong>
+<nav>
+<a href="index.html">Home</a>
+<a href="events.html">Main Events</a>
+<a href="battle-rap.html">Battle Rap</a>
+<a href="battle-tournaments.html">Tournaments</a>
+<a href="battle-brackets.html">Brackets</a>
+</nav>
+</header>
+
+<main>
+<h1>Battle Rap Events</h1>
+<p>Discover upcoming battles, tournament schedules and artist registration opportunities.</p>
+
+<div class="notice">
+Event schedules and venues are subject to confirmation.
+Registration follows the linked tournament's rules.
+Ticket sales and prize payouts are not enabled here.
+</div>
+
+<section>
+<h2>Scheduled Events</h2>
+<p id="publicStatus" role="status">Loading events...</p>
+<div id="eventList"></div>
+</section>
+
+<section class="card" id="adminPanel" hidden>
+<h2>Create Battle Rap Event</h2>
+<p class="muted">
+Administrator only. Link an existing tournament to an event.
+Each tournament can be linked to one event.
+</p>
+
+<label>Event title
+<input id="title" maxlength="140" placeholder="StarRise Battle Rap Showcase">
+</label>
+
+<label>Description
+<textarea id="description" maxlength="2000" placeholder="Event details"></textarea>
+</label>
+
+<label>Event date and time
+<input id="date" type="datetime-local">
+</label>
+
+<label>Venue or location
+<input id="venue" maxlength="200" placeholder="Venue to be announced">
+</label>
+
+<label>Linked tournament
+<select id="tournament">
+<option value="">No tournament selected</option>
+</select>
+</label>
+
+<label>
+<input id="publish" type="checkbox" style="width:auto">
+ Publish event publicly
+</label>
+
+<button id="save" type="button">Create Event</button>
+<p id="adminStatus" role="status"></p>
+
+<h3>Existing Event Records</h3>
+<div id="adminList"></div>
+</section>
+</main>
+
+<footer>StarRise by FAM Entertainment LLC</footer>
+
+<script>
+const db=window.supabase.createClient(
+"https://rcnikxotdalxtuvpmlvm.supabase.co",
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+const $=id=>document.getElementById(id);
+const make=(tag,text)=>{
+const node=document.createElement(tag);
+if(text!==undefined)node.textContent=String(text);
+return node;
+};
+
+function eventDate(value){
+return new Date(value).toLocaleString([],{
+dateStyle:"full",timeStyle:"short"
+});
+}
+
+async function loadPublic(){
+const {data,error}=await db.rpc("battle_events_public");
+$("eventList").replaceChildren();
+
+if(error){
+$("publicStatus").textContent="Unable to load events: "+error.message;
+return;
+}
+
+$("publicStatus").textContent=
+data?.length?data.length+" published event(s).":"No published Battle Rap events yet.";
+
+for(const event of data||[]){
+const card=make("article");
+card.className="card";
+card.append(make("h3",event.title));
+card.append(make("p",event.description));
+card.append(make("p","Date: "+eventDate(event.starts_at)));
+card.append(make("p","Location: "+event.venue_text));
+
+if(event.tournament_id){
+card.append(make("p","Tournament: "+event.tournament_title));
+card.append(make("p","Tournament status: "+event.tournament_status));
+
+const register=make("a","View Tournament / Register");
+register.href="battle-tournaments.html";
+register.className="btn";
+card.append(register);
+
+const bracket=make("a","View Bracket");
+bracket.href="battle-brackets.html?tournament="+
+encodeURIComponent(event.tournament_id);
+bracket.className="btn";
+card.append(bracket);
+}
+
+$("eventList").append(card);
+}
+}
+
+async function initAdmin(){
+const {data:auth}=await db.auth.getUser();
+if(!auth?.user)return;
+
+const {data:admin}=await db.from("driver_admins")
+.select("user_id")
+.eq("user_id",auth.user.id)
+.maybeSingle();
+
+if(!admin)return;
+
+$("adminPanel").hidden=false;
+
+const {data:tournaments,error}=await db
+.from("battle_rap_tournaments")
+.select("id,title,status")
+.order("created_at",{ascending:false});
+
+if(error){
+$("adminStatus").textContent=error.message;
+return;
+}
+
+for(const t of tournaments||[]){
+const option=make("option",t.title+" ("+t.status+")");
+option.value=t.id;
+$("tournament").append(option);
+}
+
+$("save").addEventListener("click",saveEvent);
+await loadAdminEvents();
+}
+
+async function loadAdminEvents(){
+const {data,error}=await db.rpc("battle_events_admin");
+$("adminList").replaceChildren();
+
+if(error){
+$("adminStatus").textContent=error.message;
+return;
+}
+
+if(!data?.length){
+$("adminList").append(make("p","No event records created yet."));
+return;
+}
+
+for(const event of data){
+const card=make("div");
+card.className="card";
+card.append(make("h3",event.title));
+card.append(make("p",eventDate(event.starts_at)));
+card.append(make("p","Status: "+event.status));
+card.append(make("p","Location: "+event.venue_text));
+$("adminList").append(card);
+}
+}
+
+async function saveEvent(){
+const title=$("title").value.trim();
+const description=$("description").value.trim();
+const localDate=$("date").value;
+const venue=$("venue").value.trim();
+const tournament=$("tournament").value||null;
+const publish=$("publish").checked;
+
+if(title.length<3||!localDate){
+$("adminStatus").textContent="Enter an event title and date.";
+return;
+}
+
+const parsed=new Date(localDate);
+if(Number.isNaN(parsed.getTime())){
+$("adminStatus").textContent="Enter a valid date and time.";
+return;
+}
+
+if(publish&&!confirm(
+"Publish this event publicly? Confirm that the event details are accurate."
+))return;
+
+$("save").disabled=true;
+$("adminStatus").textContent="Creating event...";
+
+const {error}=await db.rpc("battle_event_save",{
+p_title:title,
+p_description:description,
+p_starts_at:parsed.toISOString(),
+p_venue:venue||"Venue to be announced",
+p_tournament:tournament,
+p_publish:publish
+});
+
+$("save").disabled=false;
+
+if(error){
+$("adminStatus").textContent=error.message;
+return;
+}
+
+$("adminStatus").textContent=
+publish?"Event created and published.":"Event saved as private planning record.";
+
+$("title").value="";
+$("description").value="";
+$("date").value="";
+$("venue").value="";
+$("tournament").value="";
+$("publish").checked=false;
+
+await Promise.all([loadAdminEvents(),loadPublic()]);
+}
+
+loadPublic();
+initAdmin();
+</script>
+</body>
+</html>
