@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Battle Rap Admin | StarRise</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Authorized StarRise Battle Rap Arena challenge management.">
+<link rel="stylesheet" href="starrise-brand.css">
+<link rel="icon" href="starrise-logo.png" type="image/png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:white;font-family:Arial,sans-serif;line-height:1.6}
+header{padding:18px 5%;border-bottom:1px solid #ffffff25;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+header img{width:130px}
+nav{display:flex;gap:15px;flex-wrap:wrap}
+nav a{color:white;text-decoration:none}
+a{color:#f3ca71}
+main{max-width:1100px;margin:auto;padding:35px 20px 80px}
+h1{font-size:clamp(35px,7vw,60px);margin:10px 0}
+.gold{color:#f3ca71}
+.muted{color:#bbb}
+.card{background:#19152a;border:1px solid #ffffff25;border-radius:16px;padding:24px;margin:20px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
+.stat{font-size:32px;color:#f3ca71;font-weight:bold}
+button,.btn{display:inline-block;background:#f3ca71;color:#171021;border:0;border-radius:24px;padding:11px 18px;font-weight:bold;cursor:pointer;text-decoration:none}
+button:disabled{opacity:.5}
+select{background:#100e1e;color:white;border:1px solid #777;border-radius:10px;padding:12px;font:inherit;max-width:100%;width:100%}
+label{display:block;margin:12px 0 6px;font-weight:bold}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:15px}
+.actions select{max-width:230px}
+.tag{display:inline-block;background:#322545;color:#f3ca71;border-radius:16px;padding:5px 12px}
+.hidden{display:none!important}
+.notice{background:#302443;border:1px solid #a787d6;border-radius:12px;padding:16px}
+footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
+</style>
+</head>
+<body>
+
+<header>
+<a href="index.html"><img src="starrise-logo.png" alt="StarRise"></a>
+<nav>
+<a href="index.html">Home</a>
+<a href="battle-rap.html">Battle Arena</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
+</header>
+
+<main>
+<p class="gold">STARRISE MANAGEMENT</p>
+<h1>Battle Rap Admin</h1>
+<p class="muted">Review and manage Battle Rap Arena challenges.</p>
+
+<div class="notice">
+<strong>Administrator tools:</strong>
+Approval means StarRise has approved the proposal for further coordination. It does not mean the opponent has agreed, an event is booked, or a battle is publicly scheduled.
+</div>
+
+<div id="loading" class="card">Verifying administrator access...</div>
+
+<div id="denied" class="card hidden">
+<h2>Administrator Access Required</h2>
+<p>This dashboard is available only to authorized StarRise administrators.</p>
+<a class="btn" href="dashboard.html">Sign In</a>
+</div>
+
+<div id="workspace" class="hidden">
+
+<section class="grid">
+<div class="card">
+<h3>Total Challenges</h3>
+<div id="total" class="stat">0</div>
+</div>
+<div class="card">
+<h3>Proposed</h3>
+<div id="proposed" class="stat">0</div>
+</div>
+<div class="card">
+<h3>Approved</h3>
+<div id="approved" class="stat">0</div>
+</div>
+<div class="card">
+<h3>Completed</h3>
+<div id="completed" class="stat">0</div>
+</div>
+</section>
+
+<section class="card">
+<h2>Challenge Applications</h2>
+<label for="filter">Filter by status</label>
+<select id="filter">
+<option value="all">All Challenges</option>
+<option value="proposed">Proposed</option>
+<option value="reviewing">Under Review</option>
+<option value="approved">Approved</option>
+<option value="declined">Declined</option>
+<option value="completed">Completed</option>
+</select>
+<p><button id="refresh" type="button">Refresh Challenges</button></p>
+<p id="message" role="status" aria-live="polite"></p>
+<div id="challengeList"></div>
+</section>
+
+</div>
+</main>
+
+<footer>
+<p>StarRise by FAM Entertainment LLC</p>
+<a href="battle-rap.html">Back to Battle Rap Arena</a>
+</footer>
+
+<script>
+const db=window.supabase.createClient(
+"https://rcnikxotdalxtuvpmlvm.supabase.co",
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+
+const $=id=>document.getElementById(id);
+const statuses=["proposed","reviewing","approved","declined","completed"];
+let challenges=[];
+
+function node(tag,value){
+const element=document.createElement(tag);
+if(value!==undefined)element.textContent=value;
+return element;
+}
+
+function displayStatus(value){
+return value.replaceAll("_"," ").replace(/\b\w/g,c=>c.toUpperCase());
+}
+
+async function initialize(){
+try{
+const {data:{user},error:authError}=await db.auth.getUser();
+
+if(authError||!user){
+$("loading").classList.add("hidden");
+$("denied").classList.remove("hidden");
+return;
+}
+
+const {data:admin,error:adminError}=await db
+.from("driver_admins")
+.select("user_id")
+.eq("user_id",user.id)
+.maybeSingle();
+
+$("loading").classList.add("hidden");
+
+if(adminError||!admin){
+$("denied").classList.remove("hidden");
+return;
+}
+
+$("workspace").classList.remove("hidden");
+await loadChallenges();
+
+}catch(error){
+console.error(error);
+$("loading").classList.add("hidden");
+$("denied").classList.remove("hidden");
+}
+}
+
+async function loadChallenges(){
+$("refresh").disabled=true;
+$("message").textContent="Loading challenges...";
+
+try{
+const {data,error}=await db
+.from("battle_rap_challenges")
+.select("id,stage_name,opponent_name,battle_title,battle_format,description,status,created_at")
+.order("created_at",{ascending:false});
+
+if(error)throw error;
+challenges=data||[];
+updateStats();
+renderChallenges();
+}catch(error){
+console.error(error);
+$("message").textContent="Unable to load challenges.";
+}finally{
+$("refresh").disabled=false;
+}
+}
+
+function updateStats(){
+$("total").textContent=challenges.length;
+$("proposed").textContent=challenges.filter(x=>x.status==="proposed").length;
+$("approved").textContent=challenges.filter(x=>x.status==="approved").length;
+$("completed").textContent=challenges.filter(x=>x.status==="completed").length;
+}
+
+function renderChallenges(){
+const filter=$("filter").value;
+const selected=challenges.filter(x=>filter==="all"||x.status===filter);
+const root=$("challengeList");
+root.replaceChildren();
+
+$("message").textContent=selected.length?
+selected.length+" challenge(s) displayed.":
+"No challenges match this filter.";
+
+selected.forEach(battle=>{
+const card=node("article");
+card.className="card";
+
+const title=node("h3",battle.battle_title);
+const matchup=node("p",battle.stage_name+" vs. "+battle.opponent_name);
+const format=node("p","Format: "+battle.battle_format);
+const details=node("p",battle.description||"No additional details.");
+const date=node("p","Submitted: "+new Date(battle.created_at).toLocaleString());
+date.className="muted";
+
+const badge=node("span",displayStatus(battle.status));
+badge.className="tag";
+
+const label=node("label","Change Status");
+const select=node("select");
+statuses.forEach(status=>{
+const option=node("option",displayStatus(status));
+option.value=status;
+select.append(option);
+});
+select.value=battle.status;
+
+const save=node("button","Save Status");
+save.type="button";
+
+save.addEventListener("click",async()=>{
+if(select.value===battle.status)return;
+
+if(!confirm("Change this challenge to "+displayStatus(select.value)+"?"))return;
+
+save.disabled=true;
+save.textContent="Saving...";
+
+try{
+const {data,error}=await db
+.from("battle_rap_challenges")
+.update({status:select.value})
+.eq("id",battle.id)
+.select("id,status")
+.single();
+
+if(error)throw error;
+
+battle.status=data.status;
+updateStats();
+renderChallenges();
+}catch(error){
+console.error(error);
+alert("Unable to update challenge status.");
+save.disabled=false;
+save.textContent="Save Status";
+}
+});
+
+const actions=node("div");
+actions.className="actions";
+actions.append(select,save);
+
+card.append(title,matchup,format,details,date,badge,label,actions);
+root.append(card);
+});
+}
+
+$("filter").addEventListener("change",renderChallenges);
+$("refresh").addEventListener("click",loadChallenges);
+initialize();
+</script>
+</body>
+</html>
