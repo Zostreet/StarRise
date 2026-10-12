@@ -8,21 +8,25 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0b0917;color:white;font:16px/1.6 Arial,sans-serif}
+body{margin:0;background:#0b0917;color:#fff;font:16px/1.6 Arial,sans-serif}
 header{padding:20px 5%;border-bottom:1px solid #ffffff25}
 a{color:#f3ca71}
 main{max-width:950px;margin:auto;padding:30px 18px 80px}
-h1{font-size:clamp(32px,7vw,52px)}
+h1{font-size:clamp(32px,7vw,52px);line-height:1.15}
 h2,h3{color:#f3ca71}
 .card{background:#19152a;border:1px solid #ffffff30;border-radius:16px;padding:20px;margin:18px 0}
 .notice{background:#302443;padding:16px;border-radius:12px}
 button,input,select{font:inherit;padding:12px;border-radius:10px}
 button{background:#f3ca71;color:#171021;border:0;font-weight:bold;cursor:pointer;margin:8px 0}
-button:disabled{opacity:.5}
+button:disabled{opacity:.5;cursor:not-allowed}
 input,select{background:#100e1e;color:white;border:1px solid #777;width:100%}
 label{display:block;margin:12px 0}
 .muted{color:#bbb}
-.entry{border-top:1px solid #ffffff25;padding:12px 0}
+.entry{border-top:1px solid #ffffff25;padding:14px 0}
+.score{font-size:28px;font-weight:bold}
+.leader{color:#85d6a3}
+.warning{color:#ffd28b}
+.status{padding:12px;background:#100e1e;border-radius:10px}
 footer{text-align:center;padding:25px}
 </style>
 </head>
@@ -38,12 +42,12 @@ footer{text-align:center;padding:25px}
 
 <main>
 <h1>Judging Administration</h1>
-<p>Assign judges and review private competition scores.</p>
+<p>Manage judges, review scores and identify the scoring leader.</p>
 
 <div class="notice">
-Judge scores are preliminary until the official winner
-is confirmed. An administrator must independently verify
-results before finalizing a match.
+Scores are private until official results are approved.
+Recommendations never automatically finalize a match.
+Only an authorized administrator can confirm the winner.
 </div>
 
 <section class="card">
@@ -58,10 +62,10 @@ results before finalizing a match.
 <h2>Assign Judge</h2>
 <label for="judge">Judge's StarRise Account ID (UUID)</label>
 <input id="judge" placeholder="Paste the judge account UUID">
-<button id="assign">Assign Judge</button>
+<button id="assign" type="button">Assign Judge</button>
 <p class="muted">
 The judge must have a registered StarRise account
-and cannot be a competitor in this match.
+and cannot compete in the assigned match.
 </p>
 <h3>Assigned Judges</h3>
 <div id="judges"></div>
@@ -70,11 +74,18 @@ and cannot be a competitor in this match.
 <section class="card" id="results" hidden>
 <h2>Private Score Summary</h2>
 <p class="muted">
-Each judge may score up to three rounds per competitor.
-Maximum: 90 points per competitor per judge.
-Incomplete scorecards are not final.
+Each judge scores lyrics, delivery and performance
+for three rounds. Maximum 90 points per artist per judge.
 </p>
 <div id="scores"></div>
+<h2>Score-Based Recommendation</h2>
+<div id="recommendation" class="status" role="status"></div>
+<p class="muted">
+This is a scoring recommendation, not an official result.
+Administrators must independently verify scores and
+confirm results through the Tournament Brackets page.
+</p>
+<a href="battle-brackets.html">Review Tournament Brackets</a>
 </section>
 </main>
 
@@ -167,9 +178,9 @@ $("management").hidden=true;
 $("results").hidden=true;
 
 const {data,error}=await db.rpc(
-"battle_public_bracket",{
-p_tournament:id
-});
+"battle_public_bracket",
+{p_tournament:id}
+);
 
 if(error){
 message(error.message);
@@ -212,17 +223,17 @@ if(!match)return;
 
 message("Loading judge assignments and scores...");
 
-const [assignments,scores]=await Promise.all([
+const [assignments,recommendations]=await Promise.all([
 db.rpc("battle_judge_admin_assignments",{p_match:id}),
-db.rpc("battle_judge_admin_summary",{p_match:id})
+db.rpc("battle_judge_admin_recommendation",{p_match:id})
 ]);
 
 if(current!==version)return;
 
-if(assignments.error||scores.error){
+if(assignments.error||recommendations.error){
 message(
 assignments.error?.message||
-scores.error?.message||
+recommendations.error?.message||
 "Unable to load judging information."
 );
 return;
@@ -233,8 +244,10 @@ $("results").hidden=false;
 
 $("judges").replaceChildren();
 $("scores").replaceChildren();
+$("recommendation").replaceChildren();
 
 const judges=assignments.data||[];
+const results=recommendations.data||[];
 
 if(!judges.length){
 $("judges").append(el("p","No judges assigned yet."));
@@ -265,10 +278,9 @@ busy=true;
 remove.disabled=true;
 
 const {error}=await db.rpc(
-"battle_judge_remove",{
-p_match:id,
-p_judge:judge.judge_id
-});
+"battle_judge_remove",
+{p_match:id,p_judge:judge.judge_id}
+);
 
 busy=false;
 
@@ -285,46 +297,81 @@ row.append(remove);
 $("judges").append(row);
 }
 
-const summary=scores.data||[];
-
-if(!summary.length){
-$("scores").append(el("p","No scores submitted yet."));
+if(!results.length){
+$("scores").append(el("p","No competitor information available."));
 }
 
-for(const result of summary){
+for(const result of results){
 const row=el("div");
 row.className="entry";
 
-const artistName=
-result.artist_id===match.artist_one?
-match.artist_one_name:
-result.artist_id===match.artist_two?
-match.artist_two_name:
-"Competitor";
+row.append(el("h3",result.artist_name));
+const score=el(
+"p",
+result.total_points+" points"
+);
+score.className="score";
+if(result.recommendation==="LEADER"){
+score.classList.add("leader");
+}
+row.append(score);
 
-row.append(el("h3",artistName));
 row.append(el(
 "p",
-"Judges who submitted scores: "+result.judge_count
+"Round entries received: "+
+result.scorecards+" / "+(result.assigned_judges*3)
 ));
+
 row.append(el(
 "p",
-"Round entries received: "+result.scorecards
-));
-row.append(el(
-"p",
-"Total preliminary points: "+result.total_points
+result.complete?
+"Complete scorecard":"Incomplete scorecard"
 ));
 
 $("scores").append(row);
 }
 
-const expected=judges.length*3;
+const leader=results.find(
+r=>r.recommendation==="LEADER"
+);
 
-$("scores").append(el(
-"p",
-"Expected round entries per competitor: "+expected
-));
+const tied=results.some(
+r=>r.recommendation==="TIE"
+);
+
+const incomplete=results.some(
+r=>r.recommendation==="INCOMPLETE"
+);
+
+const noJudges=results.some(
+r=>r.recommendation==="NO_JUDGES"
+);
+
+let recommendationText="";
+
+if(noJudges){
+recommendationText="No recommendation: assign judges first.";
+}else if(incomplete){
+recommendationText=
+"No recommendation yet. All assigned judges must submit three rounds for both artists.";
+}else if(tied){
+recommendationText=
+"TIE: Both competitors have equal scores. Administrator review required.";
+}else if(leader){
+recommendationText=
+"SCORING LEADER: "+leader.artist_name+
+" with "+leader.total_points+
+" points. Verify the scorecards before selecting an official winner.";
+}else{
+recommendationText="Recommendation unavailable. Review the scorecards.";
+}
+
+if(match.has_winner){
+recommendationText+=
+" This match already has an official winner.";
+}
+
+$("recommendation").append(el("strong",recommendationText));
 
 const tournament=tournaments.find(
 t=>t.id===$("tournament").value
@@ -355,10 +402,9 @@ $("assign").disabled=true;
 message("Assigning judge...");
 
 const {data,error}=await db.rpc(
-"battle_judge_assign",{
-p_match:id,
-p_judge:judge
-});
+"battle_judge_assign",
+{p_match:id,p_judge:judge}
+);
 
 busy=false;
 
