@@ -5,28 +5,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Battle Rap Community | StarRise</title>
-<meta name="description" content="StarRise Battle Rap Arena invitations, approved matchups and fan voting.">
-<link rel="stylesheet" href="starrise-brand.css">
+<meta name="description" content="Watch, listen and vote in the StarRise Battle Rap Arena.">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0b0917;color:white;font-family:Arial,sans-serif;line-height:1.6}
+body{margin:0;background:#0b0917;color:#fff;font:16px/1.6 Arial,sans-serif}
 header{padding:20px 5%;border-bottom:1px solid #ffffff25;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
 a{color:#f3ca71}
-nav{display:flex;gap:15px;flex-wrap:wrap}
+nav{display:flex;gap:14px;flex-wrap:wrap}
 nav a{color:white;text-decoration:none}
-main{max-width:1050px;margin:auto;padding:30px 20px 80px}
-h1{font-size:clamp(36px,8vw,65px);margin:10px 0}
+main{max-width:1100px;margin:auto;padding:30px 20px 80px}
+h1{font-size:clamp(36px,8vw,64px);margin:10px 0}
+h2{margin-top:0}
 .gold{color:#f3ca71}
-.card{background:#19152a;border:1px solid #ffffff25;border-radius:16px;padding:24px;margin:20px 0}
+.muted{color:#bbb}
+.card{background:#19152a;border:1px solid #ffffff25;border-radius:16px;padding:22px;margin:18px 0}
 .notice{background:#302443;border:1px solid #a787d6;border-radius:12px;padding:16px}
-input{width:100%;background:#100e1e;color:white;border:1px solid #777;border-radius:10px;padding:13px;font:inherit}
+input{width:100%;background:#100e1e;color:#fff;border:1px solid #777;border-radius:10px;padding:12px;font:inherit}
 button,.btn{display:inline-block;background:#f3ca71;color:#171021;border:0;border-radius:24px;padding:12px 18px;font-weight:bold;cursor:pointer;text-decoration:none;margin:5px 5px 5px 0}
 button:disabled{opacity:.5}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px}
-.muted{color:#bbb}
-.tag{display:inline-block;padding:5px 12px;border-radius:20px;background:#302443;color:#f3ca71}
-.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.performances{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.performance{padding:15px;background:#100e1e;border-radius:12px;min-width:0}
+video,audio{display:block;width:100%;max-height:350px;margin:12px 0}
+.tag{display:inline-block;background:#302443;color:#f3ca71;border-radius:20px;padding:5px 12px}
 footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
 </style>
 </head>
@@ -37,6 +39,7 @@ footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
 <nav>
 <a href="index.html">Home</a>
 <a href="battle-rap.html">Challenge Arena</a>
+<a href="battle-upload.html">Upload Performance</a>
 <a href="dashboard.html">Dashboard</a>
 </nav>
 </header>
@@ -44,20 +47,20 @@ footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
 <main>
 <p class="gold">WHERE LYRICS COMPETE</p>
 <h1>Battle Rap Community</h1>
-<p>Discover approved matchups and support emerging battle rappers.</p>
+<p>Discover battle rappers, hear their performances and support your favorite artist.</p>
 
 <div class="notice">
-<strong>TEST PHASE:</strong> The invitation and voting systems are being tested. No performances are available here yet. Results are preliminary and do not determine an official winner. No prizes or live battles are active.
+<strong>Testing phase:</strong> Fan votes are preliminary. StarRise has not launched official judging, cash prizes, or tournament awards. Performance approval is a moderation step, not an endorsement of the content.
 </div>
 
 <section class="card">
 <h2>Accept a Battle Invitation</h2>
-<p>Have an invitation code from another artist? Sign in and enter it below.</p>
-<p class="muted">Accept only if you are the intended opponent and agree to participate. Acceptance does not schedule an event.</p>
+<p>Enter an invitation code shared with you by another artist.</p>
+<p class="muted">Accept only if you are the intended opponent. The challenger and StarRise must still verify identities and coordinate the battle.</p>
 
 <form id="inviteForm">
 <label for="invite">Invitation Code</label>
-<input id="invite" required placeholder="Paste your invitation code">
+<input id="invite" required placeholder="Paste invitation code">
 <button id="acceptBtn" type="submit">Accept Challenge</button>
 </form>
 <p id="inviteMessage" role="status"></p>
@@ -65,20 +68,22 @@ footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
 
 <section class="card">
 <h2>My Battle Invitations</h2>
-<p class="muted">Share an invitation code privately with the artist you want to challenge. Anyone signed in who possesses the code could accept it, so confirm your opponent's identity before approving a battle.</p>
-<div id="myInvites">Sign in to see your invitations.</div>
+<p class="muted">Share codes privately. Anyone with a valid code and a signed-in account may claim an invitation, so confirm the accepting artist's identity before approving a matchup.</p>
+<div id="myInvites">Checking your account...</div>
 </section>
 
 <section>
-<h2>Approved Battle Matchups</h2>
-<p id="battleStatus" role="status">Loading battles...</p>
-<div id="battles" class="grid"></div>
+<h2>Battle Stage</h2>
+<p class="muted">Both artists' recordings must pass review before playback and fan voting become available.</p>
+<p id="battleStatus" role="status">Loading matchups...</p>
+<div id="battles"></div>
 </section>
 
 <section class="card">
-<h2>Coming to the Arena</h2>
-<p>Recorded performances, approved media submissions, opponent verification, live events, tournament brackets, judges, and official rankings.</p>
-<a class="btn" href="battle-rap.html">Submit a Battle Challenge</a>
+<h2>Enter the Arena</h2>
+<p>Submit a new challenge or upload your recording for an accepted matchup.</p>
+<a class="btn" href="battle-rap.html">Create Challenge</a>
+<a class="btn" href="battle-upload.html">Submit Performance</a>
 </section>
 </main>
 
@@ -93,19 +98,25 @@ const db=window.supabase.createClient(
 "https://rcnikxotdalxtuvpmlvm.supabase.co",
 "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
 );
+
 const $=id=>document.getElementById(id);
 let user=null;
 
-function element(tag,text){
-const e=document.createElement(tag);
-if(text!==undefined)e.textContent=text;
-return e;
+function el(tag,value){
+const item=document.createElement(tag);
+if(value!==undefined)item.textContent=value;
+return item;
 }
 
 async function init(){
+try{
 const {data}=await db.auth.getUser();
 user=data?.user||null;
 await Promise.all([loadInvites(),loadBattles()]);
+}catch(error){
+console.error(error);
+$("battleStatus").textContent="Unable to initialize the Battle Rap Community.";
+}
 }
 
 async function loadInvites(){
@@ -113,7 +124,7 @@ const root=$("myInvites");
 root.replaceChildren();
 
 if(!user){
-root.textContent="Sign in to your StarRise account to manage invitations.";
+root.textContent="Sign in to see your invitations.";
 return;
 }
 
@@ -128,68 +139,72 @@ root.textContent="Unable to load invitations.";
 return;
 }
 
-if(!data.length){
-root.textContent="You have no battle challenges yet.";
+if(!data?.length){
+root.textContent="No battle invitations yet.";
 return;
 }
 
-data.forEach(b=>{
-const card=element("div");
+for(const battle of data){
+const card=el("article");
 card.className="card";
-card.append(element("h3",b.battle_title));
-card.append(element("p","Invited opponent: "+b.opponent_name));
-card.append(element("p","Status: "+b.status));
+card.append(
+el("h3",battle.battle_title),
+el("p","Invited artist: "+battle.opponent_name),
+el("p","Status: "+battle.status)
+);
 
-if(b.opponent_id){
-card.append(element("p","Invitation accepted by a signed-in member. Verify their identity before scheduling."));
+if(battle.opponent_id){
+card.append(el("p","Invitation accepted. Confirm the opponent's identity before proceeding."));
 }else{
-const code=element("p","Invitation code: "+b.invite_code);
-const copy=element("button","Copy Invitation");
+card.append(el("p","Invitation code: "+battle.invite_code));
+
+const copy=el("button","Copy Code");
 copy.type="button";
 copy.addEventListener("click",async()=>{
 try{
-await navigator.clipboard.writeText(b.invite_code);
+await navigator.clipboard.writeText(battle.invite_code);
 copy.textContent="Copied!";
-}catch(e){
-copy.textContent="Select and copy the code above.";
+}catch(error){
+copy.textContent="Copy the code displayed above.";
 }
 });
-card.append(code,copy);
+card.append(copy);
 }
 
 root.append(card);
-});
+}
 }
 
-$("inviteForm").addEventListener("submit",async e=>{
-e.preventDefault();
+$("inviteForm").addEventListener("submit",async event=>{
+event.preventDefault();
 
 if(!user){
-$("inviteMessage").textContent="Sign in to accept an invitation.";
+$("inviteMessage").textContent="Sign in to accept a challenge.";
 return;
 }
 
 const code=$("invite").value.trim();
+
 if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(code)){
 $("inviteMessage").textContent="Enter a valid invitation code.";
 return;
 }
 
-const button=$("acceptBtn");
-button.disabled=true;
+$("acceptBtn").disabled=true;
 $("inviteMessage").textContent="Checking invitation...";
 
 try{
 const {error}=await db.rpc("accept_battle_invite",{p_code:code});
 if(error)throw error;
-$("inviteMessage").textContent="Invitation accepted. StarRise must still review the matchup.";
+
+$("inviteMessage").textContent="Invitation accepted. The matchup still requires StarRise coordination.";
 $("inviteForm").reset();
 await loadBattles();
 }catch(error){
 console.error(error);
-$("inviteMessage").textContent="Unable to accept this invitation. It may be invalid, already claimed, or unavailable.";
+$("inviteMessage").textContent="Invitation unavailable, invalid, or already accepted.";
 }finally{
-button.disabled=false;
+$("acceptBtn").disabled=false;
 }
 });
 
@@ -200,49 +215,66 @@ root.replaceChildren();
 const {data,error}=await db.rpc("list_approved_battles");
 
 if(error){
-$("battleStatus").textContent="Unable to load approved battles.";
+console.error(error);
+$("battleStatus").textContent="Unable to load battles.";
 return;
 }
 
-$("battleStatus").textContent=data.length?
+$("battleStatus").textContent=data?.length?
 data.length+" approved matchup(s).":
-"No approved matchups yet. The arena is preparing for its first battles.";
+"No approved matchups yet.";
 
-data.forEach(b=>{
-const card=element("article");
+for(const battle of data||[]){
+const card=el("article");
 card.className="card";
 
-card.append(element("span","Approved Matchup"));
-card.append(element("h3",b.battle_title));
-card.append(element("p",b.stage_name+" vs. "+b.opponent_name));
-card.append(element("p","Format: "+b.battle_format));
-
-const votes=element("p",
-"Preliminary votes: "+b.stage_name+" "+b.challenger_votes+
-" | "+b.opponent_name+" "+b.opponent_votes
+card.append(
+el("span","APPROVED MATCHUP"),
+el("h2",battle.battle_title),
+el("p",battle.stage_name+" vs. "+battle.opponent_name),
+el("p","Format: "+battle.battle_format)
 );
-votes.className="gold";
-card.append(votes);
 
-const voteOne=element("button","Vote: "+b.stage_name);
-const voteTwo=element("button","Vote: "+b.opponent_name);
+const bothReady=Boolean(
+battle.challenger_media_path&&battle.opponent_media_path
+);
+
+if(bothReady){
+const performances=el("div");
+performances.className="performances";
+
+await addPerformance(
+performances,battle.stage_name,battle.challenger_media_path
+);
+await addPerformance(
+performances,battle.opponent_name,battle.opponent_media_path
+);
+
+card.append(performances);
+card.append(el("p","Preliminary fan votes: "+battle.stage_name+
+" "+battle.challenger_votes+" | "+
+battle.opponent_name+" "+battle.opponent_votes));
+
+const voteOne=el("button","Vote: "+battle.stage_name);
+const voteTwo=el("button","Vote: "+battle.opponent_name);
 
 async function vote(choice){
 if(!user){
 alert("Sign in to vote.");
 return;
 }
+
 voteOne.disabled=true;
 voteTwo.disabled=true;
 
 const {error}=await db.from("battle_rap_votes").insert({
-battle_id:b.id,
+battle_id:battle.id,
 voter_id:user.id,
 choice
 });
 
 if(error){
-alert("Vote not recorded. You may have already voted or may not be eligible.");
+alert("Vote not recorded. You may already have voted or may not be eligible.");
 voteOne.disabled=false;
 voteTwo.disabled=false;
 return;
@@ -255,8 +287,59 @@ voteOne.addEventListener("click",()=>vote("challenger"));
 voteTwo.addEventListener("click",()=>vote("opponent"));
 
 card.append(voteOne,voteTwo);
+}else{
+const waiting=el("p","Waiting for both performances to pass review. Playback and voting are not available yet.");
+waiting.className="muted";
+card.append(waiting);
+}
+
 root.append(card);
+}
+}
+
+async function addPerformance(container,artist,path){
+const section=el("div");
+section.className="performance";
+section.append(el("h3",artist));
+
+const extension=path.split(".").pop().toLowerCase();
+const isVideo=["mp4","webm"].includes(extension)&&
+extension==="mp4";
+
+const media=el(isVideo?"video":"audio");
+media.controls=true;
+media.preload="none";
+media.setAttribute("controlsList","nodownload");
+
+const loadButton=el("button","Load Performance");
+loadButton.type="button";
+
+loadButton.addEventListener("click",async()=>{
+loadButton.disabled=true;
+loadButton.textContent="Loading...";
+
+const {data,error}=await db.storage
+.from("battle-performances")
+.createSignedUrl(path,300);
+
+if(error||!data?.signedUrl){
+section.append(el("p","Playback temporarily unavailable."));
+loadButton.disabled=false;
+loadButton.textContent="Retry Playback";
+return;
+}
+
+media.src=data.signedUrl;
+media.load();
+
+if(!media.isConnected)section.append(media);
+
+loadButton.textContent="Refresh Playback Link";
+loadButton.disabled=false;
 });
+
+section.append(loadButton);
+container.append(section);
 }
 
 init();
