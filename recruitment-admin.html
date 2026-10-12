@@ -1,0 +1,526 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recruitment Center | StarRise</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font:16px system-ui,Arial,sans-serif;
+ background:#100a20;
+ color:#fff
+}
+main{
+ max-width:1100px;
+ margin:auto;
+ padding:22px 15px 80px
+}
+h1{font-size:clamp(28px,6vw,43px)}
+h2{margin-top:0}
+a{color:#f4ca69}
+.panel,.record{
+ background:#fff;
+ color:#251934;
+ border-radius:17px;
+ padding:20px;
+ margin:16px 0
+}
+.panel a,.record a{color:#5b269e}
+.muted{color:#c8bfd7}
+label{
+ display:block;
+ font-weight:650;
+ margin:12px 0 5px
+}
+input,select,textarea{
+ width:100%;
+ padding:12px;
+ border:1px solid #c5bad3;
+ border-radius:9px;
+ font:inherit;
+ background:#fff;
+ color:#23172f
+}
+textarea{min-height:85px}
+button{
+ background:#632ab5;
+ color:white;
+ border:0;
+ border-radius:9px;
+ padding:12px 16px;
+ font:inherit;
+ font-weight:700;
+ cursor:pointer
+}
+button:disabled{opacity:.5}
+.secondary{
+ background:#eee8f7;
+ color:#482077
+}
+.toolbar{
+ display:flex;
+ flex-wrap:wrap;
+ gap:10px
+}
+.toolbar>*{
+ flex:1;
+ min-width:145px
+}
+.stats{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:10px
+}
+.stat{
+ background:#efe8fa;
+ border-radius:12px;
+ padding:15px
+}
+.stat strong{
+ display:block;
+ font-size:27px
+}
+.grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+ gap:14px
+}
+.record{margin:0;overflow-wrap:anywhere}
+.record h3{margin:8px 0}
+.tag{
+ display:inline-block;
+ background:#eee4fc;
+ color:#50268b;
+ border-radius:20px;
+ padding:5px 11px;
+ font-size:12px;
+ font-weight:800
+}
+.small{font-size:13px;color:#746a7d}
+.notice{
+ background:#fff1c8;
+ color:#4b3700;
+ padding:12px;
+ border-radius:10px
+}
+.hidden{display:none!important}
+#message{font-weight:700}
+</style>
+</head>
+
+<body>
+<main>
+
+<a href="index.html">← StarRise Home</a>
+
+<h1>StarRise Recruitment Center</h1>
+
+<p class="muted">
+ Countdown to Stardom · December 31, 2026
+</p>
+
+<section class="panel" id="access">
+ <h2>Administrator access</h2>
+ <p id="authText">Checking account…</p>
+ <a id="login" class="hidden"
+ href="login.html?redirect=recruitment-admin.html">
+ Sign in to StarRise
+ </a>
+</section>
+
+<div id="app" class="hidden">
+
+<section class="panel">
+ <h2>Recruitment overview</h2>
+
+ <div class="stats">
+  <div class="stat">
+   <strong id="total">0</strong>
+   Prospects
+  </div>
+  <div class="stat">
+   <strong id="performers">0</strong>
+   Performers
+  </div>
+  <div class="stat">
+   <strong id="vendors">0</strong>
+   Vendors
+  </div>
+  <div class="stat">
+   <strong id="interested">0</strong>
+   Interested
+  </div>
+ </div>
+
+ <p class="notice">
+  Event planning is underway. Do not promise
+  confirmed performance slots, vendor spaces,
+  compensation, or venue arrangements.
+ </p>
+
+ <p>
+  <a href="event-admin.html">
+   Open Event Applications →
+  </a>
+ </p>
+</section>
+
+<section class="panel">
+ <h2>Add recruitment prospect</h2>
+
+ <form id="prospectForm">
+
+  <label for="name">Name or organization *</label>
+  <input id="name" maxlength="150" required>
+
+  <label for="type">Prospect type *</label>
+  <select id="type" required>
+   <option value="performer">Performer</option>
+   <option value="vendor">Vendor</option>
+   <option value="partner">Partner / Sponsor</option>
+  </select>
+
+  <label for="category">Category</label>
+  <input id="category"
+   placeholder="Singer, DJ, food vendor, etc.">
+
+  <label for="email">Contact email</label>
+  <input id="email" type="email">
+
+  <label for="phone">Contact phone</label>
+  <input id="phone" type="tel">
+
+  <label for="profile">Website or social profile</label>
+  <input id="profile" type="url"
+   placeholder="https://">
+
+  <label for="notes">Notes</label>
+  <textarea id="notes"
+   placeholder="Background, follow-up details...">
+  </textarea>
+
+  <button type="submit" id="addBtn">
+   Save Prospect
+  </button>
+
+ </form>
+</section>
+
+<section class="panel">
+ <h2>Recruitment pipeline</h2>
+
+ <div class="toolbar">
+  <select id="filterType">
+   <option value="all">All types</option>
+   <option value="performer">Performers</option>
+   <option value="vendor">Vendors</option>
+   <option value="partner">Partners</option>
+  </select>
+
+  <select id="filterStatus">
+   <option value="all">All statuses</option>
+   <option value="researching">Researching</option>
+   <option value="ready">Ready to contact</option>
+   <option value="contacted">Contacted</option>
+   <option value="responded">Responded</option>
+   <option value="interested">Interested</option>
+   <option value="not_interested">Not interested</option>
+  </select>
+
+  <input id="search"
+   placeholder="Search prospects">
+
+  <button id="refresh" type="button">
+   Refresh
+  </button>
+ </div>
+
+ <p id="message" role="status"
+ aria-live="polite"></p>
+</section>
+
+<div id="records" class="grid"></div>
+
+</div>
+</main>
+
+<script>
+const db = window.supabase.createClient(
+ "https://rcnikxotdalxtuvpmlvm.supabase.co",
+ "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+
+const $ = id => document.getElementById(id);
+
+let prospects = [];
+let authorized = false;
+
+const statuses = [
+ ["researching","Researching"],
+ ["ready","Ready to contact"],
+ ["contacted","Contacted"],
+ ["responded","Responded"],
+ ["interested","Interested"],
+ ["not_interested","Not interested"]
+];
+
+function node(tag,text,className){
+ const el=document.createElement(tag);
+ if(text!==undefined) el.textContent=String(text);
+ if(className) el.className=className;
+ return el;
+}
+
+function message(text){
+ $("message").textContent=text;
+}
+
+async function start(){
+ const {data:{user},error}=await db.auth.getUser();
+
+ if(error||!user){
+  $("authText").textContent=
+   "Sign in with your authorized StarRise account.";
+  $("login").classList.remove("hidden");
+  return;
+ }
+
+ const {data:allowed,error:roleError}=
+  await db.rpc("is_starrise_event_admin");
+
+ if(roleError||allowed!==true){
+  $("authText").textContent=
+   "This account does not have administrator access.";
+  return;
+ }
+
+ authorized=true;
+ $("authText").textContent=
+  "Authorized: "+(user.email||"Administrator");
+ $("app").classList.remove("hidden");
+
+ await load();
+}
+
+async function load(){
+ if(!authorized)return;
+
+ message("Loading recruitment records…");
+
+ const {data,error}=await db
+  .from("showcase_recruitment")
+  .select("*")
+  .eq("event_key","countdown-to-stardom-2026")
+  .order("created_at",{ascending:false})
+  .limit(500);
+
+ if(error){
+  message("Unable to load recruitment records.");
+  return;
+ }
+
+ prospects=data||[];
+ message("");
+ render();
+}
+
+function render(){
+ $("total").textContent=prospects.length;
+
+ $("performers").textContent=
+  prospects.filter(p=>p.prospect_type==="performer").length;
+
+ $("vendors").textContent=
+  prospects.filter(p=>p.prospect_type==="vendor").length;
+
+ $("interested").textContent=
+  prospects.filter(p=>p.outreach_status==="interested").length;
+
+ const term=$("search").value.trim().toLowerCase();
+
+ const filtered=prospects.filter(p=>{
+  const typeOK=$("filterType").value==="all"||
+   p.prospect_type===$("filterType").value;
+
+  const statusOK=$("filterStatus").value==="all"||
+   p.outreach_status===$("filterStatus").value;
+
+  const text=[
+   p.prospect_name,
+   p.category,
+   p.notes
+  ].join(" ").toLowerCase();
+
+  return typeOK&&statusOK&&text.includes(term);
+ });
+
+ const area=$("records");
+ area.replaceChildren();
+
+ if(!filtered.length){
+  area.append(node("p","No matching prospects."));
+  return;
+ }
+
+ for(const p of filtered){
+  const card=node("article",undefined,"record");
+
+  card.append(
+   node("span",p.prospect_type.toUpperCase(),"tag"),
+   node("h3",p.prospect_name)
+  );
+
+  if(p.category){
+   card.append(node("p",p.category));
+  }
+
+  if(p.contact_email){
+   const email=node("a",p.contact_email);
+   email.href="mailto:"+p.contact_email;
+   card.append(email);
+  }
+
+  if(p.contact_phone){
+   card.append(node("p","Phone: "+p.contact_phone));
+  }
+
+  if(p.profile_url){
+   try{
+    const url=new URL(p.profile_url);
+    if(["https:","http:"].includes(url.protocol)){
+     const link=node("a","View profile");
+     link.href=url.href;
+     link.target="_blank";
+     link.rel="noopener noreferrer";
+     card.append(node("p",""));
+     card.append(link);
+    }
+   }catch(e){}
+  }
+
+  if(p.notes){
+   card.append(node("p",p.notes));
+  }
+
+  card.append(
+   node(
+    "p",
+    "Added "+new Date(p.created_at).toLocaleDateString(),
+    "small"
+   )
+  );
+
+  const select=document.createElement("select");
+
+  for(const [value,label] of statuses){
+   const option=document.createElement("option");
+   option.value=value;
+   option.textContent=label;
+   select.append(option);
+  }
+
+  select.value=p.outreach_status;
+
+  const save=node("button","Save status");
+  save.disabled=true;
+
+  select.addEventListener("change",()=>{
+   save.disabled=select.value===p.outreach_status;
+  });
+
+  save.addEventListener("click",async()=>{
+   save.disabled=true;
+   save.textContent="Saving…";
+
+   const changes={
+    outreach_status:select.value,
+    updated_at:new Date().toISOString()
+   };
+
+   if(
+    select.value==="contacted"&&
+    p.outreach_status!=="contacted"
+   ){
+    changes.last_contact_at=new Date().toISOString();
+   }
+
+   const {data,error}=await db
+    .from("showcase_recruitment")
+    .update(changes)
+    .eq("id",p.id)
+    .select()
+    .single();
+
+   if(error){
+    message("Could not update "+p.prospect_name);
+    select.value=p.outreach_status;
+   }else{
+    Object.assign(p,data);
+    message("Updated "+p.prospect_name);
+    render();
+   }
+
+   save.textContent="Save status";
+  });
+
+  card.append(select,save);
+  area.append(card);
+ }
+}
+
+$("prospectForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+
+ if(!authorized)return;
+
+ const btn=$("addBtn");
+ btn.disabled=true;
+ btn.textContent="Saving…";
+
+ const clean=id=>$(id).value.trim()||null;
+
+ const record={
+  event_key:"countdown-to-stardom-2026",
+  prospect_name:clean("name"),
+  prospect_type:$("type").value,
+  category:clean("category"),
+  contact_email:clean("email"),
+  contact_phone:clean("phone"),
+  profile_url:clean("profile"),
+  notes:clean("notes"),
+  outreach_status:"researching"
+ };
+
+ const {error}=await db
+  .from("showcase_recruitment")
+  .insert(record);
+
+ btn.disabled=false;
+ btn.textContent="Save Prospect";
+
+ if(error){
+  message("Could not save prospect: "+error.message);
+  return;
+ }
+
+ $("prospectForm").reset();
+ await load();
+ message("Prospect saved successfully.");
+});
+
+$("filterType").addEventListener("change",render);
+$("filterStatus").addEventListener("change",render);
+$("search").addEventListener("input",render);
+$("refresh").addEventListener("click",load);
+
+start().catch(()=>{
+ $("authText").textContent=
+  "Unable to verify your session. Please try again.";
+});
+</script>
+</body>
+</html>
