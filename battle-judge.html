@@ -1,0 +1,266 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Battle Rap Judge Scorecard | StarRise</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:white;font:16px/1.6 Arial,sans-serif}
+header{padding:20px 5%;border-bottom:1px solid #ffffff25}
+a{color:#f3ca71}
+main{max-width:900px;margin:auto;padding:30px 18px 80px}
+h1{font-size:clamp(32px,7vw,52px)}
+h2,h3{color:#f3ca71}
+.card{background:#19152a;border:1px solid #ffffff30;border-radius:16px;padding:20px;margin:18px 0}
+.notice{background:#302443;padding:16px;border-radius:12px}
+button,input,select{font:inherit;padding:12px;border-radius:10px}
+button{background:#f3ca71;color:#171021;border:0;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5}
+select,input{background:#100e1e;color:white;border:1px solid #777;width:100%}
+label{display:block;margin:12px 0}
+.score-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.score-grid label{font-size:14px}
+.muted{color:#bbb}
+.status{color:#85d6a3}
+footer{text-align:center;padding:25px}
+</style>
+</head>
+<body>
+<header>
+<strong>STARRISE BATTLE RAP</strong>
+<p><a href="battle-brackets.html">Brackets</a> |
+<a href="battle-tournaments.html">Tournaments</a></p>
+</header>
+
+<main>
+<h1>Judge Scorecards</h1>
+<p>Private scoring for authorized StarRise Battle Rap judges.</p>
+
+<div class="notice">
+Only assigned judges can submit scores. Each competitor
+receives scores for lyrics, delivery and performance in
+three rounds. Scores remain editable until the match
+is officially finalized.
+</div>
+
+<section class="card">
+<h2>My Assigned Matches</h2>
+<p id="status" role="status">Checking your account...</p>
+<div id="matches"></div>
+</section>
+</main>
+
+<footer>StarRise by FAM Entertainment LLC</footer>
+
+<script>
+const db=window.supabase.createClient(
+"https://rcnikxotdalxtuvpmlvm.supabase.co",
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+
+const $=id=>document.getElementById(id);
+
+function element(tag,text){
+const node=document.createElement(tag);
+if(text!==undefined)node.textContent=String(text);
+return node;
+}
+
+async function init(){
+const {data:auth,error:authError}=await db.auth.getUser();
+
+if(authError||!auth?.user){
+$("status").textContent=
+"Sign in to StarRise with your assigned judge account.";
+return;
+}
+
+const {data,error}=await db.rpc(
+"battle_judge_my_assignments"
+);
+
+if(error){
+$("status").textContent=
+error.message||"Unable to load assignments.";
+return;
+}
+
+if(!data?.length){
+$("status").textContent=
+"No judging assignments yet. An administrator must assign you.";
+return;
+}
+
+$("status").textContent=
+data.length+" assigned match(es).";
+
+for(const match of data){
+await renderMatch(match);
+}
+}
+
+async function renderMatch(match){
+const card=element("section");
+card.className="card";
+
+card.append(element("h2",match.tournament_title));
+card.append(element(
+"p",
+"Round "+match.round_number+
+" · Match "+match.match_number
+));
+
+card.append(element(
+"h3",
+match.artist_one_name+" vs. "+match.artist_two_name
+));
+
+if(match.official){
+card.append(element(
+"p","Official result recorded. Scorecard locked."
+));
+$("matches").append(card);
+return;
+}
+
+const {data:existing,error}=await db.rpc(
+"battle_judge_my_scores",{
+p_match:match.match_id
+});
+
+if(error){
+card.append(element(
+"p","Unable to load existing scores."
+));
+$("matches").append(card);
+return;
+}
+
+const saved=new Map(
+(existing||[]).map(s=>[
+s.artist_id+"-"+s.round_number,s
+])
+);
+
+const form=element("form");
+const controls=[];
+
+for(const competitor of [
+{id:match.artist_one,name:match.artist_one_name},
+{id:match.artist_two,name:match.artist_two_name}
+]){
+const heading=element("h3",competitor.name);
+form.append(heading);
+
+for(let round=1;round<=3;round++){
+const section=element("div");
+section.className="card";
+section.append(element("strong","Round "+round));
+
+const grid=element("div");
+grid.className="score-grid";
+
+const prior=saved.get(competitor.id+"-"+round);
+const inputs={};
+
+for(const category of [
+"lyrics","delivery","performance"
+]){
+const label=element("label",category.toUpperCase());
+const input=element("input");
+
+input.type="number";
+input.min="0";
+input.max="10";
+input.step="1";
+input.required=true;
+input.value=prior?.[category]??"";
+
+label.append(input);
+grid.append(label);
+inputs[category]=input;
+}
+
+section.append(grid);
+form.append(section);
+
+controls.push({
+artist:competitor.id,
+round,
+inputs
+});
+}
+}
+
+const saveButton=element("button","Save All Scores");
+saveButton.type="submit";
+
+const feedback=element("p");
+feedback.setAttribute("role","status");
+
+form.append(saveButton,feedback);
+
+form.addEventListener("submit",async event=>{
+event.preventDefault();
+saveButton.disabled=true;
+feedback.textContent="Saving scorecards...";
+
+for(const item of controls){
+const values={};
+
+for(const category of [
+"lyrics","delivery","performance"
+]){
+const raw=item.inputs[category].value;
+const number=Number(raw);
+
+if(
+raw===""||
+!Number.isInteger(number)||
+number<0||
+number>10
+){
+feedback.textContent=
+"Every score must be a whole number from 0 to 10.";
+saveButton.disabled=false;
+return;
+}
+
+values[category]=number;
+}
+
+const {error}=await db.rpc(
+"battle_judge_save_score",{
+p_match:match.match_id,
+p_artist:item.artist,
+p_round:item.round,
+p_lyrics:values.lyrics,
+p_delivery:values.delivery,
+p_performance:values.performance
+});
+
+if(error){
+feedback.textContent=
+"Saving stopped: "+error.message;
+saveButton.disabled=false;
+return;
+}
+}
+
+feedback.textContent=
+"All scorecards saved successfully.";
+feedback.className="status";
+saveButton.disabled=false;
+});
+
+card.append(form);
+$("matches").append(card);
+}
+
+init();
+</script>
+</body>
+</html>
