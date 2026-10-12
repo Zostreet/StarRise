@@ -24,7 +24,7 @@ h2{color:#f3ca71}
 .winner{color:#f3ca71;font-weight:bold}
 button,select{padding:12px;border-radius:10px;font:inherit}
 button{background:#f3ca71;color:#171021;border:0;font-weight:bold;cursor:pointer;margin:6px 0}
-button:disabled{opacity:.5}
+button:disabled{opacity:.45;cursor:not-allowed}
 button.confirm{background:#85d6a3}
 button.secondary{background:#c5b9e2}
 select{background:#100e1e;color:white;border:1px solid #777;max-width:100%}
@@ -33,10 +33,13 @@ select{background:#100e1e;color:white;border:1px solid #777;max-width:100%}
 .review{border-top:1px solid #ffffff30;margin-top:14px;padding-top:14px}
 .review select{width:100%;margin:8px 0}
 .review button{display:block;width:100%}
+.saved{color:#85d6a3;font-weight:bold}
+.warning{color:#ffd28b;font-weight:bold}
 footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
 </style>
 </head>
 <body>
+
 <header>
 <strong>STARRISE BATTLE RAP</strong>
 <nav>
@@ -56,7 +59,7 @@ footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
 <div class="notice">
 Official results are confirmed by authorized StarRise administrators.
 Provisional selections remain private until confirmed.
-Preliminary fan voting does not automatically determine winners.
+Changes must be saved before official confirmation is enabled.
 </div>
 
 <section class="card">
@@ -137,7 +140,6 @@ return;
 }
 
 tournaments=data||[];
-
 const select=$("tournament");
 
 const previous=selectedId||
@@ -199,7 +201,6 @@ p_tournament:id
 }
 
 const results=await Promise.all(requests);
-
 if(version!==requestVersion)return;
 
 const publicResult=results[0];
@@ -207,8 +208,12 @@ const privateResult=results[1];
 const reviewResult=results[2];
 
 if(publicResult.error){
-console.error(publicResult.error);
 message("Unable to load bracket.");
+return;
+}
+
+if(admin&&(privateResult?.error||reviewResult?.error)){
+message("Unable to load administrator review data.");
 return;
 }
 
@@ -303,21 +308,19 @@ option2.value=privateMatch.artist_two;
 
 pick.append(option1,option2);
 
-const provisional=reviews.get(match.id);
+let savedWinner=reviews.get(match.id)||null;
 
-if(provisional){
-pick.value=provisional;
+if(savedWinner){
+pick.value=savedWinner;
 }
 
-const state=el(
-"p",
-provisional?
-"Provisional winner saved. Not official.":
-"No provisional winner selected."
-);
-state.className="muted";
+const savedText=el("p");
+const warning=el("p");
+warning.setAttribute("role","status");
 
-const save=el("button","Save / Correct Provisional Winner");
+const save=el(
+"button","Save / Correct Provisional Winner"
+);
 save.type="button";
 save.className="secondary";
 
@@ -326,23 +329,56 @@ const confirmButton=el(
 );
 confirmButton.type="button";
 confirmButton.className="confirm";
-confirmButton.disabled=!provisional;
 
 const feedback=el("p");
 feedback.setAttribute("role","status");
 
+function artistName(artistId){
+return artistId===privateMatch.artist_one?
+match.artist_one_name:
+match.artist_two_name;
+}
+
+function updateReview(){
+const changed=pick.value!==savedWinner;
+
+savedText.textContent=savedWinner?
+"Saved provisional winner: "+artistName(savedWinner):
+"No provisional winner saved.";
+savedText.className=savedWinner?"saved":"muted";
+
+warning.textContent=changed?
+"Unsaved selection. Save this change before confirming.":
+savedWinner?
+"Saved selection matches the dropdown.":
+"Save a provisional winner before confirming.";
+
+warning.className=changed?"warning":"muted";
+
+save.disabled=busy||(!changed&&!!savedWinner);
+confirmButton.disabled=
+busy||
+!savedWinner||
+changed;
+}
+
+pick.addEventListener("change",()=>{
+feedback.textContent="";
+updateReview();
+});
+
 save.addEventListener("click",async()=>{
 if(busy)return;
 
+const selected=pick.value;
 busy=true;
-save.disabled=true;
-confirmButton.disabled=true;
+updateReview();
 feedback.textContent="Saving provisional result...";
 
 const {data,error}=await db.rpc(
 "battle_bracket_propose_winner",{
 p_match:match.id,
-p_winner:pick.value
+p_winner:selected
 });
 
 busy=false;
@@ -350,39 +386,36 @@ busy=false;
 if(error){
 feedback.textContent=
 error.message||"Unable to save provisional result.";
-save.disabled=false;
-confirmButton.disabled=!provisional;
+updateReview();
 return;
 }
 
-feedback.textContent=data||"Provisional result saved.";
-await loadBracket();
+savedWinner=selected;
+feedback.textContent=
+data||"Provisional result saved.";
+updateReview();
 });
 
 confirmButton.addEventListener("click",async()=>{
 if(busy)return;
 
-const selected=reviews.get(match.id);
-
-if(!selected){
-feedback.textContent="Save a provisional winner first.";
+if(!savedWinner||pick.value!==savedWinner){
+feedback.textContent=
+"Unsaved change detected. Save the selected winner first.";
+updateReview();
 return;
 }
 
-const selectedName=
-selected===privateMatch.artist_one?
-match.artist_one_name:
-match.artist_two_name;
+const selectedName=artistName(savedWinner);
 
 if(!confirm(
 "OFFICIAL RESULT: Confirm "+selectedName+
-" as the winner? This may advance or complete the tournament. "+
+" as winner? This may advance or complete the tournament. "+
 "Official results cannot be corrected from this page."
 ))return;
 
 busy=true;
-confirmButton.disabled=true;
-save.disabled=true;
+updateReview();
 feedback.textContent="Confirming official result...";
 
 const {data,error}=await db.rpc(
@@ -395,8 +428,7 @@ busy=false;
 if(error){
 feedback.textContent=
 error.message||"Unable to confirm winner.";
-save.disabled=false;
-confirmButton.disabled=false;
+updateReview();
 return;
 }
 
@@ -406,13 +438,15 @@ message(data||"Official winner confirmed.");
 
 review.append(
 pick,
-state,
+savedText,
+warning,
 save,
 confirmButton,
 feedback
 );
 
 card.append(review);
+updateReview();
 }
 }
 
