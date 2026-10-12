@@ -1,0 +1,513 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Event Admin | StarRise</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:#110b20;
+  color:#fff;
+  font:16px system-ui,Arial,sans-serif
+}
+
+main{
+  max-width:1080px;
+  margin:auto;
+  padding:24px 16px 70px
+}
+
+a{color:#f6c95f}
+
+h1{
+  font-size:clamp(27px,6vw,42px);
+  margin-bottom:6px
+}
+
+.muted{color:#c9c0d5}
+
+.panel{
+  background:#fff;
+  color:#21192e;
+  border-radius:17px;
+  padding:20px;
+  margin:18px 0
+}
+
+.panel a{color:#55239d}
+
+.toolbar{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center
+}
+
+select,input,button{
+  font:inherit;
+  border-radius:9px;
+  padding:11px;
+  border:1px solid #bbb0c9
+}
+
+button{
+  background:#632bb4;
+  color:#fff;
+  border:0;
+  font-weight:700;
+  cursor:pointer
+}
+
+button:disabled{
+  opacity:.5;
+  cursor:wait
+}
+
+button.secondary{
+  background:#ede7f8;
+  color:#432071
+}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:14px
+}
+
+.applicant{
+  background:#fff;
+  color:#24192e;
+  border-radius:14px;
+  padding:18px;
+  overflow-wrap:anywhere
+}
+
+.applicant h3{margin:4px 0}
+.applicant p{margin:8px 0}
+
+.small{
+  font-size:13px;
+  color:#6c6275
+}
+
+.pill{
+  display:inline-block;
+  background:#f0e6ff;
+  color:#4d2584;
+  border-radius:20px;
+  padding:4px 10px;
+  font-size:12px;
+  font-weight:800
+}
+
+.status{
+  margin-top:12px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap
+}
+
+.status select{
+  flex:1;
+  min-width:140px
+}
+
+.notice{
+  background:#fff4ce;
+  color:#4a3400;
+  padding:13px;
+  border-radius:10px
+}
+
+#message{font-weight:700}
+.hidden{display:none!important}
+</style>
+</head>
+
+<body>
+<main>
+
+<a href="index.html">← StarRise Home</a>
+
+<h1>Countdown to Stardom</h1>
+
+<p class="muted">
+  Private event application dashboard
+  · Authorized StarRise staff only
+</p>
+
+<section class="panel" id="authPanel">
+
+  <h2>Secure sign-in</h2>
+
+  <p id="authMessage">
+    Checking your StarRise session…
+  </p>
+
+  <p>
+    <a
+      href="login.html?redirect=event-admin.html"
+      id="loginLink"
+      class="hidden"
+    >
+      Sign in to StarRise
+    </a>
+  </p>
+
+  <button
+    id="signOut"
+    class="secondary hidden"
+  >
+    Sign out
+  </button>
+
+</section>
+
+<section id="dashboard" class="hidden">
+
+  <div class="panel">
+
+    <h2>Registration overview</h2>
+
+    <p class="notice">
+      Interest only. Venue, lineup, and vendor
+      spaces remain unconfirmed. Do not promise
+      acceptance or request payment.
+    </p>
+
+    <p id="summary">Loading…</p>
+
+    <div class="toolbar">
+
+      <label for="filter">Show:</label>
+
+      <select id="filter">
+        <option value="all">All applications</option>
+        <option value="performer">Performers</option>
+        <option value="vendor">Vendors</option>
+      </select>
+
+      <label for="search">Search:</label>
+
+      <input
+        id="search"
+        placeholder="Name, category, city"
+        autocomplete="off"
+      >
+
+      <button id="refresh">Refresh</button>
+
+    </div>
+
+    <p
+      id="message"
+      role="status"
+      aria-live="polite"
+    ></p>
+
+  </div>
+
+  <div id="cards" class="cards"></div>
+
+</section>
+
+</main>
+
+<script>
+const db = window.supabase.createClient(
+  'https://rcnikxotdalxtuvpmlvm.supabase.co',
+  'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+);
+
+const $ = id => document.getElementById(id);
+
+let applications = [];
+let authorized = false;
+
+function element(tag, text, cls) {
+  const n = document.createElement(tag);
+
+  if (text !== undefined) {
+    n.textContent = String(text);
+  }
+
+  if (cls) {
+    n.className = cls;
+  }
+
+  return n;
+}
+
+function note(text) {
+  $('message').textContent = text;
+}
+
+async function init() {
+  try {
+    const {
+      data: { user },
+      error
+    } = await db.auth.getUser();
+
+    if (error || !user) {
+      $('authMessage').textContent =
+        'Sign in to your authorized StarRise account to review applications.';
+
+      $('loginLink').classList.remove('hidden');
+      return;
+    }
+
+    $('signOut').classList.remove('hidden');
+
+    const {
+      data: ok,
+      error: roleError
+    } = await db.rpc('is_starrise_event_admin');
+
+    if (roleError || ok !== true) {
+      $('authMessage').textContent =
+        'This account does not have event administrator access.';
+      return;
+    }
+
+    authorized = true;
+
+    $('authMessage').textContent =
+      'Authorized StarRise administrator: ' +
+      (user.email || 'signed-in account');
+
+    $('dashboard').classList.remove('hidden');
+
+    await load();
+
+  } catch (error) {
+    $('authMessage').textContent =
+      'Could not verify your session. Please refresh or sign in again.';
+  }
+}
+
+async function load() {
+  if (!authorized) return;
+
+  note('Loading applications…');
+
+  const { data, error } = await db
+    .from('showcase_interest')
+    .select(
+      'id,created_at,applicant_type,display_name,email,phone,city,category,details,social_link,status'
+    )
+    .eq('event_key', 'countdown-to-stardom-2026')
+    .order('created_at', { ascending: false })
+    .limit(500);
+
+  if (error) {
+    note(
+      'Unable to load applications. Check admin permissions and try again.'
+    );
+    return;
+  }
+
+  applications = data || [];
+
+  note('');
+  render();
+}
+
+function render() {
+  const filtered = applications.filter(a =>
+    (
+      $('filter').value === 'all' ||
+      a.applicant_type === $('filter').value
+    ) &&
+    [a.display_name, a.category, a.city].some(v =>
+      (v || '').toLowerCase().includes(
+        $('search').value.toLowerCase()
+      )
+    )
+  );
+
+  const performers = applications.filter(
+    a => a.applicant_type === 'performer'
+  ).length;
+
+  const vendors = applications.filter(
+    a => a.applicant_type === 'vendor'
+  ).length;
+
+  $('summary').textContent =
+    applications.length + ' total applications · ' +
+    performers + ' performers (target 20) · ' +
+    vendors + ' vendors (target 10)';
+
+  const cards = $('cards');
+  cards.replaceChildren();
+
+  if (!filtered.length) {
+    cards.append(
+      element('p', 'No matching applications.')
+    );
+    return;
+  }
+
+  for (const a of filtered) {
+    const card = element(
+      'article',
+      undefined,
+      'applicant'
+    );
+
+    card.append(
+      element(
+        'span',
+        a.applicant_type === 'vendor'
+          ? 'VENDOR'
+          : 'PERFORMER',
+        'pill'
+      ),
+      element('h3', a.display_name),
+      element('p', a.category)
+    );
+
+    const meta = element(
+      'p',
+      [
+        a.city || 'Location not provided',
+        new Date(a.created_at).toLocaleDateString()
+      ].join(' · '),
+      'small'
+    );
+
+    card.append(meta);
+
+    const email = element('a', a.email);
+    email.href = 'mailto:' + encodeURIComponent(a.email);
+    card.append(email);
+
+    if (a.phone) {
+      card.append(
+        element('p', 'Phone: ' + a.phone)
+      );
+    }
+
+    if (a.details) {
+      card.append(
+        element('p', a.details)
+      );
+    }
+
+    if (a.social_link) {
+      try {
+        const url = new URL(a.social_link);
+
+        if (
+          ['https:', 'http:'].includes(url.protocol)
+        ) {
+          const link = element(
+            'a',
+            'Portfolio / social profile'
+          );
+
+          link.href = url.href;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+
+          card.append(link);
+        }
+      } catch (error) {}
+    }
+
+    const controls = element(
+      'div',
+      undefined,
+      'status'
+    );
+
+    const select = document.createElement('select');
+
+    const statuses = [
+      ['interest_only', 'Interest received'],
+      ['reviewing', 'Reviewing'],
+      ['invited', 'Invited'],
+      ['declined', 'Declined']
+    ];
+
+    for (const [value, label] of statuses) {
+      const option = document.createElement('option');
+
+      option.value = value;
+      option.textContent = label;
+
+      select.append(option);
+    }
+
+    select.value = a.status;
+
+    const save = element(
+      'button',
+      'Save status'
+    );
+
+    save.disabled = true;
+
+    select.addEventListener('change', () => {
+      save.disabled = select.value === a.status;
+    });
+
+    save.addEventListener('click', async () => {
+      save.disabled = true;
+      save.textContent = 'Saving…';
+
+      const { data, error } = await db
+        .from('showcase_interest')
+        .update({ status: select.value })
+        .eq('id', a.id)
+        .select('id,status')
+        .single();
+
+      if (error) {
+        note(
+          'Could not save status for ' +
+          a.display_name
+        );
+
+        select.value = a.status;
+
+      } else {
+        a.status = data.status;
+        note('Updated ' + a.display_name);
+      }
+
+      save.textContent = 'Save status';
+    });
+
+    controls.append(select, save);
+    card.append(controls);
+    cards.append(card);
+  }
+}
+
+$('filter').addEventListener('change', render);
+
+$('search').addEventListener('input', render);
+
+$('refresh').addEventListener('click', load);
+
+$('signOut').addEventListener(
+  'click',
+  async () => {
+    await db.auth.signOut();
+    location.reload();
+  }
+);
+
+init();
+</script>
+
+</body>
+</html>
