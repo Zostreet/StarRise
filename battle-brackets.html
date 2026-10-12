@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Battle Rap Brackets | StarRise</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:white;font:16px/1.6 Arial,sans-serif}
+header{padding:20px 5%;border-bottom:1px solid #ffffff25;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+a{color:#f3ca71}
+nav{display:flex;gap:14px;flex-wrap:wrap}
+nav a{color:white;text-decoration:none}
+main{max-width:1100px;margin:auto;padding:30px 18px 80px}
+h1{font-size:clamp(34px,7vw,60px)}
+h2{color:#f3ca71}
+.card{background:#19152a;border:1px solid #ffffff25;border-radius:16px;padding:20px;margin:15px 0}
+.notice{padding:15px;background:#302443;border-radius:12px}
+.rounds{display:flex;gap:20px;overflow-x:auto;padding:15px 0;align-items:flex-start}
+.round{min-width:245px;flex:1}
+.match{background:#100e1e;border:1px solid #ffffff30;border-radius:12px;padding:15px;margin:14px 0}
+.winner{color:#f3ca71;font-weight:bold}
+button,select{padding:12px;border-radius:10px;font:inherit}
+button{background:#f3ca71;color:#171021;border:0;font-weight:bold;cursor:pointer;margin:6px 0}
+button:disabled{opacity:.5}
+select{background:#100e1e;color:white;border:1px solid #777;max-width:100%}
+.muted{color:#bbb}
+footer{text-align:center;padding:25px}
+</style>
+</head>
+<body>
+
+<header>
+<strong>STARRISE BATTLE RAP</strong>
+<nav>
+<a href="index.html">Home</a>
+<a href="battle-tournaments.html">Tournaments</a>
+<a href="battle-leaderboard.html">Leaderboard</a>
+<a href="battle-tournament-admin.html">Admin</a>
+</nav>
+</header>
+
+<main>
+<h1>Tournament Brackets</h1>
+<p>Follow matchups, tournament rounds and administrator-recorded results.</p>
+<div class="notice">
+Bracket winners are recorded by StarRise administrators. They are not automatically determined by preliminary fan voting. Official results require organizer verification.
+</div>
+
+<section class="card">
+<h2>Select Tournament</h2>
+<select id="tournament"><option value="">Loading...</option></select>
+<p id="status" role="status"></p>
+<div id="adminActions" hidden>
+<button id="generate">Generate First Round</button>
+<p class="muted">Registration must be closed, and the number of active entrants must be a power of two. Once generated, the bracket cannot be reset from this page.</p>
+</div>
+</section>
+
+<section>
+<h2 id="heading">Bracket</h2>
+<div id="bracket" class="rounds"></div>
+</section>
+</main>
+
+<footer>StarRise by FAM Entertainment LLC</footer>
+
+<script>
+const db=window.supabase.createClient(
+"https://rcnikxotdalxtuvpmlvm.supabase.co",
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+const $=id=>document.getElementById(id);
+let admin=false;
+let tournaments=[];
+let busy=false;
+
+function el(tag,value){
+const n=document.createElement(tag);
+if(value!==undefined)n.textContent=String(value);
+return n;
+}
+function message(s){$("status").textContent=s;}
+
+async function init(){
+const {data:auth}=await db.auth.getUser();
+if(auth?.user){
+const {data}=await db.from("driver_admins")
+.select("user_id").eq("user_id",auth.user.id).maybeSingle();
+admin=!!data;
+}
+$("adminActions").hidden=!admin;
+
+const {data,error}=await db.from("battle_rap_tournaments")
+.select("id,title,status")
+.neq("status","draft")
+.order("created_at",{ascending:false});
+
+if(error){message("Unable to load tournaments.");return;}
+
+tournaments=data||[];
+const select=$("tournament");
+select.replaceChildren();
+
+if(!tournaments.length){
+select.append(el("option","No tournaments available"));
+message("No announced tournaments yet.");
+return;
+}
+
+for(const t of tournaments){
+const option=el("option",t.title+" ("+t.status+")");
+option.value=t.id;
+select.append(option);
+}
+
+select.addEventListener("change",loadBracket);
+$("generate").addEventListener("click",generate);
+await loadBracket();
+}
+
+async function loadBracket(){
+const id=$("tournament").value;
+const root=$("bracket");
+root.replaceChildren();
+if(!id)return;
+
+const t=tournaments.find(x=>x.id===id);
+$("heading").textContent=t.title+" Bracket";
+message("Loading bracket...");
+
+const [matchesResult,entriesResult]=await Promise.all([
+db.from("battle_rap_tournament_matches")
+.select("id,round_number,match_number,artist_one,artist_two,winner_id")
+.eq("tournament_id",id)
+.order("round_number")
+.order("match_number"),
+db.from("battle_rap_tournament_entries")
+.select("artist_id,stage_name")
+.eq("tournament_id",id)
+]);
+
+if(matchesResult.error){
+message("Unable to load bracket.");
+return;
+}
+
+const matches=matchesResult.data||[];
+const names=new Map((entriesResult.data||[]).map(x=>[x.artist_id,x.stage_name]));
+
+$("generate").disabled=busy||matches.length>0||
+!["closed","in_progress"].includes(t.status);
+
+if(!matches.length){
+message("Bracket not generated yet.");
+return;
+}
+
+message(matches.length+" match(es) across "+
+new Set(matches.map(m=>m.round_number)).size+" round(s).");
+
+const rounds=[...new Set(matches.map(m=>m.round_number))];
+
+for(const roundNumber of rounds){
+const col=el("div");
+col.className="round";
+col.append(el("h2","Round "+roundNumber));
+
+for(const m of matches.filter(x=>x.round_number===roundNumber)){
+const card=el("article");
+card.className="match";
+card.append(el("strong","Match "+m.match_number));
+
+const one=names.get(m.artist_one)||"Artist "+m.artist_one.slice(0,8);
+const two=names.get(m.artist_two)||"Artist "+m.artist_two.slice(0,8);
+
+const first=el("p",one+(m.winner_id===m.artist_one?" ✓":""));
+const second=el("p",two+(m.winner_id===m.artist_two?" ✓":""));
+
+if(m.winner_id===m.artist_one)first.className="winner";
+if(m.winner_id===m.artist_two)second.className="winner";
+
+card.append(first,second);
+
+if(m.winner_id){
+card.append(el("p","Winner recorded"));
+}else if(admin&&t.status==="in_progress"){
+const pick=el("select");
+
+const option1=el("option",one);
+option1.value=m.artist_one;
+const option2=el("option",two);
+option2.value=m.artist_two;
+pick.append(option1,option2);
+
+const save=el("button","Record Winner");
+const result=el("p");
+result.setAttribute("role","status");
+
+save.addEventListener("click",async()=>{
+if(busy)return;
+const chosen=pick.options[pick.selectedIndex].textContent;
+
+if(!confirm("Confirm verified winner: "+chosen+"? This action cannot be undone here."))return;
+
+busy=true;
+save.disabled=true;
+result.textContent="Recording...";
+
+const {data,error}=await db.rpc("battle_bracket_record_winner",{
+p_match:m.id,
+p_winner:pick.value
+});
+
+busy=false;
+
+if(error){
+result.textContent=error.message||"Unable to record winner.";
+save.disabled=false;
+return;
+}
+
+message(data||"Winner recorded.");
+await refreshTournament();
+await loadBracket();
+});
+
+card.append(pick,save,result);
+}
+
+col.append(card);
+}
+root.append(col);
+}
+}
+
+async function refreshTournament(){
+const {data}=await db.from("battle_rap_tournaments")
+.select("id,title,status")
+.neq("status","draft");
+
+if(data){
+tournaments=data;
+const t=data.find(x=>x.id===$("tournament").value);
+if(t){
+const option=$("tournament").selectedOptions[0];
+option.textContent=t.title+" ("+t.status+")";
+}
+}
+}
+
+async function generate(){
+if(busy)return;
+const id=$("tournament").value;
+if(!id)return;
+
+if(!confirm("Generate the tournament bracket? Registration must already be closed."))return;
+
+busy=true;
+$("generate").disabled=true;
+message("Generating first round...");
+
+const {data,error}=await db.rpc("battle_bracket_generate",{
+p_tournament:id
+});
+
+busy=false;
+
+if(error){
+message(error.message||"Bracket generation failed.");
+$("generate").disabled=false;
+return;
+}
+
+await refreshTournament();
+await loadBracket();
+message("Bracket generated with "+data+" first-round matches.");
+}
+
+init();
+</script>
+</body>
+</html>
