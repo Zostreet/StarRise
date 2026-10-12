@@ -1,0 +1,268 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Submit Battle Performance | StarRise</title>
+<meta name="description" content="Upload a private battle rap performance for StarRise review.">
+<link rel="stylesheet" href="starrise-brand.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:white;font-family:Arial,sans-serif;line-height:1.6}
+header{padding:20px 5%;border-bottom:1px solid #ffffff25;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+a{color:#f3ca71}
+nav{display:flex;gap:15px;flex-wrap:wrap}
+nav a{color:white;text-decoration:none}
+main{max-width:850px;margin:auto;padding:40px 20px 80px}
+h1{font-size:clamp(35px,7vw,60px)}
+.gold{color:#f3ca71}
+.card{background:#19152a;border:1px solid #ffffff25;border-radius:16px;padding:24px;margin:20px 0}
+.notice{background:#302443;border:1px solid #a787d6;border-radius:12px;padding:17px}
+label{display:block;margin:18px 0 8px;font-weight:bold}
+select,input{width:100%;background:#100e1e;color:white;border:1px solid #777;border-radius:10px;padding:13px;font:inherit}
+button,.btn{display:inline-block;background:#f3ca71;color:#171021;border:0;border-radius:25px;padding:12px 20px;font-weight:bold;cursor:pointer;text-decoration:none}
+button:disabled{opacity:.5}
+.hidden{display:none!important}
+.muted{color:#bbb}
+footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
+</style>
+</head>
+<body>
+<header>
+<strong class="gold">STARRISE BATTLE RAP</strong>
+<nav>
+<a href="battle-rap.html">Arena</a>
+<a href="battle-community.html">Community</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
+</header>
+
+<main>
+<p class="gold">BATTLE RAP ARENA</p>
+<h1>Submit Your Performance</h1>
+<p>Upload your audio or video recording for administrator review.</p>
+
+<div class="notice">
+<strong>Private submissions:</strong> Recordings are not automatically published. Upload only material you own or have permission to use. Maximum file size: 100 MB. This initial uploader is for adult participants.
+</div>
+
+<div id="loading" class="card">Checking your account and battles...</div>
+
+<div id="signin" class="card hidden">
+<h2>Sign In Required</h2>
+<p>You must be signed in and participating in an accepted battle.</p>
+<a class="btn" href="dashboard.html">Sign In</a>
+</div>
+
+<section id="workspace" class="card hidden">
+<h2>Upload Recording</h2>
+
+<form id="uploadForm">
+<label for="battle">Choose Your Battle</label>
+<select id="battle" required></select>
+
+<label for="recording">Audio or Video File</label>
+<input id="recording" type="file" accept="audio/mpeg,audio/mp4,audio/wav,audio/x-wav,audio/webm,video/mp4,video/webm" required>
+
+<p class="muted">Supported formats: MP3, M4A, WAV, MP4 and WebM. Uploads are limited to 100 MB.</p>
+
+<label>
+<input type="checkbox" id="rights" required style="width:auto">
+I own this recording or have permission to submit all included material.
+</label>
+
+<label>
+<input type="checkbox" id="adult" required style="width:auto">
+I confirm I am at least 18 years old.
+</label>
+
+<button id="submit" type="submit">Upload for Review</button>
+<p id="message" role="status" aria-live="polite"></p>
+</form>
+</section>
+
+<section class="card">
+<h2>My Performance Submissions</h2>
+<div id="submissions">Sign in to view your submissions.</div>
+</section>
+</main>
+
+<footer>
+<p>StarRise by FAM Entertainment LLC</p>
+<a href="privacy.html">Privacy</a> |
+<a href="support.html">Support</a>
+</footer>
+
+<script>
+const db=window.supabase.createClient(
+"https://rcnikxotdalxtuvpmlvm.supabase.co",
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+const $=id=>document.getElementById(id);
+let user=null;
+let battles=[];
+
+function node(tag,text){
+const e=document.createElement(tag);
+if(text!==undefined)e.textContent=text;
+return e;
+}
+
+async function init(){
+try{
+const {data,error}=await db.auth.getUser();
+if(error||!data.user){
+$("loading").classList.add("hidden");
+$("signin").classList.remove("hidden");
+return;
+}
+
+user=data.user;
+
+const {data:myBattles,error:battleError}=await db
+.from("battle_rap_challenges")
+.select("id,battle_title,challenger_id,opponent_id")
+.not("opponent_id","is",null)
+.order("created_at",{ascending:false});
+
+if(battleError)throw battleError;
+
+battles=(myBattles||[]).filter(b=>
+b.challenger_id===user.id||b.opponent_id===user.id
+);
+
+$("battle").replaceChildren();
+
+if(!battles.length){
+$("loading").textContent="No accepted battles are available for your account yet.";
+}else{
+battles.forEach(b=>{
+const option=node("option",b.battle_title);
+option.value=b.id;
+$("battle").append(option);
+});
+$("loading").classList.add("hidden");
+$("workspace").classList.remove("hidden");
+}
+
+await loadSubmissions();
+}catch(error){
+console.error(error);
+$("loading").textContent="Unable to load your battle information.";
+}
+}
+
+async function loadSubmissions(){
+const root=$("submissions");
+root.textContent="Loading...";
+
+const {data,error}=await db
+.from("battle_rap_performances")
+.select("battle_id,media_type,status,created_at")
+.eq("artist_id",user.id)
+.order("created_at",{ascending:false});
+
+if(error){
+root.textContent="Unable to load submissions.";
+return;
+}
+
+root.replaceChildren();
+
+if(!data.length){
+root.textContent="No recordings submitted yet.";
+return;
+}
+
+data.forEach(p=>{
+const battle=battles.find(b=>b.id===p.battle_id);
+const card=node("div");
+card.className="card";
+card.append(
+node("h3",battle?.battle_title||"Battle Performance"),
+node("p","Format: "+p.media_type),
+node("p","Review status: "+p.status)
+);
+root.append(card);
+});
+}
+
+$("uploadForm").addEventListener("submit",async e=>{
+e.preventDefault();
+if(!user)return;
+
+const battleId=$("battle").value;
+const battle=battles.find(b=>b.id===battleId);
+const file=$("recording").files[0];
+
+if(!battle||!file)return;
+
+if(file.size>100*1024*1024||file.size===0){
+$("message").textContent="File must be between 1 byte and 100 MB.";
+return;
+}
+
+const types={
+"audio/mpeg":"mp3",
+"audio/mp4":"m4a",
+"audio/wav":"wav",
+"audio/x-wav":"wav",
+"audio/webm":"webm",
+"video/mp4":"mp4",
+"video/webm":"webm"
+};
+
+const ext=types[file.type];
+if(!ext){
+$("message").textContent="Unsupported audio or video format.";
+return;
+}
+
+const button=$("submit");
+button.disabled=true;
+$("message").textContent="Uploading recording... Please keep this page open.";
+
+const path=user.id+"/"+battleId+"/"+crypto.randomUUID()+"."+ext;
+
+try{
+const {error:uploadError}=await db.storage
+.from("battle-performances")
+.upload(path,file,{contentType:file.type,upsert:false});
+
+if(uploadError)throw uploadError;
+
+$("message").textContent="Recording uploaded. Saving submission...";
+
+const {error:saveError}=await db
+.from("battle_rap_performances")
+.insert({
+battle_id:battleId,
+artist_id:user.id,
+storage_path:path,
+media_type:file.type.startsWith("video/")?"video":"audio",
+status:"pending"
+});
+
+if(saveError){
+await db.storage.from("battle-performances").remove([path]);
+throw saveError;
+}
+
+$("message").textContent="Performance submitted successfully for private review.";
+$("uploadForm").reset();
+await loadSubmissions();
+
+}catch(error){
+console.error(error);
+$("message").textContent="Upload or submission failed. Please try again.";
+}finally{
+button.disabled=false;
+}
+});
+
+init();
+</script>
+</body>
+</html>
