@@ -1,0 +1,265 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Battle Rap Community | StarRise</title>
+<meta name="description" content="StarRise Battle Rap Arena invitations, approved matchups and fan voting.">
+<link rel="stylesheet" href="starrise-brand.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:white;font-family:Arial,sans-serif;line-height:1.6}
+header{padding:20px 5%;border-bottom:1px solid #ffffff25;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+a{color:#f3ca71}
+nav{display:flex;gap:15px;flex-wrap:wrap}
+nav a{color:white;text-decoration:none}
+main{max-width:1050px;margin:auto;padding:30px 20px 80px}
+h1{font-size:clamp(36px,8vw,65px);margin:10px 0}
+.gold{color:#f3ca71}
+.card{background:#19152a;border:1px solid #ffffff25;border-radius:16px;padding:24px;margin:20px 0}
+.notice{background:#302443;border:1px solid #a787d6;border-radius:12px;padding:16px}
+input{width:100%;background:#100e1e;color:white;border:1px solid #777;border-radius:10px;padding:13px;font:inherit}
+button,.btn{display:inline-block;background:#f3ca71;color:#171021;border:0;border-radius:24px;padding:12px 18px;font-weight:bold;cursor:pointer;text-decoration:none;margin:5px 5px 5px 0}
+button:disabled{opacity:.5}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px}
+.muted{color:#bbb}
+.tag{display:inline-block;padding:5px 12px;border-radius:20px;background:#302443;color:#f3ca71}
+.hidden{display:none!important}
+footer{text-align:center;padding:25px;border-top:1px solid #ffffff25}
+</style>
+</head>
+<body>
+
+<header>
+<strong class="gold">STARRISE BATTLE RAP</strong>
+<nav>
+<a href="index.html">Home</a>
+<a href="battle-rap.html">Challenge Arena</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
+</header>
+
+<main>
+<p class="gold">WHERE LYRICS COMPETE</p>
+<h1>Battle Rap Community</h1>
+<p>Discover approved matchups and support emerging battle rappers.</p>
+
+<div class="notice">
+<strong>TEST PHASE:</strong> The invitation and voting systems are being tested. No performances are available here yet. Results are preliminary and do not determine an official winner. No prizes or live battles are active.
+</div>
+
+<section class="card">
+<h2>Accept a Battle Invitation</h2>
+<p>Have an invitation code from another artist? Sign in and enter it below.</p>
+<p class="muted">Accept only if you are the intended opponent and agree to participate. Acceptance does not schedule an event.</p>
+
+<form id="inviteForm">
+<label for="invite">Invitation Code</label>
+<input id="invite" required placeholder="Paste your invitation code">
+<button id="acceptBtn" type="submit">Accept Challenge</button>
+</form>
+<p id="inviteMessage" role="status"></p>
+</section>
+
+<section class="card">
+<h2>My Battle Invitations</h2>
+<p class="muted">Share an invitation code privately with the artist you want to challenge. Anyone signed in who possesses the code could accept it, so confirm your opponent's identity before approving a battle.</p>
+<div id="myInvites">Sign in to see your invitations.</div>
+</section>
+
+<section>
+<h2>Approved Battle Matchups</h2>
+<p id="battleStatus" role="status">Loading battles...</p>
+<div id="battles" class="grid"></div>
+</section>
+
+<section class="card">
+<h2>Coming to the Arena</h2>
+<p>Recorded performances, approved media submissions, opponent verification, live events, tournament brackets, judges, and official rankings.</p>
+<a class="btn" href="battle-rap.html">Submit a Battle Challenge</a>
+</section>
+</main>
+
+<footer>
+<p>StarRise by FAM Entertainment LLC</p>
+<a href="privacy.html">Privacy</a> |
+<a href="support.html">Support</a>
+</footer>
+
+<script>
+const db=window.supabase.createClient(
+"https://rcnikxotdalxtuvpmlvm.supabase.co",
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+const $=id=>document.getElementById(id);
+let user=null;
+
+function element(tag,text){
+const e=document.createElement(tag);
+if(text!==undefined)e.textContent=text;
+return e;
+}
+
+async function init(){
+const {data}=await db.auth.getUser();
+user=data?.user||null;
+await Promise.all([loadInvites(),loadBattles()]);
+}
+
+async function loadInvites(){
+const root=$("myInvites");
+root.replaceChildren();
+
+if(!user){
+root.textContent="Sign in to your StarRise account to manage invitations.";
+return;
+}
+
+const {data,error}=await db
+.from("battle_rap_challenges")
+.select("battle_title,opponent_name,invite_code,opponent_id,status")
+.eq("challenger_id",user.id)
+.order("created_at",{ascending:false});
+
+if(error){
+root.textContent="Unable to load invitations.";
+return;
+}
+
+if(!data.length){
+root.textContent="You have no battle challenges yet.";
+return;
+}
+
+data.forEach(b=>{
+const card=element("div");
+card.className="card";
+card.append(element("h3",b.battle_title));
+card.append(element("p","Invited opponent: "+b.opponent_name));
+card.append(element("p","Status: "+b.status));
+
+if(b.opponent_id){
+card.append(element("p","Invitation accepted by a signed-in member. Verify their identity before scheduling."));
+}else{
+const code=element("p","Invitation code: "+b.invite_code);
+const copy=element("button","Copy Invitation");
+copy.type="button";
+copy.addEventListener("click",async()=>{
+try{
+await navigator.clipboard.writeText(b.invite_code);
+copy.textContent="Copied!";
+}catch(e){
+copy.textContent="Select and copy the code above.";
+}
+});
+card.append(code,copy);
+}
+
+root.append(card);
+});
+}
+
+$("inviteForm").addEventListener("submit",async e=>{
+e.preventDefault();
+
+if(!user){
+$("inviteMessage").textContent="Sign in to accept an invitation.";
+return;
+}
+
+const code=$("invite").value.trim();
+if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(code)){
+$("inviteMessage").textContent="Enter a valid invitation code.";
+return;
+}
+
+const button=$("acceptBtn");
+button.disabled=true;
+$("inviteMessage").textContent="Checking invitation...";
+
+try{
+const {error}=await db.rpc("accept_battle_invite",{p_code:code});
+if(error)throw error;
+$("inviteMessage").textContent="Invitation accepted. StarRise must still review the matchup.";
+$("inviteForm").reset();
+await loadBattles();
+}catch(error){
+console.error(error);
+$("inviteMessage").textContent="Unable to accept this invitation. It may be invalid, already claimed, or unavailable.";
+}finally{
+button.disabled=false;
+}
+});
+
+async function loadBattles(){
+const root=$("battles");
+root.replaceChildren();
+
+const {data,error}=await db.rpc("list_approved_battles");
+
+if(error){
+$("battleStatus").textContent="Unable to load approved battles.";
+return;
+}
+
+$("battleStatus").textContent=data.length?
+data.length+" approved matchup(s).":
+"No approved matchups yet. The arena is preparing for its first battles.";
+
+data.forEach(b=>{
+const card=element("article");
+card.className="card";
+
+card.append(element("span","Approved Matchup"));
+card.append(element("h3",b.battle_title));
+card.append(element("p",b.stage_name+" vs. "+b.opponent_name));
+card.append(element("p","Format: "+b.battle_format));
+
+const votes=element("p",
+"Preliminary votes: "+b.stage_name+" "+b.challenger_votes+
+" | "+b.opponent_name+" "+b.opponent_votes
+);
+votes.className="gold";
+card.append(votes);
+
+const voteOne=element("button","Vote: "+b.stage_name);
+const voteTwo=element("button","Vote: "+b.opponent_name);
+
+async function vote(choice){
+if(!user){
+alert("Sign in to vote.");
+return;
+}
+voteOne.disabled=true;
+voteTwo.disabled=true;
+
+const {error}=await db.from("battle_rap_votes").insert({
+battle_id:b.id,
+voter_id:user.id,
+choice
+});
+
+if(error){
+alert("Vote not recorded. You may have already voted or may not be eligible.");
+voteOne.disabled=false;
+voteTwo.disabled=false;
+return;
+}
+
+await loadBattles();
+}
+
+voteOne.addEventListener("click",()=>vote("challenger"));
+voteTwo.addEventListener("click",()=>vote("opponent"));
+
+card.append(voteOne,voteTwo);
+root.append(card);
+});
+}
+
+init();
+</script>
+</body>
+</html>
