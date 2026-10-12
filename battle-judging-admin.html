@@ -1,0 +1,379 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Judging Administration | StarRise</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:white;font:16px/1.6 Arial,sans-serif}
+header{padding:20px 5%;border-bottom:1px solid #ffffff25}
+a{color:#f3ca71}
+main{max-width:950px;margin:auto;padding:30px 18px 80px}
+h1{font-size:clamp(32px,7vw,52px)}
+h2,h3{color:#f3ca71}
+.card{background:#19152a;border:1px solid #ffffff30;border-radius:16px;padding:20px;margin:18px 0}
+.notice{background:#302443;padding:16px;border-radius:12px}
+button,input,select{font:inherit;padding:12px;border-radius:10px}
+button{background:#f3ca71;color:#171021;border:0;font-weight:bold;cursor:pointer;margin:8px 0}
+button:disabled{opacity:.5}
+input,select{background:#100e1e;color:white;border:1px solid #777;width:100%}
+label{display:block;margin:12px 0}
+.muted{color:#bbb}
+.entry{border-top:1px solid #ffffff25;padding:12px 0}
+footer{text-align:center;padding:25px}
+</style>
+</head>
+<body>
+<header>
+<strong>STARRISE ADMIN</strong>
+<p>
+<a href="battle-tournament-admin.html">Tournament Admin</a> |
+<a href="battle-brackets.html">Brackets</a> |
+<a href="battle-judge.html">Judge Scorecards</a>
+</p>
+</header>
+
+<main>
+<h1>Judging Administration</h1>
+<p>Assign judges and review private competition scores.</p>
+
+<div class="notice">
+Judge scores are preliminary until the official winner
+is confirmed. An administrator must independently verify
+results before finalizing a match.
+</div>
+
+<section class="card">
+<h2>Select Tournament</h2>
+<select id="tournament"></select>
+<h2>Select Match</h2>
+<select id="match"></select>
+<p id="status" role="status">Loading...</p>
+</section>
+
+<section class="card" id="management" hidden>
+<h2>Assign Judge</h2>
+<label for="judge">Judge's StarRise Account ID (UUID)</label>
+<input id="judge" placeholder="Paste the judge account UUID">
+<button id="assign">Assign Judge</button>
+<p class="muted">
+The judge must have a registered StarRise account
+and cannot be a competitor in this match.
+</p>
+<h3>Assigned Judges</h3>
+<div id="judges"></div>
+</section>
+
+<section class="card" id="results" hidden>
+<h2>Private Score Summary</h2>
+<p class="muted">
+Each judge may score up to three rounds per competitor.
+Maximum: 90 points per competitor per judge.
+Incomplete scorecards are not final.
+</p>
+<div id="scores"></div>
+</section>
+</main>
+
+<footer>StarRise by FAM Entertainment LLC</footer>
+
+<script>
+const db=window.supabase.createClient(
+"https://rcnikxotdalxtuvpmlvm.supabase.co",
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+
+const $=id=>document.getElementById(id);
+let tournaments=[];
+let matches=[];
+let busy=false;
+let version=0;
+
+function el(tag,text){
+const node=document.createElement(tag);
+if(text!==undefined)node.textContent=String(text);
+return node;
+}
+
+function message(text){
+$("status").textContent=text;
+}
+
+async function init(){
+const {data:auth,error}=await db.auth.getUser();
+
+if(error||!auth?.user){
+message("Sign in with your StarRise administrator account.");
+return;
+}
+
+const {data:admin,error:adminError}=await db
+.from("driver_admins")
+.select("user_id")
+.eq("user_id",auth.user.id)
+.maybeSingle();
+
+if(adminError||!admin){
+message("Administrator access required.");
+return;
+}
+
+$("tournament").addEventListener("change",loadMatches);
+$("match").addEventListener("change",loadDetails);
+$("assign").addEventListener("click",assignJudge);
+
+await loadTournaments();
+}
+
+async function loadTournaments(){
+const {data,error}=await db
+.from("battle_rap_tournaments")
+.select("id,title,status")
+.neq("status","draft")
+.order("created_at",{ascending:false});
+
+if(error){
+message(error.message);
+return;
+}
+
+tournaments=data||[];
+$("tournament").replaceChildren();
+
+for(const tournament of tournaments){
+const option=el(
+"option",
+tournament.title+" ("+tournament.status+")"
+);
+option.value=tournament.id;
+$("tournament").append(option);
+}
+
+if(!tournaments.length){
+message("No tournaments found.");
+return;
+}
+
+await loadMatches();
+}
+
+async function loadMatches(){
+const id=$("tournament").value;
+$("match").replaceChildren();
+$("management").hidden=true;
+$("results").hidden=true;
+
+const {data,error}=await db.rpc(
+"battle_public_bracket",{
+p_tournament:id
+});
+
+if(error){
+message(error.message);
+return;
+}
+
+matches=data||[];
+
+for(const match of matches){
+const option=el(
+"option",
+"Round "+match.round_number+
+" · Match "+match.match_number+
+" · "+match.artist_one_name+
+" vs "+match.artist_two_name
+);
+option.value=match.id;
+$("match").append(option);
+}
+
+if(!matches.length){
+message("No bracket matches generated yet.");
+return;
+}
+
+await loadDetails();
+}
+
+async function loadDetails(){
+const current=++version;
+const id=$("match").value;
+
+$("management").hidden=true;
+$("results").hidden=true;
+
+if(!id)return;
+
+const match=matches.find(m=>m.id===id);
+if(!match)return;
+
+message("Loading judge assignments and scores...");
+
+const [assignments,scores]=await Promise.all([
+db.rpc("battle_judge_admin_assignments",{p_match:id}),
+db.rpc("battle_judge_admin_summary",{p_match:id})
+]);
+
+if(current!==version)return;
+
+if(assignments.error||scores.error){
+message(
+assignments.error?.message||
+scores.error?.message||
+"Unable to load judging information."
+);
+return;
+}
+
+$("management").hidden=false;
+$("results").hidden=false;
+
+$("judges").replaceChildren();
+$("scores").replaceChildren();
+
+const judges=assignments.data||[];
+
+if(!judges.length){
+$("judges").append(el("p","No judges assigned yet."));
+}
+
+for(const judge of judges){
+const row=el("div");
+row.className="entry";
+
+row.append(el("p","Judge ID: "+judge.judge_id));
+row.append(el(
+"p",
+"Assigned: "+new Date(judge.assigned_at).toLocaleString()
+));
+
+const remove=el("button","Remove Judge");
+remove.type="button";
+remove.disabled=match.has_winner;
+
+remove.addEventListener("click",async()=>{
+if(busy)return;
+
+if(!confirm(
+"Remove this judge? Their saved scorecards will also be deleted."
+))return;
+
+busy=true;
+remove.disabled=true;
+
+const {error}=await db.rpc(
+"battle_judge_remove",{
+p_match:id,
+p_judge:judge.judge_id
+});
+
+busy=false;
+
+if(error){
+message(error.message);
+remove.disabled=false;
+return;
+}
+
+await loadDetails();
+});
+
+row.append(remove);
+$("judges").append(row);
+}
+
+const summary=scores.data||[];
+
+if(!summary.length){
+$("scores").append(el("p","No scores submitted yet."));
+}
+
+for(const result of summary){
+const row=el("div");
+row.className="entry";
+
+const artistName=
+result.artist_id===match.artist_one?
+match.artist_one_name:
+result.artist_id===match.artist_two?
+match.artist_two_name:
+"Competitor";
+
+row.append(el("h3",artistName));
+row.append(el(
+"p",
+"Judges who submitted scores: "+result.judge_count
+));
+row.append(el(
+"p",
+"Round entries received: "+result.scorecards
+));
+row.append(el(
+"p",
+"Total preliminary points: "+result.total_points
+));
+
+$("scores").append(row);
+}
+
+const expected=judges.length*3;
+
+$("scores").append(el(
+"p",
+"Expected round entries per competitor: "+expected
+));
+
+const tournament=tournaments.find(
+t=>t.id===$("tournament").value
+);
+
+$("assign").disabled=
+match.has_winner||
+tournament?.status!=="in_progress";
+
+message("Judging information loaded.");
+}
+
+async function assignJudge(){
+if(busy)return;
+
+const id=$("match").value;
+const judge=$("judge").value.trim();
+
+if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(judge)){
+message("Enter a valid judge account UUID.");
+return;
+}
+
+if(!confirm("Assign this account as a judge?"))return;
+
+busy=true;
+$("assign").disabled=true;
+message("Assigning judge...");
+
+const {data,error}=await db.rpc(
+"battle_judge_assign",{
+p_match:id,
+p_judge:judge
+});
+
+busy=false;
+
+if(error){
+message(error.message);
+$("assign").disabled=false;
+return;
+}
+
+$("judge").value="";
+await loadDetails();
+message(data||"Judge assigned.");
+}
+
+init();
+</script>
+</body>
+</html>
