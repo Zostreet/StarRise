@@ -4,292 +4,263 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>StarRise Membership | FAM Entertainment</title>
-
+<title>StarRise Membership | FAM ENT</title>
+<link rel="stylesheet" href="starrise-brand.css">
+<link rel="icon" href="starrise-logo.png">
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  background:#090914;
-  color:#fff;
-  font-family:Arial,sans-serif;
-  line-height:1.6;
-}
-header{
-  background:#171727;
-  padding:18px;
-  text-align:center;
-}
-header a{
-  color:white;
-  margin:0 10px;
-  text-decoration:none;
-}
-main{
-  max-width:1100px;
-  margin:auto;
-  padding:22px;
-}
+body{margin:0;background:#090914;color:white;font-family:Arial,sans-serif;line-height:1.6}
+header{background:#171727;padding:18px;text-align:center}
+header a{color:white;margin:0 10px;text-decoration:none}
+main{max-width:1100px;margin:auto;padding:22px}
 h1,.subtitle{text-align:center}
 .subtitle,.note{color:#bbb}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:16px;
-  margin:25px 0;
-}
-.card,.notice{
-  background:#1c1c30;
-  border:1px solid #393951;
-  border-radius:16px;
-  padding:22px;
-  margin-bottom:18px;
-}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:25px 0}
+.card,.notice{background:#1c1c30;border:1px solid #393951;border-radius:16px;padding:22px;margin-bottom:18px}
 .card h2{margin-top:0}
-.price{
-  font-size:30px;
-  font-weight:bold;
-  color:#d6b5ff;
-}
+.price{font-size:30px;font-weight:bold;color:#d6b5ff}
 .note{font-size:14px}
 a{color:#d6b5ff}
-.status{
-  display:inline-block;
-  background:#302442;
-  color:#e9d5ff;
-  padding:5px 12px;
-  border-radius:20px;
-  font-size:13px;
-  font-weight:bold;
-}
-footer{
-  text-align:center;
-  padding:24px;
-  color:#aaa;
-  border-top:1px solid #393951;
-}
+.status{display:inline-block;background:#302442;color:#e9d5ff;padding:5px 12px;border-radius:20px;font-size:13px;font-weight:bold}
+footer{text-align:center;padding:24px;color:#aaa;border-top:1px solid #393951}
 </style>
-<link rel="stylesheet" href="starrise-brand.css">
-<link rel="icon" type="image/png" href="starrise-logo.png">
 </head>
-
 <body>
 
 <header>
-  <a href="index.html" class="starrise-brand" aria-label="StarRise — Home"><img src="starrise-logo.png" alt="StarRise by FAM ENT" width="1697" height="927" decoding="async"></a>
-  <a href="dashboard.html">Dashboard</a>
-  <a href="marketplace.html">Store</a>
+<a href="index.html" class="starrise-brand">
+<img src="starrise-logo.png" alt="StarRise" width="1697" height="927">
+</a>
+<a href="dashboard.html">Dashboard</a>
+<a href="marketplace.html">Store</a>
 </header>
 
 <main>
-
 <h1>StarRise Membership</h1>
-<p class="subtitle">
-  Where Talent Rises. Everyone Eats.
-</p>
+<p class="subtitle">Where Talent Rises. Everyone Eats.</p>
 
 <section class="notice" aria-live="polite">
-  <h2>Your Membership</h2>
-  <p id="membership-status">
-    Checking your membership status...
-  </p>
-  <p id="founder-message" class="note"></p>
-  <a href="dashboard.html">Open My Dashboard</a>
+<h2>Your Membership</h2>
+<p id="membership-status">Checking membership...</p>
+<p id="founder-message" class="note"></p>
+<a href="dashboard.html">Open My Dashboard</a>
 </section>
 
 <h2>Membership Packages</h2>
-
-<div class="grid">
-
-  <section class="card">
-    <h2>Starter</h2>
-    <div class="price">$4.99</div>
-    <p><strong>One-time payment</strong></p>
-    <p>
-      Community, member profile, and basic marketplace
-      access, subject to verified feature readiness
-      and usage limits.
-    </p>
-    <span class="status">Checkout Not Yet Available</span>
-  </section>
-
-  <section class="card">
-    <h2>Creator</h2>
-    <div class="price">$9.99/mo</div>
-    <p>
-      For growing independent creators, with planned
-      increased storage and listings.
-    </p>
-    <span class="status">Coming Soon</span>
-  </section>
-
-  <section class="card">
-    <h2>Pro</h2>
-    <div class="price">$24.99/mo</div>
-    <p>
-      For professional creators, with planned
-      analytics and expanded creative tools.
-    </p>
-    <span class="status">Coming Soon</span>
-  </section>
-
-  <section class="card">
-    <h2>Business</h2>
-    <div class="price">$49.99/mo</div>
-    <p>
-      For creative teams, with planned business
-      and storefront tools.
-    </p>
-    <span class="status">Coming Soon</span>
-  </section>
-
-</div>
+<p id="catalog-status" class="note" role="status">
+Loading official membership packages...
+</p>
+<div id="membership-plans" class="grid"></div>
 
 <section class="notice">
-  <h2>Founding Members</h2>
-
-  <p>
-    Approved founding members retain lifetime
-    membership without membership fees as recognition
-    for helping establish StarRise.
-  </p>
-
-  <p>
-    Mentor, partner, and executive staff opportunities
-    are separate from membership and require review
-    and approval.
-  </p>
-
-  <p class="note">
-    Founding status does not automatically grant
-    employment, management powers, or company ownership.
-  </p>
+<h2>Founding Members</h2>
+<p>Approved founding members retain lifetime membership without membership fees.</p>
+<p class="note">Founding status does not automatically grant employment, ownership, or administrative privileges.</p>
 </section>
 
 <section class="notice">
-  <h2>Launch and Payment Safety</h2>
-
-  <p>
-    Membership checkout is currently disabled.
-    No payment is collected on this page.
-  </p>
-
-  <p>
-    Features and usage limits are subject to testing
-    and verification before launch.
-  </p>
-
-  <p class="note">
-    The Starter price applies to future members
-    after payment checkout and membership activation
-    are verified. Existing founding memberships
-    will not automatically convert to paid plans.
-  </p>
+<h2>Payment Safety</h2>
+<p id="payment-status">
+Membership checkout is not yet available.
+</p>
+<p class="note">
+Membership access is activated only after verified payment.
+Existing founding members are not automatically converted
+to paid plans.
+</p>
 </section>
-
 </main>
 
 <footer>
-  <p>StarRise by FAM Entertainment</p>
-  <p>Where Talent Rises. Everyone Eats.</p>
+StarRise by FAM Entertainment
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
 (async function(){
-  "use strict";
+"use strict";
 
-  const status =
-    document.getElementById("membership-status");
+const URL_BASE =
+"https://rcnikxotdalxtuvpmlvm.supabase.co";
 
-  const founder =
-    document.getElementById("founder-message");
+const KEY =
+"sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
 
-  try {
-    if (!window.supabase) {
-      throw new Error("Client unavailable");
-    }
+const plansElement =
+document.getElementById("membership-plans");
 
-    const client = window.supabase.createClient(
-      "https://rcnikxotdalxtuvpmlvm.supabase.co",
-      "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
-    );
+const catalogStatus =
+document.getElementById("catalog-status");
 
-    const {data:auth,error:authError} =
-      await client.auth.getUser();
+const membershipStatus =
+document.getElementById("membership-status");
 
-    if (authError || !auth || !auth.user) {
-      status.textContent =
-        "Sign in to view your membership. " +
-        "New memberships are pending until activated.";
-      return;
-    }
+const founderMessage =
+document.getElementById("founder-message");
 
-    const {
-      data:founding,
-      error:foundingError
-    } = await client.rpc(
-      "starrise_my_founding_status"
-    );
+const paymentStatus =
+document.getElementById("payment-status");
 
-    if (foundingError) {
-      throw foundingError;
-    }
+const expectedPlans = {
+starter: {price:499,billing:"one_time"},
+creator: {price:999,billing:"monthly"},
+pro: {price:2499,billing:"monthly"},
+business: {price:4999,billing:"monthly"}
+};
 
-    const row = Array.isArray(founding)
-      ? founding[0]
-      : founding;
+function renderPlan(plan){
+const card=document.createElement("section");
+card.className="card";
 
-    if (
-      row &&
-      row.is_founder &&
-      row.lifetime_fee_waiver
-    ) {
-      status.textContent =
-        "Founding Member • Lifetime membership fees waived";
+const title=document.createElement("h2");
+title.textContent=plan.name;
 
-      founder.textContent =
-        "Thank you for helping establish StarRise. " +
-        "You will not be charged a Starter membership fee.";
+const price=document.createElement("div");
+price.className="price";
+price.textContent=
+"$"+(plan.price_cents/100).toFixed(2);
 
-      return;
-    }
+const billing=document.createElement("p");
+billing.textContent=
+plan.billing==="monthly"
+?"Billed monthly":"One-time payment";
 
-    const {
-      data:subscription,
-      error:subError
-    } = await client
-      .from("member_subscriptions")
-      .select("plan_key,status")
-      .eq("user_id",auth.user.id)
-      .maybeSingle();
+const status=document.createElement("span");
+status.className="status";
+status.textContent="Checkout Not Yet Available";
 
-    if (subError) {
-      throw subError;
-    }
+card.append(title,price,billing,status);
+plansElement.appendChild(card);
+}
 
-    if (
-      subscription &&
-      subscription.status === "active"
-    ) {
-      status.textContent =
-        "Membership active: " +
-        String(subscription.plan_key || "member");
-    } else {
-      status.textContent =
-        "Membership pending. Checkout is not yet available.";
-    }
+try {
+const response=await fetch(
+URL_BASE+"/functions/v1/super-task",
+{
+method:"GET",
+headers:{"apikey":KEY},
+cache:"no-store"
+}
+);
 
-  } catch (error) {
-    console.warn("Unable to verify membership status");
+if(!response.ok){
+throw new Error("Catalog unavailable");
+}
 
-    status.textContent =
-      "Membership status temporarily unavailable. " +
-      "No payment will be collected.";
-  }
+const catalog=await response.json();
+
+if(
+catalog.platform!=="StarRise" ||
+catalog.checkout_enabled!==false ||
+!Array.isArray(catalog.plans)
+){
+throw new Error("Catalog validation failed");
+}
+
+const received=new Set();
+
+for(const plan of catalog.plans){
+const expected=expectedPlans[plan.id];
+
+if(
+!expected ||
+received.has(plan.id) ||
+plan.price_cents!==expected.price ||
+plan.billing!==expected.billing ||
+plan.currency!=="USD" ||
+typeof plan.name!=="string"
+){
+throw new Error("Unexpected membership plan");
+}
+
+received.add(plan.id);
+}
+
+if(received.size!==4){
+throw new Error("Incomplete membership catalog");
+}
+
+for(const plan of catalog.plans){
+renderPlan(plan);
+}
+
+catalogStatus.textContent=
+"Official StarRise membership packages loaded.";
+
+paymentStatus.textContent=
+"PayPal membership checkout is being prepared. No payment is collected on this page.";
+
+} catch(error){
+console.warn("Membership catalog unavailable");
+catalogStatus.textContent=
+"Membership packages are temporarily unavailable.";
+paymentStatus.textContent=
+"Checkout remains disabled.";
+}
+
+try{
+if(!window.supabase){
+throw new Error("Supabase client unavailable");
+}
+
+const client=window.supabase.createClient(
+URL_BASE,KEY
+);
+
+const {data:auth,error:authError}=
+await client.auth.getUser();
+
+if(authError || !auth?.user){
+membershipStatus.textContent=
+"Sign in to view your membership.";
+return;
+}
+
+const {data:founding,error:foundingError}=
+await client.rpc("starrise_my_founding_status");
+
+if(foundingError)throw foundingError;
+
+const row=Array.isArray(founding)
+?founding[0]:founding;
+
+if(
+row?.is_founder===true &&
+row?.lifetime_fee_waiver===true
+){
+membershipStatus.textContent=
+"Founding Member: Lifetime membership fees waived";
+
+founderMessage.textContent=
+"Thank you for helping establish StarRise.";
+return;
+}
+
+const {data:subscription,error:subError}=
+await client
+.from("member_subscriptions")
+.select("plan_key,status")
+.eq("user_id",auth.user.id)
+.maybeSingle();
+
+if(subError)throw subError;
+
+if(subscription?.status==="active"){
+membershipStatus.textContent=
+"Active membership: "+
+String(subscription.plan_key||"Member");
+}else{
+membershipStatus.textContent=
+"Membership pending. Checkout is not yet available.";
+}
+
+}catch(error){
+console.warn("Membership verification unavailable");
+membershipStatus.textContent=
+"Membership status temporarily unavailable.";
+}
+
 })();
 </script>
-
 </body>
 </html>
