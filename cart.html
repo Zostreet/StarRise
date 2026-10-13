@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shopping Cart | StarRise</title>
+<link rel="stylesheet" href="starrise-brand.css">
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #0b0b17;
+  color: white;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+header {
+  padding: 20px;
+  border-bottom: 1px solid #ffffff25;
+}
+a { color: #d8c6ff; }
+main {
+  max-width: 850px;
+  margin: 30px auto;
+  padding: 20px;
+}
+.panel {
+  background: #191929;
+  border: 1px solid #ffffff25;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 20px 0;
+}
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid #ffffff20;
+}
+.item:last-child { border: none; }
+button {
+  padding: 11px 18px;
+  border: none;
+  border-radius: 24px;
+  background: white;
+  color: #171124;
+  font-weight: bold;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.muted { color: #bdb7c7; }
+.total {
+  font-size: 25px;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="marketplace.html">← Back to StarRise Store</a>
+</header>
+
+<main>
+<h1>Your Shopping Cart</h1>
+<p class="muted">
+Shop from multiple StarRise creators in one cart.
+</p>
+
+<section class="panel">
+  <h2>Cart Items</h2>
+  <div id="cartItems" aria-live="polite"></div>
+</section>
+
+<section class="panel">
+  <h2>Order Summary</h2>
+  <p id="subtotal"></p>
+  <p id="platformFee"></p>
+  <p id="sellerProceeds"></p>
+  <p id="total" class="total"></p>
+
+  <button type="button" disabled>
+    PayPal Checkout Coming Soon
+  </button>
+
+  <p class="muted">
+    Marketplace checkout is awaiting PayPal approval
+    and payment verification testing.
+  </p>
+
+  <p class="muted">
+    StarRise's planned 10% platform fee is deducted
+    from seller proceeds, not added to the buyer's
+    subtotal. PayPal processing fees and applicable
+    taxes are separate.
+  </p>
+</section>
+</main>
+
+<script>
+"use strict";
+
+const CART_KEY = "starrise-cart-v1";
+
+function money(cents) {
+  return (cents / 100).toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD"
+  });
+}
+
+function readCart() {
+  try {
+    const saved = JSON.parse(
+      localStorage.getItem(CART_KEY) || "[]"
+    );
+
+    if (!Array.isArray(saved)) return [];
+
+    return saved.filter(item =>
+      item &&
+      typeof item.id === "string" &&
+      typeof item.seller_id === "string" &&
+      Number.isSafeInteger(item.price_cents) &&
+      item.price_cents >= 0
+    );
+  } catch {
+    return [];
+  }
+}
+
+function removeItem(index) {
+  const cart = readCart();
+  cart.splice(index, 1);
+
+  localStorage.setItem(
+    CART_KEY,
+    JSON.stringify(cart)
+  );
+
+  renderCart();
+}
+
+function renderCart() {
+  const cart = readCart();
+  const container = document.getElementById("cartItems");
+
+  container.replaceChildren();
+
+  if (!cart.length) {
+    container.textContent =
+      "Your cart is empty. Visit the Store to add items.";
+  }
+
+  cart.forEach((item, index) => {
+    const row = document.createElement("div");
+    row.className = "item";
+
+    const details = document.createElement("span");
+    details.textContent =
+      (item.title || "StarRise Item") +
+      " · " + money(item.price_cents);
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = "Remove";
+    remove.addEventListener("click", () => {
+      removeItem(index);
+    });
+
+    row.append(details, remove);
+    container.appendChild(row);
+  });
+
+  const subtotal = cart.reduce(
+    (sum, item) => sum + item.price_cents,
+    0
+  );
+
+  const fee = cart.reduce(
+    (sum, item) =>
+      sum + Math.round(item.price_cents * 0.10),
+    0
+  );
+
+  document.getElementById("subtotal").textContent =
+    "Items subtotal: " + money(subtotal);
+
+  document.getElementById("platformFee").textContent =
+    "StarRise 10% platform fee: " + money(fee);
+
+  document.getElementById("sellerProceeds").textContent =
+    "Seller proceeds before processing fees: " +
+    money(subtotal - fee);
+
+  document.getElementById("total").textContent =
+    "Customer subtotal: " + money(subtotal);
+}
+
+renderCart();
+</script>
+
+</body>
+</html>
