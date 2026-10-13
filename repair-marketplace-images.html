@@ -1,0 +1,178 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StarRise Artwork Repair</title>
+<style>
+body {
+  background: #110e20;
+  color: white;
+  font: 17px system-ui;
+  padding: 20px;
+  max-width: 650px;
+  margin: auto;
+}
+section {
+  background: #29213f;
+  padding: 20px;
+  border-radius: 16px;
+  margin: 18px 0;
+}
+button {
+  background: #d8aaf4;
+  color: #21132e;
+  border: 0;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 17px;
+}
+button:disabled { opacity: .6; }
+img { max-width: 100%; border-radius: 12px; }
+a { color: #d8aaf4; }
+</style>
+</head>
+<body>
+<h1>Repair Marketplace Pictures</h1>
+<p>This repairs your Diamond painting listings without deleting or reuploading the original artwork.</p>
+<p id="status">Checking sign-in...</p>
+<div id="list"></div>
+<a href="marketplace.html">Back to Marketplace</a>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const BASE = "https://rcnikxotdalxtuvpmlvm.supabase.co";
+const KEY = "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+
+const db = supabase.createClient(BASE, KEY);
+
+const ids = [
+  "35eb8d06-27e6-4fde-a818-9741ebd4598f",
+  "61c87b0e-45ed-4cc4-925c-f2c88a43f45e"
+];
+
+async function request(body) {
+  const result = await db.auth.getSession();
+  const session = result.data.session;
+
+  if (!session) {
+    throw Error("Sign in to StarRise first.");
+  }
+
+  const isForm = body instanceof FormData;
+
+  const response = await fetch(
+    BASE + "/functions/v1/marketplace-preview-manager",
+    {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + session.access_token,
+        apikey: KEY,
+        ...(!isForm ? {
+          "Content-Type": "application/json"
+        } : {})
+      },
+      body: isForm ? body : JSON.stringify(body)
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw Error(data.error || "Request failed");
+  }
+
+  return data;
+}
+
+async function repair(id, button, section) {
+  button.disabled = true;
+  button.textContent = "Repairing...";
+
+  try {
+    const source = await request({ id });
+
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.src = source.url;
+    await image.decode();
+
+    const scale = Math.min(
+      1,
+      640 / Math.max(image.width, image.height)
+    );
+
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.width * scale));
+    canvas.height = Math.max(1, Math.round(image.height * scale));
+
+    canvas.getContext("2d").drawImage(
+      image, 0, 0, canvas.width, canvas.height
+    );
+
+    const blob = await new Promise((resolve, reject) => {
+      canvas.toBlob(
+        file => file ? resolve(file) : reject(Error("Preview failed")),
+        "image/jpeg",
+        0.7
+      );
+    });
+
+    const form = new FormData();
+    form.append("id", id);
+    form.append("preview", blob, "preview.jpg");
+
+    const saved = await request(form);
+
+    const message = document.createElement("p");
+    message.textContent = "Picture repaired successfully!";
+
+    const preview = document.createElement("img");
+    preview.src = saved.cover_url;
+    preview.alt = "Repaired artwork";
+
+    section.append(message, preview);
+    button.textContent = "Repaired";
+
+  } catch (error) {
+    const message = document.createElement("p");
+    message.textContent = error.message;
+    section.append(message);
+
+    button.disabled = false;
+    button.textContent = "Retry";
+  }
+}
+
+async function start() {
+  const status = document.getElementById("status");
+  const result = await db.auth.getSession();
+
+  if (!result.data.session) {
+    status.textContent = "Please sign in to StarRise first.";
+    return;
+  }
+
+  status.textContent = "Ready to repair your artwork.";
+
+  ids.forEach((id, index) => {
+    const section = document.createElement("section");
+    const heading = document.createElement("h2");
+    const button = document.createElement("button");
+
+    heading.textContent = "Diamond Painting " + (index + 1);
+    button.textContent = "Repair Picture";
+    button.onclick = () => repair(id, button, section);
+
+    section.append(heading, button);
+    document.getElementById("list").append(section);
+  });
+}
+
+start().catch(error => {
+  document.getElementById("status").textContent = error.message;
+});
+</script>
+</body>
+</html>
