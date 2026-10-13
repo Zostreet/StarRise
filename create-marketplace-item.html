@@ -22,7 +22,11 @@ a { color: #e0b5ff; }
   border: 1px solid #514168;
   border-radius: 20px;
 }
-label { display: block; margin: 22px 0 8px; font-weight: 700; }
+label {
+  display: block;
+  margin: 22px 0 8px;
+  font-weight: 700;
+}
 input, textarea, select {
   width: 100%;
   padding: 14px;
@@ -44,8 +48,12 @@ button {
   color: #20122e;
   font-size: 17px;
   font-weight: 700;
+  cursor: pointer;
 }
-button:disabled { opacity: .6; }
+button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
 .small { color: #cbbfd9; font-size: 14px; }
 #status {
   margin-top: 20px;
@@ -56,13 +64,16 @@ button:disabled { opacity: .6; }
 }
 .error { color: #ffb4b4; }
 .success { color: #b5ffd0; }
-.hidden { display: none; }
+.hidden { display: none !important; }
 #preview {
   max-width: 100%;
   max-height: 350px;
-  display: block;
   margin-top: 12px;
   border-radius: 12px;
+}
+#storeLink {
+  display: inline-block;
+  margin-top: 20px;
 }
 </style>
 </head>
@@ -74,7 +85,8 @@ button:disabled { opacity: .6; }
 
 <div class="card">
 <label for="title">Product Title</label>
-<input id="title" maxlength="160" required placeholder="My Artwork">
+<input id="title" maxlength="160"
+ required placeholder="My Artwork">
 
 <label for="category">Category</label>
 <select id="category" required>
@@ -89,24 +101,47 @@ button:disabled { opacity: .6; }
 </select>
 
 <label for="price">Price ($)</label>
-<input id="price" type="number" min="1" max="10000" step=".01" required>
+<input id="price" type="number"
+ min="1" max="10000" step=".01" required>
 
 <label for="description">Description</label>
-<textarea id="description" required placeholder="Describe your product"></textarea>
+<textarea id="description" required
+ placeholder="Describe your product"></textarea>
 
 <label for="file">Product File</label>
-<input id="file" type="file" required accept=".mp3,.wav,.m4a,.mp4,.jpg,.jpeg,.png,.webp,.pdf,.zip,audio/*,video/mp4,image/*,application/pdf,application/zip">
-<p class="small">Upload the original digital file. It remains private in StarRise Storage. This upload method currently supports files up to 500 MB.</p>
+<input id="file" type="file" required
+ accept=".mp3,.wav,.m4a,.mp4,.jpg,.jpeg,.png,.webp,.pdf,.zip,audio/*,video/mp4,image/*,application/pdf,application/zip">
+
+<p class="small">
+Upload the original digital file. It remains private
+in StarRise Storage. This upload method currently
+supports files up to 500 MB.
+</p>
 
 <label for="cover">Cover Picture (Optional)</label>
-<input id="cover" type="file" accept="image/jpeg,image/png,image/webp">
-<p class="small">For artwork, your uploaded picture automatically becomes the storefront preview. For music or video, choose a separate cover picture.</p>
+<input id="cover" type="file"
+ accept="image/jpeg,image/png,image/webp">
 
-<img id="preview" class="hidden" alt="Product preview">
+<p class="small">
+For artwork, your uploaded picture automatically
+becomes the storefront preview. For music or video,
+choose a separate cover picture.
+</p>
 
-<button id="publishButton" type="button">Publish to StarRise Store</button>
-<div id="status" class="hidden" role="status"></div>
-<a id="storeLink" class="hidden" href="marketplace.html">View StarRise Store →</a>
+<img id="preview" class="hidden"
+ alt="Product preview">
+
+<button id="publishButton" type="button">
+Publish to StarRise Store
+</button>
+
+<div id="status" class="hidden"
+ role="status" aria-live="polite"></div>
+
+<a id="storeLink" class="hidden"
+ href="marketplace.html">
+View StarRise Store →
+</a>
 </div>
 </main>
 
@@ -115,8 +150,12 @@ button:disabled { opacity: .6; }
 (function () {
 "use strict";
 
-const BASE = "https://rcnikxotdalxtuvpmlvm.supabase.co";
-const KEY = "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+const BASE =
+  "https://rcnikxotdalxtuvpmlvm.supabase.co";
+
+const KEY =
+  "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+
 const db = supabase.createClient(BASE, KEY);
 
 const el = id => document.getElementById(id);
@@ -128,7 +167,9 @@ const allowedFiles = [
 ];
 
 function extension(file) {
-  return (file.name.split(".").pop() || "").toLowerCase();
+  return (
+    file.name.split(".").pop() || ""
+  ).toLowerCase();
 }
 
 function message(text, type = "") {
@@ -140,10 +181,17 @@ function message(text, type = "") {
 function selectedImage() {
   const cover = el("cover").files[0];
   const file = el("file").files[0];
+
   if (cover) return cover;
-  if (file && ["jpg","jpeg","png","webp"].includes(extension(file))) {
+
+  if (
+    file &&
+    ["jpg", "jpeg", "png", "webp"]
+      .includes(extension(file))
+  ) {
     return file;
   }
+
   return null;
 }
 
@@ -159,18 +207,27 @@ async function makePreview(file) {
     );
 
     const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
-    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+
+    canvas.width = Math.max(
+      1, Math.round(bitmap.width * scale)
+    );
+
+    canvas.height = Math.max(
+      1, Math.round(bitmap.height * scale)
+    );
 
     canvas.getContext("2d").drawImage(
-      bitmap, 0, 0, canvas.width, canvas.height
+      bitmap, 0, 0,
+      canvas.width, canvas.height
     );
 
     return await new Promise((resolve, reject) => {
       canvas.toBlob(
-        blob => blob ? resolve(blob) : reject(Error("Could not create preview")),
+        blob => blob
+          ? resolve(blob)
+          : reject(Error("Could not create preview")),
         "image/jpeg",
-        .7
+        0.7
       );
     });
   } finally {
@@ -178,25 +235,50 @@ async function makePreview(file) {
   }
 }
 
-async function invokeUpload(form) {
-  const result = await db.functions.invoke(
-    "upload-marketplace-item",
-    { body: form }
-  );
+async function invokeUpload(form, token) {
+  let response;
 
-  if (result.error) {
-    let details = result.error.message;
-    try {
-      const body = await result.error.context.json();
-      details = body.error || body.message || details;
-    } catch {}
-    throw Error(details);
+  try {
+    response = await fetch(
+      BASE + "/functions/v1/upload-marketplace-item",
+      {
+        method: "POST",
+        headers: {
+          "apikey": KEY,
+          "Authorization": "Bearer " + token
+        },
+        body: form
+      }
+    );
+  } catch (error) {
+    throw Error(
+      "The upload request could not reach Supabase. " +
+      "Check the browser connection or CORS settings. " +
+      (error?.message || "")
+    );
   }
 
-  const data = result.data || {};
+  const raw = await response.text();
 
-  if (data.error || data.ok === false || data.success === false) {
-    throw Error(data.error || "Publishing failed");
+  let data;
+
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    throw Error(
+      "Upload service returned HTTP " +
+      response.status +
+      " instead of JSON. " +
+      raw.slice(0, 150)
+    );
+  }
+
+  if (!response.ok || !data?.ok) {
+    throw Error(
+      data?.error ||
+      data?.message ||
+      "Upload failed with HTTP " + response.status
+    );
   }
 
   return data;
@@ -204,25 +286,46 @@ async function invokeUpload(form) {
 
 async function savePreview(id, blob, token) {
   const form = new FormData();
+
   form.append("id", id);
   form.append("preview", blob, "preview.jpg");
 
-  const response = await fetch(
-    BASE + "/functions/v1/marketplace-preview-manager",
-    {
-      method: "POST",
-      headers: {
-        apikey: KEY,
-        Authorization: "Bearer " + token
-      },
-      body: form
-    }
-  );
+  let response;
 
-  const data = await response.json();
+  try {
+    response = await fetch(
+      BASE + "/functions/v1/marketplace-preview-manager",
+      {
+        method: "POST",
+        headers: {
+          "apikey": KEY,
+          "Authorization": "Bearer " + token
+        },
+        body: form
+      }
+    );
+  } catch (error) {
+    throw Error(
+      "Preview request failed: " +
+      (error?.message || "Network error")
+    );
+  }
+
+  let data;
+
+  try {
+    data = await response.json();
+  } catch {
+    throw Error(
+      "Preview service returned HTTP " +
+      response.status
+    );
+  }
 
   if (!response.ok || !data.ok) {
-    throw Error(data.error || "Picture could not be saved");
+    throw Error(
+      data.error || "Picture could not be saved"
+    );
   }
 
   return data;
@@ -235,79 +338,178 @@ async function publish() {
 
   try {
     const title = el("title").value.trim();
-    const description = el("description").value.trim();
+    const description =
+      el("description").value.trim();
+
     const category = el("category").value;
     const price = Number(el("price").value);
+
     const file = el("file").files[0];
     const cover = el("cover").files[0];
 
     if (!title || !description || !category) {
-      throw Error("Complete the title, category and description.");
+      throw Error(
+        "Complete the title, category and description."
+      );
     }
 
-    if (!Number.isFinite(price) || price < 1 || price > 10000) {
-      throw Error("Enter a price between $1 and $10,000.");
+    if (
+      !Number.isFinite(price) ||
+      price < 1 ||
+      price > 10000
+    ) {
+      throw Error(
+        "Enter a price between $1 and $10,000."
+      );
     }
 
-    if (!file || !allowedFiles.includes(extension(file))) {
+    if (
+      !file ||
+      !allowedFiles.includes(extension(file))
+    ) {
       throw Error("Choose a supported product file.");
     }
 
-    if (cover && !["jpg","jpeg","png","webp"].includes(extension(cover))) {
-      throw Error("Cover pictures must be JPG, PNG or WebP.");
+    if (
+      cover &&
+      !["jpg", "jpeg", "png", "webp"]
+        .includes(extension(cover))
+    ) {
+      throw Error(
+        "Cover pictures must be JPG, PNG or WebP."
+      );
     }
 
     if (file.size > 500 * 1024 * 1024) {
-      throw Error("This upload method supports up to 500 MB. Larger uploads require the upcoming resumable uploader.");
+      throw Error(
+        "This upload method supports up to 500 MB. " +
+        "Larger uploads require resumable uploads."
+      );
     }
 
-    if (cover && cover.size > 20 * 1024 * 1024) {
-      throw Error("The current upload service accepts cover pictures up to 20 MB.");
+    if (
+      cover &&
+      cover.size > 20 * 1024 * 1024
+    ) {
+      throw Error(
+        "Cover pictures must be 20 MB or smaller."
+      );
     }
+
+    message("Checking StarRise login...");
 
     const auth = await db.auth.getSession();
-    const session = auth.data.session;
+
+    if (auth.error) {
+      throw Error(auth.error.message);
+    }
+
+    let session = auth.data.session;
 
     if (!session) {
-      throw Error("Sign in to StarRise before publishing.");
+      throw Error(
+        "Sign in to StarRise before publishing."
+      );
+    }
+
+    // Refresh an expired login token if necessary.
+    const expiresSoon =
+      session.expires_at &&
+      session.expires_at * 1000 < Date.now() + 60000;
+
+    if (expiresSoon) {
+      const refreshed = await db.auth.refreshSession();
+
+      if (refreshed.error) {
+        throw Error(
+          "Your login expired. Please sign in again."
+        );
+      }
+
+      session = refreshed.data.session;
+    }
+
+    if (!session?.access_token) {
+      throw Error(
+        "No valid login token. Please sign in again."
+      );
     }
 
     message("Preparing storefront picture...");
 
     const picture = selectedImage();
-    const previewBlob = picture ? await makePreview(picture) : null;
+
+    let previewBlob = null;
+
+    if (picture) {
+      try {
+        previewBlob = await makePreview(picture);
+      } catch (error) {
+        console.warn("Preview preparation:", error);
+        // Do not prevent the original file upload
+        // because a local thumbnail could not be made.
+      }
+    }
 
     const form = new FormData();
+
     form.append("title", title);
     form.append("description", description);
     form.append("category", category);
     form.append("price", price.toFixed(2));
-    form.append("price_cents", String(Math.round(price * 100)));
+    form.append(
+      "price_cents",
+      String(Math.round(price * 100))
+    );
     form.append("file", file, file.name);
 
-    if (cover) form.append("cover", cover, cover.name);
+    if (cover) {
+      form.append("cover", cover, cover.name);
+    }
 
-    message("Uploading original file. Please keep this page open...");
+    message(
+      "Uploading original file. " +
+      "Please keep this page open..."
+    );
 
-    const result = await invokeUpload(form);
-    const id = result.item_id || result.id || result.item?.id;
+    const result = await invokeUpload(
+      form,
+      session.access_token
+    );
+
+    const id =
+      result.item_id ||
+      result.id ||
+      result.item?.id;
 
     if (!id) {
-      throw Error("Upload returned no listing ID.");
+      throw Error(
+        "Upload returned no listing ID."
+      );
     }
 
     let pictureSaved = !previewBlob;
 
     if (previewBlob) {
-      message("Original uploaded. Saving storefront picture...");
+      message(
+        "Original uploaded. " +
+        "Saving storefront picture..."
+      );
 
       try {
-        await savePreview(id, previewBlob, session.access_token);
+        await savePreview(
+          id,
+          previewBlob,
+          session.access_token
+        );
+
         pictureSaved = true;
       } catch (error) {
         console.error("Preview upload:", error);
+
         message(
-          "Product published, but its picture needs repair.\n" +
+          "Product published, but its picture " +
+          "needs repair.\n" +
           error.message,
           "error"
         );
@@ -317,7 +519,9 @@ async function publish() {
     if (pictureSaved) {
       message(
         "Published successfully!\n" +
-        (previewBlob ? "Storefront picture saved.\n" : "") +
+        (previewBlob
+          ? "Storefront picture saved.\n"
+          : "") +
         "Your product is now listed on StarRise.",
         "success"
       );
@@ -326,8 +530,13 @@ async function publish() {
     el("storeLink").classList.remove("hidden");
 
   } catch (error) {
-    console.error(error);
-    message("Unable to publish:\n" + error.message, "error");
+    console.error("StarRise publish error:", error);
+
+    message(
+      "Unable to publish:\n" +
+      (error?.message || "Unknown error"),
+      "error"
+    );
   } finally {
     button.disabled = false;
     button.textContent = "Publish to StarRise Store";
@@ -344,18 +553,26 @@ function showSelectedPicture() {
   }
 
   if (!file) {
+    img.removeAttribute("src");
     img.classList.add("hidden");
     return;
   }
 
   const url = URL.createObjectURL(file);
+
   img.dataset.objectUrl = url;
   img.src = url;
   img.classList.remove("hidden");
 }
 
-el("file").addEventListener("change", showSelectedPicture);
-el("cover").addEventListener("change", showSelectedPicture);
+el("file").addEventListener(
+  "change", showSelectedPicture
+);
+
+el("cover").addEventListener(
+  "change", showSelectedPicture
+);
+
 button.addEventListener("click", publish);
 
 })();
