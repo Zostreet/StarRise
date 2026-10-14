@@ -486,9 +486,13 @@
     result.textContent = "Checking PayPal live connection...";
 
     try {
-      if (!window.supabase || !window.StarRisePayments) {
-        throw new Error("StarRise authentication is unavailable.");
-      }
+      
+const client = starRiseSupabase;
+
+if (!client) {
+  throw new Error("StarRise authentication is unavailable.");
+}
+
 
       const client = window.StarRisePayments.client();
       if (!client) {
