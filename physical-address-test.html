@@ -1,0 +1,293 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StarRise Shipping Address Test</title>
+<style>
+* {box-sizing:border-box}
+body {
+  background:#10131d;
+  color:white;
+  font:16px system-ui;
+  max-width:680px;
+  margin:20px auto;
+  padding:18px;
+}
+h1 {color:#ffdb65}
+label {
+  display:block;
+  margin-top:15px;
+  font-weight:bold;
+}
+input {
+  width:100%;
+  padding:13px;
+  margin-top:6px;
+  background:#242b3b;
+  color:white;
+  border:1px solid #777;
+  border-radius:8px;
+  font:inherit;
+}
+button {
+  background:#ffdb65;
+  color:#151515;
+  padding:15px;
+  margin-top:20px;
+  border:0;
+  border-radius:9px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:disabled {opacity:.6}
+pre {
+  background:#242b3b;
+  padding:18px;
+  border-radius:10px;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+a {color:#ffdb65}
+.notice {color:#d2d2dc}
+</style>
+</head>
+<body>
+
+<h1>StarRise Buyer Shipping Test</h1>
+
+<p class="notice">
+Sandbox preview only. No payment, order,
+or shipping label will be created.
+Addresses are not saved.
+</p>
+
+<h2>Test Shipping Address</h2>
+
+<form id="addressForm">
+
+<label>Recipient Name
+<input id="recipient" required value="Test Customer">
+</label>
+
+<label>Street Address
+<input id="street" required value="123 Test Street">
+</label>
+
+<label>City
+<input id="city" required value="Charlotte">
+</label>
+
+<label>State (2 letters)
+<input id="region" required maxlength="2" value="NC">
+</label>
+
+<label>ZIP Code
+<input id="postal" required value="28202">
+</label>
+
+<label>Country
+<input id="country" readonly value="US">
+</label>
+
+<button id="preview" type="submit">
+Preview Shipping Checkout
+</button>
+
+</form>
+
+<button id="runAll" type="button">
+Run All 5 Safety Tests
+</button>
+
+<h2>Test Results</h2>
+<pre id="result">Ready.</pre>
+
+<p>
+<a href="create-physical-product.html">
+Back to Physical Product Form
+</a>
+</p>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="css/payments.js?v=20261010-2"></script>
+
+<script>
+"use strict";
+
+const db = window.StarRisePayments.client();
+
+const ITEM =
+  "71127b13-1237-4934-bb50-20228f56d956";
+
+const el = id => document.getElementById(id);
+
+const sample = {
+  recipient_name: "Test Customer",
+  address_line1: "123 Test Street",
+  city: "Charlotte",
+  region: "NC",
+  postal_code: "28202",
+  country_code: "US"
+};
+
+async function request(address, quantity = 1) {
+  const {data,error} = await db.functions.invoke(
+    "starrise-physical-address-preview",
+    {
+      body: {
+        item_id: ITEM,
+        quantity,
+        address
+      }
+    }
+  );
+
+  if (error) {
+    try {
+      const response =
+        await error.context.clone().json();
+
+      return {
+        error: response.error || error.message
+      };
+    } catch {
+      return {error:error.message};
+    }
+  }
+
+  return data;
+}
+
+function getAddress() {
+  return {
+    recipient_name:el("recipient").value.trim(),
+    address_line1:el("street").value.trim(),
+    city:el("city").value.trim(),
+    region:el("region").value.trim(),
+    postal_code:el("postal").value.trim(),
+    country_code:"US"
+  };
+}
+
+function lock(locked) {
+  el("preview").disabled = locked;
+  el("runAll").disabled = locked;
+}
+
+el("addressForm").onsubmit = async event => {
+  event.preventDefault();
+  lock(true);
+
+  el("result").textContent =
+    "Checking shipping address...";
+
+  try {
+    const data = await request(getAddress());
+
+    const ok =
+      data?.ok === true &&
+      data?.address_validated === true &&
+      data?.address_saved === false &&
+      data?.order_created === false &&
+      data?.payment_enabled === false &&
+      data?.total_cents === 2500;
+
+    el("result").textContent =
+      (ok ? "PASS" : "CHECK FAILED") +
+      " - ADDRESS PREVIEW\n\n" +
+      JSON.stringify(data,null,2);
+
+  } catch (error) {
+    el("result").textContent =
+      "ERROR: " + error.message;
+  } finally {
+    lock(false);
+  }
+};
+
+el("runAll").onclick = async () => {
+  lock(true);
+
+  const results = [];
+  let passed = 0;
+
+  async function test(name,address,quantity,check) {
+    try {
+      const data = await request(address,quantity);
+      const ok = check(data);
+
+      if (ok) passed++;
+
+      results.push(
+        (ok ? "PASS" : "FAIL") +
+        " - " + name + "\n" +
+        JSON.stringify(data,null,2)
+      );
+
+    } catch (error) {
+      results.push(
+        "FAIL - " + name + "\n" +
+        error.message
+      );
+    }
+
+    el("result").textContent =
+      results.join("\n\n");
+  }
+
+  try {
+    await test(
+      "Valid shipping address",
+      sample,
+      1,
+      d =>
+        d?.ok === true &&
+        d?.total_cents === 2500 &&
+        d?.address_validated === true &&
+        d?.address_saved === false &&
+        d?.order_created === false &&
+        d?.payment_enabled === false
+    );
+
+    await test(
+      "Reject missing street address",
+      {...sample,address_line1:""},
+      1,
+      d => Boolean(d?.error?.includes("valid US"))
+    );
+
+    await test(
+      "Reject invalid ZIP code",
+      {...sample,postal_code:"ABC"},
+      1,
+      d => Boolean(d?.error?.includes("valid US"))
+    );
+
+    await test(
+      "Reject invalid state",
+      {...sample,region:"NORTH CAROLINA"},
+      1,
+      d => Boolean(d?.error?.includes("valid US"))
+    );
+
+    await test(
+      "Reject quantity above inventory",
+      sample,
+      2,
+      d => d?.error === "Insufficient stock"
+    );
+
+    el("result").textContent =
+      passed + " / 5 TESTS PASSED\n\n" +
+      results.join("\n\n");
+
+  } finally {
+    lock(false);
+  }
+};
+</script>
+</body>
+</html>
