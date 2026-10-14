@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StarRise Seller Earnings</title>
+<style>
+body {
+  background:#10131d;
+  color:white;
+  font:16px system-ui;
+  max-width:850px;
+  margin:30px auto;
+  padding:16px;
+}
+a {color:#ffd75e}
+button {
+  background:#ffd75e;
+  border:0;
+  border-radius:8px;
+  padding:12px 18px;
+  font-weight:bold;
+}
+section {
+  background:#22283a;
+  border-radius:12px;
+  padding:18px;
+  margin:15px 0;
+}
+table {width:100%;border-collapse:collapse}
+th,td {
+  padding:9px 4px;
+  text-align:left;
+  border-bottom:1px solid #444;
+}
+small {color:#bbb}
+</style>
+</head>
+<body>
+
+<h1>StarRise Seller Earnings</h1>
+<p>Sandbox preview only. No real seller payouts are enabled.</p>
+
+<p><a href="dashboard.html">Back to Dashboard</a></p>
+
+<button id="load">Refresh My Test Earnings</button>
+<p id="status">Sign in to view your seller records.</p>
+
+<section>
+<h2>My Test Earnings</h2>
+<p id="totals">Not loaded</p>
+<small>
+Amounts are before PayPal processing fees.
+Payable balance remains $0.00 until live payouts are enabled.
+</small>
+</section>
+
+<section>
+<h2>My Sales</h2>
+<div style="overflow-x:auto">
+<table>
+<thead>
+<tr>
+<th>Product</th>
+<th>Sale</th>
+<th>StarRise 10%</th>
+<th>Seller Share</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody id="rows">
+<tr><td colspan="5">No data loaded.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="css/payments.js?v=20261010-2"></script>
+<script>
+const db = window.StarRisePayments.client();
+const status = document.getElementById("status");
+const rows = document.getElementById("rows");
+const totals = document.getElementById("totals");
+const btn = document.getElementById("load");
+
+const money = n => "$" + (n / 100).toFixed(2);
+
+btn.onclick = async () => {
+  btn.disabled = true;
+  status.textContent = "Loading...";
+  rows.replaceChildren();
+
+  try {
+    const { data, error } = await db.functions.invoke(
+      "starrise-seller-sandbox-earnings",
+      { body: {} }
+    );
+
+    if (error) throw error;
+
+    status.textContent =
+      "Sandbox seller ledger loaded. No real payouts.";
+
+    totals.textContent =
+      "Captured test sales: " +
+      money(data.summary.captured_gross_cents) +
+      " | StarRise fees: " +
+      money(data.summary.captured_platform_fee_cents) +
+      " | Seller test share: " +
+      money(data.summary.test_seller_share_cents) +
+      " | Refunded sales: " +
+      money(data.summary.refunded_gross_cents) +
+      " | Payable: $0.00";
+
+    if (!data.items.length) {
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = 5;
+      td.textContent =
+        "No Sandbox sales for this seller account.";
+      tr.appendChild(td);
+      rows.appendChild(tr);
+    }
+
+    for (const x of data.items) {
+      const tr = document.createElement("tr");
+
+      for (const value of [
+        x.title,
+        money(x.gross_cents),
+        money(x.platform_fee_cents),
+        money(x.seller_share_cents),
+        x.status
+      ]) {
+        const td = document.createElement("td");
+        td.textContent = value;
+        tr.appendChild(td);
+      }
+
+      rows.appendChild(tr);
+    }
+
+  } catch (error) {
+    status.textContent =
+      "Could not load earnings. Sign in and try again.";
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+btn.click();
+</script>
+</body>
+</html>
