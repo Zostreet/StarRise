@@ -1,0 +1,550 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security Review | StarRise</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#0b0917;
+ color:#f8f6ff;
+ font:16px/1.55 Arial,sans-serif
+}
+header{
+ padding:18px 5%;
+ background:#171026;
+ border-bottom:1px solid #ffffff25
+}
+a{color:#f4cf76}
+main{
+ max-width:1050px;
+ margin:auto;
+ padding:25px 16px 80px
+}
+h1{font-size:clamp(30px,6vw,48px)}
+h2{margin-top:0}
+.muted{color:#c8bed4}
+.panel{
+ background:#21172f;
+ border:1px solid #ffffff25;
+ border-radius:16px;
+ padding:20px;
+ margin:20px 0
+}
+.warning{border-left:5px solid #f4cf76}
+.danger{border-left:5px solid #ff8585}
+.hidden{display:none}
+label{
+ display:block;
+ margin:15px 0 7px;
+ font-weight:bold
+}
+input,select,textarea{
+ width:100%;
+ padding:12px;
+ border:1px solid #bdb5c9;
+ border-radius:8px;
+ background:#fff;
+ color:#171026;
+ font:inherit
+}
+textarea{min-height:110px}
+button{
+ background:#f4cf76;
+ color:#171026;
+ border:0;
+ border-radius:9px;
+ padding:13px 18px;
+ font-weight:bold;
+ cursor:pointer;
+ margin:12px 8px 0 0
+}
+button:disabled{opacity:.55;cursor:wait}
+.grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+ gap:14px
+}
+.case{
+ border-top:1px solid #ffffff30;
+ margin-top:22px;
+ padding-top:20px
+}
+.case h3{margin-bottom:8px}
+.tag{
+ display:inline-block;
+ padding:4px 11px;
+ background:#49365c;
+ border-radius:20px;
+ margin:4px 5px 4px 0
+}
+.audit{
+ border-left:3px solid #f4cf76;
+ padding:10px 14px;
+ margin:12px 0;
+ background:#ffffff09
+}
+#notice{
+ padding:8px 0;
+ min-height:25px
+}
+small{color:#c8bed4}
+</style>
+</head>
+<body>
+
+<header>
+<a href="index.html">★ StarRise Home</a>
+&nbsp;·&nbsp;
+<a href="security-operations.html">Security Operations</a>
+&nbsp;·&nbsp;
+<a href="executive-admin.html">Executive Admin</a>
+</header>
+
+<main>
+<h1>Security Review Center</h1>
+<p class="muted">
+Fam Entertainment LLC · Restricted owner access
+</p>
+
+<div class="panel warning">
+<strong>Emergency and safeguarding procedures</strong>
+<p>
+If someone is in immediate danger, call 911.
+For suspected child abuse or exploitation, follow
+applicable reporting requirements and contact the
+appropriate authorities promptly.
+</p>
+<p>
+This page records internal escalation decisions.
+Selecting an authority does not contact that authority.
+Never delay an emergency or legally required report
+while updating this system.
+</p>
+<p>
+Do not upload or enter explicit imagery, sensitive
+identity documents, background-check reports, or
+unnecessary personal information.
+</p>
+</div>
+
+<div id="access" class="panel">
+Checking owner access...
+</div>
+
+<div id="workspace" class="hidden">
+
+<section class="panel">
+<h2>Incident Review Queue</h2>
+<p class="muted">
+Review cases, track escalations, and inspect
+the recorded activity history.
+</p>
+
+<div class="grid">
+<div>
+<label for="statusFilter">Status</label>
+<select id="statusFilter">
+<option value="">All statuses</option>
+<option value="new">New</option>
+<option value="reviewing">Reviewing</option>
+<option value="action_needed">Action needed</option>
+<option value="resolved">Resolved</option>
+<option value="closed">Closed</option>
+</select>
+</div>
+
+<div>
+<label for="search">Search cases</label>
+<input id="search"
+placeholder="Summary or incident ID">
+</div>
+</div>
+
+<button id="refresh" type="button">
+Refresh Cases
+</button>
+
+<div id="cases"></div>
+</section>
+
+<section class="panel">
+<h2>Security Audit History</h2>
+<p class="muted">
+Records of incident creation and updates,
+including changes to investigation status,
+severity, and escalation level.
+</p>
+
+<button id="refreshAudit" type="button">
+Refresh Audit History
+</button>
+
+<div id="auditHistory"></div>
+</section>
+
+<section class="panel warning">
+<h2>Security Review Rules</h2>
+<p>
+Only authorized personnel should review incident
+information. Document facts and actions accurately.
+</p>
+<p>
+A case marked resolved does not mean an external
+authority has completed an investigation.
+</p>
+<p>
+Keep background-check information separate from
+incident records. Limit retention and access
+according to an approved company policy.
+</p>
+</section>
+
+</div>
+
+<p id="notice" role="status" aria-live="polite"></p>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+"use strict";
+
+const db=window.supabase.createClient(
+ "https://rcnikxotdalxtuvpmlvm.supabase.co",
+ "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+
+const $=id=>document.getElementById(id);
+
+let incidents=[];
+let ownerVerified=false;
+
+function element(tag,text,className){
+ const node=document.createElement(tag);
+ if(text!==undefined)node.textContent=text;
+ if(className)node.className=className;
+ return node;
+}
+
+function notice(message,error=false){
+ const node=$("notice");
+ node.textContent=message;
+ node.style.color=error?"#ffb4b4":"#a6edb7";
+}
+
+function readable(value){
+ return String(value||"none").replaceAll("_"," ");
+}
+
+function timestamp(value){
+ if(!value)return "Not recorded";
+ return new Date(value).toLocaleString();
+}
+
+async function initialize(){
+ try{
+  const {data:{user},error:authError}=
+   await db.auth.getUser();
+
+  if(authError||!user){
+   $("access").textContent=
+    "Sign in through Executive Admin first, then return here.";
+   return;
+  }
+
+  const {data,error}=await db
+   .from("platform_admins")
+   .select("access_level")
+   .eq("user_id",user.id)
+   .eq("access_level","owner")
+   .maybeSingle();
+
+  if(error||!data){
+   $("access").textContent=
+    "Access denied. Company owner authorization required.";
+   return;
+  }
+
+  ownerVerified=true;
+  $("access").textContent="Owner access verified.";
+  $("workspace").classList.remove("hidden");
+
+  await Promise.all([
+   loadIncidents(),
+   loadAudit()
+  ]);
+
+ }catch(error){
+  $("access").textContent=
+   "Unable to verify access.";
+ }
+}
+
+async function loadIncidents(){
+ if(!ownerVerified)return;
+
+ const {data,error}=await db
+  .from("security_incidents")
+  .select(
+   "id,created_at,updated_at,incident_type,"+
+   "severity,status,summary,details,"+
+   "immediate_danger,action_notes,"+
+   "escalation_level,escalated_at"
+  )
+  .order("created_at",{ascending:false})
+  .limit(150);
+
+ if(error){
+  notice("Could not load incident records.",true);
+  return;
+ }
+
+ incidents=data||[];
+ renderIncidents();
+}
+
+function renderIncidents(){
+ const root=$("cases");
+ root.replaceChildren();
+
+ const query=$("search").value.trim().toLowerCase();
+ const filter=$("statusFilter").value;
+
+ const matches=incidents.filter(record=>{
+  const matchesStatus=!filter||record.status===filter;
+  const matchesQuery=!query||
+   record.summary.toLowerCase().includes(query)||
+   record.id.toLowerCase().includes(query);
+
+  return matchesStatus&&matchesQuery;
+ });
+
+ if(!matches.length){
+  root.append(element("p","No matching incidents."));
+  return;
+ }
+
+ for(const record of matches){
+  const card=element("article",undefined,"case");
+
+  if(record.immediate_danger){
+   card.classList.add("danger");
+  }
+
+  card.append(
+   element("h3",record.summary),
+   element("span",readable(record.incident_type),"tag"),
+   element("span",record.severity.toUpperCase(),"tag"),
+   element("span",readable(record.status),"tag"),
+   element("p","Incident ID: "+record.id),
+   element("p","Reported: "+timestamp(record.created_at)),
+   element("p","Details: "+record.details),
+   element("p","Current escalation: "+
+    readable(record.escalation_level))
+  );
+
+  if(record.immediate_danger){
+   card.append(
+    element("p","IMMEDIATE DANGER FLAGGED")
+   );
+  }
+
+  const escalationLabel=element(
+   "label","Escalation classification"
+  );
+
+  const escalation=document.createElement("select");
+
+  const options=[
+   ["none","No escalation recorded"],
+   ["supervisor","Supervisor"],
+   ["emergency_services","Emergency services"],
+   ["child_protection","Child protection"],
+   ["law_enforcement","Law enforcement"],
+   ["other_authority","Other authority"]
+  ];
+
+  for(const [value,label] of options){
+   escalation.add(new Option(label,value));
+  }
+
+  escalation.value=record.escalation_level||"none";
+  escalationLabel.append(escalation);
+
+  const statusLabel=element(
+   "label","Investigation status"
+  );
+
+  const caseStatus=document.createElement("select");
+
+  for(const value of [
+   "new","reviewing","action_needed",
+   "resolved","closed"
+  ]){
+   caseStatus.add(
+    new Option(readable(value),value)
+   );
+  }
+
+  caseStatus.value=record.status;
+  statusLabel.append(caseStatus);
+
+  const notesLabel=element(
+   "label","Private action notes"
+  );
+
+  const notes=document.createElement("textarea");
+  notes.maxLength=5000;
+  notes.value=record.action_notes||"";
+  notesLabel.append(notes);
+
+  const reminder=element(
+   "small",
+   "Record external reporting actions in notes only "+
+   "after they actually occur. Selecting an "+
+   "escalation does not notify anyone."
+  );
+
+  const save=element("button","Save Review");
+  save.type="button";
+
+  save.addEventListener("click",async()=>{
+   save.disabled=true;
+
+   const selected=escalation.value;
+
+   const update={
+    escalation_level:selected,
+    status:caseStatus.value,
+    action_notes:notes.value
+   };
+
+   if(selected!=="none" &&
+      record.escalation_level!==selected){
+    update.escalated_at=new Date().toISOString();
+   }
+
+   if(selected==="none"){
+    update.escalated_at=null;
+   }
+
+   const {error}=await db
+    .from("security_incidents")
+    .update(update)
+    .eq("id",record.id);
+
+   save.disabled=false;
+
+   if(error){
+    notice("Could not save review.",true);
+    return;
+   }
+
+   notice("Security review saved.");
+
+   await Promise.all([
+    loadIncidents(),
+    loadAudit()
+   ]);
+  });
+
+  card.append(
+   escalationLabel,
+   statusLabel,
+   notesLabel,
+   reminder,
+   save
+  );
+
+  root.append(card);
+ }
+}
+
+async function loadAudit(){
+ if(!ownerVerified)return;
+
+ const {data,error}=await db
+  .from("security_incident_audit")
+  .select(
+   "id,incident_id,action,actor_id,"+
+   "occurred_at,previous_status,new_status,"+
+   "previous_severity,new_severity,"+
+   "previous_escalation,new_escalation"
+  )
+  .order("occurred_at",{ascending:false})
+  .limit(150);
+
+ const root=$("auditHistory");
+ root.replaceChildren();
+
+ if(error){
+  root.append(
+   element("p","Unable to load audit history.")
+  );
+  return;
+ }
+
+ if(!data||!data.length){
+  root.append(
+   element("p","No audit entries recorded yet.")
+  );
+  return;
+ }
+
+ for(const entry of data){
+  const card=element("div",undefined,"audit");
+
+  card.append(
+   element("strong",entry.action.toUpperCase()),
+   element("p","When: "+timestamp(entry.occurred_at)),
+   element("p","Incident ID: "+entry.incident_id),
+   element("p","Actor ID: "+(entry.actor_id||"Unavailable")),
+   element(
+    "p",
+    "Status: "+
+    readable(entry.previous_status)+
+    " → "+readable(entry.new_status)
+   ),
+   element(
+    "p",
+    "Severity: "+
+    readable(entry.previous_severity)+
+    " → "+readable(entry.new_severity)
+   ),
+   element(
+    "p",
+    "Escalation: "+
+    readable(entry.previous_escalation)+
+    " → "+readable(entry.new_escalation)
+   )
+  );
+
+  root.append(card);
+ }
+}
+
+$("refresh").addEventListener(
+ "click",loadIncidents
+);
+
+$("refreshAudit").addEventListener(
+ "click",loadAudit
+);
+
+$("statusFilter").addEventListener(
+ "change",renderIncidents
+);
+
+$("search").addEventListener(
+ "input",renderIncidents
+);
+
+initialize();
+</script>
+</body>
+</html>
