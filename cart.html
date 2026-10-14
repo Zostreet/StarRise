@@ -19,13 +19,16 @@ button{padding:11px 18px;border:0;border-radius:24px;background:white;color:#171
 button:disabled{opacity:.5;cursor:not-allowed}
 .muted{color:#bdb7c7}
 .total{font-size:25px;font-weight:bold}
-#verifyStatus{padding:12px 0}
+#verifyStatus,#testStatus{padding:12px 0;overflow-wrap:anywhere}
+.test-panel{margin-top:18px;padding:18px;border:1px solid #ffffff25;border-radius:12px;background:#ffffff08}
 </style>
 </head>
 <body>
+
 <header>
 <a href="marketplace.html">← Back to StarRise Store</a>
 </header>
+
 <main>
 <h1>Your Shopping Cart</h1>
 <p class="muted">Shop from multiple StarRise creators in one cart.</p>
@@ -45,37 +48,69 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <p id="verifyStatus" class="muted" aria-live="polite">
 Prices shown above are saved on this device until verified.
 </p>
-<button id="verifyButton" type="button">Verify Cart Prices</button>
-<button type="button" disabled>PayPal Checkout Coming Soon</button>
+
+<button id="verifyButton" type="button">
+Verify Cart Prices
+</button>
+
+<div class="test-panel">
+<h3>Sandbox Order Testing</h3>
+<p class="muted">
+Create an unpaid test-order record using current database prices.
+This does not contact PayPal or charge anyone.
+</p>
+
+<button id="testButton" type="button">
+Create Test Order
+</button>
+
+<p id="testStatus" class="muted" aria-live="polite">
+No test order created during this visit.
+</p>
+</div>
+
+<h3>PayPal Checkout</h3>
+<button type="button" disabled>
+PayPal Checkout Coming Soon
+</button>
 
 <p class="muted">
-Marketplace checkout is awaiting PayPal approval and payment verification testing.
+Marketplace checkout is awaiting PayPal approval
+and payment verification testing.
 </p>
+
 <p class="muted">
-StarRise's planned 10% platform fee is deducted from seller proceeds,
-not added to the buyer's subtotal. PayPal processing fees and applicable
-taxes are separate.
+StarRise's planned 10% platform fee is deducted from
+seller proceeds, not added to the buyer's subtotal.
+PayPal processing fees and applicable taxes are separate.
 </p>
 </section>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="css/payments.js?v=20261010-2"></script>
+
 <script>
 "use strict";
 
 const CART_KEY="starrise-cart-v1";
+let busy=false;
 
 function money(cents){
  return (cents/100).toLocaleString("en-US",{
-  style:"currency",currency:"USD"
+  style:"currency",
+  currency:"USD"
  });
 }
 
 function readCart(){
  try{
-  const saved=JSON.parse(localStorage.getItem(CART_KEY)||"[]");
+  const saved=JSON.parse(
+   localStorage.getItem(CART_KEY)||"[]"
+  );
+
   if(!Array.isArray(saved))return [];
+
   return saved.filter(item=>
    item &&
    typeof item.id==="string" &&
@@ -83,25 +118,46 @@ function readCart(){
    Number.isSafeInteger(item.price_cents) &&
    item.price_cents>=0
   );
- }catch{return [];}
+ }catch{
+  return [];
+ }
+}
+
+function setBusy(value){
+ busy=value;
+ document.getElementById("verifyButton").disabled=value;
+ document.getElementById("testButton").disabled=value;
 }
 
 function removeItem(index){
+ if(busy)return;
+
  const cart=readCart();
  cart.splice(index,1);
- localStorage.setItem(CART_KEY,JSON.stringify(cart));
+
+ localStorage.setItem(
+  CART_KEY,
+  JSON.stringify(cart)
+ );
+
  renderCart();
+
  document.getElementById("verifyStatus").textContent=
   "Cart changed. Verify prices again.";
+
+ document.getElementById("testStatus").textContent=
+  "Cart changed. No test order created for this updated cart.";
 }
 
 function renderCart(){
  const cart=readCart();
  const container=document.getElementById("cartItems");
+
  container.replaceChildren();
 
  if(!cart.length){
-  container.textContent="Your cart is empty. Visit the Store to add items.";
+  container.textContent=
+   "Your cart is empty. Visit the Store to add items.";
  }
 
  cart.forEach((item,index)=>{
@@ -109,66 +165,113 @@ function renderCart(){
   row.className="item";
 
   const details=document.createElement("span");
-  details.textContent=(item.title||"StarRise Item")+" · "+money(item.price_cents);
+  details.textContent=
+   (item.title||"StarRise Item")+
+   " · "+money(item.price_cents);
 
   const remove=document.createElement("button");
   remove.type="button";
   remove.textContent="Remove";
-  remove.addEventListener("click",()=>removeItem(index));
+  remove.disabled=busy;
+
+  remove.addEventListener("click",()=>{
+   removeItem(index);
+  });
 
   row.append(details,remove);
   container.appendChild(row);
  });
 
- const subtotal=cart.reduce((sum,item)=>sum+item.price_cents,0);
+ const subtotal=cart.reduce(
+  (sum,item)=>sum+item.price_cents,0
+ );
+
  const fee=cart.reduce(
   (sum,item)=>sum+Math.round(item.price_cents/10),0
  );
 
  document.getElementById("subtotal").textContent=
   "Items subtotal: "+money(subtotal);
+
  document.getElementById("platformFee").textContent=
   "StarRise 10% platform fee: "+money(fee);
+
  document.getElementById("sellerProceeds").textContent=
-  "Seller proceeds before processing fees: "+money(subtotal-fee);
+  "Seller proceeds before processing fees: "+
+  money(subtotal-fee);
+
  document.getElementById("total").textContent=
   "Customer subtotal: "+money(subtotal);
 }
 
+async function getSignedInClient(){
+ const client=window.StarRisePayments.client();
+
+ const {data:{session},error}=
+  await client.auth.getSession();
+
+ if(error||!session){
+  throw new Error(
+   "Please sign in to StarRise, then return to your cart."
+  );
+ }
+
+ return client;
+}
+
+async function callFunction(name,ids){
+ const client=await getSignedInClient();
+
+ const {data,error}=await client.functions.invoke(
+  name,
+  {body:{item_ids:ids}}
+ );
+
+ if(error){
+  let message="The server request failed.";
+
+  if(error.context &&
+     typeof error.context.json==="function"){
+   try{
+    const detail=await error.context.json();
+    message=detail.error||message;
+   }catch{}
+  }
+
+  throw new Error(message);
+ }
+
+ if(!data||data.error){
+  throw new Error(
+   data?.error||"The server returned no result."
+  );
+ }
+
+ return data;
+}
+
 async function verifyCart(){
- const button=document.getElementById("verifyButton");
- const status=document.getElementById("verifyStatus");
+ if(busy)return;
+
  const cart=readCart();
+ const status=document.getElementById("verifyStatus");
 
  if(!cart.length){
   status.textContent="Add a product first.";
   return;
  }
 
- button.disabled=true;
+ setBusy(true);
  status.textContent="Checking live prices securely...";
 
  try{
-  const client=window.StarRisePayments.client();
-  const {data:{session},error:sessionError}=
-   await client.auth.getSession();
-
-  if(sessionError||!session){
-   status.textContent=
-    "Please sign in to StarRise first, then return to your cart.";
-   return;
-  }
-
-  const {data,error}=await client.functions.invoke(
+  const data=await callFunction(
    "starrise-cart-quote",
-   {body:{item_ids:cart.map(item=>item.id)}}
+   cart.map(item=>item.id)
   );
 
-  if(error||!data||data.error){
-   throw new Error(data?.error||"Price verification unavailable.");
-  }
-
-  if(!Array.isArray(data.items)||data.items.length!==cart.length){
+  if(!Array.isArray(data.items)||
+     data.items.length!==cart.length){
    throw new Error("Incomplete price quote.");
   }
 
@@ -179,26 +282,81 @@ async function verifyCart(){
    price_cents:item.price_cents
   }));
 
-  localStorage.setItem(CART_KEY,JSON.stringify(verified));
+  localStorage.setItem(
+   CART_KEY,
+   JSON.stringify(verified)
+  );
+
   renderCart();
 
   status.textContent=
-   "Verified against StarRise's database. Customer subtotal: "+
-   money(data.subtotal_cents)+
+   "Verified against StarRise's database. "+
+   "Customer subtotal: "+money(data.subtotal_cents)+
    ". Platform fee: "+money(data.platform_fee_cents)+
    ". Checkout remains disabled.";
 
  }catch(error){
   status.textContent=
-   "Could not verify prices: "+(error.message||"Try again.");
+   "Could not verify prices: "+
+   (error.message||"Try again.");
  }finally{
-  button.disabled=false;
+  setBusy(false);
+ }
+}
+
+async function createTestOrder(){
+ if(busy)return;
+
+ const cart=readCart();
+ const status=document.getElementById("testStatus");
+
+ if(!cart.length){
+  status.textContent="Add a product first.";
+  return;
+ }
+
+ setBusy(true);
+ status.textContent="Creating an unpaid test order...";
+
+ try{
+  const data=await callFunction(
+   "starrise-cart-test-order",
+   cart.map(item=>item.id)
+  );
+
+  const order=data.test_order;
+
+  if(!order||!order.id||order.status!=="draft"){
+   throw new Error("Invalid test-order confirmation.");
+  }
+
+  status.textContent=
+   "TEST ORDER CREATED SUCCESSFULLY. "+
+   "Order ID: "+order.id+
+   ". Status: "+order.status+
+   ". Customer subtotal: "+money(order.subtotal_cents)+
+   ". StarRise fee: "+money(order.platform_fee_cents)+
+   ". Seller proceeds before processing fees: "+
+   money(data.seller_proceeds_before_processing_cents)+
+   ". No PayPal payment was created. No money was charged.";
+
+ }catch(error){
+  status.textContent=
+   "Could not create test order: "+
+   (error.message||"Try again.");
+ }finally{
+  setBusy(false);
  }
 }
 
 renderCart();
+
 document.getElementById("verifyButton")
  .addEventListener("click",verifyCart);
+
+document.getElementById("testButton")
+ .addEventListener("click",createTestOrder);
 </script>
+
 </body>
 </html>
