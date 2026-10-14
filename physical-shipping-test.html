@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StarRise Shipping Test</title>
+<style>
+body {
+  background:#10131d;
+  color:white;
+  font:16px system-ui;
+  max-width:650px;
+  margin:20px auto;
+  padding:18px;
+}
+button {
+  padding:16px;
+  background:#ffdb65;
+  border:0;
+  border-radius:9px;
+  font-weight:bold;
+  font-size:17px;
+}
+button:disabled {opacity:.6}
+pre {
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  background:#242b3b;
+  padding:20px;
+  border-radius:10px;
+}
+a {color:#ffdb65}
+</style>
+</head>
+<body>
+
+<h1>Physical Shipping Quote Test</h1>
+<p>
+Tests the unpublished StarRise merchandise listing.
+No order or payment will be created.
+</p>
+
+<button id="run">Run Shipping Quote Test</button>
+
+<pre id="result">Ready to test.</pre>
+
+<a href="create-physical-product.html">
+Back to Physical Product Form
+</a>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="css/payments.js?v=20261010-2"></script>
+
+<script>
+const result = document.getElementById("result");
+const button = document.getElementById("run");
+const db = window.StarRisePayments.client();
+
+button.onclick = async () => {
+  button.disabled = true;
+  result.textContent = "Running authenticated quote test...";
+
+  try {
+    const { data, error } = await db.functions.invoke(
+      "starrise-physical-shipping-quote",
+      {
+        body: {
+          item_id:
+            "71127b13-1237-4934-bb50-20228f56d956",
+          quantity: 1
+        }
+      }
+    );
+
+    if (error) {
+      let message = error.message;
+      try {
+        message =
+          (await error.context.clone().json()).error ||
+          message;
+      } catch {}
+      throw Error(message);
+    }
+
+    const expected = {
+      subtotal_cents: 2000,
+      shipping_cents: 500,
+      total_cents: 2500,
+      platform_fee_cents: 200,
+      seller_item_share_cents: 1800
+    };
+
+    const problems = Object.entries(expected)
+      .filter(([key, value]) => data?.[key] !== value)
+      .map(([key, value]) =>
+        key + ": expected " + value +
+        ", got " + data?.[key]
+      );
+
+    if (
+      data?.payment_enabled !== false ||
+      data?.order_created !== false ||
+      data?.draft_owner_preview !== true
+    ) {
+      problems.push("Safety flags incorrect");
+    }
+
+    result.textContent =
+      (problems.length ? "FAIL" : "PASS") +
+      " - PHYSICAL SHIPPING QUOTE\n\n" +
+      JSON.stringify(data, null, 2) +
+      (problems.length
+        ? "\n\nErrors:\n" + problems.join("\n")
+        : "\n\nAll quote and safety checks passed.");
+
+  } catch (error) {
+    result.textContent =
+      "TEST FAILED: " + error.message +
+      "\n\nMake sure you're signed into StarRise " +
+      "with the account that created the listing.";
+  } finally {
+    button.disabled = false;
+  }
+};
+</script>
+</body>
+</html>
