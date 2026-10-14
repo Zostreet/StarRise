@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StarRise Download Security Test</title>
+<style>
+body {
+  background: #10131d;
+  color: white;
+  font: 16px system-ui;
+  max-width: 640px;
+  margin: 28px auto;
+  padding: 16px;
+}
+input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+}
+button {
+  padding: 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #ffd75e;
+  color: #111;
+  font-weight: 700;
+}
+pre {
+  background: #22283a;
+  padding: 16px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border-radius: 8px;
+}
+a { color: #ffd75e; }
+</style>
+</head>
+<body>
+
+<h1>StarRise Download Security Test</h1>
+<p>Verify that a refunded Sandbox purchase cannot generate a new download link.</p>
+<p>No payments will be made.</p>
+
+<p><a href="dashboard.html">StarRise Dashboard</a></p>
+
+<label>Refunded Test Order ID</label>
+<input
+  id="order"
+  value="a6dca86a-4b26-42bd-8bd7-d63e9163a562"
+>
+
+<label>Purchased Item ID</label>
+<input
+  id="item"
+  value="1fd24008-12db-4aff-ad8d-60783b72eb5d"
+>
+
+<button id="test">Test Refunded Download</button>
+
+<pre id="result">Ready to test.</pre>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="css/payments.js?v=20261010-2"></script>
+
+<script>
+const btn = document.getElementById("test");
+const out = document.getElementById("result");
+
+btn.onclick = async () => {
+  btn.disabled = true;
+  out.textContent = "Checking...";
+
+  try {
+    const db = window.StarRisePayments.client();
+
+    const { data, error } = await db.functions.invoke(
+      "starrise-cart-sandbox-download",
+      {
+        body: {
+          test_order_id:
+            document.getElementById("order").value.trim(),
+          item_id:
+            document.getElementById("item").value.trim()
+        }
+      }
+    );
+
+    if (error) {
+      let detail = {};
+
+      try {
+        detail = await error.context.clone().json();
+      } catch {}
+
+      const message = detail.error || error.message;
+
+      if (
+        error.context?.status === 403 &&
+        message.includes("Sandbox purchase not confirmed")
+      ) {
+        out.textContent =
+          "PASS: Refunded purchase rejected.\n" +
+          "No new download link was issued.\n" +
+          "Server response: " + message;
+      } else {
+        out.textContent =
+          "NOT VERIFIED: " + message +
+          "\nCheck that you are signed in as the original buyer.";
+      }
+
+    } else if (data?.download_url) {
+      out.textContent =
+        "FAIL: A download link was issued for a refunded order.";
+    } else {
+      out.textContent =
+        "NOT VERIFIED: " + JSON.stringify(data);
+    }
+
+  } catch (error) {
+    out.textContent = "NOT VERIFIED: " + error.message;
+  } finally {
+    btn.disabled = false;
+  }
+};
+</script>
+
+</body>
+</html>
