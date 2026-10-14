@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StarRise Physical Product Draft</title>
+<style>
+body {
+  background:#10131d;
+  color:white;
+  font:16px system-ui;
+  max-width:680px;
+  margin:25px auto;
+  padding:16px;
+}
+label {
+  display:block;
+  margin-top:16px;
+  font-weight:bold;
+}
+input,textarea {
+  display:block;
+  width:100%;
+  box-sizing:border-box;
+  padding:12px;
+  margin-top:6px;
+  border-radius:8px;
+  border:1px solid #777;
+  background:#22283a;
+  color:white;
+  font:inherit;
+}
+textarea {min-height:110px}
+button {
+  background:#ffd75e;
+  border:0;
+  border-radius:8px;
+  padding:15px;
+  font-weight:bold;
+  margin-top:18px;
+}
+pre {
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  background:#22283a;
+  padding:16px;
+  border-radius:8px;
+}
+a {color:#ffd75e}
+</style>
+</head>
+<body>
+
+<h1>Create Physical Product Draft</h1>
+<p>This saves an unpublished listing. No payment or shipping label is created.</p>
+
+<a href="dashboard.html">Back to Dashboard</a>
+
+<form id="form">
+<label>Product Title
+<input id="title" maxlength="160" minlength="3"
+ required placeholder="Handmade painting">
+</label>
+
+<label>Description
+<textarea id="description" minlength="10"
+ maxlength="5000" required
+ placeholder="Describe the item, condition, and dimensions"></textarea>
+</label>
+
+<label>Item Price (USD)
+<input id="price" type="number" min="1"
+ max="10000" step=".01" required value="20.00">
+</label>
+
+<label>Shipping Charge (USD)
+<input id="shipping" type="number" min="0"
+ max="1000" step=".01" required value="5.00">
+</label>
+
+<label>Available Quantity
+<input id="inventory" type="number" min="1"
+ max="10000" step="1" required value="1">
+</label>
+
+<button id="save" type="submit">
+Save Unpublished Draft
+</button>
+</form>
+
+<pre id="result">Ready.</pre>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="css/payments.js?v=20261010-2"></script>
+<script>
+const db = window.StarRisePayments.client();
+const form = document.getElementById("form");
+const result = document.getElementById("result");
+const save = document.getElementById("save");
+
+const cents = id =>
+  Math.round(
+    Number(document.getElementById(id).value) * 100
+  );
+
+form.onsubmit = async event => {
+  event.preventDefault();
+  save.disabled = true;
+  result.textContent = "Saving draft...";
+
+  try {
+    const body = {
+      title:
+        document.getElementById("title").value.trim(),
+      description:
+        document.getElementById("description").value.trim(),
+      price_cents: cents("price"),
+      shipping_price_cents: cents("shipping"),
+      inventory_quantity:
+        Number(document.getElementById("inventory").value)
+    };
+
+    const { data, error } = await db.functions.invoke(
+      "starrise-physical-listing-draft",
+      { body }
+    );
+
+    if (error) {
+      let message = error.message;
+      try {
+        message =
+          (await error.context.clone().json()).error ||
+          message;
+      } catch {}
+      throw Error(message);
+    }
+
+    if (!data?.ok || data?.item?.status !== "draft") {
+      throw Error("Draft was not confirmed");
+    }
+
+    result.textContent =
+      "DRAFT SAVED\n" +
+      "Listing ID: " + data.item.id + "\n" +
+      "Status: draft\n" +
+      "Not published and not purchasable.";
+
+  } catch (error) {
+    result.textContent =
+      "Could not save: " + error.message;
+  } finally {
+    save.disabled = false;
+  }
+};
+</script>
+</body>
+</html>
