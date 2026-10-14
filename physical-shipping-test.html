@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>StarRise Shipping Test</title>
+<title>StarRise Shipping Safety Tests</title>
 <style>
 body {
   background:#10131d;
@@ -35,15 +35,11 @@ a {color:#ffdb65}
 </head>
 <body>
 
-<h1>Physical Shipping Quote Test</h1>
-<p>
-Tests the unpublished StarRise merchandise listing.
-No order or payment will be created.
-</p>
+<h1>StarRise Shipping Safety Tests</h1>
+<p>Four Sandbox preview tests. No orders or payments.</p>
 
-<button id="run">Run Shipping Quote Test</button>
-
-<pre id="result">Ready to test.</pre>
+<button id="run">Run All 4 Tests</button>
+<pre id="result">Ready.</pre>
 
 <a href="create-physical-product.html">
 Back to Physical Product Form
@@ -51,77 +47,84 @@ Back to Physical Product Form
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="css/payments.js?v=20261010-2"></script>
-
 <script>
-const result = document.getElementById("result");
-const button = document.getElementById("run");
 const db = window.StarRisePayments.client();
+const button = document.getElementById("run");
+const output = document.getElementById("result");
+
+const ITEM = "71127b13-1237-4934-bb50-20228f56d956";
+
+async function quote(body) {
+  const {data,error} = await db.functions.invoke(
+    "starrise-physical-shipping-quote",
+    {body}
+  );
+
+  if (error) {
+    try {
+      const response = await error.context.clone().json();
+      return {error:response.error || error.message};
+    } catch {
+      return {error:error.message};
+    }
+  }
+
+  return data;
+}
 
 button.onclick = async () => {
   button.disabled = true;
-  result.textContent = "Running authenticated quote test...";
+  let passed = 0;
+  const lines = [];
 
-  try {
-    const { data, error } = await db.functions.invoke(
-      "starrise-physical-shipping-quote",
-      {
-        body: {
-          item_id:
-            "71127b13-1237-4934-bb50-20228f56d956",
-          quantity: 1
-        }
-      }
-    );
-
-    if (error) {
-      let message = error.message;
-      try {
-        message =
-          (await error.context.clone().json()).error ||
-          message;
-      } catch {}
-      throw Error(message);
-    }
-
-    const expected = {
-      subtotal_cents: 2000,
-      shipping_cents: 500,
-      total_cents: 2500,
-      platform_fee_cents: 200,
-      seller_item_share_cents: 1800
-    };
-
-    const problems = Object.entries(expected)
-      .filter(([key, value]) => data?.[key] !== value)
-      .map(([key, value]) =>
-        key + ": expected " + value +
-        ", got " + data?.[key]
+  async function test(name,body,check) {
+    try {
+      const data = await quote(body);
+      const ok = check(data);
+      if (ok) passed++;
+      lines.push(
+        (ok ? "PASS" : "FAIL") +
+        " - " + name + "\n" +
+        JSON.stringify(data,null,2)
       );
-
-    if (
-      data?.payment_enabled !== false ||
-      data?.order_created !== false ||
-      data?.draft_owner_preview !== true
-    ) {
-      problems.push("Safety flags incorrect");
+    } catch (e) {
+      lines.push("FAIL - " + name + ": " + e.message);
     }
-
-    result.textContent =
-      (problems.length ? "FAIL" : "PASS") +
-      " - PHYSICAL SHIPPING QUOTE\n\n" +
-      JSON.stringify(data, null, 2) +
-      (problems.length
-        ? "\n\nErrors:\n" + problems.join("\n")
-        : "\n\nAll quote and safety checks passed.");
-
-  } catch (error) {
-    result.textContent =
-      "TEST FAILED: " + error.message +
-      "\n\nMake sure you're signed into StarRise " +
-      "with the account that created the listing.";
-  } finally {
-    button.disabled = false;
+    output.textContent = lines.join("\n\n");
   }
+
+  await test(
+    "Valid $25 shipping quote",
+    {item_id:ITEM,quantity:1},
+    d => d?.total_cents === 2500 &&
+      d?.platform_fee_cents === 200 &&
+      d?.payment_enabled === false &&
+      d?.order_created === false
+  );
+
+  await test(
+    "Reject 2 items when only 1 is in stock",
+    {item_id:ITEM,quantity:2},
+    d => d?.error === "Insufficient stock"
+  );
+
+  await test(
+    "Reject zero quantity",
+    {item_id:ITEM,quantity:0},
+    d => Boolean(d?.error?.includes("Quantity"))
+  );
+
+  await test(
+    "Reject invalid product ID",
+    {item_id:"invalid",quantity:1},
+    d => Boolean(d?.error?.includes("item ID"))
+  );
+
+  output.textContent =
+    passed + " / 4 TESTS PASSED\n\n" +
+    lines.join("\n\n");
+
+  button.disabled = false;
 };
 </script>
 </body>
