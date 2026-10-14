@@ -442,6 +442,99 @@
     }
   })();
 </script>
+
+<script>
+(function () {
+  "use strict";
+
+  const panel = document.createElement("section");
+  panel.setAttribute("aria-label", "PayPal live connection check");
+  panel.style.cssText =
+    "margin:24px auto;padding:24px;max-width:1000px;" +
+    "border:1px solid #444;border-radius:20px;" +
+    "background:#171721;color:white;";
+
+  panel.innerHTML = `
+    <h2 style="margin-top:0">PayPal Live Connection</h2>
+    <p>
+      Secure administrator-only connection test.
+      No customer charges or seller payouts.
+    </p>
+    <button id="paypal-live-check" type="button"
+      style="padding:15px 22px;border:0;border-radius:30px;
+      background:white;color:#111;font-weight:bold;cursor:pointer">
+      Check Live PayPal Connection
+    </button>
+    <p id="paypal-live-result" role="status"
+      aria-live="polite">
+      Live connection has not been checked.
+    </p>
+  `;
+
+  const main = document.querySelector("main");
+  if (main) {
+    main.appendChild(panel);
+  } else {
+    document.body.appendChild(panel);
+  }
+
+  const button = panel.querySelector("#paypal-live-check");
+  const result = panel.querySelector("#paypal-live-result");
+
+  button.addEventListener("click", async function () {
+    button.disabled = true;
+    result.textContent = "Checking PayPal live connection...";
+
+    try {
+      if (!window.supabase || !window.StarRisePayments) {
+        throw new Error("StarRise authentication is unavailable.");
+      }
+
+      const client = window.StarRisePayments.client();
+      if (!client) {
+        throw new Error("StarRise connection unavailable.");
+      }
+
+      const { data: sessionData } =
+        await client.auth.getSession();
+
+      if (!sessionData?.session) {
+        throw new Error("Sign in as an administrator first.");
+      }
+
+      const { data, error } =
+        await client.functions.invoke("paypal-live-status", {
+          body: {}
+        });
+
+      if (error) {
+        throw new Error(
+          error.message || "Connection check failed."
+        );
+      }
+
+      if (data?.connected === true &&
+          data?.environment === "live") {
+        result.textContent =
+          "PayPal LIVE credentials verified. " +
+          "Checkout and seller payouts remain disabled.";
+        result.style.color = "#9ef0bd";
+      } else {
+        throw new Error(
+          data?.error || "Live connection not verified."
+        );
+      }
+
+    } catch (error) {
+      result.textContent =
+        "Connection not verified: " + error.message;
+      result.style.color = "#ffaaaa";
+    } finally {
+      button.disabled = false;
+    }
+  });
+})();
+</script>
 </body>
 </html>
 
