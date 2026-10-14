@@ -1,0 +1,319 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Executive Applications | StarRise Admin</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:#fff;font:16px/1.5 Arial,sans-serif}
+header{padding:18px 5%;background:#1b132b;border-bottom:1px solid #ffffff22}
+header a{color:#f4cf76;text-decoration:none}
+main{max-width:1100px;margin:auto;padding:24px 16px 70px}
+h1{font-size:clamp(27px,5vw,42px)}
+h2{font-size:21px}
+.gold{color:#f4cf76}
+.muted{color:#c7bed1}
+.panel,.applicant{background:#21172f;border:1px solid #ffffff25;border-radius:14px;padding:20px;margin:18px 0}
+label{display:block;margin:12px 0 6px;font-weight:bold}
+input,select,textarea{width:100%;padding:12px;border:1px solid #a49ab3;border-radius:8px;font:inherit;background:#fff;color:#171126}
+textarea{min-height:90px}
+button{padding:12px 18px;background:#f4cf76;border:0;border-radius:9px;color:#1c1424;font-weight:bold;cursor:pointer;margin-top:12px}
+button:disabled{opacity:.5}
+button.secondary{background:#d9d2e2}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.row>*{flex:1 1 180px}
+.hidden{display:none!important}
+.status{padding:6px 11px;background:#3c3151;border-radius:20px;display:inline-block}
+.info{overflow-wrap:anywhere}
+.info p{margin:9px 0}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}
+.actions a{display:inline-block;padding:9px 14px;background:#473459;border-radius:8px;color:#fff;text-decoration:none}
+#message{padding:8px 0}
+footer{text-align:center;padding:20px;color:#bdb3c8}
+</style>
+</head>
+<body>
+
+<header>
+<a href="index.html">★ StarRise Home</a>
+</header>
+
+<main>
+<h1>Executive Application Dashboard</h1>
+<p class="muted">Fam Entertainment LLC | Private leadership recruitment</p>
+
+<div id="message" role="status" aria-live="polite">
+Checking your administrator session...
+</div>
+
+<section id="loginPanel" class="panel hidden">
+<h2>Administrator Sign In</h2>
+<p>Sign in using your authorized StarRise account.</p>
+<form id="loginForm">
+<label for="email">Account Email</label>
+<input id="email" type="email" required autocomplete="username">
+<label for="password">Password</label>
+<input id="password" type="password" required autocomplete="current-password">
+<button type="submit">Sign In</button>
+</form>
+</section>
+
+<section id="dashboard" class="hidden">
+<div class="panel">
+<div class="row">
+<div>
+<h2>Applicant Management</h2>
+<p id="count" class="muted"></p>
+</div>
+<div>
+<button id="refreshButton">Refresh Applications</button>
+<button id="logoutButton" class="secondary">Sign Out</button>
+</div>
+</div>
+
+<label for="search">Search Applicants</label>
+<input id="search" placeholder="Search name, role, phone, or location">
+
+<label for="filter">Filter by Status</label>
+<select id="filter">
+<option value="all">All Applications</option>
+<option value="new">New</option>
+<option value="reviewing">Reviewing</option>
+<option value="shortlisted">Shortlisted</option>
+<option value="declined">Declined</option>
+</select>
+</div>
+
+<div id="applicants"></div>
+</section>
+</main>
+
+<footer>StarRise | Authorized Administrative Access Only</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const db=window.supabase.createClient(
+ "https://rcnikxotdalxtuvpmlvm.supabase.co",
+ "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+
+const $=id=>document.getElementById(id);
+let applications=[];
+let isAdmin=false;
+
+function message(text){
+ $("message").textContent=text;
+}
+
+function showLogin(){
+ isAdmin=false;
+ $("loginPanel").classList.remove("hidden");
+ $("dashboard").classList.add("hidden");
+}
+
+function showDashboard(){
+ isAdmin=true;
+ $("loginPanel").classList.add("hidden");
+ $("dashboard").classList.remove("hidden");
+}
+
+async function checkAccess(){
+ const {data:{user},error}=await db.auth.getUser();
+ if(error||!user){
+  showLogin();
+  message("Administrator sign-in required.");
+  return;
+ }
+
+ const result=await db.from("platform_admins")
+  .select("user_id")
+  .eq("user_id",user.id)
+  .maybeSingle();
+
+ if(result.error||!result.data){
+  showLogin();
+  message("Access denied. This account is not authorized as a platform administrator.");
+  return;
+ }
+
+ showDashboard();
+ message("Administrator access verified.");
+ await loadApplications();
+}
+
+async function loadApplications(){
+ if(!isAdmin)return;
+
+ message("Loading applications...");
+
+ const {data,error}=await db
+  .from("executive_interest_applications")
+  .select("*")
+  .order("created_at",{ascending:false})
+  .limit(500);
+
+ if(error){
+  message("Unable to load applications. Check administrator permissions.");
+  console.error(error);
+  return;
+ }
+
+ applications=data||[];
+ message("Applications loaded.");
+ render();
+}
+
+function element(tag,text,className){
+ const node=document.createElement(tag);
+ if(text!==undefined)node.textContent=text;
+ if(className)node.className=className;
+ return node;
+}
+
+function detail(parent,label,value){
+ const p=element("p");
+ const strong=element("strong",label+": ");
+ p.append(strong,document.createTextNode(value||"Not provided"));
+ parent.append(p);
+}
+
+function render(){
+ const term=$("search").value.toLowerCase().trim();
+ const status=$("filter").value;
+ const container=$("applicants");
+ container.replaceChildren();
+
+ const filtered=applications.filter(a=>{
+  const matchesStatus=status==="all"||a.status===status;
+  const searchable=[
+   a.full_name,a.phone,a.email,a.location,a.role
+  ].join(" ").toLowerCase();
+  return matchesStatus&&searchable.includes(term);
+ });
+
+ $("count").textContent=
+  filtered.length+" displayed / "+applications.length+" loaded";
+
+ if(!filtered.length){
+  container.append(element("div","No matching applications.","panel"));
+  return;
+ }
+
+ filtered.forEach(a=>{
+  const card=element("article",undefined,"applicant");
+  card.append(element("h2",a.full_name||"Applicant"));
+  card.append(element("span",a.status||"new","status"));
+
+  const info=element("div",undefined,"info");
+  detail(info,"Position",a.role);
+  detail(info,"Phone",a.phone);
+  detail(info,"Email",a.email);
+  detail(info,"Preferred Contact",a.preferred_contact);
+  detail(info,"Location",a.location);
+  detail(info,"Availability",a.availability);
+  detail(info,"Salary Expectations",a.salary_expectations);
+  detail(info,"Experience",a.experience);
+  detail(info,"Vision",a.vision);
+  detail(info,"Portfolio",a.portfolio_url);
+  detail(info,"Applied",
+   a.created_at?new Date(a.created_at).toLocaleString():"Unknown");
+  card.append(info);
+
+  const actions=element("div",undefined,"actions");
+
+  if(a.phone){
+   const call=element("a","Call Applicant");
+   call.href="tel:"+a.phone.replace(/[^\d+]/g,"");
+   actions.append(call);
+
+   const sms=element("a","Text Applicant");
+   sms.href="sms:"+a.phone.replace(/[^\d+]/g,"");
+   actions.append(sms);
+  }
+
+  if(a.email){
+   const email=element("a","Email Applicant");
+   email.href="mailto:"+a.email;
+   actions.append(email);
+  }
+
+  card.append(actions);
+
+  const statusLabel=element("label","Application Status");
+  const statusSelect=element("select");
+  ["new","reviewing","shortlisted","declined"].forEach(value=>{
+   const option=element("option",value);
+   option.value=value;
+   statusSelect.append(option);
+  });
+  statusSelect.value=a.status||"new";
+
+  const notesLabel=element("label","Private Administrator Notes");
+  const notes=element("textarea");
+  notes.value=a.admin_notes||"";
+  notes.placeholder="Interview notes, follow-up details, or next steps";
+
+  const save=element("button","Save Changes");
+  const feedback=element("p","");
+
+  save.addEventListener("click",async()=>{
+   save.disabled=true;
+   feedback.textContent="Saving...";
+
+   const {data,error}=await db
+    .from("executive_interest_applications")
+    .update({
+     status:statusSelect.value,
+     admin_notes:notes.value
+    })
+    .eq("id",a.id)
+    .select("id,status,admin_notes")
+    .single();
+
+   if(error){
+    feedback.textContent="Save failed. Check permissions.";
+    console.error(error);
+   }else{
+    a.status=data.status;
+    a.admin_notes=data.admin_notes;
+    feedback.textContent="Changes saved.";
+   }
+   save.disabled=false;
+  });
+
+  card.append(statusLabel,statusSelect,notesLabel,notes,save,feedback);
+  container.append(card);
+ });
+}
+
+$("loginForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ message("Signing in...");
+ const {error}=await db.auth.signInWithPassword({
+  email:$("email").value.trim(),
+  password:$("password").value
+ });
+ if(error){
+  message("Sign-in failed. Check your account details.");
+  return;
+ }
+ $("password").value="";
+ await checkAccess();
+});
+
+$("refreshButton").addEventListener("click",loadApplications);
+$("search").addEventListener("input",render);
+$("filter").addEventListener("change",render);
+
+$("logoutButton").addEventListener("click",async()=>{
+ await db.auth.signOut();
+ showLogin();
+ message("Signed out.");
+});
+
+checkAccess();
+</script>
+</body>
+</html>
