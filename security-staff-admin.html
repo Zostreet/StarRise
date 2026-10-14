@@ -4,700 +4,527 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Security Staff Command Center | StarRise</title>
-
+<title>StarRise | Security Staff Management</title>
 <style>
-*{
- box-sizing:border-box;
+:root{
+  --bg:#0e0919;
+  --panel:#241831;
+  --border:#51405f;
+  --gold:#f4d179;
+  --text:#f8f4ff;
+  --muted:#d5c8e0;
+  --green:#a7f0bb;
+  --red:#ffaaaa;
 }
+*{box-sizing:border-box}
 body{
- margin:0;
- background:#0c0918;
- color:#f7f4ff;
- font-family:Arial,sans-serif;
- line-height:1.6;
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+  line-height:1.5;
 }
-header{
- background:#1a1128;
- padding:20px;
- border-bottom:2px solid #f3cf78;
-}
-header h1{
- margin:0;
- font-size:26px;
-}
-header p{
- color:#cfc4dc;
- margin:5px 0;
-}
-nav{
- padding:15px 20px;
- background:#151022;
-}
-nav a{
- color:#f3cf78;
- margin-right:16px;
- display:inline-block;
-}
-main{
- max-width:1050px;
- margin:auto;
- padding:20px 15px 70px;
-}
+main{max-width:960px;margin:auto;padding:22px}
+h1{font-size:2rem;margin-bottom:8px}
+h2{margin-top:0}
+p{color:var(--muted)}
+a{color:var(--gold)}
 .panel{
- background:#231830;
- border:1px solid #4c3b5e;
- border-radius:16px;
- padding:22px;
- margin:20px 0;
-}
-h2{
- color:#f3cf78;
- margin-top:0;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:22px;
+  margin:22px 0;
 }
 label{
- display:block;
- font-weight:bold;
- margin-top:15px;
+  display:block;
+  font-weight:bold;
+  margin:15px 0 6px;
 }
 input,select{
- display:block;
- width:100%;
- padding:13px;
- border-radius:8px;
- border:1px solid #bcb4c7;
- background:#fff;
- color:#191226;
- font-size:16px;
- margin-top:7px;
+  display:block;
+  width:100%;
+  padding:14px;
+  border-radius:10px;
+  border:1px solid #b8a8c6;
+  background:white;
+  color:#191126;
+  font-size:16px;
 }
-.checkbox{
- display:flex;
- align-items:flex-start;
- gap:12px;
- margin:15px 0;
+input[type=checkbox]{
+  display:inline-block;
+  width:auto;
+  margin-right:10px;
 }
-.checkbox input{
- width:20px;
- height:20px;
- flex-shrink:0;
- margin-top:5px;
+.checkline{
+  display:flex;
+  align-items:center;
+  font-weight:normal;
 }
 button{
- background:#f3cf78;
- color:#191226;
- padding:13px 20px;
- border:0;
- border-radius:9px;
- font-size:16px;
- font-weight:bold;
- margin:10px 8px 10px 0;
- cursor:pointer;
+  border:0;
+  border-radius:12px;
+  padding:13px 17px;
+  background:var(--gold);
+  color:#201324;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:14px;
 }
-button:disabled{
- opacity:.55;
- cursor:wait;
+button:disabled{opacity:.5;cursor:not-allowed}
+button.secondary{
+  background:#e5d9ef;
 }
-.danger{
- background:#ff9b9b;
-}
-.notice{
- padding:12px;
- border-left:4px solid #f3cf78;
- background:#31233f;
- margin:15px 0;
+button.danger{
+  background:#f4b2b2;
 }
 .staff{
- border-top:1px solid #665276;
- padding:18px 0;
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:18px;
+  margin:16px 0;
 }
-.tag{
- display:inline-block;
- background:#473354;
- padding:4px 12px;
- border-radius:20px;
- margin:5px;
+.small{font-size:.88rem;color:var(--muted)}
+.success{color:var(--green)}
+.error{color:var(--red)}
+.notice{
+  border-left:5px solid var(--gold);
+  padding:15px;
+  background:#30233b;
+  border-radius:10px;
 }
-.success{
- color:#a8efbc;
+.row{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
 }
-.warning{
- color:#ffcd8c;
-}
-.muted{
- color:#cfc4dc;
-}
-.hidden{
- display:none;
-}
-.audit{
- border-left:3px solid #f3cf78;
- padding:12px;
- background:#30223e;
- margin:12px 0;
-}
+.row>*{flex:1 1 220px}
+.hidden{display:none}
+#message{min-height:25px;font-weight:bold}
 </style>
 </head>
-
 <body>
 
+<main>
 <header>
-<h1>StarRise Security Staff Command Center</h1>
-<p>Fam Entertainment LLC</p>
-<p>Restricted Company Owner Access</p>
+  <h1>StarRise Security Staff Management</h1>
+  <p>Fam Entertainment LLC | Private owner administration</p>
 </header>
 
-<nav>
-<a href="index.html">Home</a>
-<a href="executive-admin.html">Executive Admin</a>
-<a href="security-operations.html">Security Operations</a>
-<a href="security-review.html">Security Review</a>
-</nav>
-
-<main>
-
 <section class="panel">
-<h2>Security Authorization</h2>
-
-<div id="accessStatus">
-Verifying company owner access...
-</div>
-
-<p class="muted">
-This dashboard manages security staff authorization.
-It does not automatically give staff permission to
-read incident reports.
-</p>
+  <h2>Access verification</h2>
+  <p id="accessStatus">Checking your session...</p>
+  <button id="loginBtn" class="secondary hidden">
+    Sign in
+  </button>
+  <button id="logoutBtn" class="secondary hidden">
+    Sign out
+  </button>
 </section>
 
-<div id="workspace" class="hidden">
+<div id="ownerArea" class="hidden">
 
 <section class="panel">
-<h2>Authorize Security Personnel</h2>
+  <h2>Register security personnel</h2>
 
-<p>
-Only add individuals who have an existing StarRise
-authentication account and whose identity has been
-independently verified.
-</p>
+  <p>
+    Register an existing Supabase Auth user by their
+    user ID. Registration does not grant incident access.
+  </p>
 
-<div class="notice">
-Do not use an applicant's name, email address, or
-application ID as their user ID. The account ID must
-come from the verified Supabase Auth user record.
-Never share your own owner account ID for staff access.
-</div>
+  <label for="userId">Staff user ID (UUID)</label>
+  <input
+    id="userId"
+    placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    autocomplete="off"
+  >
 
-<label for="staffId">
-Verified Supabase Auth User ID
-</label>
-<input
- id="staffId"
- type="text"
- placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
- autocomplete="off"
- spellcheck="false"
->
+  <label for="staffRole">Security role</label>
+  <select id="staffRole">
+    <option value="reviewer">Security Reviewer</option>
+    <option value="supervisor">Security Supervisor</option>
+    <option value="safeguarding_lead">
+      Youth Safeguarding Lead
+    </option>
+  </select>
 
-<label for="staffRole">
-Security Role
-</label>
-
-<select id="staffRole">
-<option value="security_reviewer">
-Security Reviewer
-</option>
-<option value="security_manager">
-Security Manager
-</option>
-</select>
-
-<label class="checkbox">
-<input type="checkbox" id="training">
-<span>
-Required security and safeguarding training has
-actually been completed and verified.
-</span>
-</label>
-
-<label class="checkbox">
-<input type="checkbox" id="screening">
-<span>
-Role-appropriate background screening has
-actually been completed, reviewed, and approved
-through the separate lawful screening process.
-</span>
-</label>
-
-<label class="checkbox">
-<input type="checkbox" id="activate">
-<span>
-Activate this person's security staff authorization.
-</span>
-</label>
-
-<button id="saveStaff" type="button">
-Save Staff Authorization
-</button>
-
-<p id="message"
-   role="status"
-   aria-live="polite"
-   tabindex="-1">
-</p>
-
-<p class="muted">
-Leave Activate unchecked to create an inactive
-staff record while requirements remain outstanding.
-</p>
-
+  <button id="addStaff">Register as pending</button>
 </section>
 
 <section class="panel">
-<h2>Security Personnel Registry</h2>
-
-<button id="refreshStaff" type="button">
-Refresh Personnel
-</button>
-
-<div id="staffList"></div>
+  <h2>Security personnel</h2>
+  <button id="refreshBtn" class="secondary">
+    Refresh records
+  </button>
+  <div id="staffList">
+    <p>Loading staff records...</p>
+  </div>
 </section>
 
-<section class="panel">
-<h2>Authorization Audit History</h2>
-
-<button id="refreshAudit" type="button">
-Refresh Access History
-</button>
-
-<div id="auditList"></div>
-</section>
-
-<section class="panel">
-<h2>Youth Safeguarding Rules</h2>
-
-<div class="notice">
-<strong>Protecting young creators is a priority.</strong>
-</div>
-
-<p>
-Personnel working with minors must complete
-appropriate screening and safeguarding training
-before being assigned youth-facing responsibilities.
-</p>
-
-<ul>
-<li>
-No unauthorized private one-on-one communication
-between staff and minors.
-</li>
-<li>
-Use approved, monitored communication channels
-with parent or guardian involvement where appropriate.
-</li>
-<li>
-Apply appropriate adult supervision and
-two-adult practices during youth activities.
-</li>
-<li>
-Document safety concerns promptly and objectively.
-</li>
-<li>
-Report suspected abuse or exploitation to the
-appropriate authorities as required by law.
-</li>
-<li>
-Call 911 for immediate danger.
-</li>
-<li>
-Do not upload explicit material or unnecessary
-sensitive information into internal reports.
-</li>
-</ul>
-
-<p class="muted">
-These rules are an operational starting point.
-They do not replace formal safeguarding training,
-applicable reporting laws, or professional advice.
-</p>
+<section class="panel notice">
+  <h2>Access protection rules</h2>
+  <p>
+    Approval in this registry is an administrative
+    personnel status only. It does not automatically
+    authorize viewing, modifying, or investigating
+    security incidents.
+  </p>
+  <p>
+    Personnel must complete general security and youth
+    safeguarding training before approval. Screening,
+    legal requirements, and role-specific authorization
+    must be handled separately.
+  </p>
+  <p>
+    Emergency threats require appropriate emergency
+    services. Suspected child abuse or exploitation
+    must be reported as required by applicable law.
+  </p>
 </section>
 
 </div>
 
+<p id="message" role="status" aria-live="polite"></p>
 
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
 "use strict";
 
-const db=window.supabase.createClient(
- "https://rcnikxotdalxtuvpmlvm.supabase.co",
- "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+const SUPABASE_URL =
+  "https://rcnikxotdalxtuvpmlvm.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
 );
 
-const $=id=>document.getElementById(id);
+const $ = id => document.getElementById(id);
 
-let ownerVerified=false;
+let currentUser = null;
+let staffRecords = [];
 
-function make(tag,text,className){
- const node=document.createElement(tag);
- if(text!==undefined){
-  node.textContent=text;
- }
- if(className){
-  node.className=className;
- }
- return node;
-}
-
-function showMessage(text,error=false){
- const node=$("message");
- node.textContent=text;
- node.style.color=error?"#ffaaaa":"#a8efbc";
-}
-
-function dateText(value){
- if(!value)return "Not recorded";
- return new Date(value).toLocaleString();
-}
-
-function roleText(role){
- return String(role||"")
-  .replaceAll("_"," ");
+function showMessage(text, error=false){
+  $("message").textContent = text;
+  $("message").className = error ? "error" : "success";
 }
 
 function validUUID(value){
- return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    .test(value);
+}
+
+function makeElement(tag,text,className){
+  const el = document.createElement(tag);
+  if(text !== undefined) el.textContent = text;
+  if(className) el.className = className;
+  return el;
+}
+
+function addLabel(parent,text,control){
+  const label = makeElement("label",text);
+  parent.appendChild(label);
+  parent.appendChild(control);
+}
+
+function makeSelect(options,value){
+  const el = document.createElement("select");
+  for(const [key,label] of options){
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = label;
+    el.appendChild(opt);
+  }
+  el.value = value;
+  return el;
+}
+
+function makeCheckbox(labelText,checked){
+  const wrap = makeElement("label",undefined,"checkline");
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.checked = !!checked;
+  wrap.appendChild(input);
+  wrap.appendChild(document.createTextNode(labelText));
+  return {wrap,input};
 }
 
 async function verifyOwner(){
- try{
-  const {data:{user},error:authError}=
-   await db.auth.getUser();
+  $("ownerArea").classList.add("hidden");
+  $("loginBtn").classList.add("hidden");
+  $("logoutBtn").classList.add("hidden");
 
-  if(authError||!user){
-   $("accessStatus").textContent=
-    "Please sign in through Executive Admin first.";
-   return;
+  const {data:auth,error:authError} =
+    await db.auth.getUser();
+
+  if(authError || !auth?.user){
+    currentUser = null;
+    $("accessStatus").textContent = "Sign-in required.";
+    $("loginBtn").classList.remove("hidden");
+    return;
   }
 
-  const {data,error}=await db
-   .from("platform_admins")
-   .select("access_level")
-   .eq("user_id",user.id)
-   .eq("access_level","owner")
-   .maybeSingle();
+  currentUser = auth.user;
 
-  if(error||!data){
-   $("accessStatus").textContent=
-    "Access denied. Owner authorization required.";
-   return;
+  const {data,error} = await db
+    .from("platform_admins")
+    .select("access_level")
+    .eq("user_id",currentUser.id)
+    .eq("access_level","owner")
+    .maybeSingle();
+
+  if(error || !data){
+    $("accessStatus").textContent =
+      "Owner access not verified. Staff records are unavailable.";
+    $("logoutBtn").classList.remove("hidden");
+    return;
   }
 
-  ownerVerified=true;
+  $("accessStatus").textContent =
+    "Owner access verified.";
 
-  $("accessStatus").textContent=
-   "Owner authorization verified.";
+  $("logoutBtn").classList.remove("hidden");
+  $("ownerArea").classList.remove("hidden");
 
-  $("workspace").classList.remove("hidden");
-
-  await Promise.all([
-   loadStaff(),
-   loadAudit()
-  ]);
-
- }catch(error){
-  $("accessStatus").textContent=
-   "Unable to verify authorization.";
- }
-}
-
-async function saveAuthorization(){
- if(!ownerVerified)return;
-
- const id=$("staffId").value.trim();
- const role=$("staffRole").value;
-
- const trained=$("training").checked;
- const screened=$("screening").checked;
- const active=$("activate").checked;
-
- if(!validUUID(id)){
-  showMessage(
-   "Enter a valid verified Supabase Auth user ID.",
-   true
-  );
-  return;
- }
-
- if(active&&(!trained||!screened)){
-  showMessage(
-   "Activation requires verified training and screening.",
-   true
-  );
-  return;
- }
-
- if(!confirm(
-  active
-   ?"Confirm that screening and training were completed and this person should be activated?"
-   :"Save this person as inactive?"
-  )){
-  return;
- }
-
- const button=$("saveStaff");
- button.disabled=true;
-
- const {error}=await db.rpc(
-  "owner_set_security_staff",
-  {
-   p_user_id:id,
-   p_role:role,
-   p_active:active,
-   p_training_verified:trained,
-   p_screening_verified:screened
-  }
- );
-
- button.disabled=false;
-
- if(error){
-  showMessage(
-   "Authorization not saved: "+error.message,
-   true
-  );
-  return;
- }
-
- showMessage(
-  "Security staff authorization saved."
- );
-
- $("staffId").value="";
- $("training").checked=false;
- $("screening").checked=false;
- $("activate").checked=false;
-
- await Promise.all([
-  loadStaff(),
-  loadAudit()
- ]);
+  await loadStaff();
 }
 
 async function loadStaff(){
- if(!ownerVerified)return;
-
- const {data,error}=await db
-  .from("security_staff_permissions")
-  .select(
-   "user_id,role,active,approved_at,"+
-   "training_verified,screening_verified,updated_at"
-  )
-  .order("updated_at",{ascending:false})
-  .limit(150);
-
- const root=$("staffList");
- root.replaceChildren();
-
- if(error){
-  root.append(
-   make("p","Unable to load security personnel.")
-  );
-  return;
- }
-
- if(!data||!data.length){
-  root.append(
-   make(
-    "p",
-    "No security staff authorized yet. "+
-    "Owner access remains separate."
-   )
-  );
-  return;
- }
-
- for(const staff of data){
-  const card=make("div",undefined,"staff");
-
-  card.append(
-   make("strong",roleText(staff.role)),
-   make(
-    "p",
-    "Account ID: "+staff.user_id
-   ),
-   make(
-    "span",
-    staff.active?"Active":"Inactive",
-    "tag"
-   ),
-   make(
-    "p",
-    "Training verified: "+
-    (staff.training_verified?"Yes":"No")
-   ),
-   make(
-    "p",
-    "Screening verified: "+
-    (staff.screening_verified?"Yes":"No")
-   ),
-   make(
-    "p",
-    "Last updated: "+dateText(staff.updated_at)
-   )
+  const list = $("staffList");
+  list.replaceChildren(
+    makeElement("p","Loading records...")
   );
 
-  const edit=make("button","Edit Authorization");
-  edit.type="button";
+  const {data,error} = await db
+    .from("security_staff_registry")
+    .select(
+      "id,user_id,staff_role,approval_status,"+
+      "training_completed,safeguarding_training_completed,"+
+      "approved_by,approved_at,created_at,updated_at"
+    )
+    .order("created_at",{ascending:false});
 
-  edit.addEventListener("click",()=>{
-   $("staffId").value=staff.user_id;
-   $("staffRole").value=staff.role;
-   $("training").checked=staff.training_verified;
-   $("screening").checked=staff.screening_verified;
-   $("activate").checked=staff.active;
-
-   window.scrollTo({top:0,behavior:"smooth"});
-
-   showMessage(
-    "Staff record loaded. Review and save changes."
-   );
-  });
-
-  card.append(edit);
-
-  if(staff.active){
-   const revoke=make(
-    "button",
-    "Deactivate Authorization",
-    "danger"
-   );
-
-   revoke.type="button";
-
-   revoke.addEventListener("click",async()=>{
-    if(!confirm(
-     "Deactivate this staff authorization?"
-    )){
-     return;
-    }
-
-    revoke.disabled=true;
-
-    const {error}=await db.rpc(
-     "owner_set_security_staff",
-     {
-      p_user_id:staff.user_id,
-      p_role:staff.role,
-      p_active:false,
-      p_training_verified:staff.training_verified,
-      p_screening_verified:staff.screening_verified
-     }
+  if(error){
+    list.replaceChildren(
+      makeElement("p",error.message,"error")
     );
-
-    revoke.disabled=false;
-
-    if(error){
-     showMessage(
-      "Deactivation failed: "+error.message,
-      true
-     );
-     return;
-    }
-
-    showMessage(
-     "Security staff authorization deactivated."
-    );
-
-    await Promise.all([
-     loadStaff(),
-     loadAudit()
-    ]);
-   });
-
-   card.append(revoke);
+    return;
   }
 
-  root.append(card);
- }
+  staffRecords = data || [];
+  renderStaff();
 }
 
-async function loadAudit(){
- if(!ownerVerified)return;
+function renderStaff(){
+  const list = $("staffList");
+  list.replaceChildren();
 
- const {data,error}=await db
-  .from("security_access_audit")
-  .select(
-   "id,target_user_id,actor_id,action,"+
-   "role,active,occurred_at"
-  )
-  .order("occurred_at",{ascending:false})
-  .limit(150);
+  if(!staffRecords.length){
+    list.appendChild(
+      makeElement("p","No security staff registered yet.")
+    );
+    return;
+  }
 
- const root=$("auditList");
- root.replaceChildren();
+  for(const record of staffRecords){
+    const card = makeElement("article",undefined,"staff");
 
- if(error){
-  root.append(
-   make("p","Unable to load authorization history.")
-  );
-  return;
- }
+    card.appendChild(
+      makeElement("h3","Security staff record")
+    );
 
- if(!data||!data.length){
-  root.append(
-   make("p","No authorization changes recorded.")
-  );
-  return;
- }
+    card.appendChild(
+      makeElement("p","User ID: "+record.user_id,"small")
+    );
 
- for(const entry of data){
-  const card=make("div",undefined,"audit");
+    card.appendChild(
+      makeElement(
+        "p",
+        "Current status: "+record.approval_status
+      )
+    );
 
-  card.append(
-   make("strong",entry.action.toUpperCase()),
-   make(
-    "p",
-    "Time: "+dateText(entry.occurred_at)
-   ),
-   make(
-    "p",
-    "Staff account: "+entry.target_user_id
-   ),
-   make(
-    "p",
-    "Authorized by: "+entry.actor_id
-   ),
-   make(
-    "p",
-    "Role: "+roleText(entry.role)
-   ),
-   make(
-    "p",
-    "Authorization: "+
-    (entry.active?"Active":"Inactive")
-   )
-  );
+    const role = makeSelect([
+      ["reviewer","Security Reviewer"],
+      ["supervisor","Security Supervisor"],
+      ["safeguarding_lead","Youth Safeguarding Lead"]
+    ],record.staff_role);
 
-  root.append(card);
- }
+    addLabel(card,"Assigned role",role);
+
+    const training = makeCheckbox(
+      "General security training completed",
+      record.training_completed
+    );
+
+    const safeguarding = makeCheckbox(
+      "Youth safeguarding training completed",
+      record.safeguarding_training_completed
+    );
+
+    card.appendChild(training.wrap);
+    card.appendChild(safeguarding.wrap);
+
+    const status = makeSelect([
+      ["pending","Pending"],
+      ["approved","Approved"],
+      ["suspended","Suspended"],
+      ["revoked","Revoked"]
+    ],record.approval_status);
+
+    addLabel(card,"Personnel status",status);
+
+    const save = makeElement("button","Save staff record");
+
+    save.addEventListener("click",async()=>{
+      const nextStatus = status.value;
+
+      if(
+        nextStatus === "approved" &&
+        (!training.input.checked ||
+         !safeguarding.input.checked)
+      ){
+        showMessage(
+          "Both training requirements must be completed before approval.",
+          true
+        );
+        return;
+      }
+
+      const payload = {
+        staff_role:role.value,
+        training_completed:training.input.checked,
+        safeguarding_training_completed:
+          safeguarding.input.checked,
+        approval_status:nextStatus
+      };
+
+      if(nextStatus === "approved"){
+        payload.approved_by = currentUser.id;
+        payload.approved_at =
+          record.approval_status === "approved" &&
+          record.approved_at
+          ? record.approved_at
+          : new Date().toISOString();
+      }else{
+        payload.approved_by = null;
+        payload.approved_at = null;
+      }
+
+      save.disabled = true;
+      showMessage("Saving...");
+
+      const {data,error} = await db
+        .from("security_staff_registry")
+        .update(payload)
+        .eq("id",record.id)
+        .select("id")
+        .maybeSingle();
+
+      save.disabled = false;
+
+      if(error || !data){
+        showMessage(
+          error?.message || "Update was not confirmed.",
+          true
+        );
+        return;
+      }
+
+      showMessage("Staff record updated successfully.");
+      await loadStaff();
+    });
+
+    card.appendChild(save);
+
+    card.appendChild(
+      makeElement(
+        "p",
+        "Last updated: "+
+        new Date(record.updated_at).toLocaleString(),
+        "small"
+      )
+    );
+
+    list.appendChild(card);
+  }
 }
 
-$("saveStaff").addEventListener(
- "click",saveAuthorization
-);
+$("addStaff").addEventListener("click",async()=>{
+  if(!currentUser){
+    showMessage("Owner sign-in required.",true);
+    return;
+  }
 
-$("refreshStaff").addEventListener(
- "click",loadStaff
-);
+  const userId = $("userId").value.trim();
 
-$("refreshAudit").addEventListener(
- "click",loadAudit
-);
+  if(!validUUID(userId)){
+    showMessage("Enter a valid Supabase Auth user ID.",true);
+    return;
+  }
+
+  const button = $("addStaff");
+  button.disabled = true;
+
+  const {data,error} = await db
+    .from("security_staff_registry")
+    .insert({
+      user_id:userId,
+      staff_role:$("staffRole").value,
+      approval_status:"pending",
+      training_completed:false,
+      safeguarding_training_completed:false
+    })
+    .select("id")
+    .maybeSingle();
+
+  button.disabled = false;
+
+  if(error || !data){
+    showMessage(
+      error?.message || "Registration was not confirmed.",
+      true
+    );
+    return;
+  }
+
+  $("userId").value = "";
+  showMessage("Staff registered with pending status.");
+  await loadStaff();
+});
+
+$("refreshBtn").addEventListener("click",loadStaff);
+
+$("loginBtn").addEventListener("click",async()=>{
+  const email = prompt("Enter your owner account email:");
+
+  if(!email || !email.trim()) return;
+
+  const {error} = await db.auth.signInWithOtp({
+    email:email.trim(),
+    options:{
+      emailRedirectTo:window.location.href
+    }
+  });
+
+  showMessage(
+    error ? error.message : "Check your email for the sign-in link.",
+    !!error
+  );
+});
+
+$("logoutBtn").addEventListener("click",async()=>{
+  await db.auth.signOut();
+  currentUser = null;
+  staffRecords = [];
+  showMessage("Signed out.");
+  await verifyOwner();
+});
 
 verifyOwner();
 </script>
