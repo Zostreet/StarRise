@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StarRise Sandbox Refund Test</title>
+  <style>
+    body {
+      background: #10131d;
+      color: white;
+      font: 16px system-ui;
+      max-width: 620px;
+      margin: 30px auto;
+      padding: 16px;
+    }
+    button, input {
+      box-sizing: border-box;
+      padding: 14px;
+      margin: 10px 0;
+      border-radius: 8px;
+      font: inherit;
+    }
+    button {
+      background: #ffd75e;
+      color: #111;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .4; }
+    input { width: 100%; }
+    pre {
+      background: #22283a;
+      padding: 16px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    a { color: #ffd75e; }
+  </style>
+</head>
+<body>
+  <h1>StarRise Sandbox Refund Test</h1>
+  <p>No real money or seller payouts.</p>
+
+  <p>
+    <a href="dashboard.html">StarRise Dashboard</a>
+  </p>
+
+  <label for="order">Test order ID</label>
+  <input
+    id="order"
+    value="a6dca86a-4b26-42bd-8bd7-d63e9163a562"
+  >
+
+  <button id="check">Check Admin Access</button>
+  <p id="admin"></p>
+
+  <button id="refund" disabled>
+    Refund $22 Sandbox Payment
+  </button>
+
+  <pre id="status">Check administrator access first.</pre>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="css/payments.js?v=20261010-2"></script>
+
+  <script>
+    const db = window.StarRisePayments.client();
+    const status = document.getElementById("status");
+    const refund = document.getElementById("refund");
+    const admin = document.getElementById("admin");
+
+    document.getElementById("check").onclick = async () => {
+      refund.disabled = true;
+
+      try {
+        const { data, error } = await db.functions.invoke(
+          "admin-access-check",
+          { body: {} }
+        );
+
+        if (error) throw error;
+
+        if (data?.is_admin) {
+          admin.textContent = "Administrator verified";
+          status.textContent =
+            "Ready to run the Sandbox refund test.";
+          refund.disabled = false;
+        } else {
+          admin.textContent =
+            "Administrator access not found";
+          status.textContent =
+            "Sign in using your StarRise administrator account.";
+        }
+      } catch (error) {
+        status.textContent = error.message;
+      }
+    };
+
+    refund.onclick = async () => {
+      const approved = confirm(
+        "Refund the $22 Sandbox payment? " +
+        "This changes the test payment status."
+      );
+
+      if (!approved) return;
+
+      refund.disabled = true;
+      status.textContent =
+        "Requesting Sandbox refund...";
+
+      try {
+        const { data, error } = await db.functions.invoke(
+          "starrise-cart-sandbox-refund",
+          {
+            body: {
+              test_order_id:
+                document.getElementById("order").value.trim()
+            }
+          }
+        );
+
+        if (error) {
+          let detail;
+
+          try {
+            detail = await error.context.json();
+          } catch {}
+
+          throw new Error(
+            detail?.error || error.message
+          );
+        }
+
+        status.textContent =
+          JSON.stringify(data, null, 2);
+      } catch (error) {
+        status.textContent =
+          "Refund not confirmed: " + error.message +
+          "\nCheck the payment status before retrying.";
+      }
+    };
+  </script>
+</body>
+</html>
