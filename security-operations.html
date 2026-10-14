@@ -1,0 +1,328 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security Operations | StarRise</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0917;color:#f8f6ff;font:16px/1.55 Arial,sans-serif}
+header{padding:18px 5%;background:#171026;border-bottom:1px solid #ffffff22}
+a{color:#f4cf76}
+main{max-width:1050px;margin:auto;padding:24px 16px 75px}
+h1{font-size:clamp(30px,6vw,48px)}
+h2{margin-top:0}
+.panel{background:#21172f;border:1px solid #ffffff26;border-radius:15px;padding:20px;margin:18px 0}
+.muted{color:#c8bed4}
+.warning{border-left:5px solid #f4cf76}
+.critical{border-left:5px solid #ff7c7c}
+label{display:block;font-weight:bold;margin:14px 0 6px}
+input,select,textarea{width:100%;padding:12px;border-radius:8px;border:1px solid #bdb5c9;background:white;color:#171026;font:inherit}
+textarea{min-height:110px}
+button{border:0;background:#f4cf76;color:#171026;font-weight:bold;border-radius:9px;padding:12px 17px;margin:12px 8px 0 0;cursor:pointer}
+button:disabled{opacity:.55;cursor:wait}
+.hidden{display:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.incident{border-top:1px solid #ffffff30;padding-top:18px;margin-top:18px}
+#notice{min-height:25px}
+small{color:#c8bed4}
+.check{display:flex;align-items:center;gap:10px}
+.check input{width:auto}
+.badge{display:inline-block;background:#453557;border-radius:20px;padding:3px 11px;margin-right:8px}
+</style>
+</head>
+<body>
+<header>
+<a href="index.html">★ StarRise Home</a> ·
+<a href="executive-admin.html">Executive Admin</a>
+</header>
+
+<main>
+<h1>StarRise Security Operations Center</h1>
+<p class="muted">Private owner dashboard · Fam Entertainment LLC</p>
+
+<div class="panel warning">
+<strong>Immediate danger?</strong>
+<p>Call 911 in an emergency. This dashboard is not monitored by emergency responders. For suspected child abuse or exploitation, follow applicable mandatory-reporting requirements and contact the appropriate authorities. Do not use this form to store graphic evidence, explicit images, Social Security numbers, or background-check reports.</p>
+</div>
+
+<div id="access" class="panel">
+<strong>Checking access…</strong>
+</div>
+
+<div id="workspace" class="hidden">
+
+<section class="panel">
+<h2>Log an incident</h2>
+<p class="muted">For authorized internal reporting only. Record facts, not assumptions. Restrict details to what is necessary.</p>
+
+<form id="incidentForm">
+<div class="grid">
+<div>
+<label for="type">Incident category *</label>
+<select id="type" required>
+<option value="">Choose</option>
+<option value="scam_fraud">Scam / financial fraud</option>
+<option value="harassment">Harassment</option>
+<option value="threat_violence">Threat / violence</option>
+<option value="youth_safety">Youth safeguarding</option>
+<option value="account_security">Account / cyber security</option>
+<option value="event_safety">Event safety</option>
+<option value="other">Other</option>
+</select>
+</div>
+
+<div>
+<label for="severity">Severity *</label>
+<select id="severity">
+<option value="low">Low</option>
+<option value="medium" selected>Medium</option>
+<option value="high">High</option>
+<option value="critical">Critical</option>
+</select>
+</div>
+</div>
+
+<label for="summary">Short summary *</label>
+<input id="summary" required minlength="5" maxlength="200" placeholder="Brief factual summary">
+
+<label for="details">Details *</label>
+<textarea id="details" required minlength="10" maxlength="5000" placeholder="What happened, when, and what immediate action was taken?"></textarea>
+
+<label for="context">Location / platform context (optional)</label>
+<input id="context" maxlength="300" placeholder="Event name, app feature, or general location">
+
+<div class="check">
+<input type="checkbox" id="danger">
+<label for="danger">Immediate danger reported</label>
+</div>
+
+<button type="submit" id="create">Save incident</button>
+</form>
+</section>
+
+<section class="panel">
+<h2>Incident queue</h2>
+<div class="grid">
+<div>
+<label for="filter">Filter by status</label>
+<select id="filter">
+<option value="">All statuses</option>
+<option value="new">New</option>
+<option value="reviewing">Reviewing</option>
+<option value="action_needed">Action needed</option>
+<option value="resolved">Resolved</option>
+<option value="closed">Closed</option>
+</select>
+</div>
+
+<div>
+<label for="search">Search</label>
+<input id="search" placeholder="Summary or incident ID">
+</div>
+</div>
+
+<button id="refresh" type="button">Refresh incidents</button>
+<div id="incidents"></div>
+</section>
+
+<section class="panel warning">
+<h2>Operating rules</h2>
+<p>Limit access to approved personnel, document actions objectively, and escalate urgent risks to the proper authorities. Do not promise anonymity or use this system as a substitute for emergency reporting. Keep background-check reports in a separate, access-controlled screening process.</p>
+<p>Before allowing additional security staff, implement individual permissions, training, and an incident escalation policy. Youth-facing activities also need separate supervision and safeguarding procedures.</p>
+</section>
+
+</div>
+
+<p id="notice" role="status" aria-live="polite"></p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+'use strict';
+
+const db=window.supabase.createClient(
+'https://rcnikxotdalxtuvpmlvm.supabase.co',
+'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+);
+
+const $=id=>document.getElementById(id);
+let records=[];
+
+function status(text,error=false){
+$('notice').textContent=text;
+$('notice').style.color=error?'#ffb4b4':'#a6edb7';
+}
+
+function el(tag,text,cls){
+const x=document.createElement(tag);
+if(text!==undefined)x.textContent=text;
+if(cls)x.className=cls;
+return x;
+}
+
+async function init(){
+try{
+const {data:{user},error}=await db.auth.getUser();
+
+if(error||!user){
+$('access').textContent='Sign in through the StarRise Executive Admin page first, then return here.';
+return;
+}
+
+const {data,error:roleError}=await db
+.from('platform_admins')
+.select('access_level')
+.eq('user_id',user.id)
+.eq('access_level','owner')
+.maybeSingle();
+
+if(roleError||!data){
+$('access').textContent='Access restricted to the company owner account.';
+return;
+}
+
+$('access').textContent='Owner access verified. Incident records are private.';
+$('workspace').classList.remove('hidden');
+await load();
+
+}catch(e){
+$('access').textContent='Unable to verify access. Try again after signing in.';
+}
+}
+
+async function load(){
+const {data,error}=await db
+.from('security_incidents')
+.select('id,created_at,incident_type,severity,status,summary,details,location_context,immediate_danger,action_notes')
+.order('created_at',{ascending:false})
+.limit(150);
+
+if(error){
+status('Unable to load incidents.',true);
+return;
+}
+
+records=data||[];
+render();
+}
+
+function render(){
+const root=$('incidents');
+root.replaceChildren();
+
+const q=$('search').value.trim().toLowerCase();
+const f=$('filter').value;
+
+const matches=records.filter(r=>
+(!f||r.status===f)&&
+(!q||r.summary.toLowerCase().includes(q)||r.id.toLowerCase().includes(q))
+);
+
+if(!matches.length){
+root.append(el('p','No incidents match your filters.'));
+return;
+}
+
+for(const r of matches){
+const card=el('article',undefined,'incident');
+const heading=el('h3',r.summary);
+
+card.append(
+heading,
+el('span',r.incident_type.replaceAll('_',' '),'badge'),
+el('span',r.severity.toUpperCase(),'badge'),
+el('p','Reported: '+new Date(r.created_at).toLocaleString()),
+el('p','Incident ID: '+r.id),
+el('p','Details: '+r.details)
+);
+
+if(r.location_context){
+card.append(el('p','Context: '+r.location_context));
+}
+
+if(r.immediate_danger){
+card.append(el('p','IMMEDIATE DANGER FLAGGED','critical'));
+}
+
+const lab=el('label','Investigation status');
+const sel=document.createElement('select');
+
+for(const s of ['new','reviewing','action_needed','resolved','closed']){
+const o=new Option(s.replaceAll('_',' '),s);
+sel.add(o);
+}
+sel.value=r.status;
+lab.append(sel);
+
+const notesLabel=el('label','Private action notes');
+const notes=document.createElement('textarea');
+notes.value=r.action_notes||'';
+notes.maxLength=5000;
+notesLabel.append(notes);
+
+const save=el('button','Save changes');
+save.type='button';
+
+save.addEventListener('click',async()=>{
+save.disabled=true;
+
+const {error}=await db
+.from('security_incidents')
+.update({status:sel.value,action_notes:notes.value})
+.eq('id',r.id);
+
+save.disabled=false;
+
+if(error){
+status('Could not save changes.',true);
+}else{
+status('Incident updated.');
+await load();
+}
+});
+
+card.append(lab,notesLabel,save);
+root.append(card);
+}
+}
+
+$('incidentForm').addEventListener('submit',async e=>{
+e.preventDefault();
+
+const btn=$('create');
+btn.disabled=true;
+
+const item={
+incident_type:$('type').value,
+severity:$('severity').value,
+summary:$('summary').value.trim(),
+details:$('details').value.trim(),
+location_context:$('context').value.trim()||null,
+immediate_danger:$('danger').checked
+};
+
+const {error}=await db
+.from('security_incidents')
+.insert(item);
+
+btn.disabled=false;
+
+if(error){
+status('Could not save incident. Check owner access and required fields.',true);
+}else{
+$('incidentForm').reset();
+status('Incident saved privately.');
+await load();
+}
+});
+
+$('refresh').addEventListener('click',load);
+$('filter').addEventListener('change',render);
+$('search').addEventListener('input',render);
+
+init();
+</script>
+</body>
+</html>
