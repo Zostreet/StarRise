@@ -125,9 +125,24 @@ input[type=range]{width:110px}
 <h2>Vocal Recording</h2>
 <p class="note">Use headphones to prevent the beat from leaking into the microphone.</p>
 <div class="toolbar">
+<label>Record From (sec)
+<input id="recordFrom" type="number" min="0" step="0.001" value="0">
+</label>
+<label>Count-in
+<select id="countIn">
+<option value="0">Off</option>
+<option value="4" selected>1 bar · 4 beats</option>
+<option value="8">2 bars · 8 beats</option>
+</select>
+</label>
+<label><span>Metronome while recording</span><input id="recordMetronome" type="checkbox"></label>
+</div>
+<p id="recordClock" role="timer" class="note">Ready to record.</p>
+<div class="toolbar">
 <button id="recordVocal">Record Vocal</button>
 <button id="stopVocal" class="danger" disabled>Stop Recording</button>
 </div>
+<p class="note">The count-in is excluded from your take. Existing tracks play from Record From, and the new take starts there. The click is not added to exports; use headphones to keep it out of the microphone. Adjust Start in Song after recording if your device adds latency.</p>
 <label>Import Beat or Audio
 <input id="audioUpload" type="file" accept="audio/*" multiple>
 </label>
@@ -194,10 +209,8 @@ let trackEditHistory=[];
 let nextTrackId=1;
 let playingSources=[];
 let recording=false;
-let recorder=null;
-let micStream=null;
-let recordedChunks=[];
-let recordingOffset=0;
+let recordingSession=null;
+let recordingWorkletReady=null;
 let playbackStart=0;
 let playing=false;
 let beatTimer=null;
@@ -284,6 +297,7 @@ beatTimer=null;
 }
 
 function stopAll(){
+if(recordingSession)return stopVocal();
 stopSources();
 stopBeat();
 status("Playback stopped.");
@@ -369,11 +383,13 @@ feedback.connect(delay);
 return source;
 }
 
-function scheduleTrack(track,ac,start,destination){
+function scheduleTrack(track,ac,start,destination,position=0){
 if(track.mute)return;
 const clip=clipRange(track);
+const skipped=Math.max(0,position-track.offset);
+if(skipped>=clip.duration)return;
 const source=connectTrack(track,ac,destination);
-source.start(start+track.offset,clip.start,clip.duration);
+source.start(start+Math.max(0,track.offset-position),clip.start+skipped,clip.duration-skipped);
 addSource(source,ac);
 }
 
@@ -831,107 +847,244 @@ box.append(row);
 });
 }
 
+function normalizedRecording(raw){
+if(raw===undefined)return{from:0,countIn:4,metronome:false};
+if(!raw||typeof raw!=="object"||Array.isArray(raw)||![0,4,8].includes(raw.countIn)||typeof raw.metronome!=="boolean"){
+throw Error("Invalid recording settings in this project.");
+}
+return{from:projectNumber(raw.from,"recording start",0,Number.MAX_SAFE_INTEGER),countIn:raw.countIn,metronome:raw.metronome};
+}
+
+function recordingSettings(){
+if(!$("recordFrom").value.trim())throw Error("Enter the song position to record from.");
+return normalizedRecording({from:Number($("recordFrom").value),countIn:Number($("countIn").value),metronome:!!$("recordMetronome").checked});
+}
+
+function applyRecordingSettings(settings){
+$("recordFrom").value=settings.from;
+$("countIn").value=String(settings.countIn);
+$("recordMetronome").checked=settings.metronome;
+}
+
+function recordingButtons(active){
+$("recordVocal").disabled=active;
+$("stopVocal").disabled=!active;
+["recordFrom","countIn","recordMetronome","bpm"].forEach(id=>$(id).disabled=active);
+}
+
+function activeRecording(session){
+return recordingSession===session&&!session.finished;
+}
+
+function clearRecordingClock(session){
+clearTimeout(session.clockTimer);
+session.clicks.forEach(({source,gain})=>{
+try{source.stop();}catch(error){}
+source.disconnect();gain.disconnect();
+});
+session.clicks.clear();
+}
+
+function releaseRecording(session){
+session.finished=true;
+clearRecordingClock(session);clearTimeout(session.finishTimer);
+session.stream?.getTracks().forEach(track=>track.stop());
+session.input?.disconnect();session.processor?.disconnect();
+if(session.processor)session.processor.port.onmessage=null;
+if(session.recorder){
+session.recorder.onstart=null;session.recorder.ondataavailable=null;session.recorder.onstop=null;session.recorder.onerror=null;
+try{if(session.recorder.state==="recording")session.recorder.stop();}catch(error){}
+}
+if(recordingSession===session){
+stopSources();recordingSession=null;recording=false;recordingButtons(false);
+}
+session.resolveDone();
+}
+
+function finishVocal(session,buffer,notice=""){
+if(!activeRecording(session))return;
+try{
+if(buffer?.length){
+makeTrack("Vocal Take "+nextTrackId,buffer,"vocal",session.settings.from);
+status(notice||session.notice||"Vocal recorded at "+timeValue(session.settings.from)+" seconds. Save Project to keep this take.");
+$("recordClock").textContent="Take length: "+timeValue(buffer.duration)+" sec";
+}else{
+status("No audio was captured. No take was added.");
+$("recordClock").textContent="No take added.";
+}
+}catch(error){status("Recording could not finish: "+error.message);}
+finally{releaseRecording(session);}
+}
+
+function finishPCM(session,partial=false){
+if(!activeRecording(session))return;
+try{
+const length=session.chunks.reduce((total,chunk)=>total+chunk.length,0);
+let buffer=null;
+if(length){
+buffer=session.ac.createBuffer(1,length,session.ac.sampleRate);
+let offset=0;
+session.chunks.forEach(chunk=>{buffer.copyToChannel(chunk,0,offset);offset+=chunk.length;});
+}
+finishVocal(session,buffer,partial?"A partial vocal take was kept; the final audio block could not be read. Save a backup before continuing.":"");
+}catch(error){
+status("Recording could not finish: "+error.message);releaseRecording(session);
+}
+}
+
+function metronomeClick(session,time,beat){
+const ac=session.ac,source=ac.createOscillator(),gain=ac.createGain();
+source.frequency.value=beat%4===0?1000:750;
+gain.gain.setValueAtTime(.09,time);
+gain.gain.exponentialRampToValueAtTime(.0001,time+.035);
+source.connect(gain);gain.connect(ac.destination);
+const click={source,gain};session.clicks.add(click);
+source.onended=()=>{session.clicks.delete(click);source.disconnect();gain.disconnect();};
+source.start(time);source.stop(time+.04);
+}
+
+function recordingTick(session){
+if(!activeRecording(session)||session.stopping)return;
+const now=session.ac.currentTime,step=60/session.bpm;
+// Skip missed beats after a background pause instead of playing a burst of old clicks.
+session.nextBeat=Math.max(session.nextBeat,Math.ceil((now-session.clickBase-.03)/step));
+while(session.clickBase+session.nextBeat*step<now+.12){
+const at=session.clickBase+session.nextBeat*step;
+if(at<session.startAt-.000001||session.settings.metronome)metronomeClick(session,at,session.nextBeat);
+session.nextBeat++;
+}
+if(now<session.startAt){
+const remaining=Math.ceil((session.startAt-now)/step);
+$("recordClock").textContent=session.settings.countIn?"Count-in: "+Math.min(session.settings.countIn,remaining)+" beats remaining":"Starting…";
+}else{
+if(session.stage!=="recording"){
+session.stage="recording";status("Recording vocal. Use headphones. Stop ends the take.");
+}
+const elapsed=Math.max(0,Math.floor(now-session.startAt));
+$("recordClock").textContent="Recording "+Math.floor(elapsed/60)+":"+String(elapsed%60).padStart(2,"0");
+}
+session.clockTimer=setTimeout(()=>recordingTick(session),40);
+}
+
+async function prepareRecorder(session){
+const ac=session.ac;
+if(ac.audioWorklet&&window.AudioWorkletNode){
+try{
+if(!recordingWorkletReady)recordingWorkletReady=ac.audioWorklet.addModule("css/studio-recorder-worklet.js").catch(error=>{recordingWorkletReady=null;throw error;});
+await recordingWorkletReady;
+if(!activeRecording(session))return;
+session.processor=new window.AudioWorkletNode(ac,"starrise-recorder",{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1]});
+session.input=ac.createMediaStreamSource(session.stream);
+session.input.connect(session.processor);session.processor.connect(ac.destination);
+session.mode="pcm";
+session.processor.port.onmessage=event=>{
+if(!activeRecording(session))return;
+if(event.data?.type==="samples")session.chunks.push(event.data.samples);
+if(event.data?.type==="done")finishPCM(session);
+};
+session.processor.onprocessorerror=()=>{if(activeRecording(session))stopVocal("The recording engine stopped; the captured part of this take was kept.");};
+return;
+}catch(error){
+session.input?.disconnect();session.processor?.disconnect();
+session.input=null;session.processor=null;
+}
+}
+if(!activeRecording(session))return;
+const Capture=window.MediaRecorder;
+if(!Capture)throw Error("Microphone recording is not supported in this browser. You can still import audio.");
+const mime=["audio/webm;codecs=opus","audio/webm","audio/mp4"].find(type=>Capture.isTypeSupported?.(type));
+session.recorder=new Capture(session.stream,mime?{mimeType:mime}:undefined);
+session.mode="encoded";
+session.recorder.onstart=()=>{session.captureAt=ac.currentTime;};
+session.recorder.ondataavailable=event=>{if(activeRecording(session)&&event.data.size)session.chunks.push(event.data);};
+session.recorder.onerror=()=>{
+if(!activeRecording(session))return;
+status("The microphone recorder stopped unexpectedly. Try another take or import audio.");
+releaseRecording(session);
+};
+session.recorder.onstop=async()=>{
+if(!activeRecording(session))return;
+try{
+const blob=new Blob(session.chunks,{type:session.recorder.mimeType||"audio/webm"});
+const decoded=await ac.decodeAudioData(await blob.arrayBuffer());
+if(!activeRecording(session))return;
+const first=Math.max(0,Math.round((session.startAt-session.captureAt)*decoded.sampleRate));
+let buffer=null;
+if(first<decoded.length){
+buffer=ac.createBuffer(decoded.numberOfChannels,decoded.length-first,decoded.sampleRate);
+for(let c=0;c<decoded.numberOfChannels;c++)buffer.copyToChannel(decoded.getChannelData(c).subarray(first),c);
+}
+finishVocal(session,buffer);
+}catch(error){
+if(activeRecording(session)){status("Recording decode failed: "+error.message);releaseRecording(session);}
+}
+};
+}
+
 async function beginVocal(){
-if(recording)return;
-
+if(recording||projectBusy)return;
+const session={finished:false,stopping:false,stage:"arming",chunks:[],clicks:new Set(),nextBeat:0};
+session.done=new Promise(resolve=>session.resolveDone=resolve);
+recordingSession=session;recording=true;recordingButtons(true);
+stopSources();stopBeat();
+$("recordClock").textContent="Preparing microphone…";
+status("Preparing microphone. Stop cancels this recording request.");
 try{
-const ac=await ready();
-
-if(!navigator.mediaDevices?.getUserMedia){
-throw Error("Microphone recording is not supported in this browser.");
+session.settings=recordingSettings();
+session.bpm=Math.max(40,Math.min(240,Number($("bpm").value)||100));
+session.ac=await ready();
+if(!activeRecording(session))return;
+if(!navigator.mediaDevices?.getUserMedia)throw Error("Microphone recording is not supported in this browser.");
+const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+if(!activeRecording(session)){stream.getTracks().forEach(track=>track.stop());return;}
+session.stream=stream;
+await prepareRecorder(session);
+if(!activeRecording(session))return;
+if(session.ac.state==="suspended")await session.ac.resume();
+if(!activeRecording(session))return;
+session.clickBase=session.ac.currentTime+.15;
+session.startAt=session.clickBase+session.settings.countIn*60/session.bpm;
+session.stage="counting";
+if(session.mode==="pcm")session.processor.port.postMessage({type:"start",startFrame:Math.round(session.startAt*session.ac.sampleRate)});
+else {session.captureAt=session.ac.currentTime;session.recorder.start();}
+tracks.forEach(track=>scheduleTrack(track,session.ac,session.startAt,session.ac.destination,session.settings.from));
+stream.getAudioTracks().forEach(track=>track.addEventListener("ended",()=>{
+if(activeRecording(session)&&!session.stopping)stopVocal("Microphone disconnected; the captured part of this take was kept.");
+},{once:true}));
+status(session.settings.countIn?"Count-in started. Recording begins after "+session.settings.countIn+" beats.":"Recording starts now. Use headphones.");
+recordingTick(session);
+}catch(error){
+if(activeRecording(session)){
+status("Microphone error: "+error.message);$("recordClock").textContent="Recording not started.";releaseRecording(session);
+}
+}
 }
 
-micStream=await navigator.mediaDevices.getUserMedia({
-audio:{
-echoCancellation:false,
-noiseSuppression:false,
-autoGainControl:false
+function stopVocal(notice=""){
+const session=recordingSession;
+if(!session||session.stopping)return session?.done;
+session.stopping=true;session.notice=notice;
+if(session.stage==="arming"||session.ac.currentTime<session.startAt){
+status("Recording cancelled before the take began. No take was added.");
+$("recordClock").textContent="Recording cancelled.";releaseRecording(session);
+return session.done;
 }
-});
-
-const preferred=[
-"audio/webm;codecs=opus",
-"audio/webm",
-"audio/mp4"
-];
-
-const mime=preferred.find(type=>
-MediaRecorder.isTypeSupported(type)
-);
-
-recorder=new MediaRecorder(
-micStream,
-mime?{mimeType:mime}:undefined
-);
-
-recordedChunks=[];
-recording=true;
-
-recordingOffset=0;
-
-if(tracks.length){
-stopAll();
-playbackStart=ac.currentTime+.2;
-
-tracks.forEach(track=>{
-scheduleTrack(track,ac,playbackStart,ac.destination);
-});
+session.stage="processing";$("stopVocal").disabled=true;
+clearRecordingClock(session);stopSources();
+$("recordClock").textContent="Finishing take…";status("Processing vocal…");
+if(session.mode==="pcm"){
+session.processor.port.postMessage({type:"stop"});
+session.finishTimer=setTimeout(()=>finishPCM(session,true),1500);
+session.stream.getTracks().forEach(track=>track.stop());
+}else{
+try{session.recorder.stop();}
+catch(error){status("Recording could not stop: "+error.message);releaseRecording(session);}
 }
-
-recorder.ondataavailable=e=>{
-if(e.data.size)recordedChunks.push(e.data);
-};
-
-recorder.onstop=async()=>{
-try{
-const blob=new Blob(recordedChunks,{
-type:recorder.mimeType||"audio/webm"
-});
-
-const bytes=await blob.arrayBuffer();
-const buffer=await ac.decodeAudioData(bytes);
-
-makeTrack(
-"Vocal Take "+nextTrackId,
-buffer,
-"vocal",
-recordingOffset
-);
-
-status("Vocal recorded. Open Mixer & FX to add effects.");
-}catch(e){
-status("Recording decode failed: "+e.message);
-}finally{
-micStream?.getTracks().forEach(t=>t.stop());
-micStream=null;
-recording=false;
-$("recordVocal").disabled=false;
-$("stopVocal").disabled=true;
-stopSources();
-}
-};
-
-recorder.start();
-
-$("recordVocal").disabled=true;
-$("stopVocal").disabled=false;
-status("Recording vocal. Use headphones.");
-
-}catch(e){
-recording=false;
-micStream?.getTracks().forEach(t=>t.stop());
-status("Microphone error: "+e.message);
-}
+return session.done;
 }
 
 $("recordVocal").onclick=beginVocal;
-
-$("stopVocal").onclick=()=>{
-if(recorder?.state==="recording"){
-recorder.stop();
-status("Processing vocal...");
-}
-};
+$("stopVocal").onclick=()=>stopVocal();
 
 async function renderSession(onlyTrack=null){
 const duration=onlyTrack
@@ -1077,6 +1230,7 @@ return{
 format:PROJECT_FORMAT,version:2,
 name:$("projectName").value.trim()||"My StarRise Song",
 bpm:Math.max(40,Math.min(240,Number($("bpm").value)||100)),
+recording:recordingSettings(),
 pads:pads.map(p=>({name:p.name,pattern:[...p.pattern]})),
 tracks:tracks.map(t=>({
 name:t.name,type:t.type,offset:t.offset,
@@ -1099,6 +1253,7 @@ const name=value=>typeof value==="string"?value.slice(0,200):"";
 return{
 name:name(data.name)||"My StarRise Song",
 bpm:projectNumber(data.bpm,"tempo",40,240),
+recording:normalizedRecording(data.recording),
 pads:data.pads.map((p,i)=>{
 if(!p||!Array.isArray(p.pattern)||p.pattern.length!==16||p.pattern.some(s=>typeof s!=="boolean")){
 throw Error("Invalid drum pattern in this project.");
@@ -1215,6 +1370,7 @@ trackEditHistory=[];
 tracks=restoredTracks;nextTrackId=tracks.length+1;
 restoredPads.forEach((p,i)=>Object.assign(pads[i],p));
 $("projectName").value=settings.name;$("bpm").value=settings.bpm;
+applyRecordingSettings(settings.recording);
 renderPads();renderSequencer();renderTracks();
 return true;
 }
@@ -1224,6 +1380,7 @@ const settings=normalizedSettings(data);
 settings.tracks.forEach((saved,i)=>{if(tracks[i])clipRange({...tracks[i],...saved});});
 trackEditHistory=[];
 $("projectName").value=settings.name;$("bpm").value=settings.bpm;
+applyRecordingSettings(settings.recording);
 settings.pads.forEach((p,i)=>Object.assign(pads[i],p));
 settings.tracks.forEach((saved,i)=>{if(tracks[i])Object.assign(tracks[i],saved);});
 renderPads();renderSequencer();renderTracks();
