@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Artist Services | StarRise</title>
+<link rel="icon" href="starrise-logo.png">
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#100d1c;
+  color:white;
+  font:16px/1.6 Arial,sans-serif;
+}
+main{max-width:1000px;margin:auto;padding:24px}
+a{color:#e5b9ff}
+header,.hero,.card{
+  background:#241a38;
+  padding:24px;
+  border-radius:18px;
+  margin-bottom:20px;
+  border:1px solid #654580;
+}
+h1{font-size:clamp(32px,6vw,52px);line-height:1.1}
+h2{margin-top:0}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:18px;
+}
+.grid .card{margin-bottom:0}
+.price{font-size:30px;font-weight:bold;color:#e5b9ff}
+button{
+  background:#e5b9ff;
+  color:#170e23;
+  border:0;
+  border-radius:12px;
+  padding:15px 22px;
+  font-weight:bold;
+  font-size:16px;
+  cursor:pointer;
+}
+input,select,textarea{
+  display:block;
+  width:100%;
+  background:#160f24;
+  color:white;
+  border:1px solid #85669e;
+  border-radius:10px;
+  padding:13px;
+  margin:7px 0 18px;
+  font:inherit;
+}
+label{font-weight:bold}
+.notice{
+  background:#40304e;
+  padding:16px;
+  border-radius:12px;
+}
+small,.muted{color:#cbbfd9}
+footer{text-align:center;padding:25px}
+</style>
+</head>
+<body>
+
+<main>
+<header>
+<a href="index.html">StarRise Home</a> |
+<a href="marketplace.html">Marketplace</a>
+</header>
+
+<section class="hero">
+<h1>StarRise Artist Services</h1>
+<p>Where talent meets opportunity.</p>
+<p>
+Professional creative services for independent
+artists, musicians, and content creators.
+</p>
+<div class="notice">
+Service inquiries are now open.
+All prices are starting estimates.
+Final pricing and availability are confirmed
+before any work begins.
+Automated checkout is not yet active.
+</div>
+</section>
+
+<section class="grid">
+
+<article class="card">
+<h2>Custom Vocals & Hooks</h2>
+<div class="price">From $50</div>
+<p>
+Original vocal hooks, singing features,
+and custom vocal ideas for your music.
+</p>
+</article>
+
+<article class="card">
+<h2>Songwriting</h2>
+<div class="price">From $75</div>
+<p>
+Original lyrics, song concepts,
+and collaborative songwriting.
+</p>
+</article>
+
+<article class="card">
+<h2>Artist Promotion</h2>
+<div class="price">From $35</div>
+<p>
+Promotional graphics, artist branding,
+and creative release support.
+</p>
+</article>
+
+</section>
+
+<section class="card">
+<h2>Request Your Service</h2>
+<p>
+Tell us what you're working on.
+We'll review your inquiry and discuss
+pricing, availability, and next steps.
+</p>
+
+<form id="serviceForm">
+
+<label for="customerName">Your Name</label>
+<input id="customerName" required maxlength="100">
+
+<label for="customerEmail">Email Address</label>
+<input id="customerEmail" type="email" required maxlength="200">
+
+<label for="service">Choose Your Service</label>
+<select id="service">
+<option>Custom Vocals & Hooks</option>
+<option>Songwriting</option>
+<option>Artist Promotion</option>
+<option>Other Creative Service</option>
+</select>
+
+<label for="details">Project Details</label>
+<textarea
+id="details"
+rows="6"
+maxlength="3000"
+required
+placeholder="Describe your project, timeline, and budget"
+></textarea>
+
+<button type="submit">Prepare Service Inquiry</button>
+
+</form>
+
+<p class="muted">
+This opens your email app with your request
+prepared. Press Send in your email app to
+submit it. No payment is collected here.
+</p>
+</section>
+
+<footer>
+<p>FAM Entertainment LLC / StarRise</p>
+<p>
+<a href="terms.html">Terms</a> |
+<a href="privacy.html">Privacy</a> |
+<a href="support.html">Support</a>
+</p>
+</footer>
+</main>
+
+<script>
+document.getElementById("serviceForm")
+.addEventListener("submit",function(event){
+  event.preventDefault();
+
+  const value=id=>
+    document.getElementById(id).value.trim();
+
+  const subject=
+    "StarRise Artist Services Inquiry - "+
+    value("service");
+
+  const body=[
+    "StarRise Artist Services Inquiry",
+    "",
+    "Name: "+value("customerName"),
+    "Email: "+value("customerEmail"),
+    "Service: "+value("service"),
+    "",
+    "Project Details:",
+    value("details"),
+    "",
+    "Please contact me with availability and a quote."
+  ].join("\n");
+
+  window.location.href=
+    "mailto:streetsoul8316@gmail.com"+
+    "?subject="+encodeURIComponent(subject)+
+    "&body="+encodeURIComponent(body);
+});
+</script>
+
+</body>
+</html>
