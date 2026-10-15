@@ -180,7 +180,7 @@ test('declining project replacement keeps the current tracks and settings', asyn
   assert.match(run(destination, '$(' + JSON.stringify('status') + ').textContent'), /Import cancelled/);
 });
 
-test('mixer copies change actual track volume/mute and Remove works from the mixer', () => {
+test('mixer controls change actual track volume/mute and Remove works from the mixer', () => {
   const context = page(); seed(context);
   run(context, `
     const mixerVolume = $('mixerTracks').querySelector('input[data-setting="volume"]');
@@ -192,7 +192,7 @@ test('mixer copies change actual track volume/mute and Remove works from the mix
   assert.equal(run(context, 'tracks[0].mute'), true);
   assert.equal(run(context, '$(' + JSON.stringify('recordTracks') + ').querySelector(\'input[data-setting="volume"]\').value'), '0.37');
   assert.equal(run(context, '$(' + JSON.stringify('recordTracks') + ').querySelector(\'input[data-setting="mute"]\').checked'), true);
-  run(context, '$(' + JSON.stringify('mixerTracks') + ').querySelector("button").onclick()');
+  run(context, '[...$("mixerTracks").querySelectorAll("button")].find(b=>b.textContent==="Remove").onclick()');
   assert.equal(run(context, 'tracks.length'), 0);
 });
 
@@ -238,4 +238,171 @@ test('ending the final source clears playback state and all-muted sessions do no
   await run(context, 'playSession()');
   assert.equal(run(context, 'playing'), false);
   assert.match(run(context, '$(' + JSON.stringify('status') + ').textContent'), /All tracks are muted/);
+});
+
+function seedEditable(context) {
+  run(context, `
+    const originalAudio = getContext().createBuffer(2, 16000, 8000);
+    originalAudio.getChannelData(0)[2000] = .8;
+    originalAudio.getChannelData(1)[6000] = -.7;
+    makeTrack('Lead Vocal', originalAudio, 'vocal');
+  `);
+}
+
+function applyFromView(context, view, values) {
+  context.editValues = values;
+  context.editView = view;
+  return run(context, `
+    (() => {
+      const row = $(editView).querySelector('.track');
+      for (const [key, value] of Object.entries(editValues)) row.querySelector('[data-edit="'+key+'"]').value = String(value);
+      [...row.querySelectorAll('button')].find(b=>b.textContent==='Apply Track Edit').onclick();
+    })()
+  `);
+}
+
+test('recording and mixer editors position and trim audio without changing original PCM', () => {
+  const context = page(); seedEditable(context);
+  applyFromView(context, 'recordTracks', {name:'Chorus',offset:2.5,trimStart:.25,trimEnd:1.25});
+  assert.equal(run(context, 'tracks[0].name'), 'Chorus');
+  assert.equal(run(context, 'tracks[0].buffer===originalAudio'), true);
+  assert.equal(run(context, 'tracks[0].buffer.length'), 16000);
+  assert.equal(run(context, 'sessionDuration()'), 3.5);
+  assert.match(run(context, '$("arrangement").querySelector("[role=img]").getAttribute("aria-label")'), /Chorus: starts at 2.5 seconds, plays 1 seconds/);
+  assert.equal(run(context, '$("mixerTracks").querySelector("[data-edit=offset]").value'), '2.5');
+  applyFromView(context, 'mixerTracks', {offset:4,trimStart:.5,trimEnd:1.5});
+  assert.equal(run(context, 'tracks[0].offset'), 4);
+  assert.equal(run(context, '$("recordTracks").querySelector("[data-edit=trimStart]").value'), '0.5');
+  assert.equal(run(context, 'tracks[0].buffer.getChannelData(0)[2000]'), Math.fround(.8));
+  assert.equal(run(context, 'tracks[0].buffer.getChannelData(1)[6000]'), Math.fround(-.7));
+});
+
+test('playback, full mix, and stems use the selected source interval at the arranged start', async () => {
+  const context = page(); seedEditable(context);
+  applyFromView(context, 'recordTracks', {offset:2.5,trimStart:.25,trimEnd:1.25});
+  run(context, `
+    connectTrack = () => ({start(...args){window.scheduled = args;}});
+    scheduleTrack(tracks[0], getContext(), 10, {});
+  `);
+  assert.deepEqual(plain(run(context, 'window.scheduled')), [12.5,.25,1]);
+  context.OfflineAudioContext = class {
+    constructor(channels, frames, rate) { this.destination = {}; this.frames=frames; this.rate=rate; }
+    async startRendering() { return {frames:this.frames,rate:this.rate}; }
+  };
+  const mix = await run(context, 'renderSession()');
+  assert.equal(mix.frames, Math.ceil(6.5*44100));
+  assert.deepEqual(plain(run(context, 'window.scheduled')), [2.5,.25,1]);
+  const stem = await run(context, 'renderSession(tracks[0])');
+  assert.equal(stem.frames, mix.frames, 'stem uses the trimmed length plus its song position and FX tail');
+});
+
+test('invalid and empty trim windows leave the current track and undo history intact', () => {
+  const context = page(); seedEditable(context);
+  const before = plain(run(context, 'projectSettings()'));
+  for (const changes of [
+    {offset:-1,trimStart:0,trimEnd:2},
+    {offset:0,trimStart:.5,trimEnd:.5},
+    {offset:0,trimStart:0,trimEnd:2.1},
+    {offset:0,trimStart:-.1,trimEnd:1},
+    {offset:0,trimStart:0,trimEnd:Infinity}
+  ]) {
+    context.badChanges = changes;
+    assert.equal(run(context, 'editTrack(tracks[0],{name:"Bad edit",...badChanges})'), false);
+    assert.deepEqual(plain(run(context, 'projectSettings()')), before);
+    assert.equal(run(context, 'trackEditHistory.length'), 0);
+  }
+  applyFromView(context,'recordTracks',{offset:'',trimStart:0,trimEnd:2});
+  assert.deepEqual(plain(run(context, 'projectSettings()')), before);
+  assert.match(run(context, '$("status").textContent'), /Enter a number/);
+});
+
+test('duplicates follow the trimmed section and undo restores removed audio without dropping newer tracks', () => {
+  const context = page(); seedEditable(context);
+  applyFromView(context,'recordTracks',{offset:2.5,trimStart:.25,trimEnd:1.25});
+  run(context, '[...$("mixerTracks").querySelectorAll("button")].find(b=>b.textContent==="Duplicate").onclick()');
+  assert.equal(run(context, 'tracks.length'), 2);
+  assert.equal(run(context, 'tracks[1].offset'), 3.5);
+  assert.equal(run(context, 'tracks[1].trimStart'), .25);
+  assert.equal(run(context, 'tracks[1].buffer===tracks[0].buffer'), true);
+  run(context, 'tracks[1].volume=.3; removeTrack(tracks[0]); makeTrack("New audio",originalAudio)');
+  assert.equal(run(context, 'tracks.length'), 2);
+  run(context, '$("undoTrackEdit").onclick()');
+  assert.deepEqual(plain(run(context, 'tracks.map(t=>t.name)')), ['Lead Vocal','Lead Vocal copy','New audio']);
+  assert.equal(run(context, 'tracks[0].buffer===originalAudio'), true);
+  assert.equal(run(context, 'tracks[0].volume'), 1);
+  assert.equal(run(context, 'tracks[1].volume'), .3);
+  run(context, '$("undoTrackEdit").onclick()');
+  assert.deepEqual(plain(run(context, 'tracks.map(t=>t.name)')), ['Lead Vocal','New audio']);
+});
+
+test('restoring full audio and undoing edits recover source bounds while retaining later mix changes', () => {
+  const context = page(); seedEditable(context);
+  applyFromView(context,'recordTracks',{offset:1,trimStart:.25,trimEnd:1.5});
+  run(context, '[...$("recordTracks").querySelectorAll("button")].find(b=>b.textContent==="Restore Full Audio").onclick()');
+  assert.equal(run(context, 'clipRange(tracks[0]).duration'), 2);
+  assert.equal(run(context, 'tracks[0].offset'), 1);
+  run(context, 'tracks[0].volume=.37; $("undoTrackEdit").onclick()');
+  assert.equal(run(context, 'clipRange(tracks[0]).duration'), 1.25);
+  assert.equal(run(context, 'tracks[0].volume'), .37);
+  run(context, '$("undoTrackEdit").onclick()');
+  assert.equal(run(context, 'tracks[0].offset'), 0);
+  assert.equal(run(context, 'clipRange(tracks[0]).duration'), 2);
+  assert.equal(run(context, 'tracks[0].volume'), .37);
+  assert.equal(run(context, '$("undoTrackEdit").disabled'), true);
+});
+
+test('edited arrangements survive device saves and portable backups with full original stereo audio', async () => {
+  const database=new IDBFactory(), first=page(database); seedEditable(first);
+  applyFromView(first,'recordTracks',{name:'Edited lead',offset:4,trimStart:.25,trimEnd:1.25});
+  run(first, 'duplicateTrack(tracks[0])');
+  await run(first, '$("saveProject").onclick()');
+  const output=await portable(first);
+  const saved=page(database);
+  await run(saved, '$("loadProject").onclick()');
+  const imported=page();
+  await importText(imported,await output.blob.text());
+  for (const context of [saved,imported]) {
+    assert.equal(run(context, 'tracks.length'), 2);
+    assert.equal(run(context, 'tracks[0].trimStart'), .25);
+    assert.equal(run(context, 'tracks[0].trimEnd'), 1.25);
+    assert.equal(run(context, 'tracks[1].offset'), 5);
+    assert.equal(run(context, 'sessionDuration()'), 6);
+    assert.equal(run(context, 'tracks[0].buffer.length'), 16000);
+    assert.equal(run(context, 'tracks[0].buffer.getChannelData(1)[6000]'), Math.fround(-.7));
+    assert.equal(run(context, 'trackEditHistory.length'), 0);
+    assert.equal(run(context, '$("undoTrackEdit").disabled'), true);
+  }
+});
+
+test('older full-audio backups remain compatible and invalid saved trim bounds cannot replace a session', async () => {
+  const source=page(); seedEditable(source);
+  const output=await portable(source), original=JSON.parse(await output.blob.text());
+  delete original.tracks[0].trimStart; delete original.tracks[0].trimEnd;
+  const destination=page();
+  await importText(destination,JSON.stringify(original));
+  assert.equal(run(destination, 'clipRange(tracks[0]).duration'), 2);
+  assert.equal(run(destination, 'tracks[0].trimStart'), 0);
+  for (const end of [0,-1,2.1]) {
+    const broken=structuredClone(original); broken.tracks[0].trimEnd=end; broken.name='Damaged';
+    await importText(destination,JSON.stringify(broken));
+    assert.equal(run(destination, 'tracks[0].name'), 'Lead Vocal');
+    assert.equal(run(destination, 'clipRange(tracks[0]).duration'), 2);
+    assert.match(run(destination, '$("status").textContent'), /Project action failed/);
+  }
+});
+
+test('edits and undo are blocked during playback or recording and history holds at most twenty edits', () => {
+  const context=page(); seedEditable(context);
+  for(let i=1;i<=25;i++)applyFromView(context,'recordTracks',{offset:i,trimStart:0,trimEnd:2});
+  assert.equal(run(context, 'trackEditHistory.length'), 20);
+  for (const state of ['playing','recording']) {
+    run(context, state+'=true; $("undoTrackEdit").onclick(); duplicateTrack(tracks[0]); removeTrack(tracks[0])');
+    assert.equal(run(context, 'tracks.length'), 1);
+    assert.equal(run(context, 'tracks[0].offset'), 25);
+    assert.equal(run(context, 'trackEditHistory.length'), 20);
+    run(context, state+'=false');
+  }
+  for(let i=0;i<20;i++)run(context,'$("undoTrackEdit").onclick()');
+  assert.equal(run(context, 'tracks[0].offset'), 5);
+  assert.equal(run(context, '$("undoTrackEdit").disabled'), true);
 });
