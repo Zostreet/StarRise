@@ -2,165 +2,282 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>StarRise Security Access Test</title>
-  <style>
-    body {
-      background: #10091c;
-      color: #f7f2ff;
-      font-family: Arial, sans-serif;
-      padding: 22px;
-      line-height: 1.6;
-    }
-    main { max-width: 700px; margin: auto; }
-    h1 { color: #f5d37d; }
-    .card {
-      background: #281a36;
-      border: 1px solid #554366;
-      border-radius: 16px;
-      padding: 20px;
-      margin: 18px 0;
-    }
-    button {
-      background: #f5d37d;
-      color: #21142d;
-      padding: 14px 20px;
-      border: 0;
-      border-radius: 10px;
-      font-size: 17px;
-      font-weight: bold;
-    }
-    .pass { color: #92e5b1; }
-    .fail { color: #ff9d9d; }
-    .warn { color: #f5d37d; }
-    pre {
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StarRise Security Access Test</title>
+<style>
+body {
+  margin: 0;
+  padding: 24px;
+  background: #10091c;
+  color: #f7f2ff;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+main { max-width: 700px; margin: auto; }
+h1 { color: #f5d37d; font-size: 32px; }
+.card {
+  background: #281a36;
+  border: 1px solid #554366;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 18px 0;
+}
+button {
+  background: #f5d37d;
+  color: #21142d;
+  padding: 14px 20px;
+  border: 0;
+  border-radius: 10px;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+}
+button:disabled { opacity: .6; }
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+a { color: #f5d37d; }
+</style>
 </head>
 <body>
 <main>
-  <h1>StarRise Security Access Test</h1>
-  <p>Private security verification for Fam Entertainment LLC.</p>
+<h1>StarRise Security Access Test</h1>
+<p>Private security verification for Fam Entertainment LLC.</p>
 
-  <div class="card">
-    <strong>Safety notice</strong>
-    <p>
-      This test reads only record counts.
-      It does not display incident details,
-      change permissions, or modify records.
-    </p>
-  </div>
+<div class="card">
+<strong>Safety notice</strong>
+<p>
+This test reads record counts only. It does not
+display incident details, modify records, or
+change permissions.
+</p>
+</div>
 
-  <div class="card">
-    <p id="session">Checking member session...</p>
-    <button id="run" disabled>Run Security Test</button>
-  </div>
+<div class="card">
+<h2>Member session</h2>
+<p id="session">Ready to check session.</p>
+<button id="run" type="button">
+Run Security Test
+</button>
+<p>
+A valid regular-member login is required to
+verify regular-member restrictions.
+</p>
+</div>
 
-  <div class="card">
-    <h2>Results</h2>
-    <pre id="results">Waiting for test.</pre>
-  </div>
+<div class="card">
+<h2>Results</h2>
+<pre id="results">Waiting for test.</pre>
+</div>
+
+<p><a href="index.html">Return to StarRise</a></p>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const URL =
-  "https://rcnikxotdalxtuvpmlvm.supabase.co";
+(function () {
+  "use strict";
 
-const KEY =
-  "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+  const sessionBox = document.getElementById("session");
+  const results = document.getElementById("results");
+  const button = document.getElementById("run");
 
-const db = window.supabase.createClient(URL, KEY);
+  const SUPABASE_URL =
+    "https://rcnikxotdalxtuvpmlvm.supabase.co";
 
-const sessionBox = document.getElementById("session");
-const results = document.getElementById("results");
-const button = document.getElementById("run");
+  const SUPABASE_KEY =
+    "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
 
-let currentUser = null;
+  let db = null;
 
-async function initialize() {
-  try {
-    const { data, error } = await db.auth.getUser();
+  function timeout(promise, ms) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Request timed out")),
+          ms
+        )
+      )
+    ]);
+  }
 
-    if (error || !data.user) {
+  async function loadClient() {
+    if (db) return db;
+
+    if (!window.supabase ||
+        !window.supabase.createClient) {
+      throw new Error(
+        "Supabase library did not load. Check connection."
+      );
+    }
+
+    db = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
+      }
+    );
+
+    return db;
+  }
+
+  async function getMember() {
+    const client = await loadClient();
+
+    const response = await timeout(
+      client.auth.getSession(),
+      12000
+    );
+
+    if (response.error) {
+      throw response.error;
+    }
+
+    const session = response.data.session;
+
+    if (!session || !session.user) {
+      return null;
+    }
+
+    const verified = await timeout(
+      client.auth.getUser(),
+      12000
+    );
+
+    if (verified.error || !verified.data.user) {
+      throw verified.error ||
+        new Error("Unable to verify login");
+    }
+
+    return verified.data.user;
+  }
+
+  async function checkTable(name) {
+    try {
+      const response = await timeout(
+        db.from(name).select("*", {
+          count: "exact",
+          head: true
+        }),
+        12000
+      );
+
+      if (response.error) {
+        const code = response.error.code || "unknown";
+
+        if (code === "42501" ||
+            code === "PGRST301") {
+          return "PASS: Access denied";
+        }
+
+        return "INCONCLUSIVE: " + code +
+          " - " + response.error.message;
+      }
+
+      const count = response.count;
+
+      if (count === 0) {
+        return "PASS: Zero records visible";
+      }
+
+      if (typeof count === "number") {
+        return "FAIL: " + count +
+          " private records visible";
+      }
+
+      return "INCONCLUSIVE: No count returned";
+
+    } catch (error) {
+      return "INCONCLUSIVE: " + error.message;
+    }
+  }
+
+  button.addEventListener("click", async function () {
+    button.disabled = true;
+    results.textContent = "Starting security test...";
+    sessionBox.textContent = "Checking login...";
+
+    try {
+      const user = await getMember();
+
+      if (!user) {
+        sessionBox.textContent =
+          "No signed-in member detected.";
+
+        results.textContent =
+          "TEST NOT RUN\n\n" +
+          "Sign in to StarRise using a regular " +
+          "member account in this browser, " +
+          "then return and run the test.\n\n" +
+          "A signed-out test cannot prove " +
+          "regular-member permissions.";
+
+        return;
+      }
+
       sessionBox.textContent =
-        "No authenticated StarRise session detected. " +
-        "Sign in as a regular member in this browser.";
-      return;
+        "Authenticated account detected.\n" +
+        "Confirm this is a regular member, " +
+        "not the owner or security staff.";
+
+      results.textContent =
+        "Checking private database access...";
+
+      const incidents =
+        await checkTable("security_incidents");
+
+      const permissions =
+        await checkTable("security_staff_permissions");
+
+      const audit =
+        await checkTable("security_access_audit");
+
+      results.textContent =
+        "SECURITY INCIDENTS\n" +
+        incidents + "\n\n" +
+        "STAFF PERMISSIONS\n" +
+        permissions + "\n\n" +
+        "ACCESS AUDIT\n" +
+        audit + "\n\n" +
+        "Tests completed using the current " +
+        "authenticated session.\n\n" +
+        "Verify the account is an ordinary " +
+        "member before accepting these results.";
+
+    } catch (error) {
+      sessionBox.textContent =
+        "Session verification failed.";
+
+      results.textContent =
+        "TEST INCONCLUSIVE\n\n" +
+        error.message + "\n\n" +
+        "No security permissions were changed.";
+    } finally {
+      button.disabled = false;
     }
+  });
 
-    currentUser = data.user;
-
-    sessionBox.textContent =
-      "Signed-in member detected. " +
-      "Confirm this is NOT the owner account.";
-
-    button.disabled = false;
-  } catch (err) {
-    sessionBox.textContent =
-      "Unable to verify member session.";
-  }
-}
-
-async function checkTable(table) {
-  const response = await db
-    .from(table)
-    .select("*", {
-      count: "exact",
-      head: true
-    });
-
-  if (response.error) {
-    if (
-      response.error.code === "42501" ||
-      response.error.code === "PGRST301"
-    ) {
-      return "PASS: Access denied";
+  window.addEventListener("load", function () {
+    if (!window.supabase) {
+      sessionBox.textContent =
+        "Supabase library unavailable. " +
+        "Tap Run Security Test for details.";
+    } else {
+      sessionBox.textContent =
+        "Ready. Tap Run Security Test.";
     }
-
-    return "INCONCLUSIVE: Request failed (" +
-      response.error.code + ")";
-  }
-
-  if (response.count === 0) {
-    return "PASS: Zero records visible";
-  }
-
-  return "FAIL: " + response.count +
-    " private records visible";
-}
-
-button.addEventListener("click", async () => {
-  if (!currentUser) return;
-
-  button.disabled = true;
-  results.textContent = "Testing...";
-
-  const incidents =
-    await checkTable("security_incidents");
-
-  const permissions =
-    await checkTable("security_staff_permissions");
-
-  const audit =
-    await checkTable("security_access_audit");
-
-  results.textContent =
-    "SECURITY INCIDENTS\n" +
-    incidents + "\n\n" +
-    "STAFF PERMISSIONS\n" +
-    permissions + "\n\n" +
-    "ACCESS AUDIT\n" +
-    audit + "\n\n" +
-    "All tests are read-only.";
-
-  button.disabled = false;
-});
-
-initialize();
+  });
+})();
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
