@@ -16,7 +16,8 @@ body {
   line-height: 1.6;
 }
 main { max-width: 700px; margin: auto; }
-h1 { color: #f5d37d; font-size: 32px; }
+h1 { color: #f5d37d; font-size: 30px; }
+h2 { margin-top: 0; }
 .card {
   background: #281a36;
   border: 1px solid #554366;
@@ -46,22 +47,37 @@ a { color: #f5d37d; }
 </head>
 <body>
 <main>
+
 <h1>StarRise Security Access Test</h1>
-<p>Private security verification for Fam Entertainment LLC.</p>
+<p>Security verification for Fam Entertainment LLC.</p>
 
 <div class="card">
-<strong>Safety notice</strong>
+<h2>Safety notice</h2>
 <p>
-This test reads record counts only.
-It does not display private incident details,
-change permissions, or modify records.
+Use a separate ordinary member account.
+Do not run this as the owner or an approved
+security administrator.
+</p>
+<p>
+Read tests inspect record counts.
+Write probes target randomly generated,
+nonexistent record IDs. They do not create
+staff, approve users, or intentionally modify
+existing records.
+</p>
+<p>
+A zero-row update is inconclusive because
+both authorized and unauthorized accounts
+may receive that result.
 </p>
 </div>
 
 <div class="card">
 <h2>Member session</h2>
 <p id="session">Ready to check session.</p>
-<button id="run" type="button">Run Security Test</button>
+<button id="run" type="button">
+Run Security Test
+</button>
 <p>
 Tests the permissions of whichever StarRise
 account is signed in to this browser.
@@ -73,7 +89,10 @@ account is signed in to this browser.
 <pre id="results">Waiting for test.</pre>
 </div>
 
-<p><a href="index.html">Return to StarRise</a></p>
+<p>
+<a href="index.html">Return to StarRise</a>
+</p>
+
 </main>
 
 <script>
@@ -86,68 +105,96 @@ account is signed in to this browser.
   const KEY =
     "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
 
-  const sessionBox = document.getElementById("session");
-  const results = document.getElementById("results");
-  const button = document.getElementById("run");
+  const sessionBox =
+    document.getElementById("session");
+
+  const results =
+    document.getElementById("results");
+
+  const button =
+    document.getElementById("run");
 
   let db;
 
-  function timeout(promise) {
-    return Promise.race([
-      promise,
-      new Promise((_, reject) => {
-        setTimeout(
-          () => reject(new Error("Request timed out")),
-          12000
-        );
-      })
-    ]);
-  }
-
   function client() {
     if (!window.supabase?.createClient) {
-      throw new Error("Supabase library unavailable.");
+      throw new Error(
+        "Supabase library unavailable."
+      );
     }
 
     if (!db) {
-      db = window.supabase.createClient(URL, KEY, {
-        auth: {
-          persistSession: true,
-          autoRefreshToken: true,
-          detectSessionInUrl: true
+      db = window.supabase.createClient(
+        URL,
+        KEY,
+        {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
+          }
         }
-      });
+      );
     }
 
     return db;
   }
 
-  async function countQuery(query) {
+  async function request(query) {
     try {
-      const response = await timeout(query);
-
-      if (response.error) {
-        const code = response.error.code || "unknown";
-
-        if (code === "42501" ||
-            code === "PGRST301") {
-          return { denied: true };
+      return await Promise.race([
+        Promise.resolve(query),
+        new Promise((_, reject) => {
+          setTimeout(() => {
+            reject(
+              new Error("Request timed out")
+            );
+          }, 12000);
+        })
+      ]);
+    } catch (error) {
+      return {
+        error: {
+          code: "REQUEST_ERROR",
+          message: error.message
         }
+      };
+    }
+  }
 
+  function denied(error) {
+    return [
+      "42501",
+      "PGRST301"
+    ].includes(error?.code);
+  }
+
+  async function countQuery(query) {
+    const response = await request(query);
+
+    if (response.error) {
+      if (denied(response.error)) {
         return {
-          error: code + ": " + response.error.message
+          denied: true
         };
       }
 
-      if (typeof response.count !== "number") {
-        return { error: "No count returned" };
-      }
-
-      return { count: response.count };
-
-    } catch (error) {
-      return { error: error.message };
+      return {
+        error:
+          (response.error.code || "unknown") +
+          ": " + response.error.message
+      };
     }
+
+    if (typeof response.count !== "number") {
+      return {
+        error: "No count returned"
+      };
+    }
+
+    return {
+      count: response.count
+    };
   }
 
   async function tableTest(name) {
@@ -170,8 +217,8 @@ account is signed in to this browser.
       return "PASS: Zero records visible";
     }
 
-    return "FAIL: " + result.count +
-      " records visible. Investigate access.";
+    return "REVIEW: " + result.count +
+      " records visible.";
   }
 
   async function staffTest(userId) {
@@ -203,92 +250,200 @@ account is signed in to this browser.
     }
 
     if (others.denied && !own.denied) {
-      return "INCONCLUSIVE: Different access outcomes";
+      return "INCONCLUSIVE: Mixed access results";
     }
 
     if (others.count > 0) {
-      return "FAIL: " + others.count +
-        " other users' records visible.";
+      return "REVIEW: Other users' records visible.";
     }
 
     if (own.count > 0) {
       return "PASS: Own record only (" +
-        own.count + ").\n" +
-        "Self-read permitted by current policy.\n" +
-        "No other users' records visible.";
+        own.count + ").";
     }
 
     return "PASS: Zero staff records visible";
   }
 
-  button.addEventListener("click", async function () {
-    button.disabled = true;
-    results.textContent = "Starting security test...";
-    sessionBox.textContent = "Checking login...";
+  function randomId() {
+    if (!globalThis.crypto?.randomUUID) {
+      throw new Error(
+        "Secure random UUID unavailable."
+      );
+    }
 
-    try {
-      client();
+    return crypto.randomUUID();
+  }
 
-      const authResult = await timeout(db.auth.getUser());
+  async function updateProbe(
+    table,
+    changes
+  ) {
+    const id = randomId();
 
-      if (authResult.error || !authResult.data.user) {
-        sessionBox.textContent =
-          "No verified member session.";
+    const response = await request(
+      db.from(table)
+        .update(changes, {
+          count: "exact"
+        })
+        .eq("id", id)
+        .select("id")
+    );
 
-        results.textContent =
-          "TEST NOT RUN\n\n" +
-          "Sign in to StarRise in this browser " +
-          "and try again.";
-
-        return;
+    if (response.error) {
+      if (denied(response.error)) {
+        return "PASS: Write request denied";
       }
 
-      const user = authResult.data.user;
-
-      sessionBox.textContent =
-        "Authenticated account verified.\n" +
-        "Testing current account permissions.";
-
-      results.textContent =
-        "Checking database access...";
-
-      const incidents =
-        await tableTest("security_incidents");
-
-      const permissions =
-        await staffTest(user.id);
-
-      const audit =
-        await tableTest("security_access_audit");
-
-      results.textContent =
-        "SECURITY INCIDENTS\n" +
-        incidents + "\n\n" +
-        "STAFF PERMISSIONS\n" +
-        permissions + "\n\n" +
-        "ACCESS AUDIT\n" +
-        audit + "\n\n" +
-        "Tests completed.\n\n" +
-        "IMPORTANT:\n" +
-        "This checks read visibility only.\n" +
-        "It does not test writes, role escalation,\n" +
-        "or every security policy.\n\n" +
-        "Owner and approved staff accounts may\n" +
-        "legitimately have broader access.\n" +
-        "Use a separate ordinary member account\n" +
-        "to verify ordinary-member restrictions.";
-
-    } catch (error) {
-      sessionBox.textContent =
-        "Security test could not complete.";
-
-      results.textContent =
-        "INCONCLUSIVE\n\n" + error.message;
-
-    } finally {
-      button.disabled = false;
+      return "INCONCLUSIVE: " +
+        (response.error.code || "unknown") +
+        ": " + response.error.message;
     }
-  });
+
+    if (
+      Array.isArray(response.data) &&
+      response.data.length > 0
+    ) {
+      return "UNEXPECTED: Record returned. " +
+        "Stop testing and investigate.";
+    }
+
+    return "INCONCLUSIVE: No matching record. " +
+      "No write authorization established.";
+  }
+
+  button.addEventListener(
+    "click",
+    async function () {
+      button.disabled = true;
+
+      sessionBox.textContent =
+        "Checking member session...";
+
+      results.textContent =
+        "Starting security tests...";
+
+      try {
+        client();
+
+        const authResult = await request(
+          db.auth.getUser()
+        );
+
+        if (
+          authResult.error ||
+          !authResult.data?.user
+        ) {
+          sessionBox.textContent =
+            "No verified member session.";
+
+          results.textContent =
+            "TEST NOT RUN\n\n" +
+            "Sign in using an ordinary " +
+            "StarRise member account.";
+
+          return;
+        }
+
+        const user = authResult.data.user;
+
+        sessionBox.textContent =
+          "Authenticated account verified.\n" +
+          "Testing current account permissions.";
+
+        results.textContent =
+          "Checking read access...";
+
+        const incidents =
+          await tableTest(
+            "security_incidents"
+          );
+
+        const permissions =
+          await staffTest(user.id);
+
+        const audit =
+          await tableTest(
+            "security_access_audit"
+          );
+
+        const registry =
+          await tableTest(
+            "security_staff_registry"
+          );
+
+        results.textContent =
+          "READ TESTS\n\n" +
+          "SECURITY INCIDENTS\n" +
+          incidents + "\n\n" +
+          "STAFF PERMISSIONS\n" +
+          permissions + "\n\n" +
+          "ACCESS AUDIT\n" +
+          audit + "\n\n" +
+          "STAFF REGISTRY\n" +
+          registry + "\n\n" +
+          "Checking safe write probes...";
+
+        const incidentWrite =
+          await updateProbe(
+            "security_incidents",
+            {
+              status: "reviewing"
+            }
+          );
+
+        const staffWrite =
+          await updateProbe(
+            "security_staff_registry",
+            {
+              approval_status: "approved"
+            }
+          );
+
+        results.textContent =
+          "READ TESTS\n\n" +
+          "SECURITY INCIDENTS\n" +
+          incidents + "\n\n" +
+          "STAFF PERMISSIONS\n" +
+          permissions + "\n\n" +
+          "ACCESS AUDIT\n" +
+          audit + "\n\n" +
+          "STAFF REGISTRY\n" +
+          registry + "\n\n" +
+
+          "WRITE PROBES\n\n" +
+          "INCIDENT UPDATE\n" +
+          incidentWrite + "\n\n" +
+          "STAFF APPROVAL UPDATE\n" +
+          staffWrite + "\n\n" +
+
+          "TESTS COMPLETED\n\n" +
+          "IMPORTANT:\n" +
+          "These probes do not establish " +
+          "complete write protection.\n\n" +
+          "A real unauthorized-update test " +
+          "against a controlled test record " +
+          "is still required.\n\n" +
+          "This page does not test INSERT, " +
+          "DELETE, role escalation, " +
+          "or every database policy.\n\n" +
+          "Use an ordinary member account. " +
+          "Owner and approved staff access " +
+          "may legitimately differ.";
+
+      } catch (error) {
+        sessionBox.textContent =
+          "Security test could not complete.";
+
+        results.textContent =
+          "INCONCLUSIVE\n\n" +
+          error.message;
+
+      } finally {
+        button.disabled = false;
+      }
+    }
+  );
 })();
 </script>
 </body>
