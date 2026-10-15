@@ -1,6 +1,9 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 const vm = require('node:vm');
 const { parseHTML } = require('linkedom');
 const { IDBFactory } = require('fake-indexeddb');
@@ -31,9 +34,13 @@ function page(indexedDB = new IDBFactory(), confirmation = true) {
   window.indexedDB = indexedDB;
   window.confirm = () => confirmation;
   // linkedom omits the native select.value setter used by project restore.
-  Object.defineProperty(document.getElementById('countIn'), 'value', {
-    value:'4', writable:true, configurable:true
-  });
+  for (const [id,value] of [['countIn','4'],['exportFormat','pcm24'],['exportRate','44100'],['stemMode','dry']]) {
+    Object.defineProperty(document.getElementById(id), 'value', {
+      value, writable:true, configurable:true
+    });
+  }
+  window.StarRiseStudioCore = require('./css/creator-studio-core-v3.js');
+  window.StarRiseStudioPackage = require('./css/studio-package.js');
   window.AudioContext = class {
     constructor() { this.state = 'running'; this.currentTime = 0; }
     createBuffer(channels, length, rate) { return new AudioBufferStub(channels, length, rate); }
@@ -653,4 +660,167 @@ test('a late cancelled microphone permission cannot stop a newer recording reque
   assert.equal(run(context,'recording'),true);
   assert.equal(run(context,'recordingSession.mode'),'pcm');
   await run(context,'stopVocal()');
+});
+
+function exportHarness({failAt=0,holdFirst=false}={}) {
+  const context=page(), renders=[], downloads=[];
+  let release;
+  context.OfflineAudioContext=class {
+    constructor(channels,frames,sampleRate) {
+      Object.assign(this,{channels,frames,sampleRate,destination:{kind:'destination'},nodes:[]});
+      renders.push(this);
+    }
+    node(kind) {
+      const param=()=>({value:0,setValueAtTime(){},exponentialRampToValueAtTime(){}});
+      const result={kind,edges:[],starts:[],gain:param(),frequency:param(),threshold:param(),ratio:param(),attack:param(),release:param(),pan:param(),delayTime:param(),
+        connect(target){this.edges.push(target);return target;},start(...args){this.starts.push(args);},stop(){}};
+      this.nodes.push(result);return result;
+    }
+    createBufferSource(){return this.node('source');}
+    createOscillator(){return this.node('oscillator');}
+    createGain(){return this.node('gain');}
+    createBiquadFilter(){return this.node('eq');}
+    createDynamicsCompressor(){return this.node('compressor');}
+    createStereoPanner(){return this.node('pan');}
+    createConvolver(){return this.node('reverb');}
+    createDelay(){return this.node('delay');}
+    createBuffer(channels,frames,rate){return new AudioBufferStub(channels,frames,rate);}
+    async startRendering(){
+      if(holdFirst&&renders.length===1)await new Promise(resolve=>release=resolve);
+      if(failAt&&renders.length===failAt)throw Error('Render interrupted');
+      const buffer=new AudioBufferStub(this.channels,this.frames,this.sampleRate);
+      buffer.getChannelData(0)[0]=.00001;
+      return buffer;
+    }
+  };
+  context.captureDownload=(blob,name)=>downloads.push({blob,name});
+  run(context,'download=(blob,name)=>captureDownload(blob,name)');
+  return{context,renders,downloads,release:()=>release()};
+}
+
+async function inspectTrackZip(blob) {
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'starrise-tracks-'));
+  const archive=path.join(directory,'tracks.zip');
+  fs.writeFileSync(archive,Buffer.from(await blob.arrayBuffer()));
+  try {
+    return JSON.parse(execFileSync('python3',['-c',[
+      'import json,sys,zipfile,struct',
+      'z=zipfile.ZipFile(sys.argv[1]); assert z.testzip() is None',
+      'result={"names":z.namelist(),"notes":json.loads(z.read("session-notes.json")),"readme":z.read("README.txt").decode(),"wavs":[]}',
+      'for name in z.namelist():',
+      ' if not name.endswith(".wav"): continue',
+      ' b=z.read(name); assert b[:4]==b"RIFF" and b[8:12]==b"WAVE"',
+      ' assert struct.unpack_from("<I",b,4)[0]+8==len(b)',
+      ' fmt,channels,rate,byte_rate,align,bits=struct.unpack_from("<HHIIHH",b,20)',
+      ' offset=12; chunks={}',
+      ' while offset+8<=len(b):',
+      '  size=struct.unpack_from("<I",b,offset+4)[0]; chunks[b[offset:offset+4]]=b[offset+8:offset+8+size]; offset+=8+size+(size%2)',
+      ' samples=chunks[b"data"]; frames=len(samples)//align',
+      ' result["wavs"].append({"name":name,"format":fmt,"channels":channels,"rate":rate,"bits":bits,"frames":frames,"first24":int.from_bytes(samples[:3],"little",signed=True) if bits==24 else None})',
+      'print(json.dumps(result))'
+    ].join('\n'),archive],{encoding:'utf8'}));
+  } finally {fs.rmSync(directory,{recursive:true,force:true});}
+}
+
+test('one ZIP contains safe named WAVs with common lengths, reference mix and independent readable notes', async () => {
+  const h=exportHarness(),context=h.context;seedEditable(context);
+  run(context,`
+    Object.assign(tracks[0],{name:'../Lead / 🎤',offset:.125,trimStart:.25,trimEnd:1.25,volume:.25,pan:-.5,reverb:20});
+    duplicateTrack(tracks[0]);tracks[1].offset=2;
+    $('projectName').value='Engineer / Test';$('bpm').value='92';
+  `);
+  const before=plain(run(context,'projectToJSON(projectSnapshot())'));
+  await run(context,'$("exportStems").onclick()');
+  assert.equal(h.downloads.length,1,'one download avoids mobile multi-download permissions');
+  assert.equal(h.downloads[0].name,'Engineer-Test-tracks.zip');
+  const zip=await inspectTrackZip(h.downloads[0].blob);
+  assert.deepEqual(zip.names,['tracks/01-Lead.wav','tracks/02-Lead-copy.wav','reference-mix.wav','session-notes.json','README.txt']);
+  for(const wav of zip.wavs){
+    assert.equal(wav.rate,44100);assert.equal(wav.bits,24);assert.equal(wav.format,1);
+    assert.equal(wav.channels,2);assert.equal(wav.frames,6*44100);assert.equal(wav.first24,84);
+  }
+  assert.equal(zip.notes.bpm,92);assert.equal(zip.notes.frames,6*44100);assert.equal(zip.notes.trackSound,'dry');
+  assert.equal(zip.notes.tracks[0].name,'../Lead / 🎤');assert.equal(zip.notes.tracks[0].offset,.125);
+  assert.equal(zip.notes.tracks[0].volume,.25);assert.equal(zip.notes.tracks[0].sourceSampleRate,8000);
+  assert.match(zip.readme,/song time 0/);assert.match(zip.readme,/not a StarRise project backup/);
+  assert.deepEqual(plain(h.renders[0].nodes[0].starts),[[.125,.25,1]]);
+  assert.deepEqual(plain(h.renders[1].nodes[0].starts),[[2,.25,1]]);
+  assert.deepEqual(h.renders[0].nodes.map(n=>n.kind),['source'],'dry export bypasses mixer and effects');
+  assert.ok(h.renders[2].nodes.some(n=>n.kind==='compressor'),'reference mix retains mixer processing');
+  const after=plain(run(context,'projectToJSON(projectSnapshot())'));
+  delete before.savedAt;delete after.savedAt;assert.deepEqual(after,before,'export preserves full original audio and all settings');
+  assert.equal(run(context,'projectBusy'),false);assert.equal(run(context,'$("exportStems").disabled'),false);
+});
+
+test('muted tracks are omitted by default, optionally exported with sound, and stay out of the reference mix', async () => {
+  for(const include of [false,true]) {
+    const h=exportHarness(),context=h.context;seedEditable(context);
+    run(context,'duplicateTrack(tracks[0]);tracks[1].mute=true;tracks[1].name="Alternate take"');
+    context.includeMuted=include;run(context,'$("stemMuted").checked=includeMuted');
+    await run(context,'$("exportStems").onclick()');
+    const zip=await inspectTrackZip(h.downloads[0].blob);
+    assert.equal(zip.notes.tracks.length,include?2:1);
+    if(include){assert.equal(zip.notes.tracks[1].mute,true);assert.equal(h.renders[1].nodes[0].starts.length,1);}
+    assert.equal(h.renders.at(-1).nodes.filter(n=>n.kind==='source').length,1);
+    assert.equal(run(context,'tracks[1].mute'),true);
+  }
+});
+
+test('mixed track export retains the selected mixer sound and supports 48 kHz float WAVs', async () => {
+  const h=exportHarness(),context=h.context;seedEditable(context);
+  run(context,'$("stemMode").value="mixed";$("exportFormat").value="float32";$("exportRate").value="48000";tracks[0].volume=.37;tracks[0].pan=-.6');
+  await run(context,'$("exportStems").onclick()');
+  const zip=await inspectTrackZip(h.downloads[0].blob);
+  assert.equal(zip.notes.trackSound,'mixed');
+  for(const wav of zip.wavs){assert.equal(wav.format,3);assert.equal(wav.bits,32);assert.equal(wav.rate,48000);assert.equal(wav.frames,5*48000);}
+  assert.equal(h.renders[0].nodes.find(n=>n.kind==='gain').gain.value,.37);
+  assert.equal(h.renders[0].nodes.find(n=>n.kind==='pan').pan.value,-.6);
+});
+
+test('empty, all-muted and oversized packages fail before rendering and preserve the session', async () => {
+  for(const state of ['empty','muted','oversized']) {
+    const h=exportHarness(),context=h.context;
+    if(state!=='empty')seedEditable(context);
+    if(state==='muted')run(context,'tracks[0].mute=true');
+    if(state==='oversized')run(context,'tracks[0].offset=3600');
+    await run(context,'$("exportStems").onclick()');
+    assert.equal(h.renders.length,0);assert.equal(h.downloads.length,0);
+    assert.match(run(context,'$("status").textContent'),state==='empty'?/No tracks/:state==='muted'?/All tracks are muted/:/too large/);
+    assert.equal(run(context,'projectBusy'),false);assert.equal(run(context,'$("exportStems").disabled'),false);
+  }
+});
+
+test('an interrupted export restores controls and never downloads an incomplete package', async () => {
+  const h=exportHarness({failAt:2}),context=h.context;seedEditable(context);
+  run(context,'duplicateTrack(tracks[0])');
+  await run(context,'$("exportStems").onclick()');
+  assert.equal(h.renders.length,2);assert.equal(h.downloads.length,0);
+  assert.match(run(context,'$("status").textContent'),/Render interrupted.*current audio remains/);
+  assert.equal(run(context,'tracks.length'),2);assert.equal(run(context,'projectBusy'),false);
+  assert.equal(run(context,'$("recordVocal").disabled'),false);assert.equal(run(context,'$("stopVocal").disabled'),true);
+});
+
+test('export blocks concurrent requests, track edits and recording until the package is finished', async () => {
+  const h=exportHarness({holdFirst:true}),context=h.context;seedEditable(context);
+  const exporting=run(context,'$("exportStems").onclick()');
+  assert.equal(run(context,'projectBusy'),true);assert.equal(run(context,'$("recordVocal").disabled'),true);
+  await run(context,'$("exportStems").onclick();$("exportMix").onclick();beginVocal()');
+  run(context,'duplicateTrack(tracks[0])');
+  assert.equal(h.renders.length,1);assert.equal(run(context,'tracks.length'),1);assert.equal(run(context,'recording'),false);
+  h.release();await exporting;
+  assert.equal(h.downloads.length,1);assert.equal(run(context,'projectBusy'),false);
+});
+
+test('recording blocks exports and single WAV exports honor the chosen quality and sample rate', async () => {
+  const h=exportHarness(),context=h.context;seedEditable(context);
+  run(context,'recording=true');await run(context,'$("exportStems").onclick()');
+  assert.equal(h.renders.length,0);assert.match(run(context,'$("status").textContent'),/Stop recording before exporting/);
+  run(context,'recording=false;$("exportFormat").value="pcm16";$("exportRate").value="48000"');
+  await run(context,'$("exportMix").onclick()');
+  let view=new DataView(await h.downloads[0].blob.arrayBuffer());
+  assert.equal(view.getUint16(34,true),16);assert.equal(view.getUint32(24,true),48000);
+  run(context,'$("exportFormat").value="pcm24"');
+  await run(context,'$("exportBeat").onclick()');
+  view=new DataView(await h.downloads[1].blob.arrayBuffer());
+  assert.equal(view.getUint16(34,true),24);assert.equal(view.getUint32(24,true),48000);
 });
