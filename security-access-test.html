@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StarRise Security Access Test</title>
+  <style>
+    body {
+      background: #10091c;
+      color: #f7f2ff;
+      font-family: Arial, sans-serif;
+      padding: 22px;
+      line-height: 1.6;
+    }
+    main { max-width: 700px; margin: auto; }
+    h1 { color: #f5d37d; }
+    .card {
+      background: #281a36;
+      border: 1px solid #554366;
+      border-radius: 16px;
+      padding: 20px;
+      margin: 18px 0;
+    }
+    button {
+      background: #f5d37d;
+      color: #21142d;
+      padding: 14px 20px;
+      border: 0;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: bold;
+    }
+    .pass { color: #92e5b1; }
+    .fail { color: #ff9d9d; }
+    .warn { color: #f5d37d; }
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>StarRise Security Access Test</h1>
+  <p>Private security verification for Fam Entertainment LLC.</p>
+
+  <div class="card">
+    <strong>Safety notice</strong>
+    <p>
+      This test reads only record counts.
+      It does not display incident details,
+      change permissions, or modify records.
+    </p>
+  </div>
+
+  <div class="card">
+    <p id="session">Checking member session...</p>
+    <button id="run" disabled>Run Security Test</button>
+  </div>
+
+  <div class="card">
+    <h2>Results</h2>
+    <pre id="results">Waiting for test.</pre>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const URL =
+  "https://rcnikxotdalxtuvpmlvm.supabase.co";
+
+const KEY =
+  "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+
+const db = window.supabase.createClient(URL, KEY);
+
+const sessionBox = document.getElementById("session");
+const results = document.getElementById("results");
+const button = document.getElementById("run");
+
+let currentUser = null;
+
+async function initialize() {
+  try {
+    const { data, error } = await db.auth.getUser();
+
+    if (error || !data.user) {
+      sessionBox.textContent =
+        "No authenticated StarRise session detected. " +
+        "Sign in as a regular member in this browser.";
+      return;
+    }
+
+    currentUser = data.user;
+
+    sessionBox.textContent =
+      "Signed-in member detected. " +
+      "Confirm this is NOT the owner account.";
+
+    button.disabled = false;
+  } catch (err) {
+    sessionBox.textContent =
+      "Unable to verify member session.";
+  }
+}
+
+async function checkTable(table) {
+  const response = await db
+    .from(table)
+    .select("*", {
+      count: "exact",
+      head: true
+    });
+
+  if (response.error) {
+    if (
+      response.error.code === "42501" ||
+      response.error.code === "PGRST301"
+    ) {
+      return "PASS: Access denied";
+    }
+
+    return "INCONCLUSIVE: Request failed (" +
+      response.error.code + ")";
+  }
+
+  if (response.count === 0) {
+    return "PASS: Zero records visible";
+  }
+
+  return "FAIL: " + response.count +
+    " private records visible";
+}
+
+button.addEventListener("click", async () => {
+  if (!currentUser) return;
+
+  button.disabled = true;
+  results.textContent = "Testing...";
+
+  const incidents =
+    await checkTable("security_incidents");
+
+  const permissions =
+    await checkTable("security_staff_permissions");
+
+  const audit =
+    await checkTable("security_access_audit");
+
+  results.textContent =
+    "SECURITY INCIDENTS\n" +
+    incidents + "\n\n" +
+    "STAFF PERMISSIONS\n" +
+    permissions + "\n\n" +
+    "ACCESS AUDIT\n" +
+    audit + "\n\n" +
+    "All tests are read-only.";
+
+  button.disabled = false;
+});
+
+initialize();
+</script>
+</body>
+</html>
