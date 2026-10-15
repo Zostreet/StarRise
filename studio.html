@@ -45,6 +45,15 @@ small{color:#c4bad5}
 .meter{height:8px;background:#131020;border-radius:5px;overflow:hidden}
 .meter div{height:100%;background:#a46de0;width:0}
 .note{font-size:13px;color:#d4c8e3}
+.trackedit{display:flex;flex-wrap:wrap;align-items:end;gap:6px;border-top:1px solid #51436b;padding-top:10px}
+.trackedit input[type=number]{width:140px}
+.trackedit input[type=text]{width:230px}
+.arrangement{margin:15px 0}
+.arrangement-scale{display:flex;justify-content:space-between;font-size:12px;color:#c4bad5;margin-left:115px}
+.arrangement-lane{display:grid;grid-template-columns:105px minmax(0,1fr);gap:10px;align-items:center;margin:6px 0}
+.arrangement-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.arrangement-rail{height:30px;position:relative;background:repeating-linear-gradient(90deg,#151124 0,#151124 calc(25% - 1px),#51436b calc(25% - 1px),#51436b 25%);border-radius:5px;overflow:hidden}
+.arrangement-clip{position:absolute;top:4px;height:22px;min-width:2px;border-radius:4px;background:#a26cde}
 @media(max-width:600px){
 .steps{grid-template-columns:75px repeat(16,29px)}
 header{font-size:13px}
@@ -77,6 +86,7 @@ input[type=range]{width:110px}
 <button id="stop" class="secondary">Stop</button>
 <button id="saveProject">Save Project</button>
 <button id="loadProject" class="secondary">Load Project</button>
+<button id="undoTrackEdit" class="secondary" disabled>Undo Track Edit</button>
 </div>
 </section>
 
@@ -125,6 +135,8 @@ input[type=range]{width:110px}
 
 <div class="panel">
 <h2>Session Tracks</h2>
+<p class="note">Start in Song positions a track. Trim Start and Trim End select the audio to play. Original audio stays available with Restore Full Audio. Undo keeps the last 20 track edits while this session is open.</p>
+<div id="arrangement" class="arrangement" aria-label="Track arrangement"></div>
 <div id="recordTracks"></div>
 </div>
 </section>
@@ -178,6 +190,7 @@ const status=message=>$("status").textContent=message;
 
 let audioContext=null;
 let tracks=[];
+let trackEditHistory=[];
 let nextTrackId=1;
 let playingSources=[];
 let recording=false;
@@ -224,6 +237,7 @@ function makeTrack(name,buffer,type="audio",offset=0){
 const track={
 id:nextTrackId++,
 name,buffer,type,offset,
+trimStart:0,trimEnd:null,
 volume:1,pan:0,mute:false,
 eq:0,compression:0,reverb:0,delay:0
 };
@@ -232,20 +246,20 @@ renderTracks();
 return track;
 }
 
-function drawWave(canvas,buffer){
+function drawWave(canvas,buffer,startFrame=0,endFrame=buffer?.length||0){
 const g=canvas.getContext("2d");
 const w=canvas.width,h=canvas.height;
 g.fillStyle="#111020";
 g.fillRect(0,0,w,h);
 if(!buffer)return;
 const data=buffer.getChannelData(0);
-const stride=Math.max(1,Math.ceil(data.length/w));
+const stride=Math.max(1,Math.ceil((endFrame-startFrame)/w));
 g.strokeStyle="#c68dff";
 g.beginPath();
 for(let x=0;x<w;x++){
 let peak=0;
-const start=x*stride;
-for(let j=start;j<Math.min(start+stride,data.length);j++){
+const start=startFrame+x*stride;
+for(let j=start;j<Math.min(start+stride,endFrame);j++){
 peak=Math.max(peak,Math.abs(data[j]));
 }
 g.moveTo(x,h/2-peak*h*.43);
@@ -357,13 +371,14 @@ return source;
 
 function scheduleTrack(track,ac,start,destination){
 if(track.mute)return;
+const clip=clipRange(track);
 const source=connectTrack(track,ac,destination);
-source.start(start+track.offset);
+source.start(start+track.offset,clip.start,clip.duration);
 addSource(source,ac);
 }
 
 function sessionDuration(){
-return Math.max(0,...tracks.map(t=>t.offset+t.buffer.duration));
+return Math.max(0,...tracks.map(t=>t.offset+clipRange(t).duration));
 }
 
 async function playSession(){
@@ -573,7 +588,121 @@ status("Import failed: "+e.message);
 }
 };
 
+function clipRange(track){
+const rate=track.buffer.sampleRate;
+const start=projectNumber(track.trimStart??0,"trim start",0,Number.MAX_SAFE_INTEGER);
+const end=track.trimEnd==null?track.buffer.duration:projectNumber(track.trimEnd,"trim end",0,Number.MAX_SAFE_INTEGER);
+const first=Math.round(start*rate),last=Math.round(end*rate);
+if(first<0||last>track.buffer.length||last<=first){
+throw Error("Trim End must be after Trim Start and within the original audio.");
+}
+return{first,last,start:first/rate,end:last/rate,duration:(last-first)/rate};
+}
+
+function refreshUndo(){
+$("undoTrackEdit").disabled=projectBusy||!trackEditHistory.length;
+}
+
+function rememberTrackEdit(edit){
+trackEditHistory.push(edit);
+if(trackEditHistory.length>20)trackEditHistory.shift();
+refreshUndo();
+}
+
+function canEditTrack(){
+if(recording||playing||projectBusy){
+status("Stop playback or recording before editing tracks.");
+return false;
+}
+return true;
+}
+
+function editTrack(track,changes){
+if(!canEditTrack())return false;
+try{
+const name=String(changes.name).trim().slice(0,200)||"Audio track";
+const offset=projectNumber(changes.offset,"track start",0,Number.MAX_SAFE_INTEGER);
+const clip=clipRange({...track,...changes});
+const after={name,offset,trimStart:clip.start,trimEnd:clip.last===track.buffer.length?null:clip.end};
+const keys=Object.keys(after);
+if(keys.every(key=>track[key]===after[key])){
+status("No track changes to apply.");
+return false;
+}
+rememberTrackEdit({kind:"update",id:track.id,before:Object.fromEntries(keys.map(key=>[key,track[key]]))});
+Object.assign(track,after);
+renderTracks();
+status("Track edit applied. Original audio is preserved. Save Project to keep these changes.");
+return true;
+}catch(error){
+status("Track edit failed: "+error.message);
+return false;
+}
+}
+
+function duplicateTrack(track){
+if(!canEditTrack())return;
+const copy={...track,id:nextTrackId++,name:track.name.slice(0,195)+" copy",offset:track.offset+clipRange(track).duration};
+tracks.splice(tracks.indexOf(track)+1,0,copy);
+rememberTrackEdit({kind:"add",id:copy.id});
+renderTracks();
+status("Track duplicated immediately after the original. Adjust Start in Song to move it.");
+}
+
+function removeTrack(track){
+if(!canEditTrack())return;
+const index=tracks.indexOf(track);
+if(index<0)return;
+rememberTrackEdit({kind:"remove",track:{...track},index});
+tracks.splice(index,1);
+renderTracks();
+status("Track removed. Undo Track Edit can restore it.");
+}
+
+$("undoTrackEdit").onclick=()=>{
+if(!canEditTrack()||!trackEditHistory.length)return;
+const edit=trackEditHistory.pop();
+if(edit.kind==="add")tracks=tracks.filter(t=>t.id!==edit.id);
+if(edit.kind==="remove")tracks.splice(Math.min(edit.index,tracks.length),0,edit.track);
+if(edit.kind==="update"){
+const track=tracks.find(t=>t.id===edit.id);
+if(track)Object.assign(track,edit.before);
+}
+renderTracks();
+status("Last track edit undone. Save Project to keep this version.");
+};
+
+function timeValue(seconds){
+return Number(seconds.toFixed(6)).toString();
+}
+
+function renderArrangement(){
+const box=$("arrangement");
+box.replaceChildren();
+if(!tracks.length)return;
+const end=sessionDuration();
+const scale=document.createElement("div");
+scale.className="arrangement-scale";
+const zero=document.createElement("span"),finish=document.createElement("span");
+zero.textContent="0 sec";finish.textContent=timeValue(end)+" sec";
+scale.append(zero,finish);box.append(scale);
+tracks.forEach(track=>{
+const clip=clipRange(track);
+const lane=document.createElement("div");lane.className="arrangement-lane";
+lane.setAttribute("role","img");
+lane.setAttribute("aria-label",track.name+": starts at "+timeValue(track.offset)+" seconds, plays "+timeValue(clip.duration)+" seconds"+(track.mute?", muted":""));
+const name=document.createElement("span");name.className="arrangement-name";name.textContent=track.name;name.title=track.name;
+const rail=document.createElement("div");rail.className="arrangement-rail";
+const bar=document.createElement("span");bar.className="arrangement-clip";
+bar.style.left=(track.offset/end*100)+"%";bar.style.width=(clip.duration/end*100)+"%";
+bar.style.opacity=track.mute?".35":"1";
+rail.append(bar);lane.append(name,rail);box.append(lane);
+});
+}
+
 function renderTracks(){
+renderArrangement();
+refreshUndo();
 const recordingBox=$("recordTracks");
 const mixerBox=$("mixerTracks");
 recordingBox.replaceChildren();
@@ -586,8 +715,12 @@ return;
 }
 
 tracks.forEach(track=>{
+[recordingBox,mixerBox].forEach(box=>{
+const clip=clipRange(track);
 const row=document.createElement("div");
 row.className="track";
+row.setAttribute("role","group");
+row.setAttribute("aria-label",track.name+" track controls");
 
 const head=document.createElement("div");
 head.className="trackhead";
@@ -596,26 +729,22 @@ const title=document.createElement("strong");
 title.textContent=track.name+" ["+track.type+"]";
 
 const duration=document.createElement("small");
-duration.textContent=track.buffer.duration.toFixed(1)+" sec";
+duration.textContent=timeValue(clip.duration)+" sec · starts at "+timeValue(track.offset)+" sec";
 
 const remove=document.createElement("button");
 remove.className="danger";
 remove.textContent="Remove";
-remove.onclick=()=>{
-if(recording||playing){
-status("Stop playback or recording first.");
-return;
-}
-tracks=tracks.filter(t=>t.id!==track.id);
-renderTracks();
-};
+remove.onclick=()=>removeTrack(track);
+const duplicate=document.createElement("button");
+duplicate.className="secondary";duplicate.textContent="Duplicate";
+duplicate.onclick=()=>duplicateTrack(track);
 
-head.append(title,duration,remove);
+head.append(title,duration,duplicate,remove);
 
 const canvas=document.createElement("canvas");
 canvas.width=900;
 canvas.height=100;
-drawWave(canvas,track.buffer);
+drawWave(canvas,track.buffer,clip.first,clip.last);
 
 row.append(head,canvas);
 
@@ -656,11 +785,34 @@ mute.dataset.setting="mute";
 mute.onchange=event=>{
 track.mute=event.currentTarget.checked;
 document.querySelectorAll('input[data-track-id="'+track.id+'"][data-setting="mute"]').forEach(control=>control.checked=track.mute);
+renderArrangement();
 };
 muteLabel.append(mute);
 controls.append(muteLabel);
 
 row.append(controls);
+
+const editor=document.createElement("div");editor.className="trackedit";
+function field(label,key,value,type="number"){
+const wrapper=document.createElement("label");wrapper.textContent=label;
+const input=document.createElement("input");input.type=type;input.value=value;
+if(type==="number"){input.min="0";input.step="0.001";}
+else input.maxLength=200;
+input.dataset.edit=key;wrapper.append(input);editor.append(wrapper);
+return input;
+}
+const nameInput=field("Track Name","name",track.name,"text");
+const startInput=field("Start in Song (sec)","offset",timeValue(track.offset));
+const trimStartInput=field("Trim Start (sec)","trimStart",timeValue(clip.start));
+const trimEndInput=field("Trim End (sec)","trimEnd",timeValue(clip.end));
+const apply=document.createElement("button");apply.textContent="Apply Track Edit";
+apply.onclick=()=>{
+if([startInput,trimStartInput,trimEndInput].some(input=>!input.value.trim()))return status("Enter a number for the track start and both trim points.");
+editTrack(track,{name:nameInput.value,offset:Number(startInput.value),trimStart:Number(trimStartInput.value),trimEnd:Number(trimEndInput.value)});
+};
+const restore=document.createElement("button");restore.textContent="Restore Full Audio";restore.className="secondary";
+restore.onclick=()=>editTrack(track,{name:track.name,offset:track.offset,trimStart:0,trimEnd:null});
+editor.append(apply,restore);row.append(editor);
 
 const fx=document.createElement("div");
 fx.className="fx controls";
@@ -674,18 +826,7 @@ slider("Delay",0,100,5,"delay")
 
 row.append(fx);
 
-const copy=row.cloneNode(true);
-copy.querySelector("button").onclick=remove.onclick;
-drawWave(copy.querySelector("canvas"),track.buffer);
-recordingBox.append(row);
-mixerBox.append(copy);
-
-const inputs=copy.querySelectorAll("input");
-const originals=row.querySelectorAll("input");
-
-inputs.forEach((input,i)=>{
-input.oninput=originals[i].oninput;
-input.onchange=originals[i].onchange;
+box.append(row);
 });
 });
 }
@@ -794,7 +935,7 @@ status("Processing vocal...");
 
 async function renderSession(onlyTrack=null){
 const duration=onlyTrack
-?onlyTrack.offset+onlyTrack.buffer.duration
+?onlyTrack.offset+clipRange(onlyTrack).duration
 :sessionDuration();
 
 if(!duration)throw Error("No audio to export.");
@@ -939,6 +1080,7 @@ bpm:Math.max(40,Math.min(240,Number($("bpm").value)||100)),
 pads:pads.map(p=>({name:p.name,pattern:[...p.pattern]})),
 tracks:tracks.map(t=>({
 name:t.name,type:t.type,offset:t.offset,
+trimStart:t.trimStart??0,trimEnd:t.trimEnd??null,
 volume:t.volume,pan:t.pan,mute:t.mute,
 eq:t.eq,compression:t.compression,reverb:t.reverb,delay:t.delay
 }))
@@ -968,6 +1110,8 @@ if(!t||typeof t.mute!=="boolean")throw Error("Invalid track in this project.");
 return{
 name:name(t.name)||"Audio track",type:["audio","vocal","beat"].includes(t.type)?t.type:"audio",
 offset:projectNumber(t.offset,"track offset",0,Number.MAX_SAFE_INTEGER),
+trimStart:projectNumber(t.trimStart??0,"trim start",0,Number.MAX_SAFE_INTEGER),
+trimEnd:t.trimEnd==null?null:projectNumber(t.trimEnd,"trim end",0,Number.MAX_SAFE_INTEGER),
 volume:projectNumber(t.volume,"volume",0,1.5),pan:projectNumber(t.pan,"pan",-1,1),mute:t.mute,
 eq:projectNumber(t.eq,"EQ",-12,12),compression:projectNumber(t.compression,"compression",0,100),
 reverb:projectNumber(t.reverb,"reverb",0,100),delay:projectNumber(t.delay,"delay",0,100)
@@ -984,6 +1128,7 @@ return{sampleRate:buffer.sampleRate,channels:Array.from({length:buffer.numberOfC
 function projectSnapshot(){
 const data=projectSettings();
 normalizedSettings(data);
+tracks.forEach(clipRange);
 data.savedAt=new Date().toISOString();
 data.tracks.forEach((t,i)=>t.audio=captureAudio(tracks[i].buffer));
 data.pads.forEach((p,i)=>p.audio=captureAudio(pads[i].buffer));
@@ -1058,10 +1203,15 @@ const settings=normalizedSettings(data);
 if(data.version!==2)throw Error("This older backup contains settings only.");
 const ac=await ready();
 // Build everything first so a damaged backup cannot erase the current session.
-const restoredTracks=settings.tracks.map((t,i)=>({...t,id:i+1,buffer:restoreAudio(data.tracks[i].audio,ac)}));
+const restoredTracks=settings.tracks.map((t,i)=>{
+const track={...t,id:i+1,buffer:restoreAudio(data.tracks[i].audio,ac)};
+clipRange(track);
+return track;
+});
 const restoredPads=settings.pads.map((p,i)=>({...p,buffer:data.pads[i].audio==null?null:restoreAudio(data.pads[i].audio,ac)}));
 if(tracks.length&&!window.confirm("Open this project and replace the current session? Save or download a backup of the current session first."))return false;
 stopAll();
+trackEditHistory=[];
 tracks=restoredTracks;nextTrackId=tracks.length+1;
 restoredPads.forEach((p,i)=>Object.assign(pads[i],p));
 $("projectName").value=settings.name;$("bpm").value=settings.bpm;
@@ -1071,6 +1221,8 @@ return true;
 
 function applyLegacySettings(data){
 const settings=normalizedSettings(data);
+settings.tracks.forEach((saved,i)=>{if(tracks[i])clipRange({...tracks[i],...saved});});
+trackEditHistory=[];
 $("projectName").value=settings.name;$("bpm").value=settings.bpm;
 settings.pads.forEach((p,i)=>Object.assign(pads[i],p));
 settings.tracks.forEach((saved,i)=>{if(tracks[i])Object.assign(tracks[i],saved);});
@@ -1121,7 +1273,7 @@ controls.forEach(([control])=>control.disabled=true);
 status(message);
 try{await action();}
 catch(error){status("Project action failed: "+error.message+" Your current audio remains in this session.");}
-finally{controls.forEach(([control,disabled])=>control.disabled=disabled);projectBusy=false;}
+finally{controls.forEach(([control,disabled])=>control.disabled=disabled);projectBusy=false;refreshUndo();}
 }
 
 $("saveProject").onclick=()=>projectAction("Saving project and audio…",async()=>{
