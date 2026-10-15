@@ -19,7 +19,7 @@ class AudioBufferStub {
     this.channels = Array.from({ length: channels }, () => new Float32Array(length));
   }
   getChannelData(channel) { return this.channels[channel]; }
-  copyToChannel(samples, channel) { this.channels[channel].set(samples); }
+  copyToChannel(samples, channel, offset = 0) { this.channels[channel].set(samples, offset); }
 }
 
 function page(indexedDB = new IDBFactory(), confirmation = true) {
@@ -30,6 +30,10 @@ function page(indexedDB = new IDBFactory(), confirmation = true) {
   });
   window.indexedDB = indexedDB;
   window.confirm = () => confirmation;
+  // linkedom omits the native select.value setter used by project restore.
+  Object.defineProperty(document.getElementById('countIn'), 'value', {
+    value:'4', writable:true, configurable:true
+  });
   window.AudioContext = class {
     constructor() { this.state = 'running'; this.currentTime = 0; }
     createBuffer(channels, length, rate) { return new AudioBufferStub(channels, length, rate); }
@@ -405,4 +409,248 @@ test('edits and undo are blocked during playback or recording and history holds 
   for(let i=0;i<20;i++)run(context,'$("undoTrackEdit").onclick()');
   assert.equal(run(context, 'tracks[0].offset'), 5);
   assert.equal(run(context, '$("undoTrackEdit").disabled'), true);
+});
+
+function recordingHarness({fallback=false,workletFailure=false,permission}={}) {
+  const context=page(), h={context,nodes:[],worklets:[],timers:new Map(),requests:0};
+  let timerId=0;
+  context.setTimeout=(fn,ms)=>{const id=++timerId;h.timers.set(id,{fn,ms});return id;};
+  context.clearTimeout=id=>h.timers.delete(id);
+  h.track={stops:0,handlers:[],stop(){this.stops++;},addEventListener(type,handler){if(type==='ended')this.handlers.push(handler);}};
+  h.stream={getTracks:()=>[h.track],getAudioTracks:()=>[h.track]};
+  context.navigator={mediaDevices:{getUserMedia:async()=>{h.requests++;return permission?permission():h.stream;}}};
+  function node(kind) {
+    const param=()=>({value:0,setValueAtTime(){},exponentialRampToValueAtTime(){}});
+    const n={kind,starts:[],stops:0,disconnected:false,gain:param(),frequency:param(),threshold:param(),ratio:param(),attack:param(),release:param(),pan:param(),delayTime:param(),
+      connect(target){return target;},disconnect(){this.disconnected=true;},start(...args){this.starts.push(args);},stop(){this.stops++;}};
+    h.nodes.push(n);return n;
+  }
+  h.ac=run(context,'getContext()');
+  Object.assign(h.ac,{sampleRate:8000,destination:{},createOscillator:()=>node('click'),createGain:()=>node('gain'),
+    createBufferSource:()=>node('backing'),createBiquadFilter:()=>node('eq'),createDynamicsCompressor:()=>node('compressor'),createStereoPanner:()=>node('pan'),
+    createMediaStreamSource:()=>node('microphone')});
+  if(!fallback)h.ac.audioWorklet={addModule:async path=>{
+    assert.equal(path,'css/studio-recorder-worklet.js');
+    if(workletFailure)throw Error('Worklet unavailable');
+  }};
+  context.window.AudioWorkletNode=class {
+    constructor(ac,name) {
+      assert.equal(name,'starrise-recorder');
+      let Processor;
+      const main=this;
+      this.connected=false;this.disconnected=false;
+      this.port={postMessage:message=>queueMicrotask(()=>{if(!h.ignoreStop||message.type!=='stop')this.worker.port.onmessage({data:message});})};
+      class Base { constructor(){this.port={postMessage:message=>queueMicrotask(()=>main.port.onmessage?.({data:message}))};} }
+      this.workerContext=vm.createContext({AudioWorkletProcessor:Base,Float32Array,currentFrame:0,registerProcessor:(_,type)=>Processor=type});
+      vm.runInContext(fs.readFileSync('css/studio-recorder-worklet.js','utf8'),this.workerContext);
+      this.worker=new Processor();h.worklets.push(this);
+    }
+    connect(){this.connected=true;}
+    disconnect(){this.disconnected=true;}
+  };
+  context.window.MediaRecorder=class {
+    static isTypeSupported(){return true;}
+    constructor(){this.state='inactive';this.mimeType='audio/webm';h.encoded=this;}
+    start(){this.state='recording';this.onstart?.();}
+    stop(){this.state='inactive';queueMicrotask(()=>{this.ondataavailable?.({data:new Blob(['encoded audio'])});void this.onstop?.();});}
+  };
+  h.feed=(frame,...channels)=>{
+    const processor=h.worklets.at(-1);
+    processor.workerContext.currentFrame=frame;
+    const output=new Float32Array(channels[0].length);output.fill(9);
+    processor.worker.process([channels],[[output]]);
+    assert.ok(output.every(value=>value===0),'live microphone never reaches the output');
+    h.ac.currentTime=(frame+channels[0].length)/h.ac.sampleRate;
+  };
+  h.advance=seconds=>{
+    h.ac.currentTime=seconds;
+    const timer=[...h.timers].find(([,value])=>value.ms===40);
+    if(timer){h.timers.delete(timer[0]);timer[1].fn();}
+  };
+  h.fire=ms=>{
+    const timer=[...h.timers].find(([,value])=>value.ms===ms);
+    assert.ok(timer,'expected timer '+ms);h.timers.delete(timer[0]);timer[1].fn();
+  };
+  run(context,'$("bpm").value="120"');
+  return h;
+}
+
+test('recording from a song position schedules only the remaining trimmed backing audio', () => {
+  const h=recordingHarness(),context=h.context;seedEditable(context);
+  run(context, 'Object.assign(tracks[0],{offset:0,trimStart:.25,trimEnd:1.25}); scheduleTrack(tracks[0],getContext(),10,{},.5)');
+  assert.deepEqual(h.nodes.filter(n=>n.kind==='backing')[0].starts[0],[10,.75,.5]);
+  run(context,'scheduleTrack(tracks[0],getContext(),10,{},1.1)');
+  assert.equal(h.nodes.filter(n=>n.kind==='backing').length,1,'completed tracks are skipped');
+  run(context,'tracks[0].offset=2; scheduleTrack(tracks[0],getContext(),10,{},.5)');
+  assert.deepEqual(h.nodes.filter(n=>n.kind==='backing')[1].starts[0],[11.5,.25,1]);
+});
+
+test('PCM recording excludes the full count-in, captures only microphone PCM, and positions the take', async () => {
+  const h=recordingHarness(),context=h.context;
+  run(context,'$("recordFrom").value="5"');
+  await run(context,'beginVocal()');
+  assert.equal(run(context,'recordingSession.mode'),'pcm');
+  assert.equal(run(context,'recordingSession.startAt'),2.15);
+  assert.equal(run(context,'$("recordVocal").disabled'),true);
+  assert.equal(run(context,'$("bpm").disabled'),true);
+  h.feed(0,new Float32Array(17200).fill(.9));
+  h.feed(17200,new Float32Array(800).fill(.6),new Float32Array(800).fill(.2));
+  await run(context,'$("stop").onclick()');
+  assert.equal(run(context,'tracks.length'),1);
+  assert.equal(run(context,'tracks[0].offset'),5);
+  assert.equal(run(context,'tracks[0].buffer.length'),800);
+  assert.equal(run(context,'tracks[0].buffer.numberOfChannels'),1);
+  assert.ok(Math.abs(run(context,'tracks[0].buffer.getChannelData(0)[0]')-.4)<1e-6);
+  assert.equal(run(context,'recording'),false);
+  assert.equal(run(context,'$("recordVocal").disabled'),false);
+  assert.equal(run(context,'$("stopVocal").disabled'),true);
+  assert.ok(h.track.stops>0);
+  assert.equal(h.worklets[0].disconnected,true);
+});
+
+test('count-in clicks use the audio clock and optional recording clicks never enter the track list', async () => {
+  const h=recordingHarness(),context=h.context;
+  run(context,'$("recordMetronome").checked=true');
+  await run(context,'beginVocal()');
+  h.advance(.1);h.advance(.6);h.advance(1.1);h.advance(1.6);h.advance(2.1);
+  const clicks=h.nodes.filter(n=>n.kind==='click');
+  assert.deepEqual(clicks.map(n=>n.starts[0][0]),[.15,.65,1.15,1.65,2.15]);
+  assert.deepEqual(clicks.map(n=>n.frequency.value),[1000,750,750,750,1000]);
+  assert.match(run(context,'$("recordClock").textContent'),/Count-in/);
+  h.feed(17200,new Float32Array(800).fill(.25));h.advance(2.25);
+  assert.match(run(context,'$("recordClock").textContent'),/Recording 0:00/);
+  await run(context,'stopVocal()');
+  assert.equal(run(context,'tracks.length'),1);
+  assert.equal(run(context,'tracks[0].type'),'vocal');
+  assert.ok(clicks.every(n=>n.stops>0));
+  assert.equal(h.timers.size,0);
+});
+
+test('metronome-off records without a click at the first recorded beat and skips stale beats after a pause', async () => {
+  const h=recordingHarness(),context=h.context;
+  await run(context,'beginVocal()');
+  h.advance(.1);h.advance(2.1);
+  assert.equal(h.nodes.filter(n=>n.kind==='click').length,1);
+  assert.equal(h.nodes.filter(n=>n.kind==='click')[0].starts[0][0],.15);
+  h.advance(10);
+  assert.equal(h.nodes.filter(n=>n.kind==='click').length,1,'missed count-in clicks are not replayed as a burst');
+  await run(context,'stopVocal()');
+  assert.equal(run(context,'tracks.length'),0);
+});
+
+test('stopping during count-in cancels both backing audio and microphone without an empty take', async () => {
+  const h=recordingHarness(),context=h.context;seedEditable(context);
+  await run(context,'beginVocal()');h.advance(.1);
+  await run(context,'stopAll()');
+  assert.equal(run(context,'tracks.length'),1,'existing audio remains');
+  assert.equal(run(context,'recordingSession'),null);
+  assert.match(run(context,'$("status").textContent'),/cancelled before the take began/);
+  assert.ok(h.nodes.filter(n=>['backing','click'].includes(n.kind)).every(n=>n.stops>0));
+  assert.ok(h.track.stops>0);
+  assert.equal(h.timers.size,0);
+});
+
+test('cancelling a pending microphone request blocks duplicate starts and stops a late stream', async () => {
+  let grant;
+  const h=recordingHarness({permission:()=>new Promise(resolve=>grant=resolve)}),context=h.context;
+  const pending=run(context,'beginVocal()');
+  await new Promise(resolve=>setImmediate(resolve));
+  await run(context,'beginVocal()');
+  assert.equal(h.requests,1);
+  await run(context,'stopAll()');
+  grant(h.stream);await pending;
+  assert.equal(run(context,'recording'),false);
+  assert.equal(run(context,'tracks.length'),0);
+  assert.ok(h.track.stops>0);
+  assert.equal(h.worklets.length,0);
+});
+
+for (const mode of ['unsupported','load failure']) {
+  test('encoded recording fallback excludes count-in when PCM is '+mode, async () => {
+    const h=recordingHarness({fallback:mode==='unsupported',workletFailure:mode==='load failure'}),context=h.context;
+    const decoded=new AudioBufferStub(1,20000,8000);
+    decoded.channels[0].fill(.1,0,17200);decoded.channels[0].fill(.6,17200);
+    h.ac.decodeAudioData=async()=>decoded;
+    run(context,'$("recordFrom").value="3"');
+    await run(context,'beginVocal()');
+    assert.equal(run(context,'recordingSession.mode'),'encoded');
+    h.advance(2.5);await run(context,'stopVocal()');
+    assert.equal(run(context,'tracks[0].buffer.length'),2800);
+    assert.equal(run(context,'tracks[0].offset'),3);
+    assert.equal(run(context,'tracks[0].buffer.getChannelData(0)[0]'),Math.fround(.6));
+    assert.equal(run(context,'recording'),false);
+    assert.ok(h.track.stops>0);
+  });
+}
+
+test('microphone denial and decode errors release controls while retaining existing tracks', async () => {
+  const denied=recordingHarness({permission:()=>Promise.reject(Error('Permission denied'))});seedEditable(denied.context);
+  await run(denied.context,'beginVocal()');
+  assert.equal(run(denied.context,'recording'),false);
+  assert.equal(run(denied.context,'tracks.length'),1);
+  assert.equal(run(denied.context,'$("recordVocal").disabled'),false);
+  const broken=recordingHarness({fallback:true});seedEditable(broken.context);
+  broken.ac.decodeAudioData=async()=>{throw Error('Damaged capture');};
+  await run(broken.context,'beginVocal()');broken.advance(3);await run(broken.context,'stopVocal()');
+  assert.equal(run(broken.context,'tracks.length'),1);
+  assert.equal(run(broken.context,'recording'),false);
+  assert.equal(run(broken.context,'$("bpm").disabled'),false);
+  assert.match(run(broken.context,'$("status").textContent'),/Recording decode failed/);
+  assert.ok(broken.track.stops>0);
+});
+
+test('a stalled PCM stop keeps the received portion and reports a partial take', async () => {
+  const h=recordingHarness(),context=h.context;h.ignoreStop=true;
+  run(context,'$("countIn").value="0"');
+  await run(context,'beginVocal()');
+  h.feed(1200,new Float32Array(8200).fill(.4));
+  await new Promise(resolve=>setImmediate(resolve));
+  const finishing=run(context,'stopVocal()');h.fire(1500);await finishing;
+  assert.equal(run(context,'tracks[0].buffer.length'),8192);
+  assert.match(run(context,'$("status").textContent'),/partial vocal take was kept/);
+  assert.equal(run(context,'recording'),false);
+});
+
+test('recording settings survive project saves and old projects receive safe defaults', async () => {
+  const database=new IDBFactory(),source=page(database);seedEditable(source);
+  run(source,'$("recordFrom").value="6.5"; $("countIn").value="8"; $("recordMetronome").checked=true');
+  await run(source,'$("saveProject").onclick()');
+  const reopened=page(database);await run(reopened,'$("loadProject").onclick()');
+  assert.deepEqual(plain(run(reopened,'recordingSettings()')),{from:6.5,countIn:8,metronome:true});
+  const output=await portable(source),data=JSON.parse(await output.blob.text());
+  const restored=page();await importText(restored,JSON.stringify(data));
+  assert.deepEqual(plain(run(restored,'recordingSettings()')),{from:6.5,countIn:8,metronome:true});
+  delete data.recording;await importText(restored,JSON.stringify(data));
+  assert.deepEqual(plain(run(restored,'recordingSettings()')),{from:0,countIn:4,metronome:false});
+  data.recording={from:-1,countIn:4,metronome:false};data.name='Bad';
+  await importText(restored,JSON.stringify(data));
+  assert.equal(run(restored,'$("projectName").value'),'My StarRise Song');
+  assert.match(run(restored,'$("status").textContent'),/Project action failed/);
+});
+
+test('direct capture joins complete and final partial PCM chunks in the original order', async () => {
+  const h=recordingHarness(),context=h.context;
+  run(context,'$("countIn").value="0"');
+  await run(context,'beginVocal()');
+  const input=new Float32Array(9000);input.fill(.2,0,8192);input.fill(.7,8192);
+  h.feed(1200,input);await run(context,'stopVocal()');
+  assert.equal(run(context,'tracks[0].buffer.length'),9000);
+  assert.equal(run(context,'tracks[0].buffer.getChannelData(0)[8191]'),Math.fround(.2));
+  assert.equal(run(context,'tracks[0].buffer.getChannelData(0)[8192]'),Math.fround(.7));
+  assert.equal(run(context,'tracks[0].buffer.getChannelData(0)[8999]'),Math.fround(.7));
+});
+
+test('a late cancelled microphone permission cannot stop a newer recording request', async () => {
+  let grant,calls=0,h;
+  h=recordingHarness({permission:()=>++calls===1?new Promise(resolve=>grant=resolve):h.stream});
+  const context=h.context,first=run(context,'beginVocal()');
+  await new Promise(resolve=>setImmediate(resolve));await run(context,'stopVocal()');
+  await run(context,'beginVocal()');
+  const oldTrack={stops:0,stop(){this.stops++;}};
+  grant({getTracks:()=>[oldTrack]});await first;
+  assert.equal(oldTrack.stops,1);
+  assert.equal(h.track.stops,0);
+  assert.equal(run(context,'recording'),true);
+  assert.equal(run(context,'recordingSession.mode'),'pcm');
+  await run(context,'stopVocal()');
 });
