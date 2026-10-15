@@ -132,7 +132,7 @@ input[type=range]{width:110px}
 <section id="mixer" class="view">
 <div class="panel">
 <h2>Multitrack Mixer & Effects</h2>
-<p class="note">Each track has independent volume, pan, EQ, compression, reverb and delay.</p>
+<p class="note">Each track has independent volume, pan, EQ, compression, reverb and delay. Mix changes apply on the next playback and to new exports.</p>
 <div id="mixerTracks"></div>
 </div>
 </section>
@@ -150,20 +150,20 @@ input[type=range]{width:110px}
 
 <div class="panel">
 <h2>Project Backup</h2>
-<button id="exportProject">Download Project Settings</button>
-<label>Import Project Settings
+<button id="exportProject">Download Full Project</button>
+<label>Import Project Backup
 <input id="importProject" type="file" accept=".json,application/json">
 </label>
-<p class="note">Project settings backups do not contain recorded audio. Save your WAV tracks separately.</p>
+<p class="note">Full project backups include recordings, imported tracks, sample-pad audio, and mix settings. Share the backup file to let another creator open and continue your project.</p>
 </div>
 </section>
 
 <section class="panel">
 <h2>Session Information</h2>
 <p class="note">
-Audio tracks remain in browser memory and are lost if you refresh or close the page.
-Export your song and stems before leaving.
-Project settings are saved locally on this device.
+Choose Save Project to keep this session, including its audio, on this device.
+Choose Load Project to reopen that saved session. Browser storage can be cleared or become full;
+download a full project backup to keep a separate copy or move to another device.
 This version does not yet include automatic pitch correction,
 third-party VST hosting or real-time cloud collaboration.
 </p>
@@ -280,6 +280,10 @@ if(ac===audioContext){
 playingSources.push(source);
 source.onended=()=>{
 playingSources=playingSources.filter(s=>s!==source);
+if(playing&&!recording&&!playingSources.length){
+playing=false;
+status("Playback finished.");
+}
 };
 }
 }
@@ -331,7 +335,7 @@ const wet=ac.createGain();
 wet.gain.value=track.reverb/100*.55;
 compressor.connect(convolver);
 convolver.connect(wet);
-wet.connect(pan);
+wet.connect(gain);
 }
 
 if(track.delay>0){
@@ -343,7 +347,7 @@ const wet=ac.createGain();
 wet.gain.value=track.delay/100*.45;
 compressor.connect(delay);
 delay.connect(wet);
-wet.connect(pan);
+wet.connect(gain);
 delay.connect(feedback);
 feedback.connect(delay);
 }
@@ -365,6 +369,7 @@ return Math.max(0,...tracks.map(t=>t.offset+t.buffer.duration));
 async function playSession(){
 if(recording)return status("Stop recording first.");
 if(!tracks.length)return status("Add a beat or record audio first.");
+if(tracks.every(track=>track.mute))return status("All tracks are muted. Unmute a track to play the session.");
 
 const ac=await ready();
 stopAll();
@@ -626,7 +631,12 @@ input.min=min;
 input.max=max;
 input.step=step;
 input.value=track[key];
-input.oninput=()=>track[key]=Number(input.value);
+input.dataset.trackId=String(track.id);
+input.dataset.setting=key;
+input.oninput=event=>{
+track[key]=Number(event.currentTarget.value);
+document.querySelectorAll('input[data-track-id="'+track.id+'"][data-setting="'+key+'"]').forEach(control=>control.value=String(track[key]));
+};
 wrapper.append(input);
 return wrapper;
 }
@@ -641,7 +651,12 @@ muteLabel.textContent="Mute";
 const mute=document.createElement("input");
 mute.type="checkbox";
 mute.checked=track.mute;
-mute.onchange=()=>track.mute=mute.checked;
+mute.dataset.trackId=String(track.id);
+mute.dataset.setting="mute";
+mute.onchange=event=>{
+track.mute=event.currentTarget.checked;
+document.querySelectorAll('input[data-track-id="'+track.id+'"][data-setting="mute"]').forEach(control=>control.checked=track.mute);
+};
 muteLabel.append(mute);
 controls.append(muteLabel);
 
@@ -660,6 +675,8 @@ slider("Delay",0,100,5,"delay")
 row.append(fx);
 
 const copy=row.cloneNode(true);
+copy.querySelector("button").onclick=remove.onclick;
+drawWave(copy.querySelector("canvas"),track.buffer);
 recordingBox.append(row);
 mixerBox.append(copy);
 
@@ -903,104 +920,246 @@ status("Beat export failed: "+e.message);
 }
 };
 
+const PROJECT_FORMAT="starrise-studio-pro";
+let projectDatabase=null;
+let projectBusy=false;
+
+function projectNumber(value,label,min,max){
+if(typeof value!=="number"||!Number.isFinite(value)||value<min||value>max){
+throw Error("Invalid "+label+" in this project.");
+}
+return value;
+}
+
 function projectSettings(){
 return{
-version:1,
-name:$("projectName").value,
-bpm:Number($("bpm").value),
-pads:pads.map(p=>({
-name:p.name,
-pattern:[...p.pattern]
-})),
+format:PROJECT_FORMAT,version:2,
+name:$("projectName").value.trim()||"My StarRise Song",
+bpm:Math.max(40,Math.min(240,Number($("bpm").value)||100)),
+pads:pads.map(p=>({name:p.name,pattern:[...p.pattern]})),
 tracks:tracks.map(t=>({
-name:t.name,
-type:t.type,
-offset:t.offset,
-volume:t.volume,
-pan:t.pan,
-mute:t.mute,
-eq:t.eq,
-compression:t.compression,
-reverb:t.reverb,
-delay:t.delay
+name:t.name,type:t.type,offset:t.offset,
+volume:t.volume,pan:t.pan,mute:t.mute,
+eq:t.eq,compression:t.compression,reverb:t.reverb,delay:t.delay
 }))
 };
 }
 
-function saveSettings(){
-localStorage.setItem(
-"starrise-studio-project",
-JSON.stringify(projectSettings())
-);
-status("Project settings saved on this device. Export audio separately.");
+function normalizedSettings(data){
+if(!data||![1,2].includes(data.version)||!Array.isArray(data.pads)||
+data.pads.length!==pads.length||!Array.isArray(data.tracks)){
+throw Error("This is not a supported StarRise project.");
+}
+if(data.version===2&&data.format!==PROJECT_FORMAT){
+throw Error("This project belongs to a different studio format.");
+}
+const name=value=>typeof value==="string"?value.slice(0,200):"";
+return{
+name:name(data.name)||"My StarRise Song",
+bpm:projectNumber(data.bpm,"tempo",40,240),
+pads:data.pads.map((p,i)=>{
+if(!p||!Array.isArray(p.pattern)||p.pattern.length!==16||p.pattern.some(s=>typeof s!=="boolean")){
+throw Error("Invalid drum pattern in this project.");
+}
+return{name:name(p.name)||padNames[i],pattern:[...p.pattern]};
+}),
+tracks:data.tracks.map(t=>{
+if(!t||typeof t.mute!=="boolean")throw Error("Invalid track in this project.");
+return{
+name:name(t.name)||"Audio track",type:["audio","vocal","beat"].includes(t.type)?t.type:"audio",
+offset:projectNumber(t.offset,"track offset",0,Number.MAX_SAFE_INTEGER),
+volume:projectNumber(t.volume,"volume",0,1.5),pan:projectNumber(t.pan,"pan",-1,1),mute:t.mute,
+eq:projectNumber(t.eq,"EQ",-12,12),compression:projectNumber(t.compression,"compression",0,100),
+reverb:projectNumber(t.reverb,"reverb",0,100),delay:projectNumber(t.delay,"delay",0,100)
+};
+})
+};
 }
 
-$("saveProject").onclick=saveSettings;
-
-function applySettings(data){
-$("projectName").value=data.name||"My StarRise Song";
-$("bpm").value=data.bpm||100;
-
-if(Array.isArray(data.pads)){
-data.pads.forEach((p,i)=>{
-if(!pads[i])return;
-pads[i].name=p.name||pads[i].name;
-if(Array.isArray(p.pattern)){
-pads[i].pattern=p.pattern.slice(0,16).map(Boolean);
+function captureAudio(buffer){
+if(!buffer)return null;
+return{sampleRate:buffer.sampleRate,channels:Array.from({length:buffer.numberOfChannels},(_,i)=>buffer.getChannelData(i).slice())};
 }
+
+function projectSnapshot(){
+const data=projectSettings();
+normalizedSettings(data);
+data.savedAt=new Date().toISOString();
+data.tracks.forEach((t,i)=>t.audio=captureAudio(tracks[i].buffer));
+data.pads.forEach((p,i)=>p.audio=captureAudio(pads[i].buffer));
+return data;
+}
+
+function openProjectDatabase(){
+if(projectDatabase)return projectDatabase;
+projectDatabase=new Promise((resolve,reject)=>{
+if(!window.indexedDB)return reject(Error("Device storage is unavailable. Download a full project backup instead."));
+const request=indexedDB.open("starrise-studio-pro",1);
+let finished=false;
+const fail=error=>{if(!finished){finished=true;clearTimeout(timeout);reject(error);}};
+const timeout=setTimeout(()=>fail(Error("Device storage could not open. Download a full project backup instead.")),5000);
+request.onupgradeneeded=()=>request.result.createObjectStore("projects");
+request.onerror=()=>fail(request.error||Error("Device storage could not open."));
+request.onblocked=()=>fail(Error("Close other studio tabs, or download a full project backup."));
+request.onsuccess=()=>{
+if(finished){request.result.close();return;}
+finished=true;clearTimeout(timeout);
+const db=request.result;
+db.onversionchange=()=>{db.close();projectDatabase=null;};
+resolve(db);
+};
+}).catch(error=>{projectDatabase=null;throw error;});
+return projectDatabase;
+}
+
+async function writeProject(data){
+const db=await openProjectDatabase();
+return new Promise((resolve,reject)=>{
+const tx=db.transaction("projects","readwrite");
+tx.objectStore("projects").put(data,"current");
+tx.oncomplete=()=>resolve();
+tx.onerror=()=>reject(tx.error||Error("The project could not be saved."));
+tx.onabort=()=>reject(tx.error||Error("The save was interrupted. Download a full project backup."));
 });
 }
 
-if(Array.isArray(data.tracks)){
-data.tracks.forEach((saved,i)=>{
-const track=tracks[i];
-if(!track)return;
-for(const key of [
-"offset","volume","pan","mute",
-"eq","compression","reverb","delay"
-]){
-if(saved[key]!==undefined){
-track[key]=saved[key];
-}
-}
+async function readProject(){
+const db=await openProjectDatabase();
+return new Promise((resolve,reject)=>{
+const tx=db.transaction("projects","readonly");
+const request=tx.objectStore("projects").get("current");
+let data;
+request.onsuccess=()=>data=request.result;
+tx.oncomplete=()=>resolve(data);
+tx.onerror=()=>reject(tx.error||Error("The saved project could not be read."));
+tx.onabort=()=>reject(tx.error||Error("Loading was interrupted."));
 });
 }
 
-renderPads();
-renderSequencer();
-renderTracks();
+function restoreAudio(audio,ac){
+if(!audio||!Array.isArray(audio.channels)||!audio.channels.length||audio.channels.length>32){
+throw Error("A project audio file is missing or invalid.");
+}
+const sampleRate=projectNumber(audio.sampleRate,"audio sample rate",8000,384000);
+const length=audio.channels[0]?.length;
+if(!Number.isSafeInteger(length)||length<1)throw Error("A project audio file is empty.");
+for(const channel of audio.channels){
+if(Object.prototype.toString.call(channel)!=="[object Float32Array]"||channel.length!==length||channel.some(v=>!Number.isFinite(v))){
+throw Error("A project audio channel is damaged.");
+}
+}
+const buffer=ac.createBuffer(audio.channels.length,length,sampleRate);
+audio.channels.forEach((channel,i)=>buffer.copyToChannel(channel,i));
+return buffer;
 }
 
-$("loadProject").onclick=()=>{
-try{
-const saved=localStorage.getItem("starrise-studio-project");
-if(!saved)throw Error("No saved project settings found.");
-applySettings(JSON.parse(saved));
-status("Settings loaded. Audio files must be imported again.");
-}catch(e){
-status(e.message);
+async function applyFullProject(data){
+const settings=normalizedSettings(data);
+if(data.version!==2)throw Error("This older backup contains settings only.");
+const ac=await ready();
+// Build everything first so a damaged backup cannot erase the current session.
+const restoredTracks=settings.tracks.map((t,i)=>({...t,id:i+1,buffer:restoreAudio(data.tracks[i].audio,ac)}));
+const restoredPads=settings.pads.map((p,i)=>({...p,buffer:data.pads[i].audio==null?null:restoreAudio(data.pads[i].audio,ac)}));
+if(tracks.length&&!window.confirm("Open this project and replace the current session? Save or download a backup of the current session first."))return false;
+stopAll();
+tracks=restoredTracks;nextTrackId=tracks.length+1;
+restoredPads.forEach((p,i)=>Object.assign(pads[i],p));
+$("projectName").value=settings.name;$("bpm").value=settings.bpm;
+renderPads();renderSequencer();renderTracks();
+return true;
 }
-};
 
-$("exportProject").onclick=()=>{
-const blob=new Blob(
-[JSON.stringify(projectSettings(),null,2)],
-{type:"application/json"}
-);
-download(blob,safeName()+"-settings.json");
-status("Project settings downloaded.");
-};
+function applyLegacySettings(data){
+const settings=normalizedSettings(data);
+$("projectName").value=settings.name;$("bpm").value=settings.bpm;
+settings.pads.forEach((p,i)=>Object.assign(pads[i],p));
+settings.tracks.forEach((saved,i)=>{if(tracks[i])Object.assign(tracks[i],saved);});
+renderPads();renderSequencer();renderTracks();
+}
 
-$("importProject").onchange=async e=>{
-try{
-const file=e.target.files[0];
+function audioToJSON(audio){
+if(!audio)return null;
+return{sampleRate:audio.sampleRate,encoding:"float32le-base64",channels:audio.channels.map(channel=>{
+const bytes=new Uint8Array(channel.length*4),view=new DataView(bytes.buffer);
+channel.forEach((sample,i)=>view.setFloat32(i*4,sample,true));
+let binary="";
+for(let i=0;i<bytes.length;i+=16384)binary+=String.fromCharCode(...bytes.subarray(i,i+16384));
+return btoa(binary);
+})};
+}
+
+function audioFromJSON(audio){
+if(!audio)return null;
+if(audio.encoding!=="float32le-base64"||!Array.isArray(audio.channels)||!audio.channels.length||audio.channels.length>32){
+throw Error("Unsupported audio encoding in this project.");
+}
+return{sampleRate:audio.sampleRate,channels:audio.channels.map(channel=>{
+if(typeof channel!=="string"||channel.length%4||!/^[A-Za-z0-9+/]*={0,2}$/.test(channel))throw Error("Invalid audio data in this project.");
+const binary=atob(channel);
+if(binary.length%4)throw Error("Incomplete audio data in this project.");
+const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0)),view=new DataView(bytes.buffer);
+return Float32Array.from({length:bytes.length/4},(_,i)=>view.getFloat32(i*4,true));
+})};
+}
+
+function projectToJSON(data){
+return{...data,tracks:data.tracks.map(t=>({...t,audio:audioToJSON(t.audio)})),pads:data.pads.map(p=>({...p,audio:audioToJSON(p.audio)}))};
+}
+
+function projectFromJSON(data){
+normalizedSettings(data);
+if(data.version===1)return data;
+return{...data,tracks:data.tracks.map(t=>({...t,audio:audioFromJSON(t.audio)})),pads:data.pads.map(p=>({...p,audio:audioFromJSON(p.audio)}))};
+}
+
+async function projectAction(message,action){
+if(projectBusy)return;
+if(recording)return status("Stop recording before saving or opening a project.");
+projectBusy=true;
+const controls=[...document.querySelectorAll("button,input,select")].map(control=>[control,control.disabled]);
+controls.forEach(([control])=>control.disabled=true);
+status(message);
+try{await action();}
+catch(error){status("Project action failed: "+error.message+" Your current audio remains in this session.");}
+finally{controls.forEach(([control,disabled])=>control.disabled=disabled);projectBusy=false;}
+}
+
+$("saveProject").onclick=()=>projectAction("Saving project and audio…",async()=>{
+const data=projectSnapshot();
+await writeProject(data);
+status("Saved on this device, including "+data.tracks.length+" audio tracks and "+data.pads.filter(p=>p.audio).length+" imported samples. Download a full project backup for a separate copy.");
+});
+
+$("loadProject").onclick=()=>projectAction("Opening saved project…",async()=>{
+let data,storageError;
+try{data=await readProject();}catch(error){storageError=error;}
+if(!data){
+const legacy=localStorage.getItem("starrise-studio-project");
+if(!legacy)throw storageError||Error("No saved project found on this device.");
+applyLegacySettings(JSON.parse(legacy));
+return status("Older settings loaded. This save contains no audio; import your original audio files to continue.");
+}
+if(await applyFullProject(data))status("Saved project opened with its recordings, samples, and mix settings.");
+else status("Opening cancelled. Your current session is unchanged.");
+});
+
+$("exportProject").onclick=()=>projectAction("Preparing full project backup…",async()=>{
+const data=projectToJSON(projectSnapshot());
+download(new Blob([JSON.stringify(data)],{type:"application/json"}),safeName()+"-project.json");
+status("Full project backup download requested, including all session audio and samples. Check your Downloads before leaving.");
+});
+
+$("importProject").onchange=event=>{
+const file=event.target.files[0];
 if(!file)return;
-const data=JSON.parse(await file.text());
-applySettings(data);
-status("Project settings imported.");
-}catch(error){
-status("Import failed: "+error.message);
-}
+return projectAction("Opening project backup…",async()=>{
+const data=projectFromJSON(JSON.parse(await file.text()));
+if(data.version===1){
+applyLegacySettings(data);
+status("Older settings imported. This backup contains no audio; import the original audio files separately.");
+}else if(await applyFullProject(data))status("Full project imported with its audio. Choose Save Project to keep it on this device.");
+else status("Import cancelled. Your current session is unchanged.");
+}).finally(()=>event.target.value="");
 };
 
 document.querySelectorAll("[data-tab]").forEach(button=>{

@@ -173,6 +173,16 @@ submit it. No payment is collected here.
 </main>
 
 <script>
+const serviceChoices={
+  vocals:"Custom Vocals & Hooks",
+  songwriting:"Songwriting",
+  promotion:"Artist Promotion"
+};
+const requestedService=new URLSearchParams(window.location.search).get("service");
+if(Object.prototype.hasOwnProperty.call(serviceChoices,requestedService)){
+  document.getElementById("service").value=serviceChoices[requestedService];
+}
+
 document.getElementById("serviceForm")
 .addEventListener("submit",function(event){
   event.preventDefault();

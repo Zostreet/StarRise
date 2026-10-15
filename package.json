@@ -6,5 +6,9 @@
   "dependencies": {
     "@supabase/supabase-js": "2.117.3",
     "tus-js-client": "4.3.1"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "6.2.5",
+    "linkedom": "0.18.13"
   }
 }
