@@ -35,11 +35,14 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install pinned test dependencies
+        run: npm ci --ignore-scripts
+
       - name: Check links, anchors, IDs, and JavaScript
         run: node scripts/validate-site.mjs
 
-      - name: Check studio capture, instruments, sampling, vocal tuning, and studio exports
-        run: node --test creator-studio.test.cjs studio-pro.test.cjs studio-sounds.test.cjs
+      - name: Check studio audio, complete project saves, backups, and service inquiries
+        run: node --test creator-studio.test.cjs studio-pro.test.cjs studio-sounds.test.cjs studio-projects.test.cjs tests/launch-paths.test.cjs
 
       - name: Check PayPal payment verification and readiness gates
         run: node --experimental-strip-types --test tests/paypal-payment.test.mjs
