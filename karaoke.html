@@ -1,475 +1,607 @@
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>StarRise Karaoke Studio</title>
+<title>StarRise Karaoke & Video Studio</title>
+
 <style>
-:root{color-scheme:dark}
 *{box-sizing:border-box}
 body{
-  margin:0;
-  background:#101022;
-  color:#f7f5ff;
-  font:16px system-ui,sans-serif
+margin:0;
+font-family:Arial,sans-serif;
+background:linear-gradient(145deg,#100b26,#21113d);
+color:white;
 }
-main{
-  max-width:780px;
-  margin:auto;
-  padding:20px
+header{
+background:#140b29;
+padding:20px;
+text-align:center;
+border-bottom:2px solid #9c56ff;
 }
-a{color:#d6bcff}
-.card{
-  background:#1e1b37;
-  border:1px solid #454060;
-  border-radius:18px;
-  padding:18px;
-  margin:16px 0
+header h1{color:#d5b2ff;margin:8px 0}
+main{max-width:950px;margin:auto;padding:15px}
+section{
+background:#211638;
+border:1px solid #514073;
+border-radius:16px;
+padding:20px;
+margin:18px 0;
 }
-h1{font-size:2rem;margin:12px 0}
-.muted{color:#c6c1d7}
-label{
-  display:block;
-  margin:14px 0 6px;
-  font-weight:650
+h2{color:#d5b2ff}
+input,textarea,select{
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:8px;
+border:1px solid #66518c;
+background:#140e27;
+color:white;
+font-size:16px;
 }
-input[type=file],textarea,select{
-  width:100%;
-  background:#302b4b;
-  color:white;
-  border:1px solid #6d638a;
-  border-radius:10px;
-  padding:12px
+textarea{min-height:120px}
+button,.btn{
+display:inline-block;
+background:#9c56ff;
+color:white;
+padding:12px 16px;
+border:0;
+border-radius:9px;
+margin:5px 4px 5px 0;
+cursor:pointer;
+font-weight:bold;
+text-decoration:none;
 }
-textarea{min-height:110px}
-button{
-  background:#ab77f5;
-  border:0;
-  border-radius:12px;
-  padding:12px 18px;
-  color:#130c24;
-  font-weight:750;
-  cursor:pointer;
-  margin:6px 6px 6px 0
-}
-button:disabled{
-  opacity:.45;
-  cursor:not-allowed
-}
-.secondary{
-  background:#393351;
-  color:white
+button:disabled{opacity:.5;cursor:not-allowed}
+.secondary{background:#44345f}
+.player{
+width:100%;
+aspect-ratio:16/9;
+border:0;
+background:black;
+border-radius:12px;
 }
 video{
-  width:100%;
-  max-height:360px;
-  background:#080711;
-  border-radius:12px;
-  transform:scaleX(-1)
+width:100%;
+max-height:400px;
+background:black;
+border-radius:12px;
 }
-audio{width:100%;margin:10px 0}
-.status{
-  min-height:24px;
-  color:#d8c9fa
+audio{width:100%;margin-top:12px}
+.platforms{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:10px;
 }
+.platform{
+background:#34224f;
+padding:14px;
+border-radius:12px;
+text-align:center;
+}
+.platform a{color:#e2caff}
 .lyrics{
-  white-space:pre-wrap;
-  font-size:1.25rem;
-  text-align:center;
-  line-height:1.8;
-  max-height:220px;
-  overflow:auto;
-  padding:14px;
-  background:#111023;
-  border-radius:12px
+white-space:pre-wrap;
+background:#100b20;
+padding:20px;
+border-radius:12px;
+text-align:center;
+font-size:20px;
+line-height:1.7;
+max-height:250px;
+overflow:auto;
 }
-small{color:#c6c1d7}
+.notice{
+color:#d5c8e8;
+font-size:14px;
+line-height:1.5;
+}
+#status{color:#d7baff}
+#result a{display:block;margin:12px 0;color:#d5b2ff}
 </style>
 </head>
 
 <body>
+
+<header>
+<h1>🎤 StarRise Karaoke</h1>
+<p>Sing • Record • Watch • Create</p>
+<a class="btn" href="index.html">StarRise Home</a>
+</header>
+
 <main>
-<a href="index.html">← StarRise Home</a>
 
-<h1>🎤 StarRise Karaoke Studio</h1>
+<section>
+<h2>Discover Music & Karaoke</h2>
 
-<p class="muted">
-Sing your way. Record audio or a selfie video,
-practice with your own backing track,
-and save your performance.
+<p>Search YouTube for karaoke songs, instrumentals, and music videos.</p>
+
+<input
+id="musicSearch"
+placeholder="Search artist, song, or karaoke version">
+
+<button onclick="searchYouTube()">
+Search YouTube
+</button>
+
+<div class="platforms">
+<div class="platform">
+<strong>YouTube</strong>
+<p>Music videos and karaoke</p>
+<a href="https://www.youtube.com"
+target="_blank" rel="noopener noreferrer">Open YouTube</a>
+</div>
+
+<div class="platform">
+<strong>Spotify</strong>
+<p>Music and playlists</p>
+<a href="https://open.spotify.com"
+target="_blank" rel="noopener noreferrer">Open Spotify</a>
+</div>
+
+<div class="platform">
+<strong>SoundCloud</strong>
+<p>Independent artists and beats</p>
+<a href="https://soundcloud.com"
+target="_blank" rel="noopener noreferrer">Open SoundCloud</a>
+</div>
+
+<div class="platform">
+<strong>StarRise Studio</strong>
+<p>Record your own performance</p>
+<a href="#recording">Start Recording</a>
+</div>
+</div>
+</section>
+
+<section>
+<h2>Music & Video Player</h2>
+
+<p>Paste a supported YouTube, Spotify, or SoundCloud link.</p>
+
+<input
+id="mediaURL"
+placeholder="Paste music or video URL">
+
+<button onclick="loadMedia()">Load Media</button>
+
+<div id="mediaPlayer"></div>
+
+<p class="notice">
+Streaming services control their own playback.
+Some videos cannot be embedded.
+You may need to sign in to the original service.
 </p>
+</section>
 
-<section class="card">
-<h2>1. Set Your Stage</h2>
-
-<label for="track">
-Backing track (audio you own or have permission to use)
-</label>
-
-<input id="track" type="file" accept="audio/*">
-
-<audio id="player" controls preload="metadata"></audio>
-
-<label for="lyrics">
-Your lyrics or performance notes
-</label>
+<section>
+<h2>StarRise Karaoke Lyrics</h2>
 
 <textarea
-  id="lyrics"
-  placeholder="Paste your own lyrics or notes here"
-></textarea>
+id="lyricsInput"
+placeholder="Enter your own lyrics or performance notes">
+</textarea>
 
-<div
-  id="lyricView"
-  class="lyrics"
-  aria-live="polite"
->
-Your lyrics will appear here.
+<button onclick="showLyrics()">Display Lyrics</button>
+
+<div id="lyricsDisplay" class="lyrics">
+Your lyrics appear here.
 </div>
-
-<label for="mode">Recording format</label>
-
-<select id="mode">
-<option value="audio">Audio only</option>
-<option value="video">Selfie video + audio</option>
-</select>
 </section>
 
-<section class="card">
-<h2>2. Record Your Performance</h2>
+<section id="recording">
+<h2>StarRise Recording Studio</h2>
+
+<p>Upload your own or licensed instrumental to record with your voice.</p>
+
+<input
+type="file"
+id="audioFile"
+accept="audio/*">
+
+<audio id="backingTrack" controls></audio>
+
+<label for="recordMode">Recording Mode</label>
+
+<select id="recordMode">
+<option value="audio">Audio Recording</option>
+<option value="video">Video + Audio Recording</option>
+</select>
 
 <video
-  id="preview"
-  autoplay
-  muted
-  playsinline
-></video>
+id="cameraPreview"
+autoplay
+muted
+playsinline>
+</video>
 
 <div>
-<button id="start">Start Recording</button>
-
-<button
-  id="stop"
-  class="secondary"
-  disabled
->
-Stop & Save
+<button id="startBtn" onclick="startRecording()">
+Start Recording
 </button>
 
-<button
-  id="camera"
-  class="secondary"
->
-Preview Camera
+<button id="stopBtn" onclick="stopRecording()" disabled>
+Stop Recording
 </button>
 </div>
 
-<p
-  class="status"
-  id="status"
-  role="status"
->
-Ready. Microphone and camera permissions are
-requested only when needed.
-</p>
+<p id="status">Ready to record.</p>
 
-<small>
-Headphones recommended to prevent feedback.
-On some mobile browsers, backing-track mixing
-or video recording may be unavailable.
-Nothing is uploaded automatically.
-</small>
+<div id="result"></div>
+
+<p class="notice">
+Recording uses your microphone and optionally your camera.
+Embedded YouTube, Spotify, and SoundCloud audio is not
+captured in your recording. Use an original or properly
+licensed backing-track file for recorded performances.
+</p>
 </section>
 
-<section class="card">
-<h2>3. Your Take</h2>
-
-<div id="result">
-Record a performance to preview it here.
-</div>
+<section>
+<h2>Coming to StarRise Karaoke</h2>
+<p>
+Duets, karaoke battles, vocal effects,
+artist collaborations, video filters,
+and member performance sharing.
+</p>
 </section>
 
 </main>
 
 <script>
-(() => {
-'use strict';
+"use strict";
 
 const $ = id => document.getElementById(id);
 
-const track = $('track');
-const player = $('player');
-const preview = $('preview');
-const mode = $('mode');
-const status = $('status');
-const start = $('start');
-const stop = $('stop');
-const camera = $('camera');
-const lyrics = $('lyrics');
-const lyricView = $('lyricView');
-const result = $('result');
-
-let trackURL = null;
-let outputURL = null;
-let stream = null;
-let recorder = null;
+let mediaObjectURL = null;
+let recordingURL = null;
+let micStream = null;
+let combinedStream = null;
+let audioContext = null;
+let mediaRecorder = null;
 let chunks = [];
-let ctx = null;
-let source = null;
-let mix = null;
-let micSource = null;
-let recordingStream = null;
+let recordingVideo = false;
 
-const msg = s => status.textContent = s;
+function searchYouTube(){
+const query = $('musicSearch').value.trim();
 
-lyrics.addEventListener('input', () => {
-  lyricView.textContent =
-    lyrics.value.trim() ||
-    'Your lyrics will appear here.';
-});
-
-track.addEventListener('change', () => {
-  if (trackURL) {
-    URL.revokeObjectURL(trackURL);
-  }
-
-  trackURL = track.files[0]
-    ? URL.createObjectURL(track.files[0])
-    : null;
-
-  player.src = trackURL || '';
-
-  msg(trackURL ? 'Track loaded. Use headphones.' : 'Ready.');
-});
-
-async function getStream(video) {
-  if (stream) {
-    stream.getTracks().forEach(t => t.stop());
-    stream = null;
-  }
-
-  stream = await navigator.mediaDevices.getUserMedia({
-    audio: {
-      echoCancellation: true,
-      noiseSuppression: true
-    },
-    video: video ? { facingMode: 'user' } : false
-  });
-
-  preview.srcObject = video ? stream : null;
-
-  if (video) {
-    await preview.play();
-  }
-
-  return stream;
+if(!query){
+alert("Enter a song or artist.");
+return;
 }
 
-camera.onclick = async () => {
-  try {
-    await getStream(true);
-    msg('Camera preview ready.');
-  } catch (e) {
-    msg('Camera unavailable: ' + e.message);
-  }
-};
-
-start.onclick = async () => {
-  if (
-    !navigator.mediaDevices?.getUserMedia ||
-    !window.MediaRecorder
-  ) {
-    msg('This browser does not support recording.');
-    return;
-  }
-
-  start.disabled = true;
-
-  try {
-    const wantsVideo = mode.value === 'video';
-
-    await getStream(wantsVideo);
-
-    ctx = new (
-      window.AudioContext ||
-      window.webkitAudioContext
-    )();
-
-    await ctx.resume();
-
-    mix = ctx.createMediaStreamDestination();
-
-    micSource = ctx.createMediaStreamSource(stream);
-    micSource.connect(mix);
-
-    if (trackURL) {
-      source = ctx.createMediaElementSource(player);
-      source.connect(mix);
-      source.connect(ctx.destination);
-      player.currentTime = 0;
-    }
-
-    const tracks = [
-      ...mix.stream.getAudioTracks(),
-      ...(wantsVideo ? stream.getVideoTracks() : [])
-    ];
-
-    recordingStream = new MediaStream(tracks);
-
-    const choices = wantsVideo
-      ? [
-          'video/webm;codecs=vp8,opus',
-          'video/webm',
-          'video/mp4'
-        ]
-      : [
-          'audio/webm;codecs=opus',
-          'audio/webm',
-          'audio/mp4'
-        ];
-
-    const mime = choices.find(t =>
-      MediaRecorder.isTypeSupported(t)
-    );
-
-    recorder = new MediaRecorder(
-      recordingStream,
-      mime ? { mimeType: mime } : undefined
-    );
-
-    chunks = [];
-
-    recorder.ondataavailable = e => {
-      if (e.data.size) {
-        chunks.push(e.data);
-      }
-    };
-
-    recorder.onstop = () => {
-      const blob = new Blob(chunks, {
-        type: recorder.mimeType ||
-          'application/octet-stream'
-      });
-
-      if (outputURL) {
-        URL.revokeObjectURL(outputURL);
-      }
-
-      outputURL = URL.createObjectURL(blob);
-
-      const ext = blob.type.includes('mp4')
-        ? 'mp4'
-        : 'webm';
-
-      result.replaceChildren();
-
-      const media = document.createElement(
-        wantsVideo ? 'video' : 'audio'
-      );
-
-      media.controls = true;
-      media.src = outputURL;
-
-      if (wantsVideo) {
-        media.playsInline = true;
-        media.style.transform = 'none';
-      }
-
-      const link = document.createElement('a');
-
-      link.href = outputURL;
-      link.download =
-        'starrise-karaoke-' + Date.now() + '.' + ext;
-
-      link.textContent = 'Download Your Performance';
-      link.style.display = 'block';
-      link.style.marginTop = '12px';
-
-      result.append(media, link);
-
-      msg(
-        'Recording saved locally. Download your take to keep it.'
-      );
-
-      cleanup();
-    };
-
-    recorder.start(250);
-
-    stop.disabled = false;
-    camera.disabled = true;
-    mode.disabled = true;
-    track.disabled = true;
-
-    if (trackURL) {
-      await player.play();
-    }
-
-    msg('Recording! Sing into your microphone.');
-
-  } catch (e) {
-    msg('Could not start: ' + e.message);
-    cleanup();
-    start.disabled = false;
-  }
-};
-
-stop.onclick = () => {
-  if (recorder && recorder.state !== 'inactive') {
-    recorder.stop();
-    player.pause();
-    stop.disabled = true;
-    msg('Processing your take...');
-  }
-};
-
-function cleanup() {
-  player.pause();
-
-  if (stream) {
-    stream.getTracks().forEach(t => t.stop());
-    stream = null;
-  }
-
-  preview.srcObject = null;
-
-  if (recordingStream) {
-    recordingStream.getTracks().forEach(t => t.stop());
-    recordingStream = null;
-  }
-
-  if (ctx) {
-    ctx.close().catch(() => {});
-    ctx = null;
-  }
-
-  source = null;
-  micSource = null;
-  mix = null;
-
-  start.disabled = false;
-  stop.disabled = true;
-  camera.disabled = false;
-  mode.disabled = false;
-  track.disabled = false;
+window.open(
+"https://www.youtube.com/results?search_query=" +
+encodeURIComponent(query + " karaoke"),
+"_blank",
+"noopener,noreferrer"
+);
 }
 
-window.addEventListener('pagehide', () => {
-  if (stream) {
-    stream.getTracks().forEach(t => t.stop());
-  }
+function youtubeID(url){
+try{
+const u = new URL(url);
 
-  if (trackURL) {
-    URL.revokeObjectURL(trackURL);
-  }
+const host = u.hostname.toLowerCase();
 
-  if (outputURL) {
-    URL.revokeObjectURL(outputURL);
-  }
+if(host === "youtu.be" ||
+host === "www.youtu.be"){
+return u.pathname.split("/")[1];
+}
+
+if(host === "youtube.com" ||
+host === "www.youtube.com" ||
+host === "m.youtube.com"){
+if(u.pathname === "/watch"){
+return u.searchParams.get("v");
+}
+
+if(u.pathname.startsWith("/shorts/") ||
+u.pathname.startsWith("/embed/") ||
+u.pathname.startsWith("/live/")){
+return u.pathname.split("/")[2];
+}
+}
+
+return null;
+}catch(e){
+return null;
+}
+}
+
+function loadMedia(){
+const raw = $('mediaURL').value.trim();
+const target = $('mediaPlayer');
+
+target.replaceChildren();
+
+let u;
+
+try{
+u = new URL(raw);
+if(u.protocol !== "https:") throw Error();
+}catch(e){
+alert("Enter a valid HTTPS music or video URL.");
+return;
+}
+
+const host = u.hostname.toLowerCase();
+const yt = youtubeID(raw);
+
+let embed = null;
+
+if(yt && /^[a-zA-Z0-9_-]{11}$/.test(yt)){
+embed =
+"https://www.youtube-nocookie.com/embed/" +
+encodeURIComponent(yt);
+}
+
+else if(
+host === "open.spotify.com" &&
+(/^\/track\/[A-Za-z0-9]+$/.test(u.pathname) ||
+ /^\/album\/[A-Za-z0-9]+$/.test(u.pathname) ||
+ /^\/playlist\/[A-Za-z0-9]+$/.test(u.pathname))
+){
+embed =
+"https://open.spotify.com/embed" +
+u.pathname;
+}
+
+else if(
+host === "soundcloud.com" ||
+host === "www.soundcloud.com" ||
+host === "on.soundcloud.com"
+){
+embed =
+"https://w.soundcloud.com/player/?url=" +
+encodeURIComponent(raw);
+}
+
+if(!embed){
+target.textContent =
+"This link cannot be embedded. Open it on the original platform.";
+return;
+}
+
+const frame = document.createElement("iframe");
+frame.className = "player";
+frame.src = embed;
+frame.title = "Embedded music or video player";
+frame.allow =
+"autoplay; encrypted-media; picture-in-picture; fullscreen";
+frame.allowFullscreen = true;
+frame.referrerPolicy = "strict-origin-when-cross-origin";
+
+target.appendChild(frame);
+}
+
+function showLyrics(){
+$('lyricsDisplay').textContent =
+$('lyricsInput').value.trim() ||
+"Your lyrics appear here.";
+}
+
+$('audioFile').addEventListener("change",function(){
+if(mediaObjectURL){
+URL.revokeObjectURL(mediaObjectURL);
+}
+
+const file = this.files[0];
+
+mediaObjectURL = file ?
+URL.createObjectURL(file) : null;
+
+$('backingTrack').src = mediaObjectURL || "";
 });
 
-})();
+async function startRecording(){
+
+if(!navigator.mediaDevices?.getUserMedia ||
+!window.MediaRecorder){
+$('status').textContent =
+"Recording is not supported in this browser.";
+return;
+}
+
+$('startBtn').disabled = true;
+
+try{
+recordingVideo =
+$('recordMode').value === "video";
+
+micStream = await navigator.mediaDevices.getUserMedia({
+audio:{
+echoCancellation:true,
+noiseSuppression:true
+},
+video:recordingVideo ?
+{facingMode:"user"} : false
+});
+
+if(recordingVideo){
+$('cameraPreview').srcObject = micStream;
+await $('cameraPreview').play();
+}
+
+audioContext = new (
+window.AudioContext ||
+window.webkitAudioContext
+)();
+
+await audioContext.resume();
+
+const destination =
+audioContext.createMediaStreamDestination();
+
+const micSource =
+audioContext.createMediaStreamSource(micStream);
+
+micSource.connect(destination);
+
+const player = $('backingTrack');
+
+if(mediaObjectURL){
+const trackSource =
+audioContext.createMediaElementSource(player);
+
+trackSource.connect(destination);
+trackSource.connect(audioContext.destination);
+player.currentTime = 0;
+}
+
+combinedStream = new MediaStream([
+...destination.stream.getAudioTracks(),
+...(recordingVideo ?
+micStream.getVideoTracks() : [])
+]);
+
+const formats = recordingVideo ?
+[
+"video/webm;codecs=vp8,opus",
+"video/webm",
+"video/mp4"
+] :
+[
+"audio/webm;codecs=opus",
+"audio/webm",
+"audio/mp4"
+];
+
+const supported = formats.find(type =>
+MediaRecorder.isTypeSupported(type)
+);
+
+mediaRecorder = new MediaRecorder(
+combinedStream,
+supported ? {mimeType:supported} : undefined
+);
+
+chunks = [];
+
+mediaRecorder.ondataavailable = event =>{
+if(event.data.size){
+chunks.push(event.data);
+}
+};
+
+mediaRecorder.onstop = finishRecording;
+
+mediaRecorder.start(250);
+
+$('stopBtn').disabled = false;
+$('recordMode').disabled = true;
+$('audioFile').disabled = true;
+
+if(mediaObjectURL){
+await player.play();
+}
+
+$('status').textContent = "Recording in progress.";
+
+}catch(error){
+$('status').textContent =
+"Unable to record: " + error.message;
+cleanup();
+}
+}
+
+function stopRecording(){
+if(mediaRecorder &&
+mediaRecorder.state !== "inactive"){
+mediaRecorder.stop();
+$('backingTrack').pause();
+$('stopBtn').disabled = true;
+$('status').textContent = "Processing recording...";
+}
+}
+
+function finishRecording(){
+
+const blob = new Blob(chunks,{
+type:mediaRecorder.mimeType ||
+"application/octet-stream"
+});
+
+if(recordingURL){
+URL.revokeObjectURL(recordingURL);
+}
+
+recordingURL = URL.createObjectURL(blob);
+
+const result = $('result');
+result.replaceChildren();
+
+const playback = document.createElement(
+recordingVideo ? "video" : "audio"
+);
+
+playback.controls = true;
+playback.src = recordingURL;
+
+if(recordingVideo){
+playback.playsInline = true;
+}
+
+const download = document.createElement("a");
+
+download.href = recordingURL;
+
+const extension =
+blob.type.includes("mp4") ? "mp4" : "webm";
+
+download.download =
+"starrise-karaoke-" +
+Date.now() + "." + extension;
+
+download.textContent = "Download Your Performance";
+
+result.append(playback,download);
+
+$('status').textContent =
+"Recording complete. Download your performance to keep it.";
+
+cleanup();
+}
+
+function cleanup(){
+
+$('backingTrack').pause();
+
+if(micStream){
+micStream.getTracks().forEach(t => t.stop());
+micStream = null;
+}
+
+if(combinedStream){
+combinedStream.getTracks().forEach(t => t.stop());
+combinedStream = null;
+}
+
+$('cameraPreview').srcObject = null;
+
+if(audioContext){
+audioContext.close().catch(()=>{});
+audioContext = null;
+}
+
+$('startBtn').disabled = false;
+$('stopBtn').disabled = true;
+$('recordMode').disabled = false;
+$('audioFile').disabled = false;
+}
+
+window.addEventListener("pagehide",()=>{
+if(micStream){
+micStream.getTracks().forEach(t => t.stop());
+}
+if(mediaObjectURL){
+URL.revokeObjectURL(mediaObjectURL);
+}
+if(recordingURL){
+URL.revokeObjectURL(recordingURL);
+}
+});
 </script>
 
 </body>
