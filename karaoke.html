@@ -1,0 +1,476 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StarRise Karaoke Studio</title>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#101022;
+  color:#f7f5ff;
+  font:16px system-ui,sans-serif
+}
+main{
+  max-width:780px;
+  margin:auto;
+  padding:20px
+}
+a{color:#d6bcff}
+.card{
+  background:#1e1b37;
+  border:1px solid #454060;
+  border-radius:18px;
+  padding:18px;
+  margin:16px 0
+}
+h1{font-size:2rem;margin:12px 0}
+.muted{color:#c6c1d7}
+label{
+  display:block;
+  margin:14px 0 6px;
+  font-weight:650
+}
+input[type=file],textarea,select{
+  width:100%;
+  background:#302b4b;
+  color:white;
+  border:1px solid #6d638a;
+  border-radius:10px;
+  padding:12px
+}
+textarea{min-height:110px}
+button{
+  background:#ab77f5;
+  border:0;
+  border-radius:12px;
+  padding:12px 18px;
+  color:#130c24;
+  font-weight:750;
+  cursor:pointer;
+  margin:6px 6px 6px 0
+}
+button:disabled{
+  opacity:.45;
+  cursor:not-allowed
+}
+.secondary{
+  background:#393351;
+  color:white
+}
+video{
+  width:100%;
+  max-height:360px;
+  background:#080711;
+  border-radius:12px;
+  transform:scaleX(-1)
+}
+audio{width:100%;margin:10px 0}
+.status{
+  min-height:24px;
+  color:#d8c9fa
+}
+.lyrics{
+  white-space:pre-wrap;
+  font-size:1.25rem;
+  text-align:center;
+  line-height:1.8;
+  max-height:220px;
+  overflow:auto;
+  padding:14px;
+  background:#111023;
+  border-radius:12px
+}
+small{color:#c6c1d7}
+</style>
+</head>
+
+<body>
+<main>
+<a href="index.html">← StarRise Home</a>
+
+<h1>🎤 StarRise Karaoke Studio</h1>
+
+<p class="muted">
+Sing your way. Record audio or a selfie video,
+practice with your own backing track,
+and save your performance.
+</p>
+
+<section class="card">
+<h2>1. Set Your Stage</h2>
+
+<label for="track">
+Backing track (audio you own or have permission to use)
+</label>
+
+<input id="track" type="file" accept="audio/*">
+
+<audio id="player" controls preload="metadata"></audio>
+
+<label for="lyrics">
+Your lyrics or performance notes
+</label>
+
+<textarea
+  id="lyrics"
+  placeholder="Paste your own lyrics or notes here"
+></textarea>
+
+<div
+  id="lyricView"
+  class="lyrics"
+  aria-live="polite"
+>
+Your lyrics will appear here.
+</div>
+
+<label for="mode">Recording format</label>
+
+<select id="mode">
+<option value="audio">Audio only</option>
+<option value="video">Selfie video + audio</option>
+</select>
+</section>
+
+<section class="card">
+<h2>2. Record Your Performance</h2>
+
+<video
+  id="preview"
+  autoplay
+  muted
+  playsinline
+></video>
+
+<div>
+<button id="start">Start Recording</button>
+
+<button
+  id="stop"
+  class="secondary"
+  disabled
+>
+Stop & Save
+</button>
+
+<button
+  id="camera"
+  class="secondary"
+>
+Preview Camera
+</button>
+</div>
+
+<p
+  class="status"
+  id="status"
+  role="status"
+>
+Ready. Microphone and camera permissions are
+requested only when needed.
+</p>
+
+<small>
+Headphones recommended to prevent feedback.
+On some mobile browsers, backing-track mixing
+or video recording may be unavailable.
+Nothing is uploaded automatically.
+</small>
+</section>
+
+<section class="card">
+<h2>3. Your Take</h2>
+
+<div id="result">
+Record a performance to preview it here.
+</div>
+</section>
+
+</main>
+
+<script>
+(() => {
+'use strict';
+
+const $ = id => document.getElementById(id);
+
+const track = $('track');
+const player = $('player');
+const preview = $('preview');
+const mode = $('mode');
+const status = $('status');
+const start = $('start');
+const stop = $('stop');
+const camera = $('camera');
+const lyrics = $('lyrics');
+const lyricView = $('lyricView');
+const result = $('result');
+
+let trackURL = null;
+let outputURL = null;
+let stream = null;
+let recorder = null;
+let chunks = [];
+let ctx = null;
+let source = null;
+let mix = null;
+let micSource = null;
+let recordingStream = null;
+
+const msg = s => status.textContent = s;
+
+lyrics.addEventListener('input', () => {
+  lyricView.textContent =
+    lyrics.value.trim() ||
+    'Your lyrics will appear here.';
+});
+
+track.addEventListener('change', () => {
+  if (trackURL) {
+    URL.revokeObjectURL(trackURL);
+  }
+
+  trackURL = track.files[0]
+    ? URL.createObjectURL(track.files[0])
+    : null;
+
+  player.src = trackURL || '';
+
+  msg(trackURL ? 'Track loaded. Use headphones.' : 'Ready.');
+});
+
+async function getStream(video) {
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop());
+    stream = null;
+  }
+
+  stream = await navigator.mediaDevices.getUserMedia({
+    audio: {
+      echoCancellation: true,
+      noiseSuppression: true
+    },
+    video: video ? { facingMode: 'user' } : false
+  });
+
+  preview.srcObject = video ? stream : null;
+
+  if (video) {
+    await preview.play();
+  }
+
+  return stream;
+}
+
+camera.onclick = async () => {
+  try {
+    await getStream(true);
+    msg('Camera preview ready.');
+  } catch (e) {
+    msg('Camera unavailable: ' + e.message);
+  }
+};
+
+start.onclick = async () => {
+  if (
+    !navigator.mediaDevices?.getUserMedia ||
+    !window.MediaRecorder
+  ) {
+    msg('This browser does not support recording.');
+    return;
+  }
+
+  start.disabled = true;
+
+  try {
+    const wantsVideo = mode.value === 'video';
+
+    await getStream(wantsVideo);
+
+    ctx = new (
+      window.AudioContext ||
+      window.webkitAudioContext
+    )();
+
+    await ctx.resume();
+
+    mix = ctx.createMediaStreamDestination();
+
+    micSource = ctx.createMediaStreamSource(stream);
+    micSource.connect(mix);
+
+    if (trackURL) {
+      source = ctx.createMediaElementSource(player);
+      source.connect(mix);
+      source.connect(ctx.destination);
+      player.currentTime = 0;
+    }
+
+    const tracks = [
+      ...mix.stream.getAudioTracks(),
+      ...(wantsVideo ? stream.getVideoTracks() : [])
+    ];
+
+    recordingStream = new MediaStream(tracks);
+
+    const choices = wantsVideo
+      ? [
+          'video/webm;codecs=vp8,opus',
+          'video/webm',
+          'video/mp4'
+        ]
+      : [
+          'audio/webm;codecs=opus',
+          'audio/webm',
+          'audio/mp4'
+        ];
+
+    const mime = choices.find(t =>
+      MediaRecorder.isTypeSupported(t)
+    );
+
+    recorder = new MediaRecorder(
+      recordingStream,
+      mime ? { mimeType: mime } : undefined
+    );
+
+    chunks = [];
+
+    recorder.ondataavailable = e => {
+      if (e.data.size) {
+        chunks.push(e.data);
+      }
+    };
+
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, {
+        type: recorder.mimeType ||
+          'application/octet-stream'
+      });
+
+      if (outputURL) {
+        URL.revokeObjectURL(outputURL);
+      }
+
+      outputURL = URL.createObjectURL(blob);
+
+      const ext = blob.type.includes('mp4')
+        ? 'mp4'
+        : 'webm';
+
+      result.replaceChildren();
+
+      const media = document.createElement(
+        wantsVideo ? 'video' : 'audio'
+      );
+
+      media.controls = true;
+      media.src = outputURL;
+
+      if (wantsVideo) {
+        media.playsInline = true;
+        media.style.transform = 'none';
+      }
+
+      const link = document.createElement('a');
+
+      link.href = outputURL;
+      link.download =
+        'starrise-karaoke-' + Date.now() + '.' + ext;
+
+      link.textContent = 'Download Your Performance';
+      link.style.display = 'block';
+      link.style.marginTop = '12px';
+
+      result.append(media, link);
+
+      msg(
+        'Recording saved locally. Download your take to keep it.'
+      );
+
+      cleanup();
+    };
+
+    recorder.start(250);
+
+    stop.disabled = false;
+    camera.disabled = true;
+    mode.disabled = true;
+    track.disabled = true;
+
+    if (trackURL) {
+      await player.play();
+    }
+
+    msg('Recording! Sing into your microphone.');
+
+  } catch (e) {
+    msg('Could not start: ' + e.message);
+    cleanup();
+    start.disabled = false;
+  }
+};
+
+stop.onclick = () => {
+  if (recorder && recorder.state !== 'inactive') {
+    recorder.stop();
+    player.pause();
+    stop.disabled = true;
+    msg('Processing your take...');
+  }
+};
+
+function cleanup() {
+  player.pause();
+
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop());
+    stream = null;
+  }
+
+  preview.srcObject = null;
+
+  if (recordingStream) {
+    recordingStream.getTracks().forEach(t => t.stop());
+    recordingStream = null;
+  }
+
+  if (ctx) {
+    ctx.close().catch(() => {});
+    ctx = null;
+  }
+
+  source = null;
+  micSource = null;
+  mix = null;
+
+  start.disabled = false;
+  stop.disabled = true;
+  camera.disabled = false;
+  mode.disabled = false;
+  track.disabled = false;
+}
+
+window.addEventListener('pagehide', () => {
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop());
+  }
+
+  if (trackURL) {
+    URL.revokeObjectURL(trackURL);
+  }
+
+  if (outputURL) {
+    URL.revokeObjectURL(outputURL);
+  }
+});
+
+})();
+</script>
+
+</body>
+</html>
