@@ -205,7 +205,7 @@ test('all dry, reverb, and delay paths pass through track volume', () => {
   const nodes = [];
   const node = () => {
     const value = { value: 0 };
-    const result = { edges: [], gain: {...value}, frequency: {...value},
+    const result = { edges: [], gain: {...value}, frequency: {...value}, Q: {...value},
       threshold: {...value}, ratio: {...value}, attack: {...value},
       release: {...value}, pan: {...value}, delayTime: {...value},
       connect(target) { this.edges.push(target); return target; } };
