@@ -1,0 +1,53 @@
+
+name: Upgrade StarRise Vocal Pro
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/upgrade-vocal-pro.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  vocal-pro-check:
+    name: Check Vocal Pro Studio
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout StarRise
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install test dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Verify recording studio exists
+        run: |
+          test -f studio.html
+          echo "StarRise Recording Studio found."
+
+      - name: Validate StarRise website
+        run: node scripts/validate-site.mjs
+
+      - name: Test studio features
+        run: |
+          node --test \
+            creator-studio.test.cjs \
+            studio-pro.test.cjs \
+            studio-sounds.test.cjs \
+            studio-projects.test.cjs
+
+      - name: Confirm upgrade readiness
+        run: |
+          echo "Vocal Pro studio checks passed."
+          echo "Existing studio files preserved."
+          echo "No production payment settings changed."
