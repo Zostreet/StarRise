@@ -1,0 +1,368 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StarRise | PayPal Sandbox Seller Test</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #160d2c;
+      color: white;
+    }
+
+    header {
+      background: #29144b;
+      padding: 24px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      color: #ffc857;
+    }
+
+    main {
+      max-width: 720px;
+      margin: 35px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: #291a46;
+      padding: 25px;
+      border-radius: 18px;
+    }
+
+    h2 { margin-top: 0; }
+
+    p { line-height: 1.6; }
+
+    label {
+      display: block;
+      margin: 20px 0;
+      line-height: 1.5;
+    }
+
+    button {
+      background: #7937cc;
+      color: white;
+      padding: 15px 22px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .result {
+      margin-top: 20px;
+      overflow-wrap: anywhere;
+    }
+
+    pre {
+      background: #120923;
+      padding: 15px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    a { color: #e7caff; }
+
+    .paypal-link {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 14px;
+      background: #ffc857;
+      color: #211334;
+      border-radius: 10px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .notice {
+      color: #ffc857;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>★ StarRise</h1>
+  <p>by FAM ENT</p>
+  <strong>Admin Payment Testing</strong>
+</header>
+
+<main>
+  <div class="card">
+
+    <h2>PayPal Sandbox Seller Onboarding</h2>
+
+    <p>
+      This page tests PayPal marketplace seller
+      onboarding in the sandbox environment.
+    </p>
+
+    <p class="notice">
+      This test does not activate live payments
+      or enable production checkout.
+    </p>
+
+    <p id="authStatus">
+      Checking administrator access...
+    </p>
+
+    <label>
+      <input type="checkbox" id="consent">
+      I agree to create a PayPal sandbox seller
+      onboarding referral for testing.
+    </label>
+
+    <button id="startButton" disabled>
+      Start Sandbox Seller Test
+    </button>
+
+    <p id="status" role="status"></p>
+
+    <div class="result" id="result"></div>
+
+  </div>
+
+  <p>
+    <a href="paypal-sandbox-status.html">
+      ← PayPal Sandbox Status
+    </a>
+  </p>
+
+  <p>
+    <a href="dashboard.html">
+      Return to Dashboard
+    </a>
+  </p>
+</main>
+
+<script type="module">
+  import {
+    createClient
+  } from "https://esm.sh/@supabase/supabase-js@2";
+
+  const SUPABASE_URL =
+    "https://rcnikxotdalxtuvpmlvm.supabase.co";
+
+  const SUPABASE_ANON_KEY =
+    "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+
+  const supabase = createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
+    {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false
+      }
+    }
+  );
+
+  const authStatus =
+    document.getElementById("authStatus");
+
+  const consent =
+    document.getElementById("consent");
+
+  const startButton =
+    document.getElementById("startButton");
+
+  const status =
+    document.getElementById("status");
+
+  const result =
+    document.getElementById("result");
+
+  let currentUser = null;
+
+  async function checkAdmin() {
+    try {
+      const {
+        data: { user },
+        error
+      } = await supabase.auth.getUser();
+
+      if (error || !user) {
+        authStatus.textContent =
+          "Please sign in to StarRise first.";
+        return;
+      }
+
+      const { data, error: adminError } =
+        await supabase
+          .from("platform_admins")
+          .select("user_id")
+          .eq("user_id", user.id)
+          .limit(1);
+
+      if (adminError) {
+        throw adminError;
+      }
+
+      if (!data || data.length === 0) {
+        authStatus.textContent =
+          "Administrator access required.";
+        return;
+      }
+
+      currentUser = user;
+
+      authStatus.textContent =
+        "Administrator access confirmed.";
+
+      startButton.disabled = false;
+
+    } catch (error) {
+      authStatus.textContent =
+        "Unable to verify administrator access.";
+      console.error(error);
+    }
+  }
+
+  startButton.addEventListener(
+    "click",
+    async () => {
+
+      if (!currentUser) {
+        status.textContent =
+          "Administrator sign-in required.";
+        return;
+      }
+
+      if (!consent.checked) {
+        status.textContent =
+          "Please check the consent box first.";
+        return;
+      }
+
+      startButton.disabled = true;
+
+      status.textContent =
+        "Requesting sandbox seller referral...";
+
+      result.replaceChildren();
+
+      try {
+        const {
+          data: sessionData,
+          error: sessionError
+        } = await supabase.auth.getSession();
+
+        if (
+          sessionError ||
+          !sessionData.session?.access_token
+        ) {
+          throw new Error(
+            "Your session expired. Sign in again."
+          );
+        }
+
+        const response = await fetch(
+          SUPABASE_URL +
+          "/functions/v1/paypal-sandbox-seller-referral",
+          {
+            method: "POST",
+            headers: {
+              "Authorization":
+                "Bearer " +
+                sessionData.session.access_token,
+
+              "apikey": SUPABASE_ANON_KEY,
+
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+              consent: true
+            })
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          const message =
+            data.paypal_error ||
+            data.error ||
+            "PayPal referral failed.";
+
+          throw new Error(
+            message +
+            (
+              data.debug_id
+                ? " Debug ID: " + data.debug_id
+                : ""
+            )
+          );
+        }
+
+        status.textContent =
+          "Sandbox seller referral created.";
+
+        const evidence = {
+          environment: data.environment,
+          referral_id: data.referral_id,
+          tracking_id: data.tracking_id,
+          debug_id: data.debug_id,
+          attribution_header_sent:
+            data.attribution_header_sent
+        };
+
+        const pre =
+          document.createElement("pre");
+
+        pre.textContent =
+          JSON.stringify(evidence, null, 2);
+
+        result.appendChild(pre);
+
+        if (data.onboarding_url) {
+          const link =
+            document.createElement("a");
+
+          link.href = data.onboarding_url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.className = "paypal-link";
+
+          link.textContent =
+            "Continue to PayPal Sandbox Seller Onboarding";
+
+          result.appendChild(link);
+        }
+
+      } catch (error) {
+        status.textContent =
+          "Test could not finish: " +
+          error.message;
+      } finally {
+        startButton.disabled = false;
+      }
+    }
+  );
+
+  checkAdmin();
+</script>
+
+</body>
+</html>
