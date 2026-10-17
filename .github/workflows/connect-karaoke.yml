@@ -1,0 +1,92 @@
+
+name: Connect StarRise Karaoke
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/connect-karaoke.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out StarRise
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Connect karaoke pages
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          updates = {
+              "index.html": (
+                  '<a href="battle-rap.html">Battle Rap</a>',
+                  '<a href="battle-rap.html">Battle Rap</a>\n'
+                  '<a href="karaoke.html">Karaoke Studio</a>\n'
+                  '<a href="karaoke-battles.html">Karaoke Battles</a>'
+              ),
+              "dashboard.html": (
+                  '<a class="header-button" href="creator-studio.html?room=audio#workspace">Recording Studio</a>',
+                  '<a class="header-button" href="creator-studio.html?room=audio#workspace">Recording Studio</a>\n'
+                  '<a class="header-button" href="karaoke.html">Karaoke Studio</a>\n'
+                  '<a class="header-button" href="karaoke-battles.html">Karaoke Battles</a>\n'
+                  '<a class="header-button" href="my-karaoke.html">My Performances</a>'
+              ),
+              "karaoke.html": (
+                  '<a class="btn" href="my-karaoke.html">My Performances</a>',
+                  '<a class="btn" href="my-karaoke.html">My Performances</a>\n'
+                  '<a class="btn" href="karaoke-battles.html">Karaoke Battles</a>'
+              ),
+              "my-karaoke.html": (
+                  '<a href="dashboard.html">Dashboard</a>',
+                  '<a href="dashboard.html">Dashboard</a>\n'
+                  '<a href="karaoke-battles.html">Karaoke Battles</a>'
+              )
+          }
+
+          changes = {}
+
+          for filename, (old, new) in updates.items():
+              path = Path(filename)
+              content = path.read_text(encoding="utf-8")
+
+              if new in content:
+                  print(f"Already connected: {filename}")
+                  continue
+
+              if content.count(old) != 1:
+                  raise RuntimeError(
+                      f"Expected navigation link not found exactly once: {filename}"
+                  )
+
+              changes[path] = content.replace(old, new, 1)
+
+          for path, content in changes.items():
+              path.write_text(content, encoding="utf-8")
+              print(f"Updated: {path}")
+
+          print("Karaoke navigation update complete.")
+          PY
+
+      - name: Commit navigation updates
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html dashboard.html karaoke.html my-karaoke.html
+
+          if git diff --cached --quiet; then
+            echo "No changes needed."
+            exit 0
+          fi
+
+          git commit -m "Connect StarRise Karaoke across app"
+          git push
