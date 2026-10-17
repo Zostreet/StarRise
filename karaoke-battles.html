@@ -1,0 +1,472 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Karaoke Battles | StarRise</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#100b24;
+ color:#fff;
+ font:16px Arial,sans-serif;
+ line-height:1.5
+}
+header{
+ text-align:center;
+ padding:24px 15px;
+ background:#201238;
+ border-bottom:2px solid #ab76ff
+}
+h1,h2{color:#e0bcff}
+main{max-width:900px;margin:auto;padding:18px}
+.card{
+ background:#24183b;
+ border:1px solid #594377;
+ border-radius:16px;
+ padding:20px;
+ margin:18px 0
+}
+a{color:#e2c3ff}
+button,.btn{
+ display:inline-block;
+ padding:12px 17px;
+ margin:5px;
+ border:0;
+ border-radius:10px;
+ background:#ae7aff;
+ color:#180d2c;
+ font-weight:bold;
+ text-decoration:none;
+ cursor:pointer
+}
+button:disabled{opacity:.5;cursor:default}
+.secondary{background:#4b3a61;color:#fff}
+select{
+ width:100%;
+ padding:12px;
+ background:#130d27;
+ color:white;
+ border:1px solid #78618f;
+ border-radius:9px;
+ font:inherit
+}
+video,audio{width:100%;margin:12px 0}
+.muted{color:#cbbddd}
+.status{
+ color:#e1c9ff;
+ white-space:pre-wrap;
+ overflow-wrap:anywhere
+}
+.grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+ gap:15px
+}
+.entry{
+ background:#302344;
+ border-radius:12px;
+ padding:16px;
+ min-width:0
+}
+.entry h3{overflow-wrap:anywhere}
+.votes{font-size:20px;font-weight:bold;color:#e5c8ff}
+</style>
+</head>
+<body>
+<header>
+<h1>StarRise Karaoke Battles</h1>
+<p>Show Your Talent • Support Artists • Vote</p>
+<nav>
+<a class="btn" href="karaoke.html">Karaoke Studio</a>
+<a class="btn" href="karaoke-publish.html">Publish</a>
+<a class="btn" href="my-karaoke.html">My Performances</a>
+</nav>
+</header>
+
+<main>
+<section class="card">
+<h2 id="battleTitle">Loading Battle...</h2>
+<p id="battleDescription"></p>
+<p id="battleDates" class="muted"></p>
+<p id="accountStatus">Checking account...</p>
+<p id="battleStatus" class="status"></p>
+</section>
+
+<section class="card">
+<h2>Enter the Battle</h2>
+<p>
+Choose one of your existing public audio or video
+performances. Private posts cannot enter.
+</p>
+
+<label for="myPosts">My eligible performances</label>
+<select id="myPosts">
+<option value="">Loading...</option>
+</select>
+
+<button id="enterBtn">Enter My Performance</button>
+
+<p id="enterStatus" class="status"></p>
+
+<p class="muted">
+You can enter one performance per battle.
+If your recording is private, visit My Performances
+and change its visibility to Everyone before entering.
+Only publish music and video you have permission to share.
+</p>
+</section>
+
+<section class="card">
+<h2>Battle Performances</h2>
+<p>
+One vote per signed-in member per battle.
+You cannot vote for your own performance.
+</p>
+<button id="refreshBtn" class="secondary">
+Refresh Results
+</button>
+<p id="resultsStatus" class="status"></p>
+<div id="entries" class="grid"></div>
+</section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+"use strict";
+
+const $=id=>document.getElementById(id);
+
+const db=window.supabase.createClient(
+ "https://rcnikxotdalxtuvpmlvm.supabase.co",
+ "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+
+let user=null;
+let battle=null;
+let voted=false;
+
+function status(id,text){
+ $(id).textContent=text;
+}
+
+function isOpen(){
+ if(!battle)return false;
+ const now=Date.now();
+ return now>=new Date(battle.starts_at).getTime()
+  && now<=new Date(battle.ends_at).getTime();
+}
+
+async function initialize(){
+ try{
+  const {data:auth}=await db.auth.getUser();
+  user=auth.user||null;
+
+  status(
+   "accountStatus",
+   user
+    ? "Signed in: "+user.email
+    : "Sign in through Karaoke Studio to enter or vote."
+  );
+
+  const {data,error}=await db
+   .from("karaoke_battles")
+   .select("*")
+   .eq("title","StarRise Karaoke Showcase")
+   .order("created_at",{ascending:false})
+   .limit(1)
+   .maybeSingle();
+
+  if(error)throw error;
+  if(!data)throw Error("No battle found.");
+
+  battle=data;
+
+  status("battleTitle",battle.title);
+  status("battleDescription",battle.description);
+
+  status(
+   "battleDates",
+   "Starts: "+new Date(battle.starts_at).toLocaleString()+
+   "\nEnds: "+new Date(battle.ends_at).toLocaleString()
+  );
+
+  status(
+   "battleStatus",
+   isOpen()
+    ? "Battle is accepting entries and votes."
+    : "This battle is not currently open."
+  );
+
+  await Promise.all([
+   loadMyPosts(),
+   loadEntries()
+  ]);
+
+ }catch(error){
+  status("battleStatus","Error: "+error.message);
+ }
+}
+
+async function loadMyPosts(){
+ const select=$("myPosts");
+ select.replaceChildren();
+
+ const placeholder=document.createElement("option");
+ placeholder.value="";
+ placeholder.textContent="Choose a performance";
+ select.appendChild(placeholder);
+
+ $("enterBtn").disabled=!user||!isOpen();
+
+ if(!user||!battle)return;
+
+ const {data,error}=await db
+  .from("talent_posts")
+  .select("id,caption")
+  .eq("creator_id",user.id)
+  .eq("visibility","public")
+  .eq("status","published")
+  .in("media_kind",["audio","video"])
+  .order("created_at",{ascending:false});
+
+ if(error){
+  status("enterStatus",error.message);
+  return;
+ }
+
+ for(const post of data||[]){
+  const option=document.createElement("option");
+  option.value=post.id;
+  option.textContent=
+   (post.caption||"Untitled").split("\n")[0];
+  select.appendChild(option);
+ }
+
+ if(!data?.length){
+  status(
+   "enterStatus",
+   "No public performances found. Publish a performance first."
+  );
+ }
+}
+
+$("enterBtn").onclick=async()=>{
+ if(!user||!battle||!isOpen())return;
+
+ const postId=$("myPosts").value;
+
+ if(!postId){
+  status("enterStatus","Choose a performance first.");
+  return;
+ }
+
+ $("enterBtn").disabled=true;
+ status("enterStatus","Entering battle...");
+
+ const {error}=await db
+  .from("karaoke_battle_entries")
+  .insert({
+   battle_id:battle.id,
+   post_id:postId,
+   creator_id:user.id
+  });
+
+ status(
+  "enterStatus",
+  error
+   ? "Could not enter: "+error.message
+   : "Your performance has entered the battle!"
+ );
+
+ $("enterBtn").disabled=!isOpen()||!user;
+ await loadEntries();
+};
+
+async function loadEntries(){
+ if(!battle)return;
+
+ const target=$("entries");
+ target.replaceChildren();
+
+ status("resultsStatus","Loading performances...");
+
+ const {data:entries,error}=await db
+  .from("karaoke_battle_entries")
+  .select("id,post_id,creator_id,created_at")
+  .eq("battle_id",battle.id);
+
+ if(error){
+  status("resultsStatus",error.message);
+  return;
+ }
+
+ const {data:votes,error:voteError}=await db
+  .from("karaoke_battle_votes")
+  .select("entry_id,voter_id")
+  .eq("battle_id",battle.id);
+
+ if(voteError){
+  status("resultsStatus",voteError.message);
+  return;
+ }
+
+ const counts={};
+
+ voted=!!user&&(votes||[]).some(
+  v=>v.voter_id===user.id
+ );
+
+ for(const vote of votes||[]){
+  counts[vote.entry_id]=(counts[vote.entry_id]||0)+1;
+ }
+
+ const results=[];
+
+ for(const entry of entries||[]){
+  const {data:post,error:postError}=await db
+   .from("talent_posts")
+   .select("id,caption,media_path,media_kind,visibility,status")
+   .eq("id",entry.post_id)
+   .eq("visibility","public")
+   .eq("status","published")
+   .maybeSingle();
+
+  if(postError||!post)continue;
+
+  results.push({
+   entry,
+   post,
+   count:counts[entry.id]||0
+  });
+ }
+
+ results.sort((a,b)=>b.count-a.count);
+
+ status(
+  "resultsStatus",
+  results.length
+   ? results.length+" active performance(s)."
+   : "No performances entered yet."
+ );
+
+ for(const item of results){
+  renderEntry(item,target);
+ }
+}
+
+function renderEntry(item,target){
+ const {entry,post,count}=item;
+
+ const card=document.createElement("article");
+ card.className="entry";
+
+ const title=document.createElement("h3");
+ title.textContent=
+  (post.caption||"Untitled").split("\n")[0];
+
+ const caption=document.createElement("p");
+ caption.textContent=post.caption||"";
+ caption.style.whiteSpace="pre-wrap";
+
+ const countText=document.createElement("p");
+ countText.className="votes";
+ countText.textContent=count+" vote(s)";
+
+ const mediaArea=document.createElement("div");
+
+ const play=document.createElement("button");
+ play.textContent="Play Performance";
+ play.className="secondary";
+
+ play.onclick=async()=>{
+  play.disabled=true;
+
+  const {data,error}=await db.storage
+   .from("talent-posts")
+   .createSignedUrl(post.media_path,3600);
+
+  play.disabled=false;
+
+  if(error){
+   alert("Playback unavailable: "+error.message);
+   return;
+  }
+
+  mediaArea.replaceChildren();
+
+  const media=document.createElement(
+   post.media_kind==="video"?"video":"audio"
+  );
+
+  media.controls=true;
+  media.playsInline=true;
+  media.src=data.signedUrl;
+
+  mediaArea.appendChild(media);
+ };
+
+ const vote=document.createElement("button");
+ vote.textContent="Vote for This Artist";
+
+ const own=user&&entry.creator_id===user.id;
+
+ vote.disabled=!user||voted||own||!isOpen();
+
+ if(own)vote.textContent="Your Entry";
+ else if(voted)vote.textContent="Vote Already Cast";
+ else if(!user)vote.textContent="Sign In to Vote";
+ else if(!isOpen())vote.textContent="Voting Closed";
+
+ const notice=document.createElement("p");
+ notice.className="status";
+
+ vote.onclick=async()=>{
+  if(!user||voted||own||!isOpen())return;
+
+  if(!confirm("Cast your one vote for this performance?")){
+   return;
+  }
+
+  vote.disabled=true;
+  notice.textContent="Saving vote...";
+
+  const {error}=await db
+   .from("karaoke_battle_votes")
+   .insert({
+    battle_id:battle.id,
+    entry_id:entry.id,
+    voter_id:user.id
+   });
+
+  if(error){
+   notice.textContent="Vote failed: "+error.message;
+   vote.disabled=false;
+   return;
+  }
+
+  notice.textContent="Your vote has been recorded.";
+  await loadEntries();
+ };
+
+ card.append(
+  title,
+  caption,
+  countText,
+  play,
+  mediaArea,
+  vote,
+  notice
+ );
+
+ target.appendChild(card);
+}
+
+$("refreshBtn").onclick=loadEntries;
+
+initialize();
+</script>
+</body>
+</html>
