@@ -1,0 +1,169 @@
+
+name: Upgrade StarRise Vocal Pro
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Add vocal presets and de-essing
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path('studio.html')
+          s = p.read_text()
+
+          if 'const presets={' in s and '"Warm R&B"' in s:
+              print('Vocal Pro already installed')
+              raise SystemExit(0)
+
+          def replace(old, new):
+              global s
+              if s.count(old) != 1:
+                  raise SystemExit(
+                      f'Expected one match, found {s.count(old)}: {old[:90]}'
+                  )
+              s = s.replace(old, new, 1)
+
+          replace(
+              'eq:0,compression:0,reverb:0,delay:0',
+              'eq:0,compression:0,reverb:0,delay:0,deess:0'
+          )
+
+          replace(
+              'source.connect(eq);\neq.connect(compressor);',
+              '''const deessFilter=ac.createBiquadFilter();
+          deessFilter.type="peaking";
+          deessFilter.frequency.value=6500;
+          deessFilter.Q.value=1.3;
+          deessFilter.gain.value=-(Number(track.deess)||0)*.12;
+          source.connect(deessFilter);
+          deessFilter.connect(eq);
+          eq.connect(compressor);'''
+          )
+
+          replace(
+              'slider("Delay",0,100,5,"delay")\n);',
+              '''slider("Delay",0,100,5,"delay"),
+          slider("De-ess / Sibilance",0,100,5,"deess")
+          );
+
+          if(track.type==="vocal"){
+          const presetBox=document.createElement("div");
+          presetBox.className="vocal-presets";
+
+          const label=document.createElement("label");
+          label.textContent="Vocal Preset";
+
+          const select=document.createElement("select");
+
+          const presets={
+          "Custom":null,
+          "Warm R&B":{
+            eq:-2,compression:48,reverb:23,delay:9,deess:45
+          },
+          "Rap Presence":{
+            eq:3,compression:65,reverb:8,delay:5,deess:55
+          },
+          "Soul Lead":{
+            eq:1,compression:38,reverb:28,delay:10,deess:35
+          },
+          "Gospel Lead":{
+            eq:2,compression:43,reverb:32,delay:8,deess:40
+          },
+          "Clean Voice":{
+            eq:0,compression:28,reverb:5,delay:0,deess:40
+          }
+          };
+
+          Object.keys(presets).forEach(name=>{
+            const option=document.createElement("option");
+            option.value=name;
+            option.textContent=name;
+            select.append(option);
+          });
+
+          select.onchange=()=>{
+            const settings=presets[select.value];
+            if(!settings)return;
+
+            Object.assign(track,settings);
+
+            document.querySelectorAll(
+              'input[data-track-id="'+track.id+'"][data-setting]'
+            ).forEach(input=>{
+              if(
+                Object.prototype.hasOwnProperty.call(
+                  settings,input.dataset.setting
+                )
+              ){
+                input.value=String(
+                  settings[input.dataset.setting]
+                );
+              }
+            });
+
+            status(
+              select.value+
+              " preset applied to "+
+              track.name+
+              ". Save Project to keep it."
+            );
+          };
+
+          label.append(select);
+          presetBox.append(label);
+
+          const note=document.createElement("small");
+          note.textContent=
+            "Presets adjust EQ, dynamics, de-essing, reverb "+
+            "and delay. Automatic pitch correction is not "+
+            "included yet.";
+
+          presetBox.append(note);
+          row.append(presetBox);
+          }'''
+          )
+
+          replace(
+              'eq:t.eq,compression:t.compression,reverb:t.reverb,delay:t.delay',
+              'eq:t.eq,compression:t.compression,reverb:t.reverb,delay:t.delay,deess:t.deess??0'
+          )
+
+          replace(
+              'reverb:projectNumber(t.reverb,"reverb",0,100),delay:projectNumber(t.delay,"delay",0,100)',
+              'reverb:projectNumber(t.reverb,"reverb",0,100),delay:projectNumber(t.delay,"delay",0,100),deess:projectNumber(t.deess??0,"de-ess",0,100)'
+          )
+
+          replace(
+              '.track{background:',
+              '.vocal-presets{margin:12px 0;padding:10px;border:1px solid #655879;border-radius:8px;display:flex;flex-direction:column;gap:8px}.vocal-presets select{width:min(100%,280px)}\n.track{background:'
+          )
+
+          p.write_text(s)
+          print('Vocal Pro upgrade installed in studio.html')
+          PY
+
+      - name: Commit changes
+        run: |
+          if git diff --quiet -- studio.html; then
+            echo "No changes required"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add studio.html
+          git commit -m "Add vocal presets and de-essing to Studio Pro"
+          git push
