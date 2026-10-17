@@ -425,6 +425,7 @@ function recordingHarness({fallback=false,workletFailure=false,permission}={}) {
       connect(target){return target;},disconnect(){this.disconnected=true;},start(...args){this.starts.push(args);},stop(){this.stops++;}};
     h.nodes.push(n);return n;
   }
+
   h.ac=run(context,'getContext()');
   Object.assign(h.ac,{sampleRate:8000,destination:{},createOscillator:()=>node('click'),createGain:()=>node('gain'),
     createBufferSource:()=>node('backing'),createBiquadFilter:()=>node('eq'),createDynamicsCompressor:()=>node('compressor'),createStereoPanner:()=>node('pan'),
