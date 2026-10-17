@@ -421,7 +421,7 @@ function recordingHarness({fallback=false,workletFailure=false,permission}={}) {
   context.navigator={mediaDevices:{getUserMedia:async()=>{h.requests++;return permission?permission():h.stream;}}};
   function node(kind) {
     const param=()=>({value:0,setValueAtTime(){},exponentialRampToValueAtTime(){}});
-    const n={kind,starts:[],stops:0,disconnected:false,gain:param(),frequency:param(),threshold:param(),ratio:param(),attack:param(),release:param(),pan:param(),delayTime:param(),
+    const n={kind,starts:[],stops:0,disconnected:false,gain:param(),frequency:param(),Q:param(),threshold:param(),ratio:param(),attack:param(),release:param(),pan:param(),delayTime:param(),
       connect(target){return target;},disconnect(){this.disconnected=true;},start(...args){this.starts.push(args);},stop(){this.stops++;}};
     h.nodes.push(n);return n;
   }
