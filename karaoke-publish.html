@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Publish Karaoke | StarRise</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#100b24;
+ color:#fff;
+ font:16px Arial,sans-serif;
+ line-height:1.5
+}
+main{max-width:700px;margin:auto;padding:22px}
+section{
+ background:#211735;
+ border:1px solid #564272;
+ border-radius:16px;
+ padding:20px;
+ margin:20px 0
+}
+h1,h2{color:#d9b6ff}
+input,textarea,select{
+ display:block;
+ width:100%;
+ padding:13px;
+ margin:12px 0;
+ border-radius:9px;
+ border:1px solid #75618f;
+ background:#130d25;
+ color:white;
+ font:inherit
+}
+textarea{min-height:110px}
+button,.button{
+ display:inline-block;
+ background:#ac78ff;
+ color:#160b27;
+ padding:12px 18px;
+ border:0;
+ border-radius:10px;
+ font-weight:bold;
+ cursor:pointer;
+ text-decoration:none
+}
+button:disabled{opacity:.5}
+video,audio{width:100%;margin:12px 0}
+p{color:#d0c4df}
+#status{white-space:pre-wrap}
+</style>
+</head>
+<body>
+<main>
+<a class="button" href="karaoke.html">Back to Karaoke</a>
+
+<h1>Publish Your Performance</h1>
+<p>Share your talent with the StarRise community.</p>
+
+<section>
+<h2>Your Account</h2>
+<p id="account">Checking sign-in...</p>
+</section>
+
+<section>
+<h2>Create Your Post</h2>
+
+<label for="title">Performance Title</label>
+<input id="title" maxlength="150"
+ placeholder="My StarRise Karaoke Performance">
+
+<label for="caption">Caption</label>
+<textarea id="caption" maxlength="1900"
+ placeholder="Tell the community about your performance"></textarea>
+
+<label for="file">Audio or Video Recording</label>
+<input id="file" type="file"
+ accept="audio/mpeg,audio/wav,audio/mp4,audio/ogg,video/mp4,video/webm,video/quicktime">
+
+<div id="preview"></div>
+
+<label for="visibility">Who Can See This?</label>
+<select id="visibility">
+<option value="private">Only Me</option>
+<option value="followers">Followers</option>
+<option value="members">StarRise Members</option>
+<option value="public">Everyone</option>
+</select>
+
+<label>
+<input id="rights" type="checkbox" style="display:inline;width:auto">
+ I own this recording or have permission to publish
+ the music, vocals, and video it contains.
+</label>
+
+<p>
+Your performance will only be published when
+you press the button below.
+</p>
+
+<button id="publish">Publish Performance</button>
+
+<p id="status" role="status">Ready.</p>
+</section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+"use strict";
+
+const db=window.supabase.createClient(
+ "https://rcnikxotdalxtuvpmlvm.supabase.co",
+ "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
+
+const $=id=>document.getElementById(id);
+let user=null;
+let previewURL=null;
+
+async function checkAccount(){
+ const {data,error}=await db.auth.getUser();
+ user=error?null:data.user;
+ $("account").textContent=user
+  ? "Signed in: "+user.email
+  : "Please sign in through StarRise Karaoke first.";
+ $("publish").disabled=!user;
+}
+
+$("file").onchange=()=>{
+ const file=$("file").files[0];
+ const target=$("preview");
+ target.replaceChildren();
+
+ if(previewURL)URL.revokeObjectURL(previewURL);
+ if(!file)return;
+
+ previewURL=URL.createObjectURL(file);
+
+ const media=document.createElement(
+  file.type.startsWith("video/")?"video":"audio"
+ );
+ media.controls=true;
+ media.src=previewURL;
+ target.appendChild(media);
+};
+
+$("publish").onclick=async()=>{
+ if(!user){
+  $("status").textContent="Sign in first.";
+  return;
+ }
+
+ const file=$("file").files[0];
+ const title=$("title").value.trim();
+ const caption=$("caption").value.trim();
+
+ if(!file||!title){
+  $("status").textContent=
+   "Add a title and select a recording.";
+  return;
+ }
+
+ if(!$("rights").checked){
+  $("status").textContent=
+   "Confirm that you have permission to publish.";
+  return;
+ }
+
+ const allowed={
+  "audio/mpeg":"audio",
+  "audio/wav":"audio",
+  "audio/mp4":"audio",
+  "audio/ogg":"audio",
+  "video/mp4":"video",
+  "video/webm":"video",
+  "video/quicktime":"video"
+ };
+
+ const kind=allowed[file.type];
+
+ if(!kind){
+  $("status").textContent="Unsupported file format.";
+  return;
+ }
+
+ if(file.size>100*1024*1024){
+  $("status").textContent=
+   "Choose a file smaller than 100 MB.";
+  return;
+ }
+
+ $("publish").disabled=true;
+ $("status").textContent="Uploading performance...";
+
+ const ext=file.name.split(".").pop()
+  .replace(/[^a-zA-Z0-9]/g,"").slice(0,10);
+
+ const path=user.id+"/"+crypto.randomUUID()+"."+ext;
+
+ try{
+  const {error:uploadError}=await db.storage
+   .from("talent-posts")
+   .upload(path,file,{
+    contentType:file.type,
+    upsert:false
+   });
+
+  if(uploadError)throw uploadError;
+
+  const {error:postError}=await db
+   .from("talent_posts")
+   .insert({
+    creator_id:user.id,
+    caption:title+(caption?"\n\n"+caption:""),
+    media_path:path,
+    media_kind:kind,
+    media_mime_type:file.type,
+    visibility:$("visibility").value,
+    status:"published"
+   });
+
+  if(postError){
+   await db.storage.from("talent-posts")
+    .remove([path]);
+   throw postError;
+  }
+
+  $("status").textContent=
+   "Performance published successfully!";
+
+  $("file").value="";
+  $("title").value="";
+  $("caption").value="";
+  $("rights").checked=false;
+  $("preview").replaceChildren();
+
+ }catch(error){
+  $("status").textContent=
+   "Publishing failed: "+error.message;
+ }finally{
+  $("publish").disabled=false;
+ }
+};
+
+checkAccount();
+</script>
+</body>
+</html>
