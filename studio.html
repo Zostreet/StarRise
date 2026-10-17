@@ -159,7 +159,7 @@ input[type=range]{width:110px}
 <section id="mixer" class="view">
 <div class="panel">
 <h2>Multitrack Mixer & Effects</h2>
-<p class="note">Each track has independent volume, pan, EQ, compression, reverb and delay. Mix changes apply on the next playback and to new exports.</p>
+<p class="note">Each track has independent volume, pan, low-cut, EQ, presence, sibilance softening, compression, reverb and delay. Vocal tracks also have tone presets. Mix changes apply on the next playback and to new exports.</p>
 <div id="mixerTracks"></div>
 </div>
 </section>
@@ -191,7 +191,7 @@ input[type=range]{width:110px}
 Choose Save Project to keep this session, including its audio, on this device.
 Choose Load Project to reopen that saved session. Browser storage can be cleared or become full;
 download a full project backup to keep a separate copy or move to another device.
-This version does not yet include automatic pitch correction,
+This version includes vocal tone presets but not automatic pitch correction,
 third-party VST hosting or real-time cloud collaboration.
 </p>
 </section>
@@ -252,7 +252,7 @@ id:nextTrackId++,
 name,buffer,type,offset,
 trimStart:0,trimEnd:null,
 volume:1,pan:0,mute:false,
-eq:0,compression:0,reverb:0,delay:0
+eq:0,compression:0,reverb:0,delay:0,highpass:80,presence:0,deess:0
 };
 tracks.push(track);
 renderTracks();
@@ -340,7 +340,25 @@ eq.type="highshelf";
 eq.frequency.value=2500;
 eq.gain.value=track.eq;
 
+
+const highpass=ac.createBiquadFilter();
+highpass.type="highpass";
+highpass.frequency.value=track.highpass??80;
+highpass.Q.value=.707;
+
+const presence=ac.createBiquadFilter();
+presence.type="peaking";
+presence.frequency.value=3800;
+presence.Q.value=1.1;
+presence.gain.value=track.presence??0;
+
+const sibilance=ac.createBiquadFilter();
+sibilance.type="highshelf";
+sibilance.frequency.value=5700;
+sibilance.gain.value=-(track.deess??0)*.12;
+
 const compressor=ac.createDynamicsCompressor();
+
 const comp=track.compression/100;
 compressor.threshold.value=-6-comp*30;
 compressor.ratio.value=1+comp*7;
@@ -350,8 +368,11 @@ compressor.release.value=.2;
 const pan=ac.createStereoPanner();
 pan.pan.value=track.pan;
 
-source.connect(eq);
-eq.connect(compressor);
+source.connect(highpass);
+highpass.connect(eq);
+eq.connect(presence);
+presence.connect(sibilance);
+sibilance.connect(compressor);
 compressor.connect(gain);
 gain.connect(pan);
 pan.connect(destination);
@@ -835,12 +856,71 @@ fx.className="fx controls";
 
 fx.append(
 slider("EQ / Brightness",-12,12,1,"eq"),
+slider("Low-cut (Hz)",40,180,5,"highpass"),
+slider("Presence (dB)",-6,6,1,"presence"),
+slider("Sibilance soften",0,100,5,"deess"),
 slider("Compression",0,100,5,"compression"),
 slider("Reverb",0,100,5,"reverb"),
 slider("Delay",0,100,5,"delay")
 );
 
 row.append(fx);
+
+if(track.type==="vocal"){
+  const presets=document.createElement("div");
+  presets.className="controls";
+
+  const caption=document.createElement("strong");
+  caption.textContent="Vocal tone presets";
+  presets.append(caption);
+
+  const profiles={
+    "Natural":{
+      highpass:80,presence:0,deess:10,
+      eq:0,compression:20,reverb:10,delay:0
+    },
+    "Warm R&B":{
+      highpass:75,presence:2,deess:30,
+      eq:-2,compression:40,reverb:22,delay:8
+    },
+    "Bright Pop":{
+      highpass:100,presence:4,deess:45,
+      eq:3,compression:50,reverb:18,delay:10
+    },
+    "Rap Lead":{
+      highpass:95,presence:3,deess:40,
+      eq:1,compression:60,reverb:8,delay:5
+    },
+    "Soft Soul":{
+      highpass:70,presence:1,deess:25,
+      eq:-1,compression:30,reverb:28,delay:6
+    }
+  };
+
+  for(const [name,settings] of Object.entries(profiles)){
+    const button=document.createElement("button");
+    button.className="secondary";
+    button.textContent=name;
+
+    button.onclick=()=>{
+      if(recording){
+        return status("Stop recording first.");
+      }
+
+      Object.assign(track,settings);
+      renderTracks();
+
+      status(
+        name+" vocal preset applied. "
+        +"Press Play Session to hear it."
+      );
+    };
+
+    presets.append(button);
+  }
+
+  row.append(presets);
+}
 
 box.append(row);
 });
@@ -1236,7 +1316,7 @@ tracks:tracks.map(t=>({
 name:t.name,type:t.type,offset:t.offset,
 trimStart:t.trimStart??0,trimEnd:t.trimEnd??null,
 volume:t.volume,pan:t.pan,mute:t.mute,
-eq:t.eq,compression:t.compression,reverb:t.reverb,delay:t.delay
+eq:t.eq,compression:t.compression,reverb:t.reverb,delay:t.delay,highpass:t.highpass??80,presence:t.presence??0,deess:t.deess??0
 }))
 };
 }
@@ -1269,7 +1349,11 @@ trimStart:projectNumber(t.trimStart??0,"trim start",0,Number.MAX_SAFE_INTEGER),
 trimEnd:t.trimEnd==null?null:projectNumber(t.trimEnd,"trim end",0,Number.MAX_SAFE_INTEGER),
 volume:projectNumber(t.volume,"volume",0,1.5),pan:projectNumber(t.pan,"pan",-1,1),mute:t.mute,
 eq:projectNumber(t.eq,"EQ",-12,12),compression:projectNumber(t.compression,"compression",0,100),
-reverb:projectNumber(t.reverb,"reverb",0,100),delay:projectNumber(t.delay,"delay",0,100)
+reverb:projectNumber(t.reverb,"reverb",0,100),
+delay:projectNumber(t.delay,"delay",0,100),
+highpass:projectNumber(t.highpass??80,"low-cut",40,180),
+presence:projectNumber(t.presence??0,"presence",-6,6),
+deess:projectNumber(t.deess??0,"sibilance soften",0,100)
 };
 })
 };
