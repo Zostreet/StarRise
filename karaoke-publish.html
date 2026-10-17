@@ -10,11 +10,11 @@
 body{
  margin:0;
  background:#100b24;
- color:#fff;
+ color:white;
  font:16px Arial,sans-serif;
  line-height:1.5
 }
-main{max-width:700px;margin:auto;padding:22px}
+main{max-width:720px;margin:auto;padding:20px}
 section{
  background:#211735;
  border:1px solid #564272;
@@ -26,37 +26,59 @@ h1,h2{color:#d9b6ff}
 input,textarea,select{
  display:block;
  width:100%;
- padding:13px;
- margin:12px 0;
- border-radius:9px;
+ padding:12px;
+ margin:10px 0;
  border:1px solid #75618f;
+ border-radius:9px;
  background:#130d25;
  color:white;
  font:inherit
 }
+input[type=checkbox]{
+ display:inline;
+ width:auto;
+ margin-right:8px
+}
 textarea{min-height:110px}
 button,.button{
  display:inline-block;
+ padding:12px 18px;
  background:#ac78ff;
  color:#160b27;
- padding:12px 18px;
  border:0;
  border-radius:10px;
  font-weight:bold;
+ text-decoration:none;
  cursor:pointer;
- text-decoration:none
+ margin:6px 4px 6px 0
 }
-button:disabled{opacity:.5}
+button:disabled{opacity:.5;cursor:default}
+.secondary{background:#48385f;color:white}
 video,audio{width:100%;margin:12px 0}
-p{color:#d0c4df}
-#status{white-space:pre-wrap}
+progress{
+ display:block;
+ width:100%;
+ height:22px;
+ margin:15px 0;
+ accent-color:#ac78ff
+}
+.muted{color:#cbbfda}
+#status{
+ white-space:pre-wrap;
+ overflow-wrap:anywhere;
+ color:#e4d2ff
+}
+#percent{font-weight:bold}
 </style>
 </head>
 <body>
-<main>
-<a class="button" href="karaoke.html">Back to Karaoke</a>
 
-<h1>Publish Your Performance</h1>
+<main>
+<a class="button" href="karaoke.html">
+Back to Karaoke Studio
+</a>
+
+<h1>StarRise Karaoke Publishing</h1>
 <p>Share your talent with the StarRise community.</p>
 
 <section>
@@ -65,19 +87,24 @@ p{color:#d0c4df}
 </section>
 
 <section>
-<h2>Create Your Post</h2>
+<h2>Upload Your Performance</h2>
 
 <label for="title">Performance Title</label>
 <input id="title" maxlength="150"
- placeholder="My StarRise Karaoke Performance">
+ placeholder="My StarRise Performance">
 
 <label for="caption">Caption</label>
 <textarea id="caption" maxlength="1900"
- placeholder="Tell the community about your performance"></textarea>
+ placeholder="Tell your story..."></textarea>
 
-<label for="file">Audio or Video Recording</label>
+<label for="file">Choose Audio or Video</label>
 <input id="file" type="file"
- accept="audio/mpeg,audio/wav,audio/mp4,audio/ogg,video/mp4,video/webm,video/quicktime">
+ accept="audio/*,video/mp4,video/webm,video/quicktime">
+
+<p id="fileInfo" class="muted">
+MP3, WAV, MP4, WebM and supported audio formats.
+Maximum 100 MB.
+</p>
 
 <div id="preview"></div>
 
@@ -90,145 +117,390 @@ p{color:#d0c4df}
 </select>
 
 <label>
-<input id="rights" type="checkbox" style="display:inline;width:auto">
- I own this recording or have permission to publish
- the music, vocals, and video it contains.
+<input type="checkbox" id="rights">
+I own this performance or have permission to
+publish the music and video it contains.
 </label>
 
-<p>
-Your performance will only be published when
-you press the button below.
+<h2>Upload Progress</h2>
+<progress id="progress" max="100" value="0"></progress>
+<p id="percent">0%</p>
+
+<button id="publish" disabled>
+Publish Performance
+</button>
+
+<button id="cancel" class="secondary" disabled>
+Cancel Upload
+</button>
+
+<p id="status" role="status">
+Ready to upload.
 </p>
 
-<button id="publish">Publish Performance</button>
-
-<p id="status" role="status">Ready.</p>
+<p class="muted">
+Uploads can retry after a connection interruption.
+Keep this page open until publishing finishes.
+</p>
 </section>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tus-js-client@4.3.1/dist/tus.min.js"></script>
+
 <script>
 "use strict";
 
+const $=id=>document.getElementById(id);
+
+const URL_BASE=
+ "https://rcnikxotdalxtuvpmlvm.supabase.co";
+
+const KEY=
+ "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+
 const db=window.supabase.createClient(
- "https://rcnikxotdalxtuvpmlvm.supabase.co",
- "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+ URL_BASE,
+ KEY
 );
 
-const $=id=>document.getElementById(id);
 let user=null;
+let activeUpload=null;
 let previewURL=null;
+let busy=false;
+let cancelled=false;
+
+const allowed={
+ "audio/mpeg":"audio",
+ "audio/wav":"audio",
+ "audio/x-wav":"audio",
+ "audio/mp4":"audio",
+ "audio/x-m4a":"audio",
+ "audio/aac":"audio",
+ "audio/ogg":"audio",
+ "audio/flac":"audio",
+ "audio/x-flac":"audio",
+ "video/mp4":"video",
+ "video/webm":"video",
+ "video/quicktime":"video",
+ "video/x-m4v":"video",
+ "video/3gpp":"video"
+};
+
+function status(text){
+ $("status").textContent=text;
+}
+
+function setBusy(value){
+ busy=value;
+ $("publish").disabled=value||!user;
+ $("cancel").disabled=!value;
+ $("file").disabled=value;
+ $("title").disabled=value;
+ $("caption").disabled=value;
+ $("visibility").disabled=value;
+ $("rights").disabled=value;
+}
+
+function progress(value){
+ const n=Math.max(0,Math.min(100,value));
+ $("progress").value=n;
+ $("percent").textContent=n.toFixed(1)+"%";
+}
+
+function readableError(error){
+ if(!error)return "Unknown error.";
+
+ const original=error.originalResponse;
+ let details="";
+
+ if(original){
+  try{
+   details=original.getBody?.()||"";
+  }catch(e){}
+ }
+
+ const code=original?.getStatus?.();
+
+ if(code===401){
+  return "Your session expired. Sign in again.";
+ }
+
+ if(code===403){
+  return "Upload permission denied. Check your StarRise sign-in.";
+ }
+
+ if(code===413){
+  return "The server rejected the file size.";
+ }
+
+ if(code===415){
+  return "The server rejected this file format.";
+ }
+
+ if(code===429){
+  return "Too many requests. Please retry shortly.";
+ }
+
+ return [
+  error.message||String(error),
+  code?"HTTP status: "+code:"",
+  details?String(details).slice(0,500):""
+ ].filter(Boolean).join("\n");
+}
 
 async function checkAccount(){
  const {data,error}=await db.auth.getUser();
+
  user=error?null:data.user;
+
  $("account").textContent=user
   ? "Signed in: "+user.email
-  : "Please sign in through StarRise Karaoke first.";
- $("publish").disabled=!user;
+  : "Not signed in. Return to Karaoke Studio and sign in.";
+
+ if(!busy){
+  $("publish").disabled=!user;
+ }
 }
 
-$("file").onchange=()=>{
+$("file").addEventListener("change",()=>{
  const file=$("file").files[0];
- const target=$("preview");
- target.replaceChildren();
+ const preview=$("preview");
 
- if(previewURL)URL.revokeObjectURL(previewURL);
- if(!file)return;
+ preview.replaceChildren();
+ progress(0);
+
+ if(previewURL){
+  URL.revokeObjectURL(previewURL);
+  previewURL=null;
+ }
+
+ if(!file){
+  $("fileInfo").textContent="No file selected.";
+  return;
+ }
+
+ const mb=(file.size/1024/1024).toFixed(2);
+
+ $("fileInfo").textContent=
+  file.name+" | "+mb+" MB | "+
+  (file.type||"Unknown format");
+
+ if(!allowed[file.type]){
+  status("This file format is not supported.");
+  return;
+ }
+
+ if(file.size>100*1024*1024){
+  status("This file exceeds the 100 MB limit.");
+  return;
+ }
 
  previewURL=URL.createObjectURL(file);
 
  const media=document.createElement(
-  file.type.startsWith("video/")?"video":"audio"
+  allowed[file.type]==="video"?"video":"audio"
  );
- media.controls=true;
+
  media.src=previewURL;
- target.appendChild(media);
+ media.controls=true;
+ media.playsInline=true;
+
+ preview.appendChild(media);
+
+ status("File ready. Press Publish Performance.");
+});
+
+$("cancel").onclick=async()=>{
+ if(!activeUpload)return;
+
+ cancelled=true;
+ status("Cancelling upload...");
+
+ try{
+  await activeUpload.abort(true);
+ }catch(e){}
+
+ activeUpload=null;
+ setBusy(false);
+ progress(0);
+ status("Upload cancelled. Nothing was published.");
 };
 
-$("publish").onclick=async()=>{
- if(!user){
-  $("status").textContent="Sign in first.";
-  return;
+async function getSession(){
+ const {data,error}=await db.auth.getSession();
+
+ if(error||!data.session){
+  throw Error("Your sign-in session is missing.");
  }
+
+ const expiry=data.session.expires_at||0;
+
+ if(expiry*1000<Date.now()+60000){
+  const refreshed=await db.auth.refreshSession();
+
+  if(refreshed.error||!refreshed.data.session){
+   throw Error("Session expired. Please sign in again.");
+  }
+
+  return refreshed.data.session;
+ }
+
+ return data.session;
+}
+
+function uploadResumable(file,path,token){
+ return new Promise((resolve,reject)=>{
+  if(!window.tus?.Upload){
+   reject(Error(
+    "Resumable uploader did not load. Check your internet connection."
+   ));
+   return;
+  }
+
+  const upload=new tus.Upload(file,{
+   endpoint:URL_BASE+"/storage/v1/upload/resumable",
+   retryDelays:[0,1000,3000,5000,10000],
+   chunkSize:6*1024*1024,
+   uploadDataDuringCreation:true,
+   removeFingerprintOnSuccess:true,
+
+   headers:{
+    authorization:"Bearer "+token,
+    apikey:KEY,
+    "x-upsert":"false"
+   },
+
+   metadata:{
+    bucketName:"talent-posts",
+    objectName:path,
+    contentType:file.type,
+    cacheControl:"3600"
+   },
+
+   onError(error){
+    activeUpload=null;
+    reject(error);
+   },
+
+   onProgress(uploaded,total){
+    if(total>0){
+     progress(uploaded/total*100);
+    }
+
+    status(
+     "Uploading: "+
+     (uploaded/1024/1024).toFixed(2)+
+     " MB of "+
+     (total/1024/1024).toFixed(2)+
+     " MB"
+    );
+   },
+
+   onSuccess(){
+    activeUpload=null;
+    resolve();
+   }
+  });
+
+  activeUpload=upload;
+
+  upload.findPreviousUploads()
+   .then(previous=>{
+    if(previous.length){
+     upload.resumeFromPreviousUpload(previous[0]);
+    }
+    upload.start();
+   })
+   .catch(reject);
+ });
+}
+
+$("publish").onclick=async()=>{
+ if(busy)return;
 
  const file=$("file").files[0];
  const title=$("title").value.trim();
  const caption=$("caption").value.trim();
 
+ if(!user){
+  status("Please sign in first.");
+  return;
+ }
+
  if(!file||!title){
-  $("status").textContent=
-   "Add a title and select a recording.";
+  status("Choose a file and enter a title.");
   return;
  }
 
- if(!$("rights").checked){
-  $("status").textContent=
-   "Confirm that you have permission to publish.";
-  return;
- }
-
- const allowed={
-  "audio/mpeg":"audio",
-  "audio/wav":"audio",
-  "audio/mp4":"audio",
-  "audio/ogg":"audio",
-  "video/mp4":"video",
-  "video/webm":"video",
-  "video/quicktime":"video"
- };
-
- const kind=allowed[file.type];
-
- if(!kind){
-  $("status").textContent="Unsupported file format.";
+ if(!allowed[file.type]){
+  status("Unsupported file type: "+file.type);
   return;
  }
 
  if(file.size>100*1024*1024){
-  $("status").textContent=
-   "Choose a file smaller than 100 MB.";
+  status("File exceeds 100 MB.");
   return;
  }
 
- $("publish").disabled=true;
- $("status").textContent="Uploading performance...";
+ if(!$("rights").checked){
+  status("Confirm you have permission to publish.");
+  return;
+ }
 
- const ext=file.name.split(".").pop()
-  .replace(/[^a-zA-Z0-9]/g,"").slice(0,10);
+ cancelled=false;
+ setBusy(true);
+ progress(0);
 
- const path=user.id+"/"+crypto.randomUUID()+"."+ext;
+ let path=null;
+ let uploaded=false;
 
  try{
-  const {error:uploadError}=await db.storage
-   .from("talent-posts")
-   .upload(path,file,{
-    contentType:file.type,
-    upsert:false
-   });
+  const session=await getSession();
 
-  if(uploadError)throw uploadError;
+  const ext=file.name.split(".").pop()
+   .replace(/[^a-zA-Z0-9]/g,"")
+   .toLowerCase()
+   .slice(0,10)||"bin";
 
-  const {error:postError}=await db
-   .from("talent_posts")
+  path=user.id+"/"+crypto.randomUUID()+"."+ext;
+
+  status("Connecting to StarRise storage...");
+
+  await uploadResumable(
+   file,
+   path,
+   session.access_token
+  );
+
+  uploaded=true;
+
+  if(cancelled){
+   status("Upload cancelled.");
+   return;
+  }
+
+  status("Upload complete. Saving performance...");
+
+  const {error}=await db.from("talent_posts")
    .insert({
     creator_id:user.id,
     caption:title+(caption?"\n\n"+caption:""),
     media_path:path,
-    media_kind:kind,
+    media_kind:allowed[file.type],
     media_mime_type:file.type,
     visibility:$("visibility").value,
     status:"published"
    });
 
-  if(postError){
-   await db.storage.from("talent-posts")
-    .remove([path]);
-   throw postError;
-  }
+  if(error)throw error;
 
-  $("status").textContent=
-   "Performance published successfully!";
+  progress(100);
+
+  status(
+   "SUCCESS! Your performance has been saved to StarRise.\n"+
+   "Visibility: "+$("visibility").selectedOptions[0].text
+  );
 
   $("file").value="";
   $("title").value="";
@@ -237,12 +509,30 @@ $("publish").onclick=async()=>{
   $("preview").replaceChildren();
 
  }catch(error){
-  $("status").textContent=
-   "Publishing failed: "+error.message;
+  status("Publishing failed:\n"+readableError(error));
+
+  if(uploaded&&path){
+   const cleanup=await db.storage
+    .from("talent-posts")
+    .remove([path]);
+
+   if(cleanup.error){
+    status(
+     $("status").textContent+
+     "\nUploaded file cleanup also failed."
+    );
+   }
+  }
+
  }finally{
-  $("publish").disabled=false;
+  activeUpload=null;
+  setBusy(false);
  }
 };
+
+window.addEventListener("pagehide",()=>{
+ if(previewURL)URL.revokeObjectURL(previewURL);
+});
 
 checkAccount();
 </script>
