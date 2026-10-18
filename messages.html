@@ -9,13 +9,13 @@
 <link rel="icon" href="starrise-logo.png" type="image/png">
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#080812;color:#fff;font-family:Arial,sans-serif}
+body{margin:0;background:#080812;color:white;font-family:Arial,sans-serif}
 a{color:inherit}
 header{padding:20px;border-bottom:1px solid #ffffff25}
 .logo img{width:160px;max-width:100%;height:auto}
 nav{display:flex;gap:18px;flex-wrap:wrap;margin-top:20px}
 nav a{text-decoration:none;color:#bbb;font-weight:bold}
-nav a.active{color:#fff}
+nav a.active{color:white}
 main{max-width:1150px;margin:auto;padding:22px}
 .hero{padding:25px 10px}
 .hero h1{font-size:clamp(30px,6vw,46px)}
@@ -26,7 +26,7 @@ main{max-width:1150px;margin:auto;padding:22px}
 .hidden{display:none!important}
 .button{border:0;border-radius:12px;background:#fff;color:#080812;padding:13px 17px;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block}
 .button.secondary{background:#24243a;color:white}
-.button:disabled{opacity:.5}
+.button:disabled{opacity:.5;cursor:wait}
 .messenger{display:grid;grid-template-columns:330px minmax(0,1fr);border:1px solid #ffffff25;border-radius:20px;overflow:hidden;min-height:620px}
 .sidebar{border-right:1px solid #ffffff20;background:#ffffff05;min-width:0}
 .new-chat{padding:15px;border-bottom:1px solid #ffffff20;display:flex;gap:8px}
@@ -49,8 +49,21 @@ main{max-width:1150px;margin:auto;padding:22px}
 .bubble.mine{align-self:flex-end;background:#6541bf}
 .timestamp{font-size:10px;color:#ddd;margin-top:8px;text-align:right}
 .empty{padding:30px;color:#aaa;text-align:center;margin:auto}
-.chat-form{display:flex;gap:10px;padding:14px;border-top:1px solid #ffffff20}
-.chat-form textarea{flex:1;min-width:0;min-height:55px;max-height:160px;resize:vertical;border-radius:12px;padding:12px;background:#151523;color:white;border:1px solid #ffffff30;font:inherit}
+.chat-form{display:flex;flex-direction:column;gap:10px;padding:14px;border-top:1px solid #ffffff20}
+.chat-form textarea{width:100%;min-height:55px;max-height:160px;resize:vertical;border-radius:12px;padding:12px;background:#151523;color:white;border:1px solid #ffffff30;font:inherit}
+.form-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.form-actions .button{flex:1}
+.file-picker{position:relative}
+.file-picker input{position:absolute;width:1px;height:1px;opacity:0}
+.file-picker label{display:block;cursor:pointer}
+.selected-file{font-size:13px;color:#ddd;overflow-wrap:anywhere}
+.attachment{margin-top:10px;max-width:100%;white-space:normal}
+.attachment img{display:block;max-width:100%;max-height:260px;border-radius:10px;object-fit:contain}
+.attachment audio{width:100%;max-width:300px}
+.attachment video{max-width:100%;max-height:300px;border-radius:10px}
+.attachment-link{display:inline-block;background:#ffffff20;border:1px solid #ffffff30;border-radius:10px;padding:11px;margin-top:5px;overflow-wrap:anywhere}
+.attachment-error{color:#ffd0d0;font-size:12px}
+.file-progress{width:100%;height:9px;accent-color:#f4b942}
 .signin{padding:25px;border:1px solid #ffffff20;border-radius:18px}
 footer{text-align:center;padding:30px;color:#999}
 @media(max-width:780px){
@@ -62,8 +75,7 @@ footer{text-align:center;padding:30px;color:#999}
 .messenger.chat-open .chat{display:flex}
 .back-button{display:inline-block}
 .messages{height:55vh;min-height:300px}
-.chat-form{flex-direction:column}
-.chat-form button{width:100%}
+.form-actions .button{min-width:100px}
 }
 </style>
 </head>
@@ -85,7 +97,9 @@ footer{text-align:center;padding:30px;color:#999}
 <main>
 <section class="hero">
 <h1>Private Messages</h1>
-<p class="muted">Your StarRise conversations, all in one place.</p>
+<p class="muted">
+Connect, collaborate, and share your creative work privately.
+</p>
 </section>
 
 <div id="status" class="notice" role="status" aria-live="polite">
@@ -98,7 +112,6 @@ Connecting to StarRise...
 </section>
 
 <section id="messenger" class="messenger hidden">
-
 <aside class="sidebar">
 <form id="newChat" class="new-chat">
 <select id="recipient" required>
@@ -129,13 +142,46 @@ View Profile
 </div>
 
 <form id="messageForm" class="chat-form hidden">
-<textarea id="messageBody" maxlength="4000" required placeholder="Write a private message..."></textarea>
+<textarea
+id="messageBody"
+maxlength="4000"
+placeholder="Write a private message..."
+></textarea>
+
+<div id="selectedFile" class="selected-file hidden"></div>
+
+<progress
+id="uploadProgress"
+class="file-progress hidden"
+max="100"
+value="0"
+></progress>
+
+<div class="form-actions">
+<div class="file-picker">
+<input
+id="attachmentFile"
+type="file"
+accept="image/*,audio/*,video/*,.pdf,.zip,.wav,.mp3,.flac,.m4a,.ogg,.webm,.mp4,.mov,.png,.jpg,.jpeg,.webp,.txt,.json,.mid,.midi"
+>
+<label for="attachmentFile" class="button secondary">
+Attach File
+</label>
+</div>
+
+<button id="removeFile" class="button secondary hidden" type="button">
+Remove
+</button>
+
 <button id="sendButton" class="button" type="submit">
 Send
 </button>
+</div>
+<p class="muted" style="font-size:12px;margin:0">
+Private attachments. Maximum 50 MB per file.
+</p>
 </form>
 </section>
-
 </section>
 </main>
 
@@ -148,6 +194,8 @@ Send
 
 const URL_BASE='https://rcnikxotdalxtuvpmlvm.supabase.co';
 const PUBLIC_KEY='sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
+const BUCKET='message-attachments';
+const MAX_FILE=50*1024*1024;
 const $=id=>document.getElementById(id);
 
 const client=window.supabase
@@ -162,6 +210,8 @@ let activeConversationId=null;
 let channel=null;
 let nameLookupError='';
 let namesLoaded=false;
+let sending=false;
+let attachmentUrls=[];
 
 function status(text,type=''){
   $('status').textContent=text;
@@ -190,8 +240,7 @@ function profileFor(id){
 }
 
 function nameFor(id){
-  const key=String(id||'').toLowerCase();
-  return conversationNames.get(key)
+  return conversationNames.get(String(id||'').toLowerCase())
     ||profileFor(id).display_name
     ||'StarRise Member';
 }
@@ -213,6 +262,52 @@ function shortDate(value){
   return Number.isNaN(date.getTime())?'':date.toLocaleString();
 }
 
+function formatSize(size){
+  if(!size)return '';
+  return size>=1048576
+    ?(size/1048576).toFixed(1)+' MB'
+    :(size/1024).toFixed(1)+' KB';
+}
+
+function clearAttachmentUrls(){
+  attachmentUrls.forEach(url=>URL.revokeObjectURL(url));
+  attachmentUrls=[];
+}
+
+function clearSelectedFile(){
+  $('attachmentFile').value='';
+  $('selectedFile').textContent='';
+  $('selectedFile').classList.add('hidden');
+  $('removeFile').classList.add('hidden');
+  $('uploadProgress').classList.add('hidden');
+  $('uploadProgress').value=0;
+}
+
+function selectedFile(){
+  return $('attachmentFile').files?.[0]||null;
+}
+
+function updateSelectedFile(){
+  const file=selectedFile();
+
+  if(!file){
+    clearSelectedFile();
+    return;
+  }
+
+  if(file.size>MAX_FILE){
+    status('File exceeds the 50 MB limit.','error');
+    clearSelectedFile();
+    return;
+  }
+
+  $('selectedFile').textContent=
+    file.name+' ('+formatSize(file.size)+')';
+
+  $('selectedFile').classList.remove('hidden');
+  $('removeFile').classList.remove('hidden');
+}
+
 async function loadPublicProfiles(){
   const {data,error}=await client.rpc('get_public_members');
   if(error)throw error;
@@ -226,7 +321,9 @@ async function loadPublicProfiles(){
 
   rows
     .filter(p=>p.id!==currentUser.id)
-    .sort((a,b)=>(a.display_name||'').localeCompare(b.display_name||''))
+    .sort((a,b)=>
+      (a.display_name||'').localeCompare(b.display_name||'')
+    )
     .forEach(p=>{
       $('recipient').add(
         new Option(p.display_name||'StarRise Member',p.id)
@@ -244,7 +341,6 @@ async function loadConversationNames(){
     );
 
     if(error)throw error;
-
     if(!Array.isArray(data)){
       throw new Error('Unexpected member-name response.');
     }
@@ -275,10 +371,7 @@ async function loadConversationNames(){
 function updateNameStatus(){
   if(nameLookupError){
     status('Member-name error: '+nameLookupError,'error');
-    return;
-  }
-
-  if(namesLoaded){
+  }else if(namesLoaded){
     status(
       'Private messages ready. Loaded '+
       conversationNames.size+
@@ -305,8 +398,7 @@ async function loadConversations(preferredId=null){
   if(preferredId){
     await openConversation(preferredId);
   }else if(activeConversationId){
-    const exists=conversations.some(c=>c.id===activeConversationId);
-    if(exists)renderConversations();
+    renderConversations();
   }
 }
 
@@ -314,7 +406,8 @@ function renderConversations(){
   const box=$('conversationList');
 
   if(!conversations.length){
-    box.innerHTML='<div class="empty">No conversations yet. Choose a public member above to start one.</div>';
+    box.innerHTML=
+      '<div class="empty">No conversations yet. Choose a public member above to start one.</div>';
     return;
   }
 
@@ -324,17 +417,17 @@ function renderConversations(){
     const name=nameFor(id);
     const active=c.id===activeConversationId?' active':'';
 
-    const displayProfile={
-      display_name:name,
-      avatar_url:p.avatar_url||''
-    };
-
-    return '<button type="button" class="conversation'+active+'" data-id="'+safe(c.id)+'">'+
-      '<span class="avatar">'+avatarHtml(displayProfile)+'</span>'+
+    return '<button type="button" class="conversation'+active+
+      '" data-id="'+safe(c.id)+'">'+
+      '<span class="avatar">'+avatarHtml({
+        display_name:name,
+        avatar_url:p.avatar_url||''
+      })+'</span>'+
       '<span class="conversation-info">'+
       '<span class="conversation-name">'+safe(name)+'</span>'+
-      '<div class="conversation-preview">'+safe(shortDate(c.last_message_at||c.created_at))+'</div>'+
-      '</span></button>';
+      '<div class="conversation-preview">'+
+      safe(shortDate(c.last_message_at||c.created_at))+
+      '</div></span></button>';
   }).join('');
 }
 
@@ -352,7 +445,8 @@ async function openConversation(id){
   $('chatTitle').textContent=nameFor(recipientId);
 
   if(profiles.has(recipientId)){
-    $('profileLink').href='profile.html?id='+encodeURIComponent(recipientId);
+    $('profileLink').href=
+      'profile.html?id='+encodeURIComponent(recipientId);
     $('profileLink').classList.remove('hidden');
   }else{
     $('profileLink').removeAttribute('href');
@@ -361,15 +455,18 @@ async function openConversation(id){
 
   $('messenger').classList.add('chat-open');
   $('messageForm').classList.remove('hidden');
-
   renderConversations();
 
-  $('messages').innerHTML='<div class="empty">Loading messages...</div>';
+  $('messages').innerHTML=
+    '<div class="empty">Loading messages...</div>';
 
   try{
     const {data,error}=await client
       .from('member_messages')
-      .select('id,conversation_id,sender_id,body,created_at,read_at')
+      .select(
+        'id,conversation_id,sender_id,body,created_at,read_at,'+
+        'attachment_path,attachment_name,attachment_type,attachment_size'
+      )
       .eq('conversation_id',id)
       .order('created_at',{ascending:true})
       .limit(200);
@@ -377,34 +474,92 @@ async function openConversation(id){
     if(error)throw error;
     if(activeConversationId!==id)return;
 
-    renderMessages(data||[]);
+    await renderMessages(data||[],id);
     updateNameStatus();
-
     await markRead(id);
 
   }catch(error){
     console.error(error);
-    $('messages').innerHTML='<div class="empty">Unable to load messages.</div>';
+    $('messages').innerHTML=
+      '<div class="empty">Unable to load messages.</div>';
     status('Could not open conversation: '+error.message,'error');
   }
 }
 
-function renderMessages(rows){
+async function renderMessages(rows,conversationId){
   const box=$('messages');
+  clearAttachmentUrls();
 
   if(!rows.length){
-    box.innerHTML='<div class="empty">No messages yet. Start the conversation.</div>';
+    box.innerHTML=
+      '<div class="empty">No messages yet. Start the conversation.</div>';
     return;
   }
 
-  box.innerHTML=rows.map(m=>{
-    const mine=m.sender_id===currentUser.id?' mine':'';
-    return '<div class="bubble'+mine+'">'+
-      safe(m.body)+
-      '<div class="timestamp">'+safe(shortDate(m.created_at))+'</div>'+
-      '</div>';
-  }).join('');
+  const output=[];
 
+  for(const m of rows){
+    const mine=m.sender_id===currentUser.id?' mine':'';
+    let attachmentHtml='';
+
+    if(m.attachment_path){
+      const expectedPrefix=
+        conversationId+'/'+m.sender_id+'/';
+
+      if(!m.attachment_path.startsWith(expectedPrefix)){
+        attachmentHtml=
+          '<div class="attachment-error">Invalid attachment path.</div>';
+      }else{
+        const {data,error}=await client.storage
+          .from(BUCKET)
+          .createSignedUrl(m.attachment_path,3600);
+
+        if(error||!data?.signedUrl){
+          attachmentHtml=
+            '<div class="attachment-error">Attachment unavailable.</div>';
+        }else{
+          const url=data.signedUrl;
+          const type=m.attachment_type||'';
+          const name=m.attachment_name||'Attachment';
+
+          attachmentHtml='<div class="attachment">';
+
+          if(type.startsWith('image/')){
+            attachmentHtml+=
+              '<a href="'+safe(url)+'" target="_blank" rel="noopener noreferrer">'+
+              '<img src="'+safe(url)+'" alt="'+safe(name)+'" loading="lazy"></a>';
+          }else if(type.startsWith('audio/')){
+            attachmentHtml+=
+              '<audio controls preload="none" src="'+safe(url)+'"></audio>';
+          }else if(type.startsWith('video/')){
+            attachmentHtml+=
+              '<video controls preload="none" src="'+safe(url)+'"></video>';
+          }
+
+          attachmentHtml+=
+            '<a class="attachment-link" href="'+safe(url)+
+            '" target="_blank" rel="noopener noreferrer">'+
+            'Open '+safe(name)+
+            (m.attachment_size
+              ?' ('+safe(formatSize(m.attachment_size))+')'
+              :'')+
+            '</a></div>';
+        }
+      }
+    }
+
+    output.push(
+      '<div class="bubble'+mine+'">'+
+      (m.body?safe(m.body):'')+
+      attachmentHtml+
+      '<div class="timestamp">'+safe(shortDate(m.created_at))+
+      '</div></div>'
+    );
+  }
+
+  if(activeConversationId!==conversationId)return;
+
+  box.innerHTML=output.join('');
   box.scrollTop=box.scrollHeight;
 }
 
@@ -473,37 +628,114 @@ async function findOrCreateConversation(targetId){
   return data;
 }
 
+function makeFilePath(file,conversationId){
+  const extension=
+    (file.name.split('.').pop()||'bin')
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g,'')
+      .slice(0,12)||'bin';
+
+  return conversationId+'/'+currentUser.id+'/'+
+    crypto.randomUUID()+'.'+extension;
+}
+
 async function sendMessage(event){
   event.preventDefault();
-  if(!activeConversationId)return;
 
+  if(!activeConversationId||sending)return;
+
+  const conversationId=activeConversationId;
   const body=$('messageBody').value.trim();
-  if(!body)return;
+  const file=selectedFile();
 
-  const button=$('sendButton');
-  button.disabled=true;
+  if(!body&&!file){
+    status('Write a message or attach a file.','error');
+    return;
+  }
+
+  if(file&&file.size>MAX_FILE){
+    status('File exceeds the 50 MB limit.','error');
+    return;
+  }
+
+  sending=true;
+  $('sendButton').disabled=true;
+
+  let uploadedPath=null;
 
   try{
+    const payload={
+      conversation_id:conversationId,
+      sender_id:currentUser.id,
+      body
+    };
+
+    if(file){
+      status('Uploading attachment...');
+
+      $('uploadProgress').classList.remove('hidden');
+      $('uploadProgress').removeAttribute('value');
+
+      uploadedPath=makeFilePath(file,conversationId);
+
+      const {error:uploadError}=await client.storage
+        .from(BUCKET)
+        .upload(uploadedPath,file,{
+          cacheControl:'3600',
+          upsert:false,
+          contentType:file.type||'application/octet-stream'
+        });
+
+      if(uploadError)throw uploadError;
+
+      payload.attachment_path=uploadedPath;
+      payload.attachment_name=file.name.slice(0,255);
+      payload.attachment_type=
+        file.type||'application/octet-stream';
+      payload.attachment_size=file.size;
+    }
+
     const {error}=await client
       .from('member_messages')
-      .insert({
-        conversation_id:activeConversationId,
-        sender_id:currentUser.id,
-        body
-      });
+      .insert(payload);
 
     if(error)throw error;
 
+    uploadedPath=null;
+
     $('messageBody').value='';
-    await openConversation(activeConversationId);
+    clearSelectedFile();
+
+    await openConversation(conversationId);
     await loadConversations();
+
     status('Message sent.','success');
 
   }catch(error){
     console.error(error);
-    status('Message could not send: '+error.message,'error');
+
+    if(uploadedPath){
+      const {error:cleanupError}=await client.storage
+        .from(BUCKET)
+        .remove([uploadedPath]);
+
+      if(cleanupError){
+        console.warn(
+          'Attachment cleanup failed:',
+          cleanupError.message
+        );
+      }
+    }
+
+    status(
+      'Message or attachment could not send: '+
+      (error.message||String(error)),
+      'error'
+    );
   }finally{
-    button.disabled=false;
+    sending=false;
+    $('sendButton').disabled=false;
+    $('uploadProgress').classList.add('hidden');
   }
 }
 
@@ -523,7 +755,6 @@ async function startConversation(event){
       'messages.html?conversation='+
       encodeURIComponent(conversation.id)
     );
-
   }catch(error){
     status('Could not start conversation: '+error.message,'error');
   }
@@ -551,7 +782,9 @@ function subscribe(){
 
 async function initialize(){
   try{
-    if(!client)throw new Error('Supabase library unavailable.');
+    if(!client){
+      throw new Error('Supabase library unavailable.');
+    }
 
     const {data,error}=await client.auth.getSession();
     if(error)throw error;
@@ -585,7 +818,10 @@ async function initialize(){
         const conversation=await findOrCreateConversation(target);
         await loadConversations(conversation.id);
       }catch(error){
-        status('Could not open requested member: '+error.message,'error');
+        status(
+          'Could not open requested member: '+error.message,
+          'error'
+        );
       }
     }else{
       updateNameStatus();
@@ -616,12 +852,31 @@ $('conversationList').addEventListener('click',event=>{
 $('backButton').addEventListener('click',()=>{
   $('messenger').classList.remove('chat-open');
   activeConversationId=null;
+  clearAttachmentUrls();
+  clearSelectedFile();
   renderConversations();
   history.replaceState({},'','messages.html');
 });
 
-$('newChat').addEventListener('submit',startConversation);
-$('messageForm').addEventListener('submit',sendMessage);
+$('attachmentFile').addEventListener(
+  'change',
+  updateSelectedFile
+);
+
+$('removeFile').addEventListener(
+  'click',
+  clearSelectedFile
+);
+
+$('newChat').addEventListener(
+  'submit',
+  startConversation
+);
+
+$('messageForm').addEventListener(
+  'submit',
+  sendMessage
+);
 
 $('messageBody').addEventListener('keydown',event=>{
   if(event.key==='Enter'&&!event.shiftKey){
@@ -631,6 +886,7 @@ $('messageBody').addEventListener('keydown',event=>{
 });
 
 window.addEventListener('beforeunload',()=>{
+  clearAttachmentUrls();
   if(channel)client?.removeChannel(channel);
 });
 
