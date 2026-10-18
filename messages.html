@@ -78,6 +78,28 @@ footer{text-align:center;padding:30px;color:#999}
 .form-actions .button{min-width:100px}
 }
 </style>
+
+<style id="starrise-studio-button-fix">
+.sr-send-studio {
+  display: block !important;
+  width: 100%;
+  margin: 12px 0 6px;
+  padding: 13px 16px;
+  background: #ffffff;
+  color: #211439;
+  border: 2px solid #ffffff;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: center;
+}
+.sr-send-studio:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+</style>
+
 </head>
 <body>
 
@@ -528,17 +550,22 @@ async function renderMessages(rows,conversationId){
             attachmentHtml+=
               '<a href="'+safe(url)+'" target="_blank" rel="noopener noreferrer">'+
               '<img src="'+safe(url)+'" alt="'+safe(name)+'" loading="lazy"></a>';
-          }else if(type.startsWith('audio/')){
-            attachmentHtml+=
-              '<audio controls preload="none" src="'+safe(url)+'"></audio>';
-          
-        attachmentHtml +=
-          '<button type="button" class="sr-send-studio" ' +
-          'data-audio-path="' + safe(m.attachment_path) + '" ' +
-          'data-audio-name="' +
-          safe(m.attachment_name || 'Shared audio') + '">' +
-          'Send to Studio</button>';
-    }else if(type.startsWith('video/')){
+          }else if(
+  type.startsWith('audio/') ||
+  /\.(wav|mp3|m4a|ogg|flac|aac)$/i.test(name)
+){
+  attachmentHtml +=
+    '<audio controls preload="metadata" src="' +
+    safe(url) + '"></audio>';
+
+  attachmentHtml +=
+    '<button type="button" class="sr-send-studio" ' +
+    'data-audio-path="' +
+    safe(m.attachment_path) + '" ' +
+    'data-audio-name="' +
+    safe(name) + '">' +
+    'Send to Studio Pro</button>';
+}else if(type.startsWith('video/')){
             attachmentHtml+=
               '<video controls preload="none" src="'+safe(url)+'"></video>';
           }
