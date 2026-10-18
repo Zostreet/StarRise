@@ -159,6 +159,7 @@ const client=window.supabase
 let currentUser=null;
 let conversations=[];
 let profiles=new Map();
+let conversationNames=new Map();
 let activeConversationId=null;
 let channel=null;
 
@@ -189,7 +190,7 @@ function profileFor(id){
 }
 
 function nameFor(id){
-  return profileFor(id).display_name||'StarRise Member';
+  return conversationNames.get(id)||profileFor(id).display_name||'StarRise Member';
 }
 
 function otherId(c){
@@ -241,6 +242,7 @@ async function loadConversations(preferredId=null){
 
   conversations=data||[];
 
+  await loadConversationNames();
   renderConversations();
 
   if(preferredId){
@@ -249,6 +251,15 @@ async function loadConversations(preferredId=null){
     const exists=conversations.some(c=>c.id===activeConversationId);
     if(exists)renderConversations();
   }
+}
+
+async function loadConversationNames(){
+  const {data,error}=await client.rpc('get_conversation_member_names');
+  if(error){
+    console.warn('Conversation names unavailable:',error.message);
+    return;
+  }
+  conversationNames=new Map((data||[]).map(p=>[p.member_id,p.messaging_name]));
 }
 
 function renderConversations(){
