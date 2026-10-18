@@ -1,5 +1,5 @@
 
-name: Connect Messages to Studio
+name: Fix StarRise Messages to Studio
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 jobs:
-  connect:
+  fix:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,260 +17,118 @@ jobs:
         with:
           ref: main
 
-      - name: Install complete Messages and Studio integration
+      - name: Repair Messages to Studio
         shell: bash
         run: |
-          cat > /tmp/connect_studio.py <<'PY'
+          cat > /tmp/fix_starrise.py <<'PY'
+          from pathlib import Path
+
+          path = Path("messages.html")
+          html = path.read_text(encoding="utf-8")
+
+          # Give the existing button a clear mobile-friendly style.
+          css = """
+          <style id="starrise-studio-button-fix">
+          .sr-send-studio {
+            display: block !important;
+            width: 100%;
+            margin: 12px 0 6px;
+            padding: 13px 16px;
+            background: #ffffff;
+            color: #211439;
+            border: 2px solid #ffffff;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+          }
+          .sr-send-studio:disabled {
+            opacity: .6;
+            cursor: wait;
+          }
+          </style>
+          """
+
+          if 'id="starrise-studio-button-fix"' not in html:
+              html = html.replace("</head>", css + "\n</head>", 1)
+
+          # Fix the existing button's placement.
+          start = html.find("          }else if(type.startsWith('audio/')){")
+          end = html.find("}else if(type.startsWith('video/')){", start)
+
+          if start < 0 or end < 0:
+              raise RuntimeError("Audio renderer was not found.")
+
+          replacement = """          }else if(
+            type.startsWith('audio/') ||
+            /\\.(wav|mp3|m4a|ogg|flac|aac)$/i.test(name)
+          ){
+            attachmentHtml +=
+              '<audio controls preload="metadata" src="' +
+              safe(url) + '"></audio>';
+
+            attachmentHtml +=
+              '<button type="button" class="sr-send-studio" ' +
+              'data-audio-path="' +
+              safe(m.attachment_path) + '" ' +
+              'data-audio-name="' +
+              safe(name) + '">' +
+              'Send to Studio Pro</button>';
+          """
+
+          html = html[:start] + replacement + html[end:]
+
+          # Ensure the download uses the existing private bucket.
+          if "STARRISE_STUDIO_TRANSFER_HANDLER" not in html:
+              raise RuntimeError(
+                  "Private audio transfer handler is missing."
+              )
+
+          path.write_text(html, encoding="utf-8")
+
+          studio = Path("studio.html").read_text(encoding="utf-8")
+
+          if "STARRISE_STUDIO_TRANSFER_IMPORT" not in studio:
+              raise RuntimeError(
+                  "Studio import handler is missing."
+              )
+
+          print("Audio button repaired.")
+          print("Private transfer handler confirmed.")
+          print("Studio import handler confirmed.")
+          PY
+
+          python /tmp/fix_starrise.py
+
+      - name: Validate JavaScript
+        shell: bash
+        run: |
+          python - <<'PY'
           from pathlib import Path
           import re
 
-          messages_path = Path("messages.html")
-          studio_path = Path("studio.html")
-
-          messages = messages_path.read_text(encoding="utf-8")
-          studio = studio_path.read_text(encoding="utf-8")
-
-          # Add a Send to Studio button to audio attachments.
-          if 'class="sr-send-studio"' not in messages:
-              pattern = (
-                  r"(else if\(type\.startsWith\('audio/'\)\)\{)"
-                  r"(.*?)"
-                  r"(\}\s*else if\(type\.startsWith\('video/'\)\))"
+          for filename in ("messages.html", "studio.html"):
+              html = Path(filename).read_text(encoding="utf-8")
+              scripts = re.findall(
+                  r"<script(?:\s[^>]*)?>([\s\S]*?)</script>",
+                  html,
+                  re.I
               )
-
-              match = re.search(pattern, messages, re.S)
-              if not match:
-                  raise RuntimeError(
-                      "Audio attachment renderer not found. "
-                      "No files were changed."
+              for index, script in enumerate(scripts):
+                  if not script.strip():
+                      continue
+                  filename_js = f"/tmp/{filename}-{index}.js"
+                  Path(filename_js).write_text(script)
+                  import subprocess
+                  subprocess.run(
+                      ["node", "--check", filename_js],
+                      check=True
                   )
-
-              audio_branch = match.group(2)
-
-              audio_branch += """
-                  attachmentHtml +=
-                    '<button type="button" class="sr-send-studio" ' +
-                    'data-audio-path="' + safe(m.attachment_path) + '" ' +
-                    'data-audio-name="' +
-                    safe(m.attachment_name || 'Shared audio') + '">' +
-                    'Send to Studio</button>';
-              """
-
-              messages = (
-                  messages[:match.start(2)]
-                  + audio_branch
-                  + messages[match.end(2):]
-              )
-
-          # Store the audio in IndexedDB before opening Studio.
-          if "STARRISE_STUDIO_TRANSFER_HANDLER" not in messages:
-              handler = r"""
-          // STARRISE_STUDIO_TRANSFER_HANDLER
-          document.addEventListener("click", async function(event) {
-            const button = event.target.closest(".sr-send-studio");
-            if (!button) return;
-
-            const path = button.dataset.audioPath;
-            const name = button.dataset.audioName || "Shared audio";
-
-            if (!path) {
-              alert("Audio attachment not found.");
-              return;
-            }
-
-            if (
-              typeof activeConversationId !== "undefined" &&
-              activeConversationId &&
-              !path.startsWith(activeConversationId + "/")
-            ) {
-              alert("This attachment is not in the active conversation.");
-              return;
-            }
-
-            button.disabled = true;
-            const previousText = button.textContent;
-            button.textContent = "Sending...";
-
-            try {
-              const { data, error } = await client.storage
-                .from("message-attachments")
-                .download(path);
-
-              if (error) throw error;
-              if (!data) throw new Error("Audio download failed.");
-
-              const bytes = await data.arrayBuffer();
-
-              const db = await new Promise((resolve, reject) => {
-                const request = indexedDB.open(
-                  "starrise-studio-transfer", 1
-                );
-
-                request.onupgradeneeded = () => {
-                  const database = request.result;
-                  if (!database.objectStoreNames.contains("audio")) {
-                    database.createObjectStore("audio");
-                  }
-                };
-
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-              });
-
-              await new Promise((resolve, reject) => {
-                const tx = db.transaction("audio", "readwrite");
-                tx.objectStore("audio").put(
-                  {
-                    name,
-                    bytes,
-                    createdAt: Date.now()
-                  },
-                  "incoming"
-                );
-
-                tx.oncomplete = resolve;
-                tx.onerror = () => reject(tx.error);
-                tx.onabort = () => reject(tx.error);
-              });
-
-              db.close();
-              location.href = "studio.html?import=message";
-
-            } catch (error) {
-              console.error("Send to Studio failed:", error);
-              alert(
-                "Unable to send audio to Studio: " +
-                (error.message || error)
-              );
-              button.disabled = false;
-              button.textContent = previousText;
-            }
-          });
-          """
-
-              marker = "initialize();\n\n})();"
-
-              if marker not in messages:
-                  raise RuntimeError(
-                      "Messaging initialization marker not found."
-                  )
-
-              messages = messages.replace(
-                  marker,
-                  handler + "\n" + marker,
-                  1
-              )
-
-          # Import the transferred audio as a real Studio track.
-          if "STARRISE_STUDIO_TRANSFER_IMPORT" not in studio:
-              importer = r"""
-          // STARRISE_STUDIO_TRANSFER_IMPORT
-          async function importSharedMessageAudio() {
-            const params = new URLSearchParams(location.search);
-            if (params.get("import") !== "message") return;
-
-            try {
-              const db = await new Promise((resolve, reject) => {
-                const request = indexedDB.open(
-                  "starrise-studio-transfer", 1
-                );
-
-                request.onupgradeneeded = () => {
-                  const database = request.result;
-                  if (!database.objectStoreNames.contains("audio")) {
-                    database.createObjectStore("audio");
-                  }
-                };
-
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-              });
-
-              const item = await new Promise((resolve, reject) => {
-                const tx = db.transaction("audio", "readonly");
-                const request = tx.objectStore("audio").get("incoming");
-
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-              });
-
-              if (!item || !item.bytes) {
-                throw new Error("No shared audio was found.");
-              }
-
-              const ac = await ready();
-              const buffer = await ac.decodeAudioData(
-                item.bytes.slice(0)
-              );
-
-              makeTrack(
-                item.name || "Shared audio",
-                buffer,
-                "audio"
-              );
-
-              await new Promise((resolve, reject) => {
-                const tx = db.transaction("audio", "readwrite");
-                tx.objectStore("audio").delete("incoming");
-
-                tx.oncomplete = resolve;
-                tx.onerror = () => reject(tx.error);
-                tx.onabort = () => reject(tx.error);
-              });
-
-              db.close();
-
-              history.replaceState(
-                null,
-                "",
-                location.pathname
-              );
-
-              status("Shared audio imported into Studio.");
-
-            } catch (error) {
-              console.error("Studio import failed:", error);
-              status(
-                "Shared audio import failed: " +
-                (error.message || error)
-              );
-            }
-          }
-
-          if (
-            new URLSearchParams(location.search)
-              .get("import") === "message"
-          ) {
-            setTimeout(importSharedMessageAudio, 250);
-          }
-          """
-
-              marker = '$("audioUpload").onchange=async event=>{'
-
-              if marker not in studio:
-                  raise RuntimeError(
-                      "Studio audio upload handler not found."
-                  )
-
-              studio = studio.replace(
-                  marker,
-                  importer + "\n" + marker,
-                  1
-              )
-
-          messages_path.write_text(
-              messages, encoding="utf-8"
-          )
-          studio_path.write_text(
-              studio, encoding="utf-8"
-          )
-
-          print("Messages and Studio integration installed.")
+              print(filename, "JavaScript validated")
           PY
 
-          python /tmp/connect_studio.py
-
-      - name: Commit complete replacement files
+      - name: Publish repaired files
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
@@ -279,8 +137,8 @@ jobs:
           git add messages.html studio.html
 
           if git diff --cached --quiet; then
-            echo "No changes required."
+            echo "No changes needed."
           else
-            git commit -m "Connect private audio messages to Studio Pro"
+            git commit -m "Fix Send to Studio audio button"
             git push origin HEAD:main
           fi
