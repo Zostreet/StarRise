@@ -162,6 +162,8 @@ let profiles=new Map();
 let conversationNames=new Map();
 let activeConversationId=null;
 let channel=null;
+let nameLookupError='';
+let namesLoaded=false;
 
 function status(text,type=''){
   $('status').textContent=text;
@@ -190,7 +192,10 @@ function profileFor(id){
 }
 
 function nameFor(id){
-  return conversationNames.get(id)||profileFor(id).display_name||'StarRise Member';
+  const key=String(id||'').toLowerCase();
+  return conversationNames.get(key)
+    ||profileFor(id).display_name
+    ||'StarRise Member';
 }
 
 function otherId(c){
@@ -231,6 +236,61 @@ async function loadPublicProfiles(){
     });
 }
 
+async function loadConversationNames(){
+  namesLoaded=false;
+  nameLookupError='';
+
+  try{
+    const {data,error}=await client.rpc(
+      'get_conversation_member_names'
+    );
+
+    if(error)throw error;
+
+    if(!Array.isArray(data)){
+      throw new Error('Unexpected member-name response.');
+    }
+
+    conversationNames=new Map(
+      data
+        .filter(p=>p&&p.member_id)
+        .map(p=>[
+          String(p.member_id).toLowerCase(),
+          String(p.messaging_name||'StarRise Member').trim()
+        ])
+    );
+
+    namesLoaded=true;
+
+    if(conversations.length && !conversationNames.size){
+      nameLookupError=
+        'Name lookup returned no members for this session.';
+    }
+
+  }catch(error){
+    console.error('Member name lookup failed:',error);
+    nameLookupError=error.message||String(error);
+  }
+
+  updateNameStatus();
+}
+
+function updateNameStatus(){
+  if(nameLookupError){
+    status('Member-name error: '+nameLookupError,'error');
+    return;
+  }
+
+  if(namesLoaded){
+    status(
+      'Private messages ready. Loaded '+
+      conversationNames.size+
+      ' member names.',
+      'success'
+    );
+  }
+}
+
 async function loadConversations(preferredId=null){
   const {data,error}=await client
     .from('member_conversations')
@@ -253,15 +313,6 @@ async function loadConversations(preferredId=null){
   }
 }
 
-async function loadConversationNames(){
-  const {data,error}=await client.rpc('get_conversation_member_names');
-  if(error){
-    console.warn('Conversation names unavailable:',error.message);
-    return;
-  }
-  conversationNames=new Map((data||[]).map(p=>[p.member_id,p.messaging_name]));
-}
-
 function renderConversations(){
   const box=$('conversationList');
 
@@ -273,12 +324,18 @@ function renderConversations(){
   box.innerHTML=conversations.map(c=>{
     const id=otherId(c);
     const p=profileFor(id);
+    const name=nameFor(id);
     const active=c.id===activeConversationId?' active':'';
 
+    const displayProfile={
+      display_name:name,
+      avatar_url:p.avatar_url||''
+    };
+
     return '<button type="button" class="conversation'+active+'" data-id="'+safe(c.id)+'">'+
-      '<span class="avatar">'+avatarHtml(p)+'</span>'+
+      '<span class="avatar">'+avatarHtml(displayProfile)+'</span>'+
       '<span class="conversation-info">'+
-      '<span class="conversation-name">'+safe(nameFor(id))+'</span>'+
+      '<span class="conversation-name">'+safe(name)+'</span>'+
       '<div class="conversation-preview">'+safe(shortDate(c.last_message_at||c.created_at))+'</div>'+
       '</span></button>';
   }).join('');
@@ -296,7 +353,6 @@ async function openConversation(id){
 
   $('chatTitle').textContent=nameFor(recipientId);
 
-  // Only link to profiles confirmed as public.
   if(profiles.has(recipientId)){
     $('profileLink').href='profile.html?id='+encodeURIComponent(recipientId);
     $('profileLink').classList.remove('hidden');
@@ -325,7 +381,7 @@ async function openConversation(id){
     if(activeConversationId!==id)return;
 
     renderMessages(data||[]);
-    status('Conversation opened.','success');
+    updateNameStatus();
 
     markRead(id).catch(console.error);
 
@@ -512,7 +568,7 @@ async function initialize(){
         status('Could not open requested member: '+error.message,'error');
       }
     }else{
-      status('Private messages are ready.','success');
+      updateNameStatus();
     }
 
     subscribe();
