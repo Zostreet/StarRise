@@ -1,0 +1,289 @@
+
+name: Connect Messages to Studio
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout StarRise
+        uses: actions/checkout@v4
+
+      - name: Connect audio messages to Studio Pro
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          messages = Path("messages.html")
+          studio = Path("studio.html")
+
+          if not messages.exists() or not studio.exists():
+              raise SystemExit("Required StarRise files not found.")
+
+          m = messages.read_text(encoding="utf-8")
+          s = studio.read_text(encoding="utf-8")
+
+          marker = "sr-send-studio"
+
+          if marker not in m:
+              old = """'Open '+safe(name)+
+            (m.attachment_size
+              ?' ('+safe(formatSize(m.attachment_size))+')'
+              :'')+
+            '</a></div>';"""
+
+              new = """'Open '+safe(name)+
+            (m.attachment_size
+              ?' ('+safe(formatSize(m.attachment_size))+')'
+              :'')+
+            '</a>'+
+            (type.startsWith('audio/')
+              ? '<button type="button" class="sr-send-studio" '+
+                'data-audio-path="'+safe(m.attachment_path)+'" '+
+                'data-audio-name="'+safe(name)+'" '+
+                'style="display:block;margin-top:10px;padding:10px;border-radius:8px;background:#7950c9;color:white;border:0;font-weight:bold">'+
+                'Send to Studio</button>'
+              : '')+
+            '</div>';"""
+
+              if old not in m:
+                  raise SystemExit(
+                      "Attachment renderer changed. No files modified."
+                  )
+
+              m = m.replace(old, new, 1)
+
+          if "starrise-studio-incoming-audio" not in m:
+              anchor = "initialize();\n\n})();"
+
+              handler = """
+          $('messages').addEventListener('click', async event => {
+            const button = event.target.closest('.sr-send-studio');
+            if (!button) return;
+
+            button.disabled = true;
+            button.textContent = 'Preparing audio...';
+
+            try {
+              const path = button.dataset.audioPath;
+              const name = button.dataset.audioName;
+
+              if (!activeConversationId ||
+                  !path.startsWith(activeConversationId + '/')) {
+                throw new Error('Invalid audio attachment.');
+              }
+
+              const result = await client.storage
+                .from(BUCKET)
+                .download(path);
+
+              if (result.error) throw result.error;
+
+              const blob = result.data;
+
+              if (blob.size > 50 * 1024 * 1024) {
+                throw new Error('Audio exceeds the 50 MB limit.');
+              }
+
+              const bytes = await blob.arrayBuffer();
+
+              const request = indexedDB.open(
+                'starrise-studio-transfer',
+                1
+              );
+
+              request.onupgradeneeded = () => {
+                if (!request.result.objectStoreNames.contains('audio')) {
+                  request.result.createObjectStore('audio');
+                }
+              };
+
+              request.onerror = () => {
+                status('Could not open local audio transfer storage.', 'error');
+                button.disabled = false;
+                button.textContent = 'Send to Studio';
+              };
+
+              request.onsuccess = () => {
+                const db = request.result;
+                const tx = db.transaction('audio', 'readwrite');
+
+                tx.objectStore('audio').put(
+                  { name, bytes, created: Date.now() },
+                  'incoming'
+                );
+
+                tx.oncomplete = () => {
+                  db.close();
+                  location.href = 'studio.html?import=message';
+                };
+
+                tx.onerror = () => {
+                  db.close();
+                  status('Audio transfer could not be saved.', 'error');
+                  button.disabled = false;
+                  button.textContent = 'Send to Studio';
+                };
+              };
+
+            } catch (error) {
+              status('Send to Studio failed: ' + error.message, 'error');
+              button.disabled = false;
+              button.textContent = 'Send to Studio';
+            }
+          });
+
+          """
+
+              if anchor not in m:
+                  raise SystemExit(
+                      "Messages initialization changed. No files modified."
+                  )
+
+              m = m.replace(anchor, handler + anchor, 1)
+
+          studio_marker = "StarRise Message Audio Import"
+
+          if studio_marker not in s:
+              anchor = '$("audioUpload").onchange=async event=>{'
+
+              importer = """
+          /* StarRise Message Audio Import */
+          async function importMessageAudio() {
+            if (
+              new URLSearchParams(location.search).get('import')
+              !== 'message'
+            ) return;
+
+            try {
+              const request = indexedDB.open(
+                'starrise-studio-transfer',
+                1
+              );
+
+              request.onerror = () => {
+                status('Unable to open transferred audio.');
+              };
+
+              request.onsuccess = async () => {
+                const db = request.result;
+
+                if (!db.objectStoreNames.contains('audio')) {
+                  db.close();
+                  status('No shared audio found.');
+                  return;
+                }
+
+                const tx = db.transaction('audio', 'readonly');
+                const get = tx.objectStore('audio').get('incoming');
+
+                get.onsuccess = async () => {
+                  const item = get.result;
+                  db.close();
+
+                  if (!item ||
+                      Date.now() - item.created > 300000) {
+                    status('Audio transfer expired. Try again.');
+                    return;
+                  }
+
+                  try {
+                    const ac = await ready();
+
+                    const buffer = await ac.decodeAudioData(
+                      item.bytes.slice(0)
+                    );
+
+                    makeTrack(
+                      item.name || 'Shared audio',
+                      buffer,
+                      'audio'
+                    );
+
+                    document.querySelector(
+                      '[data-tab="record"]'
+                    )?.click();
+
+                    status(
+                      'Imported ' + item.name +
+                      ' into Studio Pro.'
+                    );
+
+                    const cleanup = indexedDB.open(
+                      'starrise-studio-transfer',
+                      1
+                    );
+
+                    cleanup.onsuccess = () => {
+                      const database = cleanup.result;
+                      const transaction = database.transaction(
+                        'audio',
+                        'readwrite'
+                      );
+                      transaction.objectStore('audio')
+                        .delete('incoming');
+                      transaction.oncomplete = () => database.close();
+                    };
+
+                    history.replaceState(
+                      null,
+                      '',
+                      location.pathname
+                    );
+
+                  } catch (error) {
+                    status(
+                      'Audio import failed: ' + error.message
+                    );
+                  }
+                };
+              };
+
+            } catch (error) {
+              status('Audio transfer failed: ' + error.message);
+            }
+          }
+
+          if (document.readyState === 'loading') {
+            document.addEventListener(
+              'DOMContentLoaded',
+              importMessageAudio,
+              { once: true }
+            );
+          } else {
+            importMessageAudio();
+          }
+
+          """
+
+              if anchor not in s:
+                  raise SystemExit(
+                      "Studio audio importer changed. No files modified."
+                  )
+
+              s = s.replace(anchor, importer + anchor, 1)
+
+          messages.write_text(m, encoding="utf-8")
+          studio.write_text(s, encoding="utf-8")
+
+          print("StarRise integration prepared.")
+          PY
+
+      - name: Commit integration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add messages.html studio.html
+          if git diff --cached --quiet; then
+            echo "Integration already present."
+          else
+            git commit -m "Connect private audio messages to Studio Pro"
+            git push
+          fi
