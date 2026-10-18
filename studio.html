@@ -2424,5 +2424,397 @@ renderTracks();
 </script>
 <!-- End StarRise Vocal Pitch Detection -->
 
+<!-- StarRise Studio Pro: Pitch Correction Phase 1 -->
+<style>
+#srTunePanel {
+  background:#29243e;
+  border:1px solid #655879;
+  border-radius:12px;
+  padding:16px;
+  margin:14px 0;
+}
+#srTunePanel h3 {margin-top:0}
+#srTunePanel select,
+#srTunePanel input[type="range"] {
+  width:100%;
+  max-width:420px;
+}
+#srTunePanel label {
+  display:block;
+  margin:12px 0;
+}
+#srTuneStatus {
+  background:#141125;
+  padding:12px;
+  border-radius:8px;
+  margin-top:12px;
+}
+</style>
+
+<script>
+(() => {
+  "use strict";
+
+  if (document.getElementById("srTunePanel")) return;
+  if (typeof tracks === "undefined" ||
+      typeof makeTrack !== "function") return;
+
+  const host = document.getElementById("srPitchPanel");
+  if (!host) return;
+
+  const panel = document.createElement("section");
+  panel.id = "srTunePanel";
+
+  panel.innerHTML = `
+    <h3>StarRise Vocal Tuning Lab</h3>
+    <p>Experimental pitch correction for a sustained
+    vocal note. Creates a new track and keeps your
+    original recording unchanged.</p>
+
+    <label>Vocal recording
+      <select id="srTuneTrack"></select>
+    </label>
+
+    <label>Musical key
+      <select id="srTuneKey"></select>
+    </label>
+
+    <label>Scale
+      <select id="srTuneScale">
+        <option value="chromatic">Chromatic</option>
+        <option value="major">Major</option>
+        <option value="minor">Natural Minor</option>
+      </select>
+    </label>
+
+    <label>Correction strength:
+      <strong id="srTuneAmountText">100%</strong>
+      <input id="srTuneAmount" type="range"
+             min="0" max="100" value="100">
+    </label>
+
+    <div class="toolbar">
+      <button type="button" id="srTuneApply">
+        Create Tuned Take
+      </button>
+      <button type="button" id="srTuneRefresh"
+              class="secondary">
+        Refresh Tracks
+      </button>
+    </div>
+
+    <p id="srTuneStatus" role="status">
+      Select a sustained vocal note to begin.
+    </p>
+  `;
+
+  host.insertAdjacentElement("afterend", panel);
+
+  const $t = id => panel.querySelector("#" + id);
+  const trackSelect = $t("srTuneTrack");
+  const keySelect = $t("srTuneKey");
+  const statusBox = $t("srTuneStatus");
+  const applyButton = $t("srTuneApply");
+
+  const notes = [
+    "C","C#","D","D#","E","F",
+    "F#","G","G#","A","A#","B"
+  ];
+
+  const scales = {
+    chromatic:[0,1,2,3,4,5,6,7,8,9,10,11],
+    major:[0,2,4,5,7,9,11],
+    minor:[0,2,3,5,7,8,10]
+  };
+
+  notes.forEach((name, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = name;
+    keySelect.append(option);
+  });
+
+  keySelect.value = "0";
+
+  function refresh() {
+    const previous = trackSelect.value;
+    trackSelect.replaceChildren();
+
+    const blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = "Choose vocal recording";
+    trackSelect.append(blank);
+
+    tracks.filter(t => t.type === "vocal" && t.buffer)
+      .forEach(track => {
+        const option = document.createElement("option");
+        option.value = String(track.id);
+        option.textContent = track.name;
+        trackSelect.append(option);
+      });
+
+    if ([...trackSelect.options].some(
+      option => option.value === previous
+    )) trackSelect.value = previous;
+  }
+
+  function detectPitch(data, rate) {
+    const size = Math.min(4096, data.length);
+    if (size < 1024) return null;
+
+    const samples = data.subarray(0, size);
+    let mean = 0, power = 0;
+
+    for (let i = 0; i < size; i++) mean += samples[i];
+    mean /= size;
+
+    const centered = new Float32Array(size);
+
+    for (let i = 0; i < size; i++) {
+      centered[i] = samples[i] - mean;
+      power += centered[i] * centered[i];
+    }
+
+    if (Math.sqrt(power / size) < 0.008) return null;
+
+    const minLag = Math.floor(rate / 1000);
+    const maxLag = Math.min(
+      Math.floor(rate / 65), size / 2
+    );
+
+    let bestLag = 0, bestScore = 0;
+
+    for (let lag = minLag; lag <= maxLag; lag++) {
+      let dot = 0, aa = 0, bb = 0;
+
+      for (let i = 0; i < size - lag; i++) {
+        const a = centered[i];
+        const b = centered[i + lag];
+        dot += a * b;
+        aa += a * a;
+        bb += b * b;
+      }
+
+      const score = dot / (Math.sqrt(aa * bb) || 1);
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestLag = lag;
+      }
+    }
+
+    return bestScore >= 0.82 && bestLag
+      ? rate / bestLag
+      : null;
+  }
+
+  function findDominantPitch(buffer) {
+    const data = buffer.getChannelData(0);
+    const rate = buffer.sampleRate;
+    const size = 4096;
+    const step = Math.max(size, Math.floor(rate * 0.12));
+    const results = [];
+
+    for (let pos = 0;
+         pos + size <= data.length && results.length < 80;
+         pos += step) {
+      const frequency = detectPitch(
+        data.subarray(pos, pos + size), rate
+      );
+      if (frequency) results.push(frequency);
+    }
+
+    if (!results.length) return null;
+
+    results.sort((a,b) => a-b);
+    return results[Math.floor(results.length / 2)];
+  }
+
+  function nearestScaleFrequency(frequency) {
+    const midi = 69 + 12 * Math.log2(frequency / 440);
+    const root = Number(keySelect.value);
+    const intervals = scales[$t("srTuneScale").value];
+
+    let nearest = null;
+    let distance = Infinity;
+
+    for (let note = 24; note <= 108; note++) {
+      const pitchClass = ((note - root) % 12 + 12) % 12;
+
+      if (!intervals.includes(pitchClass)) continue;
+
+      const difference = Math.abs(note - midi);
+
+      if (difference < distance) {
+        distance = difference;
+        nearest = note;
+      }
+    }
+
+    return nearest === null
+      ? frequency
+      : 440 * Math.pow(2, (nearest - 69) / 12);
+  }
+
+  function shiftBuffer(buffer, ratio) {
+    const length = buffer.length;
+    const rate = buffer.sampleRate;
+    const channels = buffer.numberOfChannels;
+
+    const output = new AudioBuffer({
+      length,
+      sampleRate:rate,
+      numberOfChannels:channels
+    });
+
+    // Granular overlap-add pitch shifting.
+    // Preserves approximate duration, but may introduce artifacts.
+    const grain = 2048;
+    const hop = 256;
+    const total = length;
+
+    for (let channel = 0; channel < channels; channel++) {
+      const input = buffer.getChannelData(channel);
+      const result = output.getChannelData(channel);
+      const weights = new Float32Array(total);
+
+      for (let position = 0;
+           position < total;
+           position += hop) {
+
+        for (let i = 0; i < grain; i++) {
+          const destination = position + i;
+          if (destination >= total) break;
+
+          const sourcePosition = position + i * ratio;
+          const index = Math.floor(sourcePosition);
+          const fraction = sourcePosition - index;
+
+          if (index < 0 || index + 1 >= total) continue;
+
+          const sample = input[index] * (1 - fraction)
+            + input[index + 1] * fraction;
+
+          const window = 0.5 -
+            0.5 * Math.cos(2 * Math.PI * i / (grain - 1));
+
+          result[destination] += sample * window;
+          weights[destination] += window;
+        }
+      }
+
+      for (let i = 0; i < total; i++) {
+        if (weights[i] > 0.00001) {
+          result[i] /= weights[i];
+        }
+      }
+    }
+
+    return output;
+  }
+
+  $t("srTuneAmount").addEventListener("input", () => {
+    $t("srTuneAmountText").textContent =
+      $t("srTuneAmount").value + "%";
+  });
+
+  $t("srTuneRefresh").addEventListener("click", refresh);
+
+  applyButton.addEventListener("click", async () => {
+    const id = Number(trackSelect.value);
+    const track = tracks.find(
+      t => t.id === id && t.type === "vocal"
+    );
+
+    if (!track) {
+      statusBox.textContent = "Choose a vocal recording.";
+      return;
+    }
+
+    if (typeof recording !== "undefined" && recording) {
+      statusBox.textContent =
+        "Stop recording before tuning.";
+      return;
+    }
+
+    if (typeof playing !== "undefined" && playing) {
+      statusBox.textContent =
+        "Stop playback before tuning.";
+      return;
+    }
+
+    applyButton.disabled = true;
+    statusBox.textContent = "Analyzing vocal...";
+
+    try {
+      // Yield so the status can appear on mobile.
+      await new Promise(resolve => setTimeout(resolve, 30));
+
+      const original = findDominantPitch(track.buffer);
+
+      if (!original) {
+        throw Error(
+          "No stable pitch found. Try one sustained note."
+        );
+      }
+
+      const target = nearestScaleFrequency(original);
+      const strength =
+        Number($t("srTuneAmount").value) / 100;
+
+      const ratio = Math.pow(target / original, strength);
+
+      if (!Number.isFinite(ratio) ||
+          ratio < 0.5 || ratio > 2) {
+        throw Error("Pitch shift is outside safe range.");
+      }
+
+      statusBox.textContent = "Creating tuned audio...";
+
+      await new Promise(resolve => setTimeout(resolve, 30));
+
+      const tuned = shiftBuffer(track.buffer, ratio);
+
+      const newTrack = makeTrack(
+        track.name + " (Tuned)",
+        tuned,
+        "vocal",
+        track.offset
+      );
+
+      newTrack.volume = track.volume;
+      newTrack.pan = track.pan;
+
+      // Mute original to avoid hearing two takes together.
+      track.mute = true;
+
+      if (typeof renderTracks === "function") {
+        renderTracks();
+      }
+
+      const cents = 1200 * Math.log2(ratio);
+
+      statusBox.textContent =
+        "Tuned take created. Pitch adjustment: " +
+        (cents >= 0 ? "+" : "") +
+        cents.toFixed(1) +
+        " cents. Original track muted, not deleted. " +
+        "Compare by switching track mute settings.";
+
+      refresh();
+
+    } catch (error) {
+      statusBox.textContent =
+        "Tuning failed: " + error.message;
+    } finally {
+      applyButton.disabled = false;
+    }
+  });
+
+  refresh();
+})();
+</script>
+<!-- End StarRise Pitch Correction Phase 1 -->
+
 </body>
 </html>
