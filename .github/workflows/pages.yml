@@ -1,3 +1,4 @@
+
 name: Validate and deploy StarRise
 
 on:
@@ -49,6 +50,7 @@ jobs:
 
   deploy:
     name: Deploy GitHub Pages
+
     needs:
       - validate
 
@@ -66,24 +68,58 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Only the public site belongs in the Pages artifact. Repository
-      # tooling, database migrations, edge functions, and internal business
-      # documents must never be served from the website.
-      - name: Stage public site files only
+      - name: Stage public StarRise website
         run: |
           set -euo pipefail
+
           rm -rf _site
           mkdir -p _site
-          find . -maxdepth 1 -type f -name '*.html' -exec cp {} _site/ \;
-          if [ -d css ]; then cp -r css _site/css; fi
-          for asset in starrise-brand.css starrise-logo.png; do
-            if [ -f "$asset" ]; then cp "$asset" _site/; fi
+
+          # Publish public HTML pages.
+          find . -maxdepth 1 -type f \
+            -name '*.html' \
+            -exec cp {} _site/ \;
+
+          # Publish only JavaScript files used by public pages.
+          # Exclude internal tests, build scripts, and server code.
+          for script in \
+            starrise-notifications.js \
+            starrise-payments.js \
+            starrise-auth.js \
+            starrise-brand.js
+          do
+            if [ -f "$script" ]; then
+              cp "$script" _site/
+            fi
           done
-          test -n "$(find _site -type f -print -quit)" || {
-            echo "No site files were staged; refusing to deploy." >&2
+
+          # Include public styles and logo.
+          if [ -d css ]; then
+            cp -r css _site/css
+          fi
+
+          for asset in \
+            starrise-brand.css \
+            starrise-logo.png
+          do
+            if [ -f "$asset" ]; then
+              cp "$asset" _site/
+            fi
+          done
+
+          # Verify the notification script is included.
+          test -f _site/starrise-notifications.js || {
+            echo "Notification script missing from deployment."
             exit 1
           }
-          echo "Staged $(find _site -type f | wc -l) site files:"
+
+          # Verify the website contains pages.
+          test -n "$(find _site -name '*.html' -print -quit)" || {
+            echo "No HTML pages staged."
+            exit 1
+          }
+
+          echo "StarRise deployment files:"
           find _site -type f | sort
 
       - name: Set up GitHub Pages
