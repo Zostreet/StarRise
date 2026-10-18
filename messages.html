@@ -284,8 +284,15 @@ async function openConversation(id){
   const recipientId=otherId(conversation);
 
   $('chatTitle').textContent=nameFor(recipientId);
-  $('profileLink').href='profile.html?id='+encodeURIComponent(recipientId);
-  $('profileLink').classList.remove('hidden');
+
+  // Only link to profiles confirmed as public.
+  if(profiles.has(recipientId)){
+    $('profileLink').href='profile.html?id='+encodeURIComponent(recipientId);
+    $('profileLink').classList.remove('hidden');
+  }else{
+    $('profileLink').removeAttribute('href');
+    $('profileLink').classList.add('hidden');
+  }
 
   $('messenger').classList.add('chat-open');
   $('messageForm').classList.remove('hidden');
