@@ -1,487 +1,538 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Private Messages | StarRise</title>
-  <meta name="description" content="Send private one-to-one messages to StarRise members.">
-  <style>
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;background:#080812;color:#fff;font-family:Arial,sans-serif;line-height:1.5}
-    a{color:inherit;text-decoration:none}
-    button,input,select,textarea{font:inherit}
-    header{padding:18px 24px;border-bottom:1px solid #ffffff18;display:flex;justify-content:space-between;align-items:center;gap:18px}
-    .logo{font-size:21px;font-weight:900}
-    nav{display:flex;flex-wrap:wrap;gap:16px}
-    nav a{color:#bbb;font-weight:800}
-    nav a:hover,nav a[aria-current="page"]{color:#fff}
-    main{width:min(1180px,calc(100% - 24px));margin:28px auto 65px}
-    .hero{margin-bottom:18px;padding:27px;border:1px solid #ffffff18;border-radius:22px;background:#ffffff08}
-    .hero h1{margin:0 0 7px;font-size:clamp(34px,6vw,52px)}
-    .muted{color:#aaa}
-    .small{font-size:13px}
-    .button{border:0;border-radius:23px;padding:10px 17px;background:#fff;color:#080812;font-weight:900;cursor:pointer}
-    .button.secondary{border:1px solid #ffffff2b;background:transparent;color:#fff}
-    .button:disabled{opacity:.55;cursor:wait}
-    .notice{padding:15px;margin-bottom:16px;border:1px solid #ffffff18;border-radius:15px;background:#ffffff08;color:#bbb;text-align:center}
-    .notice:empty{display:none}
-    .notice.error{color:#ffb5b5;background:rgba(200,50,50,.12)}
-    .notice.success{color:#baffca;background:rgba(50,180,90,.12)}
-    .signin{padding:40px;border:1px solid #ffffff18;border-radius:22px;background:#ffffff08;text-align:center}
-    .messenger{display:grid;grid-template-columns:340px minmax(0,1fr);min-height:650px;border:1px solid #ffffff18;border-radius:22px;background:#ffffff08;overflow:hidden}
-    .sidebar{border-right:1px solid #ffffff18;background:#00000022}
-    .new-chat{padding:15px;border-bottom:1px solid #ffffff18;display:grid;grid-template-columns:1fr auto;gap:8px}
-    .control{width:100%;min-width:0;border:1px solid #ffffff20;border-radius:12px;background:#11111d;color:#fff;padding:10px 12px}
-    .conversation-list{max-height:590px;overflow:auto}
-    .conversation{width:100%;border:0;border-bottom:1px solid #ffffff10;background:transparent;color:#fff;padding:15px;text-align:left;cursor:pointer;display:flex;gap:11px}
-    .conversation:hover,.conversation.active{background:#ffffff0b}
-    .avatar{width:49px;height:49px;flex:0 0 49px;border:1px solid #ffffff20;border-radius:50%;background:#19192a;display:flex;align-items:center;justify-content:center;overflow:hidden;font-weight:900}
-    .avatar img{width:100%;height:100%;object-fit:cover}
-    .conversation-main{min-width:0;flex:1}
-    .conversation-row{display:flex;justify-content:space-between;gap:8px}
-    .conversation-name{font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .conversation-time{color:#777;font-size:11px;white-space:nowrap}
-    .conversation-preview{margin-top:4px;color:#999;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .unread{display:inline-block;min-width:20px;margin-left:5px;padding:2px 6px;border-radius:12px;background:#7d55e7;color:#fff;font-size:11px;text-align:center}
-    .chat{min-width:0;display:flex;flex-direction:column}
-    .chat-head{min-height:76px;padding:14px 18px;border-bottom:1px solid #ffffff18;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .chat-person{display:flex;align-items:center;gap:10px;min-width:0}
-    .chat-name{font-weight:900;overflow-wrap:anywhere}
-    .messages{height:500px;padding:18px;overflow:auto;display:flex;flex-direction:column;gap:10px;background:#05050d}
-    .message{max-width:78%;padding:10px 13px;border-radius:16px;background:#202035;align-self:flex-start;overflow-wrap:anywhere;white-space:pre-wrap}
-    .message.mine{align-self:flex-end;background:#6e45d2}
-    .message-time{margin-top:4px;color:#b6b6c4;font-size:10px;text-align:right}
-    .message.mine .message-time{color:#e1d8ff}
-    .chat-form{padding:14px;border-top:1px solid #ffffff18;display:flex;gap:9px}
-    .chat-form textarea{flex:1;min-height:48px;max-height:130px;resize:vertical;border:1px solid #ffffff20;border-radius:16px;background:#11111d;color:#fff;padding:11px 13px}
-    .empty{margin:auto;padding:28px;color:#999;text-align:center}
-    .hidden{display:none!important}
-    footer{padding:30px 15px;border-top:1px solid #ffffff18;color:#888;text-align:center}
-    @media(max-width:780px){header{flex-direction:column;align-items:flex-start}.messenger{grid-template-columns:1fr}.sidebar{border-right:0;border-bottom:1px solid #ffffff18}.conversation-list{max-height:260px}.messages{height:440px}.message{max-width:88%}.chat-form{align-items:stretch;flex-direction:column}.chat-form .button{width:100%}}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Private Messages | StarRise</title>
 <link rel="stylesheet" href="starrise-brand.css">
-<link rel="icon" type="image/png" href="starrise-logo.png">
+<link rel="icon" href="starrise-logo.png" type="image/png">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080812;color:#fff;font-family:Arial,sans-serif}
+a{color:inherit}
+header{padding:20px;border-bottom:1px solid #ffffff25}
+.logo img{width:160px;max-width:100%;height:auto}
+nav{display:flex;gap:18px;flex-wrap:wrap;margin-top:20px}
+nav a{text-decoration:none;color:#bbb;font-weight:bold}
+nav a.active{color:#fff}
+main{max-width:1150px;margin:auto;padding:22px}
+.hero{padding:25px 10px}
+.hero h1{font-size:clamp(30px,6vw,46px)}
+.muted{color:#aaa;line-height:1.6}
+.notice{padding:16px;border:1px solid #ffffff20;border-radius:15px;text-align:center;margin:15px 0;background:#ffffff0a}
+.notice.error{background:#542020;color:#ffd0d0}
+.notice.success{background:#103d2c;color:#bcf9d7}
+.hidden{display:none!important}
+.button{border:0;border-radius:12px;background:#fff;color:#080812;padding:13px 17px;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block}
+.button.secondary{background:#24243a;color:white}
+.button:disabled{opacity:.5}
+.messenger{display:grid;grid-template-columns:330px minmax(0,1fr);border:1px solid #ffffff25;border-radius:20px;overflow:hidden;min-height:620px}
+.sidebar{border-right:1px solid #ffffff20;background:#ffffff05;min-width:0}
+.new-chat{padding:15px;border-bottom:1px solid #ffffff20;display:flex;gap:8px}
+.new-chat select{min-width:0;flex:1;padding:12px;background:#161625;color:white;border:1px solid #ffffff35;border-radius:10px}
+.conversation-list{max-height:540px;overflow:auto}
+.conversation{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;border-bottom:1px solid #ffffff15;background:transparent;color:white;padding:15px;cursor:pointer}
+.conversation.active,.conversation:hover{background:#ffffff15}
+.avatar{width:48px;height:48px;flex:0 0 48px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#25253b;font-weight:bold;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.conversation-info{flex:1;min-width:0}
+.conversation-name{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conversation-preview{font-size:13px;color:#aaa;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat{display:flex;flex-direction:column;min-width:0}
+.chat-head{padding:15px;border-bottom:1px solid #ffffff20;min-height:78px;display:flex;align-items:center;gap:12px}
+.chat-title{font-weight:bold;flex:1;min-width:0;overflow-wrap:anywhere}
+.chat-head a{font-size:13px}
+.back-button{display:none;background:#26263c;color:white;border:0;border-radius:10px;padding:10px;cursor:pointer}
+.messages{height:430px;overflow-y:auto;padding:18px;background:#05050d;display:flex;flex-direction:column;gap:12px}
+.bubble{max-width:85%;align-self:flex-start;padding:12px 15px;background:#27273c;border-radius:15px;overflow-wrap:anywhere;white-space:pre-wrap}
+.bubble.mine{align-self:flex-end;background:#6541bf}
+.timestamp{font-size:10px;color:#ddd;margin-top:8px;text-align:right}
+.empty{padding:30px;color:#aaa;text-align:center;margin:auto}
+.chat-form{display:flex;gap:10px;padding:14px;border-top:1px solid #ffffff20}
+.chat-form textarea{flex:1;min-width:0;min-height:55px;max-height:160px;resize:vertical;border-radius:12px;padding:12px;background:#151523;color:white;border:1px solid #ffffff30;font:inherit}
+.signin{padding:25px;border:1px solid #ffffff20;border-radius:18px}
+footer{text-align:center;padding:30px;color:#999}
+@media(max-width:780px){
+.messenger{display:block;min-height:400px}
+.sidebar{border-right:0}
+.conversation-list{max-height:none}
+.chat{display:none}
+.messenger.chat-open .sidebar{display:none}
+.messenger.chat-open .chat{display:flex}
+.back-button{display:inline-block}
+.messages{height:55vh;min-height:300px}
+.chat-form{flex-direction:column}
+.chat-form button{width:100%}
+}
+</style>
 </head>
 <body>
+
 <header>
-  <a class="logo starrise-brand" href="index.html" aria-label="StarRise — Home"><img src="starrise-logo.png" alt="StarRise by FAM ENT" width="1697" height="927" decoding="async"></a>
-  <nav aria-label="Main navigation">
-    <a href="index.html">Home</a>
-    <a href="community.html">Community</a>
-    <a href="members.html">Members</a>
-    <a href="messages.html" aria-current="page">Messages</a>
-    <a href="dashboard.html">Dashboard</a>
-  </nav>
+<a href="index.html" class="logo">
+<img src="starrise-logo.png" alt="StarRise by FAM ENT">
+</a>
+<nav>
+<a href="index.html">Home</a>
+<a href="community.html">Community</a>
+<a href="members.html">Members</a>
+<a href="messages.html" class="active">Messages</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
 </header>
 
 <main>
-  <section class="hero">
-    <h1>Private Messages</h1>
-    <p class="muted">Connect one-to-one with StarRise members. StarRise database rules limit message access to the two conversation participants.</p>
-  </section>
+<section class="hero">
+<h1>Private Messages</h1>
+<p class="muted">Your StarRise conversations, all in one place.</p>
+</section>
 
-  <div id="status" class="notice" role="status" aria-live="polite">Connecting to StarRise…</div>
+<div id="status" class="notice" role="status" aria-live="polite">
+Connecting to StarRise...
+</div>
 
-  <section id="signin" class="signin hidden">
-    <h2>Sign in to message StarRise members</h2>
-    <p class="muted">Private conversations are available to signed-in member accounts.</p>
-    <a class="button" href="login.html">Sign In</a>
-  </section>
+<section id="signin" class="signin hidden">
+<h2>Sign in to view messages</h2>
+<a href="login.html" class="button">Sign In</a>
+</section>
 
-  <section id="messenger" class="messenger hidden">
-    <aside class="sidebar" aria-label="Conversations">
-      <form id="newChat" class="new-chat">
-        <select id="recipient" class="control" aria-label="Choose a StarRise member" required>
-          <option value="">Start a new conversation…</option>
-        </select>
-        <button class="button" type="submit">Start</button>
-      </form>
-      <div id="conversationList" class="conversation-list"></div>
-    </aside>
+<section id="messenger" class="messenger hidden">
 
-    <section class="chat" aria-label="Current conversation">
-      <div id="chatHead" class="chat-head">
-        <div class="muted">Choose a conversation.</div>
-      </div>
-      <div id="messages" class="messages">
-        <div class="empty">Choose a member to start talking.</div>
-      </div>
-      <form id="messageForm" class="chat-form hidden">
-        <textarea id="messageBody" maxlength="4000" required placeholder="Write a private message…" aria-label="Private message"></textarea>
-        <button id="send" class="button" type="submit">Send</button>
-      </form>
-    </section>
-  </section>
+<aside class="sidebar">
+<form id="newChat" class="new-chat">
+<select id="recipient" required>
+<option value="">Start a new conversation...</option>
+</select>
+<button class="button" type="submit">Start</button>
+</form>
+<div id="conversationList" class="conversation-list">
+<div class="empty">Loading conversations...</div>
+</div>
+</aside>
+
+<section class="chat" id="chat">
+<div class="chat-head">
+<button id="backButton" class="back-button" type="button">
+← Back
+</button>
+<div class="chat-title" id="chatTitle">
+Select a conversation
+</div>
+<a id="profileLink" class="button secondary hidden" href="#">
+View Profile
+</a>
+</div>
+
+<div id="messages" class="messages">
+<div class="empty">Choose a conversation to see messages.</div>
+</div>
+
+<form id="messageForm" class="chat-form hidden">
+<textarea id="messageBody" maxlength="4000" required placeholder="Write a private message..."></textarea>
+<button id="sendButton" class="button" type="submit">
+Send
+</button>
+</form>
+</section>
+
+</section>
 </main>
 
-<footer>⭐ StarRise — Where Talent Rises.</footer>
+<footer>StarRise by FAM ENT | Where Talent Rises</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-(function () {
-  'use strict';
+(function(){
 
-  const SUPABASE_URL = 'https://rcnikxotdalxtuvpmlvm.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
-  const client = window.supabase
-    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-    : null;
-  const status = document.getElementById('status');
-  const signin = document.getElementById('signin');
-  const messenger = document.getElementById('messenger');
-  const newChat = document.getElementById('newChat');
-  const recipient = document.getElementById('recipient');
-  const conversationList = document.getElementById('conversationList');
-  const chatHead = document.getElementById('chatHead');
-  const messagesElement = document.getElementById('messages');
-  const messageForm = document.getElementById('messageForm');
-  const messageBody = document.getElementById('messageBody');
-  const send = document.getElementById('send');
+'use strict';
 
-  let currentUser = null;
-  let profiles = new Map();
-  let conversations = [];
-  let conversationMessages = new Map();
-  let activeConversationId = '';
-  let activeChannel = null;
+const URL_BASE='https://rcnikxotdalxtuvpmlvm.supabase.co';
+const PUBLIC_KEY='sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
 
-  function escapeHtml(value) {
-    return String(value ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+const $=id=>document.getElementById(id);
+
+const client=window.supabase
+  ? window.supabase.createClient(URL_BASE,PUBLIC_KEY)
+  : null;
+
+let currentUser=null;
+let conversations=[];
+let profiles=new Map();
+let activeConversationId=null;
+let channel=null;
+
+function status(text,type=''){
+  $('status').textContent=text;
+  $('status').className='notice '+type;
+}
+
+function safe(value){
+  return String(value??'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+function validUuid(value){
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value||'');
+}
+
+function profileFor(id){
+  return profiles.get(id)||{
+    id,
+    display_name:'StarRise Member',
+    avatar_url:''
+  };
+}
+
+function nameFor(id){
+  return profileFor(id).display_name||'StarRise Member';
+}
+
+function otherId(c){
+  return c.user_a===currentUser.id?c.user_b:c.user_a;
+}
+
+function avatarHtml(p){
+  if(p.avatar_url){
+    return '<img src="'+safe(p.avatar_url)+'" alt="">';
+  }
+  return safe((p.display_name||'S').charAt(0).toUpperCase());
+}
+
+function shortDate(value){
+  if(!value)return '';
+  const date=new Date(value);
+  return Number.isNaN(date.getTime())?'':date.toLocaleString();
+}
+
+async function loadPublicProfiles(){
+  const {data,error}=await client.rpc('get_public_members');
+  if(error)throw error;
+
+  const rows=data||[];
+  profiles=new Map(rows.map(p=>[p.id,p]));
+
+  $('recipient').replaceChildren(
+    new Option('Start a new conversation...','')
+  );
+
+  rows
+    .filter(p=>p.id!==currentUser.id)
+    .sort((a,b)=>(a.display_name||'').localeCompare(b.display_name||''))
+    .forEach(p=>{
+      $('recipient').add(
+        new Option(p.display_name||'StarRise Member',p.id)
+      );
+    });
+}
+
+async function loadConversations(preferredId=null){
+  const {data,error}=await client
+    .from('member_conversations')
+    .select('id,user_a,user_b,created_by,created_at,last_message_at')
+    .or('user_a.eq.'+currentUser.id+',user_b.eq.'+currentUser.id)
+    .order('last_message_at',{ascending:false});
+
+  if(error)throw error;
+
+  conversations=data||[];
+
+  renderConversations();
+
+  if(preferredId){
+    await openConversation(preferredId);
+  }else if(activeConversationId){
+    const exists=conversations.some(c=>c.id===activeConversationId);
+    if(exists)renderConversations();
+  }
+}
+
+function renderConversations(){
+  const box=$('conversationList');
+
+  if(!conversations.length){
+    box.innerHTML='<div class="empty">No conversations yet. Choose a public member above to start one.</div>';
+    return;
   }
 
-  function isUuid(value) {
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value || '');
+  box.innerHTML=conversations.map(c=>{
+    const id=otherId(c);
+    const p=profileFor(id);
+    const active=c.id===activeConversationId?' active':'';
+
+    return '<button type="button" class="conversation'+active+'" data-id="'+safe(c.id)+'">'+
+      '<span class="avatar">'+avatarHtml(p)+'</span>'+
+      '<span class="conversation-info">'+
+      '<span class="conversation-name">'+safe(nameFor(id))+'</span>'+
+      '<div class="conversation-preview">'+safe(shortDate(c.last_message_at||c.created_at))+'</div>'+
+      '</span></button>';
+  }).join('');
+}
+
+async function openConversation(id){
+  const conversation=conversations.find(c=>c.id===id);
+  if(!conversation){
+    status('Conversation not found.','error');
+    return;
   }
 
-  function showStatus(message, type = '') {
-    status.textContent = message;
-    status.className = 'notice' + (type ? ' ' + type : '');
-  }
+  activeConversationId=id;
+  const recipientId=otherId(conversation);
 
-  function profileFor(userId) {
-    return profiles.get(userId) || { id: userId, display_name: 'StarRise Member', avatar_url: '' };
-  }
+  $('chatTitle').textContent=nameFor(recipientId);
+  $('profileLink').href='profile.html?id='+encodeURIComponent(recipientId);
+  $('profileLink').classList.remove('hidden');
 
-  function displayName(profile) {
-    return profile.display_name || profile.full_name || profile.name || 'StarRise Member';
-  }
+  $('messenger').classList.add('chat-open');
+  $('messageForm').classList.remove('hidden');
 
-  function avatarHtml(profile) {
-    const name = displayName(profile);
-    const initial = escapeHtml(name.charAt(0).toUpperCase() || '⭐');
-    return profile.avatar_url
-      ? '<img src="' + escapeHtml(profile.avatar_url) + '" alt="' + escapeHtml(name) + '">'
-      : initial;
-  }
+  renderConversations();
 
-  function formatTime(value, full = false) {
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return '';
-    return full
-      ? date.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
-      : date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-  }
+  $('messages').innerHTML='<div class="empty">Loading messages...</div>';
 
-  function otherUserId(conversation) {
-    return conversation.user_a === currentUser.id ? conversation.user_b : conversation.user_a;
-  }
-
-  async function loadProfiles() {
-    const result = await client.rpc('get_public_members');
-    if (result.error) throw result.error;
-    const rows = Array.isArray(result.data) ? result.data : [];
-    profiles = new Map(rows.map(item => [item.id, item]));
-    recipient.innerHTML = '<option value="">Start a new conversation…</option>' + rows
-      .filter(item => item.id !== currentUser.id)
-      .sort((a, b) => displayName(a).localeCompare(displayName(b)))
-      .map(item => '<option value="' + item.id + '">' + escapeHtml(displayName(item)) + '</option>')
-      .join('');
-  }
-
-  async function findOrCreateConversation(targetId) {
-    if (!isUuid(targetId) || targetId === currentUser.id) throw new Error('Choose another StarRise member.');
-    if (!profiles.has(targetId)) throw new Error('That StarRise member is not publicly available.');
-    const pair = [currentUser.id, targetId].sort();
-    let result = await client
-      .from('member_conversations')
-      .select('id,user_a,user_b,created_by,created_at,last_message_at')
-      .eq('user_a', pair[0])
-      .eq('user_b', pair[1])
-      .maybeSingle();
-    if (result.error) throw result.error;
-    if (result.data) return result.data;
-
-    result = await client.from('member_conversations').insert({
-      user_a: pair[0],
-      user_b: pair[1],
-      created_by: currentUser.id
-    }).select('id,user_a,user_b,created_by,created_at,last_message_at').single();
-
-    if (result.error && result.error.code === '23505') {
-      result = await client
-        .from('member_conversations')
-        .select('id,user_a,user_b,created_by,created_at,last_message_at')
-        .eq('user_a', pair[0])
-        .eq('user_b', pair[1])
-        .single();
-    }
-    if (result.error) throw result.error;
-    return result.data;
-  }  async function loadConversations(preferredId = '') {
-    const result = await client
-      .from('member_conversations')
-      .select('id,user_a,user_b,created_by,created_at,last_message_at')
-      .or('user_a.eq.' + currentUser.id + ',user_b.eq.' + currentUser.id)
-      .order('last_message_at', { ascending: false });
-    if (result.error) throw result.error;
-    conversations = result.data || [];
-
-    const ids = conversations.map(item => item.id);
-    conversationMessages = new Map();
-    if (ids.length) {
-      const messageResult = await client
-        .from('member_messages')
-        .select('id,conversation_id,sender_id,body,created_at,read_at')
-        .in('conversation_id', ids)
-        .order('created_at', { ascending: false })
-        .limit(500);
-      if (messageResult.error) throw messageResult.error;
-      (messageResult.data || []).forEach(message => {
-        if (!conversationMessages.has(message.conversation_id)) conversationMessages.set(message.conversation_id, []);
-        conversationMessages.get(message.conversation_id).push(message);
-      });
-      conversationMessages.forEach(rows => rows.reverse());
-    }
-
-    renderConversations();
-    const selectedId = preferredId || activeConversationId || conversations[0]?.id || '';
-    if (selectedId && conversations.some(item => item.id === selectedId)) await selectConversation(selectedId);
-    if (!conversations.length) {
-      activeConversationId = '';
-      chatHead.innerHTML = '<div class="muted">Choose a member to begin.</div>';
-      messagesElement.innerHTML = '<div class="empty">No private conversations yet.</div>';
-      messageForm.classList.add('hidden');
-    }
-  }
-
-  function renderConversations() {
-    if (!conversations.length) {
-      conversationList.innerHTML = '<div class="empty">Choose a member above to start your first conversation.</div>';
-      return;
-    }
-    conversationList.innerHTML = conversations.map(conversation => {
-      const other = profileFor(otherUserId(conversation));
-      const rows = conversationMessages.get(conversation.id) || [];
-      const latest = rows[rows.length - 1];
-      const unread = rows.filter(item => item.sender_id !== currentUser.id && !item.read_at).length;
-      return '<button class="conversation' + (conversation.id === activeConversationId ? ' active' : '') + '" type="button" data-conversation-id="' + conversation.id + '"><span class="avatar">' + avatarHtml(other) + '</span><span class="conversation-main"><span class="conversation-row"><span class="conversation-name">' + escapeHtml(displayName(other)) + (unread ? '<span class="unread">' + unread + '</span>' : '') + '</span><span class="conversation-time">' + escapeHtml(formatTime(latest?.created_at || conversation.last_message_at, true)) + '</span></span><span class="conversation-preview">' + escapeHtml(latest?.body || 'Start the conversation…') + '</span></span></button>';
-    }).join('');
-  }
-
-  async function selectConversation(conversationId) {
-    const conversation = conversations.find(item => item.id === conversationId);
-    if (!conversation) return;
-    activeConversationId = conversationId;
-    renderConversations();
-    const other = profileFor(otherUserId(conversation));
-    chatHead.innerHTML = '<div class="chat-person"><span class="avatar">' + avatarHtml(other) + '</span><span><span class="chat-name">' + escapeHtml(displayName(other)) + '</span><span class="muted small"><br>Private one-to-one conversation</span></span></div><a class="button secondary" href="profile.html?id=' + encodeURIComponent(other.id) + '">View Profile</a>';
-    messageForm.classList.remove('hidden');
-    messagesElement.innerHTML = '<div class="empty">Loading messages…</div>';
-
-    const result = await client
+  try{
+    const {data,error}=await client
       .from('member_messages')
       .select('id,conversation_id,sender_id,body,created_at,read_at')
-      .eq('conversation_id', conversationId)
-      .order('created_at', { ascending: false })
+      .eq('conversation_id',id)
+      .order('created_at',{ascending:true})
       .limit(200);
-    if (result.error) throw result.error;
-    conversationMessages.set(conversationId, (result.data || []).reverse());
-    renderMessages();
-    await markRead(conversationId);
+
+    if(error)throw error;
+
+    if(activeConversationId!==id)return;
+
+    renderMessages(data||[]);
+    status('Conversation opened.','success');
+
+    markRead(id).catch(console.error);
+
+  }catch(error){
+    console.error(error);
+    $('messages').innerHTML='<div class="empty">Unable to load messages.</div>';
+    status('Could not open conversation: '+error.message,'error');
+  }
+}
+
+function renderMessages(rows){
+  const box=$('messages');
+
+  if(!rows.length){
+    box.innerHTML='<div class="empty">No messages yet. Start the conversation.</div>';
+    return;
   }
 
-  function renderMessages() {
-    const rows = conversationMessages.get(activeConversationId) || [];
-    if (!rows.length) {
-      messagesElement.innerHTML = '<div class="empty">Say hello and start the conversation.</div>';
-      return;
-    }
-    messagesElement.innerHTML = rows.map(message => '<div class="message' + (message.sender_id === currentUser.id ? ' mine' : '') + '">' + escapeHtml(message.body) + '<div class="message-time">' + escapeHtml(formatTime(message.created_at)) + (message.sender_id === currentUser.id && message.read_at ? ' · Read' : '') + '</div></div>').join('');
-    messagesElement.scrollTop = messagesElement.scrollHeight;
+  box.innerHTML=rows.map(m=>{
+    const mine=m.sender_id===currentUser.id?' mine':'';
+    return '<div class="bubble'+mine+'">'+
+      safe(m.body)+
+      '<div class="timestamp">'+safe(shortDate(m.created_at))+'</div>'+
+      '</div>';
+  }).join('');
+
+  box.scrollTop=box.scrollHeight;
+}
+
+async function markRead(conversationId){
+  const {error}=await client
+    .from('member_messages')
+    .update({read_at:new Date().toISOString()})
+    .eq('conversation_id',conversationId)
+    .neq('sender_id',currentUser.id)
+    .is('read_at',null);
+
+  if(error)console.warn('Read receipt:',error.message);
+}
+
+async function findOrCreateConversation(targetId){
+  if(!validUuid(targetId)||targetId===currentUser.id){
+    throw new Error('Choose another member.');
   }
 
-  async function markRead(conversationId) {
-    const now = new Date().toISOString();
-    const result = await client
-      .from('member_messages')
-      .update({ read_at: now })
-      .eq('conversation_id', conversationId)
-      .neq('sender_id', currentUser.id)
-      .is('read_at', null);
-    if (result.error) console.error('Read receipt error:', result.error);
-    const rows = conversationMessages.get(conversationId) || [];
-    rows.forEach(item => {
-      if (item.sender_id !== currentUser.id && !item.read_at) item.read_at = now;
-    });
-    renderConversations();
+  if(!profiles.has(targetId)){
+    throw new Error('This member is not publicly available.');
   }
 
-  function subscribeToMessages() {
-    if (activeChannel) client.removeChannel(activeChannel);
-    activeChannel = client
-      .channel('member-direct-messages:' + currentUser.id)
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'member_messages'
-      }, async payload => {
-        const message = payload.new;
-        if (!message?.id || !message.conversation_id) return;
-        const conversationId = message.conversation_id;
-        const rows = conversationMessages.get(conversationId) || [];
-        const existingIndex = rows.findIndex(item => item.id === message.id);
-        if (existingIndex >= 0) {
-          rows[existingIndex] = { ...rows[existingIndex], ...message };
-        } else {
-          rows.push(message);
-          rows.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-        }
-        conversationMessages.set(conversationId, rows);
-        if (conversationId === activeConversationId) {
-          renderMessages();
-          if (payload.eventType === 'INSERT' && message.sender_id !== currentUser.id) {
-            await markRead(conversationId);
-          }
-        }
-        await refreshConversationMetadata();
-        if (payload.eventType === 'INSERT' && message.sender_id !== currentUser.id && conversationId !== activeConversationId) {
-          showStatus('New private message from ' + displayName(profileFor(message.sender_id)) + '.', 'success');
-        }
-      })
-      .subscribe();
-  }
+  const pair=[currentUser.id,targetId].sort();
 
-  async function refreshConversationMetadata() {
-    const result = await client
+  let {data,error}=await client
+    .from('member_conversations')
+    .select('id,user_a,user_b,created_by,created_at,last_message_at')
+    .eq('user_a',pair[0])
+    .eq('user_b',pair[1])
+    .maybeSingle();
+
+  if(error)throw error;
+  if(data)return data;
+
+  ({data,error}=await client
+    .from('member_conversations')
+    .insert({
+      user_a:pair[0],
+      user_b:pair[1],
+      created_by:currentUser.id
+    })
+    .select('id,user_a,user_b,created_by,created_at,last_message_at')
+    .single());
+
+  if(error&&error.code==='23505'){
+    ({data,error}=await client
       .from('member_conversations')
       .select('id,user_a,user_b,created_by,created_at,last_message_at')
-      .or('user_a.eq.' + currentUser.id + ',user_b.eq.' + currentUser.id)
-      .order('last_message_at', { ascending: false });
-    if (!result.error) {
-      conversations = result.data || conversations;
-      renderConversations();
-    }
+      .eq('user_a',pair[0])
+      .eq('user_b',pair[1])
+      .single());
   }
 
-  async function sendMessage(event) {
-    event.preventDefault();
-    const body = messageBody.value.trim();
-    if (!body || !activeConversationId) return;
-    send.disabled = true;
-    send.textContent = 'Sending…';
-    try {
-      const result = await client.from('member_messages').insert({
-        conversation_id: activeConversationId,
-        sender_id: currentUser.id,
+  if(error)throw error;
+  return data;
+}
+
+async function sendMessage(event){
+  event.preventDefault();
+
+  if(!activeConversationId)return;
+
+  const body=$('messageBody').value.trim();
+  if(!body)return;
+
+  const button=$('sendButton');
+  button.disabled=true;
+
+  try{
+    const {error}=await client
+      .from('member_messages')
+      .insert({
+        conversation_id:activeConversationId,
+        sender_id:currentUser.id,
         body
-      }).select('id,conversation_id,sender_id,body,created_at,read_at').single();
-      if (result.error) throw result.error;
-      const rows = conversationMessages.get(activeConversationId) || [];
-      if (!rows.some(item => item.id === result.data.id)) rows.push(result.data);
-      conversationMessages.set(activeConversationId, rows);
-      messageBody.value = '';
-      renderMessages();
-      await refreshConversationMetadata();
-      showStatus('Message sent.', 'success');
-    } catch (error) {
-      showStatus('Message could not be sent: ' + (error.message || 'Please try again.'), 'error');
-    } finally {
-      send.disabled = false;
-      send.textContent = 'Send';
-      messageBody.focus();
-    }
-  }
+      });
 
-  async function startConversation(event) {
+    if(error)throw error;
+
+    $('messageBody').value='';
+    await openConversation(activeConversationId);
+    await loadConversations();
+    status('Message sent.','success');
+
+  }catch(error){
+    console.error(error);
+    status('Message could not send: '+error.message,'error');
+  }finally{
+    button.disabled=false;
+  }
+}
+
+async function startConversation(event){
+  event.preventDefault();
+
+  const target=$('recipient').value;
+  if(!target)return;
+
+  try{
+    const conversation=await findOrCreateConversation(target);
+    await loadConversations(conversation.id);
+    history.replaceState({},'', 'messages.html?to='+encodeURIComponent(target));
+  }catch(error){
+    status('Could not start conversation: '+error.message,'error');
+  }
+}
+
+function subscribe(){
+  if(channel)client.removeChannel(channel);
+
+  channel=client.channel('starrise-messages-'+currentUser.id)
+    .on('postgres_changes',{
+      event:'INSERT',
+      schema:'public',
+      table:'member_messages'
+    },async()=>{
+      try{
+        const selected=activeConversationId;
+        await loadConversations();
+        if(selected)await openConversation(selected);
+      }catch(error){
+        console.warn(error);
+      }
+    })
+    .subscribe();
+}
+
+async function initialize(){
+  try{
+    if(!client)throw new Error('Supabase library unavailable.');
+
+    const {data,error}=await client.auth.getSession();
+    if(error)throw error;
+
+    const user=data.session?.user;
+
+    if(!user||user.is_anonymous===true){
+      $('signin').classList.remove('hidden');
+      status('Sign in to access private messages.');
+      return;
+    }
+
+    currentUser=user;
+
+    $('messenger').classList.remove('hidden');
+
+    await loadPublicProfiles();
+    await loadConversations();
+
+    const target=new URLSearchParams(location.search).get('to');
+
+    if(target){
+      try{
+        const conversation=await findOrCreateConversation(target);
+        await loadConversations(conversation.id);
+      }catch(error){
+        status('Could not open requested member: '+error.message,'error');
+      }
+    }else{
+      status('Private messages are ready.','success');
+    }
+
+    subscribe();
+
+  }catch(error){
+    console.error(error);
+    status('Messaging error: '+error.message,'error');
+  }
+}
+
+$('conversationList').addEventListener('click',event=>{
+  const button=event.target.closest('[data-id]');
+  if(!button)return;
+  openConversation(button.dataset.id);
+});
+
+$('backButton').addEventListener('click',()=>{
+  $('messenger').classList.remove('chat-open');
+  activeConversationId=null;
+  renderConversations();
+});
+
+$('newChat').addEventListener('submit',startConversation);
+$('messageForm').addEventListener('submit',sendMessage);
+
+$('messageBody').addEventListener('keydown',event=>{
+  if(event.key==='Enter'&&!event.shiftKey){
     event.preventDefault();
-    const targetId = recipient.value;
-    if (!targetId) return;
-    const button = newChat.querySelector('button');
-    button.disabled = true;
-    try {
-      const conversation = await findOrCreateConversation(targetId);
-      await loadConversations(conversation.id);
-      history.replaceState({}, document.title, 'messages.html?to=' + encodeURIComponent(targetId));
-      showStatus('Private conversation ready.', 'success');
-    } catch (error) {
-      showStatus('Conversation could not start: ' + (error.message || 'Please try again.'), 'error');
-    } finally {
-      button.disabled = false;
-    }
+    $('messageForm').requestSubmit();
   }
+});
 
-  async function initialize() {
-    try {
-      if (!client) throw new Error('The StarRise connection library did not load.');
-      const sessionResult = await client.auth.getSession();
-      if (sessionResult.error) throw sessionResult.error;
-      const user = sessionResult.data.session?.user || null;
-      currentUser = user && user.is_anonymous !== true ? user : null;
-      if (!currentUser) {
-        signin.classList.remove('hidden');
-        messenger.classList.add('hidden');
-        showStatus('Sign in is required for private messages.');
-        return;
-      }
+window.addEventListener('beforeunload',()=>{
+  if(channel)client?.removeChannel(channel);
+});
 
-      signin.classList.add('hidden');
-      messenger.classList.remove('hidden');
-      await loadProfiles();
-      let preferredId = '';
-      let targetError = '';
-      const targetId = new URLSearchParams(window.location.search).get('to');
-      if (targetId) {
-        try {
-          const conversation = await findOrCreateConversation(targetId);
-          preferredId = conversation.id;
-        } catch (error) {
-          targetError = error.message || 'That conversation could not be opened.';
-        }
-      }
-      await loadConversations(preferredId);
-      subscribeToMessages();
-      showStatus(targetError || 'Private messages are ready.', targetError ? 'error' : 'success');
-    } catch (error) {
-      console.error('Messages initialization error:', error);
-      if (!currentUser) {
-        signin.classList.remove('hidden');
-        messenger.classList.add('hidden');
-      }
-      showStatus('Private messages could not load: ' + (error.message || 'Please refresh.'), 'error');
-    }
-  }
+initialize();
 
-  newChat.addEventListener('submit', startConversation);
-  messageForm.addEventListener('submit', sendMessage);
-  conversationList.addEventListener('click', function (event) {
-    const button = event.target.closest('[data-conversation-id]');
-    if (button) selectConversation(button.dataset.conversationId).catch(error => showStatus(error.message, 'error'));
-  });
-  messageBody.addEventListener('keydown', function (event) {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      messageForm.requestSubmit();
-    }
-  });
-  window.addEventListener('beforeunload', function () {
-    if (activeChannel) client.removeChannel(activeChannel);
-  });
-  initialize();
 })();
 </script>
 </body>
