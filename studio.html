@@ -1783,5 +1783,222 @@ renderTracks();
 })();
 </script>
 
+<!-- StarRise Studio Pro: Vocal Recording Gain -->
+<style>
+#srGainPanel {
+  margin: 14px 0;
+  padding: 15px;
+  background: #29243e;
+  border: 1px solid #655879;
+  border-radius: 12px;
+}
+#srGainPanel h3 { margin: 0 0 12px; }
+#srGainPanel input[type="range"] {
+  width: min(100%, 280px);
+}
+#srGainValue {
+  font-weight: bold;
+  color: #dcb9ff;
+}
+#srGainPanel .srGainNote {
+  font-size: 13px;
+  color: #d4c8e3;
+  line-height: 1.5;
+}
+</style>
+
+<script>
+(() => {
+  "use strict";
+
+  if (
+    typeof prepareRecorder !== "function" ||
+    typeof releaseRecording !== "function"
+  ) return;
+
+  const recordButton = document.getElementById("recordVocal");
+  if (!recordButton) return;
+
+  const panel = document.createElement("section");
+  panel.id = "srGainPanel";
+
+  panel.innerHTML = `
+    <h3>Professional Vocal Input Gain</h3>
+
+    <label for="srInputGain">
+      Recording gain:
+      <span id="srGainValue">0 dB</span>
+    </label>
+
+    <div>
+      <input
+        id="srInputGain"
+        type="range"
+        min="-12"
+        max="12"
+        step="1"
+        value="0"
+      >
+    </div>
+
+    <button
+      type="button"
+      id="srResetGain"
+      class="secondary"
+    >Reset Gain</button>
+
+    <p class="srGainNote">
+      Suggested vocal peaks: -12 to -6 dBFS.
+      Start at 0 dB and adjust gradually.
+      Gain above 0 dB increases the recorded signal.
+    </p>
+
+    <p id="srGainStatus" class="srGainNote">
+      Ready. Recording gain is neutral.
+    </p>
+  `;
+
+  const monitorPanel = document.getElementById("srMonitorPanel");
+
+  if (monitorPanel) {
+    monitorPanel.insertAdjacentElement("afterend", panel);
+  } else {
+    recordButton.closest(".toolbar")
+      .insertAdjacentElement("afterend", panel);
+  }
+
+  const slider = panel.querySelector("#srInputGain");
+  const valueLabel = panel.querySelector("#srGainValue");
+  const reset = panel.querySelector("#srResetGain");
+  const status = panel.querySelector("#srGainStatus");
+
+  let activeGain = null;
+  let activeSession = null;
+
+  function gainMultiplier() {
+    return Math.pow(10, Number(slider.value) / 20);
+  }
+
+  function updateGain() {
+    const db = Number(slider.value);
+
+    valueLabel.textContent =
+      (db > 0 ? "+" : "") + db + " dB";
+
+    if (activeGain && activeSession) {
+      activeGain.gain.setTargetAtTime(
+        gainMultiplier(),
+        activeSession.ac.currentTime,
+        0.015
+      );
+    }
+  }
+
+  slider.addEventListener("input", updateGain);
+
+  reset.addEventListener("click", () => {
+    slider.value = "0";
+    updateGain();
+  });
+
+  function disconnectGain() {
+    if (activeGain) {
+      try { activeGain.disconnect(); } catch {}
+    }
+
+    activeGain = null;
+    activeSession = null;
+
+    slider.disabled = false;
+    reset.disabled = false;
+  }
+
+  const previousPrepare = prepareRecorder;
+
+  prepareRecorder = async function(session) {
+    await previousPrepare(session);
+
+    if (
+      !activeRecording(session) ||
+      !session.input ||
+      !session.processor ||
+      session.mode !== "pcm"
+    ) {
+      status.textContent =
+        "This browser uses encoded recording. " +
+        "Input gain requires PCM recording mode.";
+
+      slider.disabled = true;
+      reset.disabled = true;
+      return;
+    }
+
+    try {
+      const ac = session.ac;
+
+      const gain = ac.createGain();
+      const compressor = ac.createDynamicsCompressor();
+
+      gain.gain.value = gainMultiplier();
+
+      compressor.threshold.value = -3;
+      compressor.knee.value = 6;
+      compressor.ratio.value = 12;
+      compressor.attack.value = 0.003;
+      compressor.release.value = 0.1;
+
+      // Replace the direct microphone-to-recorder
+      // connection with a controlled recording chain.
+      session.input.disconnect();
+
+      session.input.connect(gain);
+      gain.connect(compressor);
+      compressor.connect(session.processor);
+
+      activeGain = gain;
+      activeSession = session;
+
+      session.srGainCompressor = compressor;
+
+      status.textContent =
+        "Recording gain active. " +
+        "Watch the microphone meter for clipping.";
+
+    } catch (error) {
+      console.warn("Input gain setup failed:", error);
+
+      // Restore the original recording path if possible.
+      try {
+        session.input.disconnect();
+        session.input.connect(session.processor);
+      } catch {}
+
+      disconnectGain();
+
+      status.textContent =
+        "Gain processing unavailable. " +
+        "Original recording path restored.";
+    }
+  };
+
+  const previousRelease = releaseRecording;
+
+  releaseRecording = function(session) {
+    if (activeSession === session) {
+      disconnectGain();
+
+      try {
+        session.srGainCompressor?.disconnect();
+      } catch {}
+    }
+
+    return previousRelease(session);
+  };
+
+  updateGain();
+})();
+</script>
+<!-- End StarRise Vocal Gain Upgrade -->
+
 </body>
 </html>
