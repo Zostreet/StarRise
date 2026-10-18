@@ -1,5 +1,5 @@
 
-name: Fix StarRise Messages to Studio
+name: Repair StarRise Studio Tests
 
 on:
   workflow_dispatch:
@@ -8,137 +8,63 @@ permissions:
   contents: write
 
 jobs:
-  fix:
+  repair:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout StarRise
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: main
 
-      - name: Repair Messages to Studio
-        shell: bash
-        run: |
-          cat > /tmp/fix_starrise.py <<'PY'
-          from pathlib import Path
-
-          path = Path("messages.html")
-          html = path.read_text(encoding="utf-8")
-
-          # Give the existing button a clear mobile-friendly style.
-          css = """
-          <style id="starrise-studio-button-fix">
-          .sr-send-studio {
-            display: block !important;
-            width: 100%;
-            margin: 12px 0 6px;
-            padding: 13px 16px;
-            background: #ffffff;
-            color: #211439;
-            border: 2px solid #ffffff;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 800;
-            cursor: pointer;
-            text-align: center;
-          }
-          .sr-send-studio:disabled {
-            opacity: .6;
-            cursor: wait;
-          }
-          </style>
-          """
-
-          if 'id="starrise-studio-button-fix"' not in html:
-              html = html.replace("</head>", css + "\n</head>", 1)
-
-          # Fix the existing button's placement.
-          start = html.find("          }else if(type.startsWith('audio/')){")
-          end = html.find("}else if(type.startsWith('video/')){", start)
-
-          if start < 0 or end < 0:
-              raise RuntimeError("Audio renderer was not found.")
-
-          replacement = """          }else if(
-            type.startsWith('audio/') ||
-            /\\.(wav|mp3|m4a|ogg|flac|aac)$/i.test(name)
-          ){
-            attachmentHtml +=
-              '<audio controls preload="metadata" src="' +
-              safe(url) + '"></audio>';
-
-            attachmentHtml +=
-              '<button type="button" class="sr-send-studio" ' +
-              'data-audio-path="' +
-              safe(m.attachment_path) + '" ' +
-              'data-audio-name="' +
-              safe(name) + '">' +
-              'Send to Studio Pro</button>';
-          """
-
-          html = html[:start] + replacement + html[end:]
-
-          # Ensure the download uses the existing private bucket.
-          if "STARRISE_STUDIO_TRANSFER_HANDLER" not in html:
-              raise RuntimeError(
-                  "Private audio transfer handler is missing."
-              )
-
-          path.write_text(html, encoding="utf-8")
-
-          studio = Path("studio.html").read_text(encoding="utf-8")
-
-          if "STARRISE_STUDIO_TRANSFER_IMPORT" not in studio:
-              raise RuntimeError(
-                  "Studio import handler is missing."
-              )
-
-          print("Audio button repaired.")
-          print("Private transfer handler confirmed.")
-          print("Studio import handler confirmed.")
-          PY
-
-          python /tmp/fix_starrise.py
-
-      - name: Validate JavaScript
-        shell: bash
+      - name: Repair Studio browser guard
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
 
-          for filename in ("messages.html", "studio.html"):
-              html = Path(filename).read_text(encoding="utf-8")
-              scripts = re.findall(
-                  r"<script(?:\s[^>]*)?>([\s\S]*?)</script>",
-                  html,
-                  re.I
+          path = Path("studio.html")
+          html = path.read_text(encoding="utf-8")
+
+          old = """if (
+            new URLSearchParams(location.search)
+              .get("import") === "message"
+          ) {
+            setTimeout(importSharedMessageAudio, 250);
+          }"""
+
+          new = """if (
+            typeof location !== "undefined" &&
+            typeof URLSearchParams !== "undefined" &&
+            new URLSearchParams(location.search)
+              .get("import") === "message"
+          ) {
+            setTimeout(importSharedMessageAudio, 250);
+          }"""
+
+          if old not in html:
+              raise SystemExit(
+                  "Expected Studio import code not found."
               )
-              for index, script in enumerate(scripts):
-                  if not script.strip():
-                      continue
-                  filename_js = f"/tmp/{filename}-{index}.js"
-                  Path(filename_js).write_text(script)
-                  import subprocess
-                  subprocess.run(
-                      ["node", "--check", filename_js],
-                      check=True
-                  )
-              print(filename, "JavaScript validated")
+
+          path.write_text(
+              html.replace(old, new, 1),
+              encoding="utf-8"
+          )
           PY
 
-      - name: Publish repaired files
-        shell: bash
+      - name: Run all Studio tests
+        run: |
+          npm ci --ignore-scripts
+          node --test creator-studio.test.cjs studio-pro.test.cjs studio-sounds.test.cjs studio-projects.test.cjs tests/launch-paths.test.cjs
+
+      - name: Commit tested repair
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add messages.html studio.html
+          git add studio.html
 
-          if git diff --cached --quiet; then
-            echo "No changes needed."
-          else
-            git commit -m "Fix Send to Studio audio button"
+          if ! git diff --cached --quiet; then
+            git commit -m "Fix Studio import initialization in test environments"
             git push origin HEAD:main
           fi
