@@ -2126,5 +2126,131 @@ renderTracks();
 </script>
 <!-- End StarRise Mastering Phase 1 -->
 
+<!-- StarRise Studio Pro: Mastering Phase 1 -->
+<style>
+#srMasterPanel {
+  background: #29243e;
+  border: 1px solid #655879;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 0;
+}
+#srMasterPanel h3 { margin: 0 0 12px; }
+#srMasterPanel p {
+  color: #d4c8e3;
+  line-height: 1.5;
+}
+#srMasterPanel label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+</style>
+
+<script>
+(() => {
+  "use strict";
+
+  const exportView = document.getElementById("export");
+
+  if (
+    !exportView ||
+    typeof renderSession !== "function"
+  ) return;
+
+  const panel = document.createElement("section");
+  panel.id = "srMasterPanel";
+
+  panel.innerHTML = `
+    <h3>StarRise Mastering Suite</h3>
+
+    <label>
+      <input
+        id="srMasterEnabled"
+        type="checkbox"
+        checked
+      >
+      Enable automatic peak normalization
+    </label>
+
+    <p>
+      Target peak: -1 dBFS
+    </p>
+
+    <p>
+      Automatically adjusts the final song level
+      during WAV export. Individual tracks and
+      project recordings remain unchanged.
+    </p>
+
+    <p id="srMasterStatus" role="status">
+      Mastering ready.
+    </p>
+  `;
+
+  exportView.append(panel);
+
+  const enabled = panel.querySelector("#srMasterEnabled");
+  const output = panel.querySelector("#srMasterStatus");
+
+  const originalRenderSession = renderSession;
+
+  renderSession = async function(onlyTrack = null) {
+    const buffer = await originalRenderSession(onlyTrack);
+
+    // Do not alter individual stem exports.
+    if (onlyTrack || !enabled.checked) return buffer;
+
+    const channels = [];
+
+    for (let c = 0; c < buffer.numberOfChannels; c++) {
+      channels.push(buffer.getChannelData(c));
+    }
+
+    let peak = 0;
+
+    for (const channel of channels) {
+      for (let i = 0; i < channel.length; i++) {
+        const sample = Math.abs(channel[i]);
+
+        if (Number.isFinite(sample)) {
+          peak = Math.max(peak, sample);
+        }
+      }
+    }
+
+    if (peak === 0) {
+      output.textContent = "Silent mix. No adjustment applied.";
+      return buffer;
+    }
+
+    const target = Math.pow(10, -1 / 20);
+    const multiplier = target / peak;
+
+    // Keep the adjustment reasonable.
+    // Avoid excessive amplification of quiet recordings.
+    const safeMultiplier = Math.min(multiplier, 4);
+
+    for (const channel of channels) {
+      for (let i = 0; i < channel.length; i++) {
+        channel[i] *= safeMultiplier;
+      }
+    }
+
+    const changeDB = 20 * Math.log10(safeMultiplier);
+
+    output.textContent =
+      "Mastering applied: " +
+      (changeDB >= 0 ? "+" : "") +
+      changeDB.toFixed(1) +
+      " dB. Exporting WAV.";
+
+    return buffer;
+  };
+})();
+</script>
+<!-- End StarRise Mastering Phase 1 -->
+
 </body>
 </html>
