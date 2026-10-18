@@ -144,17 +144,15 @@ Send
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
-
 'use strict';
 
 const URL_BASE='https://rcnikxotdalxtuvpmlvm.supabase.co';
 const PUBLIC_KEY='sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
-
 const $=id=>document.getElementById(id);
 
 const client=window.supabase
-  ? window.supabase.createClient(URL_BASE,PUBLIC_KEY)
-  : null;
+  ?window.supabase.createClient(URL_BASE,PUBLIC_KEY)
+  :null;
 
 let currentUser=null;
 let conversations=[];
@@ -262,11 +260,10 @@ async function loadConversationNames(){
 
     namesLoaded=true;
 
-    if(conversations.length && !conversationNames.size){
+    if(conversations.length&&!conversationNames.size){
       nameLookupError=
         'Name lookup returned no members for this session.';
     }
-
   }catch(error){
     console.error('Member name lookup failed:',error);
     nameLookupError=error.message||String(error);
@@ -343,6 +340,7 @@ function renderConversations(){
 
 async function openConversation(id){
   const conversation=conversations.find(c=>c.id===id);
+
   if(!conversation){
     status('Conversation not found.','error');
     return;
@@ -377,13 +375,12 @@ async function openConversation(id){
       .limit(200);
 
     if(error)throw error;
-
     if(activeConversationId!==id)return;
 
     renderMessages(data||[]);
     updateNameStatus();
 
-    markRead(id).catch(console.error);
+    await markRead(id);
 
   }catch(error){
     console.error(error);
@@ -419,13 +416,23 @@ async function markRead(conversationId){
     .neq('sender_id',currentUser.id)
     .is('read_at',null);
 
-  if(error)console.warn('Read receipt:',error.message);
+  if(error){
+    console.warn('Read receipt:',error.message);
+  }
+
+  window.dispatchEvent(new Event('focus'));
 }
 
 async function findOrCreateConversation(targetId){
   if(!validUuid(targetId)||targetId===currentUser.id){
     throw new Error('Choose another member.');
   }
+
+  const existing=conversations.find(
+    c=>otherId(c)===targetId
+  );
+
+  if(existing)return existing;
 
   if(!profiles.has(targetId)){
     throw new Error('This member is not publicly available.');
@@ -468,7 +475,6 @@ async function findOrCreateConversation(targetId){
 
 async function sendMessage(event){
   event.preventDefault();
-
   if(!activeConversationId)return;
 
   const body=$('messageBody').value.trim();
@@ -510,7 +516,14 @@ async function startConversation(event){
   try{
     const conversation=await findOrCreateConversation(target);
     await loadConversations(conversation.id);
-    history.replaceState({},'', 'messages.html?to='+encodeURIComponent(target));
+
+    history.replaceState(
+      {},
+      '',
+      'messages.html?conversation='+
+      encodeURIComponent(conversation.id)
+    );
+
   }catch(error){
     status('Could not start conversation: '+error.message,'error');
   }
@@ -552,15 +565,22 @@ async function initialize(){
     }
 
     currentUser=user;
-
     $('messenger').classList.remove('hidden');
 
     await loadPublicProfiles();
     await loadConversations();
 
-    const target=new URLSearchParams(location.search).get('to');
+    const params=new URLSearchParams(location.search);
+    const conversationId=params.get('conversation');
+    const target=params.get('to');
 
-    if(target){
+    if(conversationId){
+      if(conversations.some(c=>c.id===conversationId)){
+        await openConversation(conversationId);
+      }else{
+        status('Conversation unavailable or access denied.','error');
+      }
+    }else if(target){
       try{
         const conversation=await findOrCreateConversation(target);
         await loadConversations(conversation.id);
@@ -582,13 +602,22 @@ async function initialize(){
 $('conversationList').addEventListener('click',event=>{
   const button=event.target.closest('[data-id]');
   if(!button)return;
+
   openConversation(button.dataset.id);
+
+  history.replaceState(
+    {},
+    '',
+    'messages.html?conversation='+
+    encodeURIComponent(button.dataset.id)
+  );
 });
 
 $('backButton').addEventListener('click',()=>{
   $('messenger').classList.remove('chat-open');
   activeConversationId=null;
   renderConversations();
+  history.replaceState({},'','messages.html');
 });
 
 $('newChat').addEventListener('submit',startConversation);
@@ -609,5 +638,7 @@ initialize();
 
 })();
 </script>
+
+<script src="starrise-notifications.js?v=20261018"></script>
 </body>
 </html>
