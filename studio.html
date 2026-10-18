@@ -1578,5 +1578,210 @@ renderSequencer();
 renderTracks();
 
 </script>
+
+<style>
+#srMonitorPanel {
+  margin: 14px 0;
+  padding: 15px;
+  background: #29243e;
+  border: 1px solid #655879;
+  border-radius: 12px;
+}
+#srMonitorPanel h3 { margin-top: 0; }
+#srLevelBar {
+  height: 18px;
+  background: #100f20;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+#srLevelFill {
+  width: 0%;
+  height: 100%;
+  background: #40ca92;
+  transition: width .08s;
+}
+#srMonitorPanel label {
+  display: inline-flex;
+  margin: 8px 12px 8px 0;
+}
+#srLevelText { font-weight: bold; }
+#srClipWarning { color: #ff9292; }
+</style>
+
+<script>
+(() => {
+  "use strict";
+
+  const recordButton = document.getElementById("recordVocal");
+  if (!recordButton || typeof prepareRecorder !== "function") return;
+
+  const panel = document.createElement("section");
+  panel.id = "srMonitorPanel";
+  panel.innerHTML = `
+    <h3>StarRise Live Vocal Monitor</h3>
+    <p class="note">Connect headphones before enabling live monitoring.</p>
+
+    <div id="srLevelBar">
+      <div id="srLevelFill"></div>
+    </div>
+
+    <p id="srLevelText">Microphone: Waiting</p>
+    <p id="srClipWarning" role="status"></p>
+
+    <label>
+      <span>Headphone monitoring</span>
+      <input id="srMonitorEnabled" type="checkbox">
+    </label>
+
+    <label>
+      <span>Headphone volume</span>
+      <input id="srMonitorVolume"
+             type="range" min="0" max="100" value="35">
+    </label>
+  `;
+
+  const toolbar = recordButton.closest(".toolbar");
+  toolbar.insertAdjacentElement("afterend", panel);
+
+  const fill = panel.querySelector("#srLevelFill");
+  const label = panel.querySelector("#srLevelText");
+  const warning = panel.querySelector("#srClipWarning");
+  const enabled = panel.querySelector("#srMonitorEnabled");
+  const volume = panel.querySelector("#srMonitorVolume");
+
+  let monitoring = null;
+  let animation = 0;
+
+  function disconnectMonitor() {
+    cancelAnimationFrame(animation);
+    animation = 0;
+
+    if (monitoring) {
+      try { monitoring.source.disconnect(); } catch {}
+      try { monitoring.analyser.disconnect(); } catch {}
+      try { monitoring.gain.disconnect(); } catch {}
+    }
+
+    monitoring = null;
+    enabled.checked = false;
+    fill.style.width = "0%";
+    label.textContent = "Microphone: Waiting";
+    warning.textContent = "";
+  }
+
+  function updateVolume() {
+    if (!monitoring) return;
+
+    const value = enabled.checked
+      ? Number(volume.value) / 100
+      : 0;
+
+    monitoring.gain.gain.setTargetAtTime(
+      value,
+      monitoring.ac.currentTime,
+      .015
+    );
+  }
+
+  enabled.addEventListener("change", updateVolume);
+  volume.addEventListener("input", updateVolume);
+
+  function startMonitor(session) {
+    disconnectMonitor();
+
+    if (!session.stream || !session.ac) return;
+
+    const ac = session.ac;
+    const source = ac.createMediaStreamSource(session.stream);
+    const analyser = ac.createAnalyser();
+    const gain = ac.createGain();
+
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = .65;
+    gain.gain.value = 0;
+
+    source.connect(analyser);
+    analyser.connect(gain);
+    gain.connect(ac.destination);
+
+    monitoring = { ac, source, analyser, gain, session };
+
+    const samples = new Float32Array(analyser.fftSize);
+
+    function draw() {
+      if (!monitoring || monitoring.session !== session) return;
+
+      analyser.getFloatTimeDomainData(samples);
+
+      let peak = 0;
+      let sum = 0;
+
+      for (let i = 0; i < samples.length; i++) {
+        const value = Math.abs(samples[i]);
+        peak = Math.max(peak, value);
+        sum += samples[i] * samples[i];
+      }
+
+      const rms = Math.sqrt(sum / samples.length);
+      const db = rms > 0
+        ? 20 * Math.log10(rms)
+        : -Infinity;
+
+      const percent = Math.min(100, peak * 100);
+
+      fill.style.width = percent + "%";
+      fill.style.background =
+        peak >= .98 ? "#ff5555" :
+        peak >= .75 ? "#ffbb44" :
+        "#40ca92";
+
+      label.textContent = Number.isFinite(db)
+        ? "Microphone: " + db.toFixed(1) + " dBFS"
+        : "Microphone: Silent";
+
+      warning.textContent = peak >= .98
+        ? "Clipping risk: Lower your microphone input level."
+        : "";
+
+      animation = requestAnimationFrame(draw);
+    }
+
+    updateVolume();
+    draw();
+  }
+
+  const originalPrepareRecorder = prepareRecorder;
+
+  prepareRecorder = async function(session) {
+    await originalPrepareRecorder(session);
+
+    if (
+      typeof activeRecording === "function" &&
+      activeRecording(session)
+    ) {
+      try {
+        startMonitor(session);
+      } catch (error) {
+        console.warn("Vocal monitoring unavailable:", error);
+        disconnectMonitor();
+      }
+    }
+  };
+
+  const originalReleaseRecording = releaseRecording;
+
+  releaseRecording = function(session) {
+    if (monitoring && monitoring.session === session) {
+      disconnectMonitor();
+    }
+
+    return originalReleaseRecording(session);
+  };
+
+  window.addEventListener("pagehide", disconnectMonitor);
+})();
+</script>
+
 </body>
 </html>
