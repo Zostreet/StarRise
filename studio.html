@@ -611,6 +611,87 @@ status("Sample import failed: "+e.message);
 }
 };
 
+
+// STARRISE_STUDIO_TRANSFER_IMPORT
+async function importSharedMessageAudio() {
+  const params = new URLSearchParams(location.search);
+  if (params.get("import") !== "message") return;
+
+  try {
+    const db = await new Promise((resolve, reject) => {
+      const request = indexedDB.open(
+        "starrise-studio-transfer", 1
+      );
+
+      request.onupgradeneeded = () => {
+        const database = request.result;
+        if (!database.objectStoreNames.contains("audio")) {
+          database.createObjectStore("audio");
+        }
+      };
+
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+
+    const item = await new Promise((resolve, reject) => {
+      const tx = db.transaction("audio", "readonly");
+      const request = tx.objectStore("audio").get("incoming");
+
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+
+    if (!item || !item.bytes) {
+      throw new Error("No shared audio was found.");
+    }
+
+    const ac = await ready();
+    const buffer = await ac.decodeAudioData(
+      item.bytes.slice(0)
+    );
+
+    makeTrack(
+      item.name || "Shared audio",
+      buffer,
+      "audio"
+    );
+
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction("audio", "readwrite");
+      tx.objectStore("audio").delete("incoming");
+
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+
+    db.close();
+
+    history.replaceState(
+      null,
+      "",
+      location.pathname
+    );
+
+    status("Shared audio imported into Studio.");
+
+  } catch (error) {
+    console.error("Studio import failed:", error);
+    status(
+      "Shared audio import failed: " +
+      (error.message || error)
+    );
+  }
+}
+
+if (
+  new URLSearchParams(location.search)
+    .get("import") === "message"
+) {
+  setTimeout(importSharedMessageAudio, 250);
+}
+
 $("audioUpload").onchange=async event=>{
 try{
 const ac=await ready();

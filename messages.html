@@ -531,7 +531,14 @@ async function renderMessages(rows,conversationId){
           }else if(type.startsWith('audio/')){
             attachmentHtml+=
               '<audio controls preload="none" src="'+safe(url)+'"></audio>';
-          }else if(type.startsWith('video/')){
+          
+        attachmentHtml +=
+          '<button type="button" class="sr-send-studio" ' +
+          'data-audio-path="' + safe(m.attachment_path) + '" ' +
+          'data-audio-name="' +
+          safe(m.attachment_name || 'Shared audio') + '">' +
+          'Send to Studio</button>';
+    }else if(type.startsWith('video/')){
             attachmentHtml+=
               '<video controls preload="none" src="'+safe(url)+'"></video>';
           }
@@ -888,6 +895,89 @@ $('messageBody').addEventListener('keydown',event=>{
 window.addEventListener('beforeunload',()=>{
   clearAttachmentUrls();
   if(channel)client?.removeChannel(channel);
+});
+
+
+// STARRISE_STUDIO_TRANSFER_HANDLER
+document.addEventListener("click", async function(event) {
+  const button = event.target.closest(".sr-send-studio");
+  if (!button) return;
+
+  const path = button.dataset.audioPath;
+  const name = button.dataset.audioName || "Shared audio";
+
+  if (!path) {
+    alert("Audio attachment not found.");
+    return;
+  }
+
+  if (
+    typeof activeConversationId !== "undefined" &&
+    activeConversationId &&
+    !path.startsWith(activeConversationId + "/")
+  ) {
+    alert("This attachment is not in the active conversation.");
+    return;
+  }
+
+  button.disabled = true;
+  const previousText = button.textContent;
+  button.textContent = "Sending...";
+
+  try {
+    const { data, error } = await client.storage
+      .from("message-attachments")
+      .download(path);
+
+    if (error) throw error;
+    if (!data) throw new Error("Audio download failed.");
+
+    const bytes = await data.arrayBuffer();
+
+    const db = await new Promise((resolve, reject) => {
+      const request = indexedDB.open(
+        "starrise-studio-transfer", 1
+      );
+
+      request.onupgradeneeded = () => {
+        const database = request.result;
+        if (!database.objectStoreNames.contains("audio")) {
+          database.createObjectStore("audio");
+        }
+      };
+
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction("audio", "readwrite");
+      tx.objectStore("audio").put(
+        {
+          name,
+          bytes,
+          createdAt: Date.now()
+        },
+        "incoming"
+      );
+
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+
+    db.close();
+    location.href = "studio.html?import=message";
+
+  } catch (error) {
+    console.error("Send to Studio failed:", error);
+    alert(
+      "Unable to send audio to Studio: " +
+      (error.message || error)
+    );
+    button.disabled = false;
+    button.textContent = previousText;
+  }
 });
 
 initialize();
