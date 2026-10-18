@@ -2126,5 +2126,303 @@ renderTracks();
 </script>
 <!-- End StarRise Mastering Phase 1 -->.
 
+<!-- StarRise Studio Pro: Vocal Pitch Detection -->
+<style>
+#srPitchPanel {
+  background: #29243e;
+  border: 1px solid #655879;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 14px 0;
+}
+#srPitchPanel h3 { margin-top: 0; }
+#srPitchPanel select {
+  width: 100%;
+  max-width: 400px;
+}
+#srPitchResult {
+  background: #141125;
+  border-radius: 8px;
+  padding: 14px;
+  margin-top: 12px;
+  line-height: 1.7;
+}
+#srPitchNote {
+  font-size: 30px;
+  font-weight: bold;
+  color: #dcb9ff;
+}
+</style>
+
+<script>
+(() => {
+  "use strict";
+
+  const recordingView = document.getElementById("record");
+
+  if (!recordingView || typeof tracks === "undefined") return;
+
+  const panel = document.createElement("section");
+  panel.id = "srPitchPanel";
+
+  panel.innerHTML = `
+    <h3>StarRise Vocal Pitch Analyzer</h3>
+
+    <p class="note">
+      Analyze a recorded vocal to identify its
+      dominant musical note and pitch accuracy.
+    </p>
+
+    <label>
+      Select Vocal Track
+      <select id="srPitchTrack">
+        <option value="">Choose a vocal recording</option>
+      </select>
+    </label>
+
+    <div class="toolbar">
+      <button type="button" id="srAnalyzePitch">
+        Analyze Vocal Pitch
+      </button>
+      <button type="button" id="srRefreshPitch" class="secondary">
+        Refresh Tracks
+      </button>
+    </div>
+
+    <div id="srPitchResult" role="status">
+      <div id="srPitchNote">--</div>
+      <div id="srPitchFrequency">Frequency: --</div>
+      <div id="srPitchCents">Pitch deviation: --</div>
+      <div id="srPitchMessage">
+        Record a vocal, then select it to analyze.
+      </div>
+    </div>
+  `;
+
+  recordingView.append(panel);
+
+  const trackSelect = panel.querySelector("#srPitchTrack");
+  const noteOutput = panel.querySelector("#srPitchNote");
+  const frequencyOutput = panel.querySelector("#srPitchFrequency");
+  const centsOutput = panel.querySelector("#srPitchCents");
+  const messageOutput = panel.querySelector("#srPitchMessage");
+
+  const noteNames = [
+    "C", "C#", "D", "D#", "E", "F",
+    "F#", "G", "G#", "A", "A#", "B"
+  ];
+
+  function refreshTracks() {
+    const previous = trackSelect.value;
+
+    trackSelect.replaceChildren();
+
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Choose a vocal recording";
+    trackSelect.append(placeholder);
+
+    tracks
+      .filter(track => track.type === "vocal" && track.buffer)
+      .forEach(track => {
+        const option = document.createElement("option");
+        option.value = String(track.id);
+        option.textContent = track.name;
+        trackSelect.append(option);
+      });
+
+    if ([...trackSelect.options].some(o => o.value === previous)) {
+      trackSelect.value = previous;
+    }
+  }
+
+  function estimateFrequency(samples, sampleRate) {
+    const size = samples.length;
+
+    if (size < 256) return null;
+
+    let rms = 0;
+    let mean = 0;
+
+    for (let i = 0; i < size; i++) {
+      mean += samples[i];
+    }
+
+    mean /= size;
+
+    const centered = new Float32Array(size);
+
+    for (let i = 0; i < size; i++) {
+      const value = samples[i] - mean;
+      centered[i] = value;
+      rms += value * value;
+    }
+
+    rms = Math.sqrt(rms / size);
+
+    if (rms < 0.008) return null;
+
+    const minLag = Math.max(2, Math.floor(sampleRate / 1000));
+    const maxLag = Math.min(
+      Math.floor(sampleRate / 65),
+      Math.floor(size / 2)
+    );
+
+    let bestLag = 0;
+    let bestScore = -1;
+
+    for (let lag = minLag; lag <= maxLag; lag++) {
+      let correlation = 0;
+      let energyA = 0;
+      let energyB = 0;
+
+      for (let i = 0; i < size - lag; i++) {
+        const a = centered[i];
+        const b = centered[i + lag];
+
+        correlation += a * b;
+        energyA += a * a;
+        energyB += b * b;
+      }
+
+      const denominator = Math.sqrt(energyA * energyB);
+      const score = denominator > 0
+        ? correlation / denominator
+        : 0;
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestLag = lag;
+      }
+    }
+
+    if (bestScore < 0.82 || bestLag === 0) return null;
+
+    return {
+      frequency: sampleRate / bestLag,
+      confidence: bestScore
+    };
+  }
+
+  function analyzeTrack(track) {
+    const buffer = track.buffer;
+    const sampleRate = buffer.sampleRate;
+
+    const windowSize = 4096;
+    const channel = buffer.getChannelData(0);
+
+    if (channel.length < windowSize) {
+      throw Error("Recording is too short to analyze.");
+    }
+
+    const estimates = [];
+
+    const step = Math.max(
+      windowSize,
+      Math.floor(sampleRate * 0.12)
+    );
+
+    for (
+      let start = 0;
+      start + windowSize <= channel.length;
+      start += step
+    ) {
+      const samples = channel.subarray(
+        start,
+        start + windowSize
+      );
+
+      const result = estimateFrequency(samples, sampleRate);
+
+      if (result) estimates.push(result.frequency);
+
+      if (estimates.length >= 80) break;
+    }
+
+    if (!estimates.length) {
+      throw Error(
+        "No stable vocal pitch detected. Try a sustained sung note."
+      );
+    }
+
+    estimates.sort((a, b) => a - b);
+
+    const frequency = estimates[
+      Math.floor(estimates.length / 2)
+    ];
+
+    const midi = 69 + 12 * Math.log2(frequency / 440);
+    const nearest = Math.round(midi);
+
+    const note = noteNames[
+      ((nearest % 12) + 12) % 12
+    ];
+
+    const octave = Math.floor(nearest / 12) - 1;
+    const cents = Math.round((midi - nearest) * 100);
+
+    return {
+      frequency,
+      note: note + octave,
+      cents,
+      frames: estimates.length
+    };
+  }
+
+  panel.querySelector("#srRefreshPitch")
+    .addEventListener("click", refreshTracks);
+
+  panel.querySelector("#srAnalyzePitch")
+    .addEventListener("click", () => {
+      refreshTracks();
+
+      const selectedId = Number(trackSelect.value);
+
+      const track = tracks.find(
+        item => item.id === selectedId &&
+                item.type === "vocal"
+      );
+
+      if (!track) {
+        messageOutput.textContent =
+          "Select a vocal recording first.";
+        return;
+      }
+
+      try {
+        const result = analyzeTrack(track);
+
+        noteOutput.textContent = result.note;
+
+        frequencyOutput.textContent =
+          "Frequency: " +
+          result.frequency.toFixed(1) +
+          " Hz";
+
+        centsOutput.textContent =
+          "Pitch deviation: " +
+          (result.cents > 0 ? "+" : "") +
+          result.cents +
+          " cents";
+
+        messageOutput.textContent =
+          "Analyzed " + result.frames +
+          " stable audio windows. " +
+          "This is an estimated dominant pitch, " +
+          "not automatic pitch correction.";
+
+      } catch (error) {
+        noteOutput.textContent = "--";
+        frequencyOutput.textContent = "Frequency: --";
+        centsOutput.textContent = "Pitch deviation: --";
+        messageOutput.textContent = error.message;
+      }
+    });
+
+  refreshTracks();
+})();
+</script>
+<!-- End StarRise Vocal Pitch Detection -->
+
 </body>
 </html>
