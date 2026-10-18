@@ -2816,5 +2816,335 @@ renderTracks();
 </script>
 <!-- End StarRise Pitch Correction Phase 1 -->
 
+<!-- StarRise Studio Pro: Melody Map Phase 5 -->
+<style>
+#srMelodyPanel {
+  background:#29243e;
+  border:1px solid #655879;
+  border-radius:12px;
+  padding:16px;
+  margin:14px 0;
+}
+#srMelodyPanel select {
+  width:100%;
+  max-width:420px;
+}
+#srMelodyPanel label {
+  display:block;
+  margin:12px 0;
+}
+#srMelodyResults {
+  background:#141125;
+  padding:12px;
+  border-radius:8px;
+  margin-top:12px;
+  max-height:340px;
+  overflow:auto;
+}
+#srMelodyResults table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+#srMelodyResults th,
+#srMelodyResults td {
+  padding:8px 5px;
+  text-align:left;
+  border-bottom:1px solid #514762;
+}
+</style>
+
+<script>
+(() => {
+  "use strict";
+
+  if (document.getElementById("srMelodyPanel")) return;
+  if (typeof tracks === "undefined") return;
+
+  const anchor = document.getElementById("srTunePanel");
+  if (!anchor) return;
+
+  const panel = document.createElement("section");
+  panel.id = "srMelodyPanel";
+
+  panel.innerHTML = `
+    <h3>StarRise Melody Map</h3>
+    <p>Detect changing vocal notes across a recording.
+    This analysis does not alter your audio.</p>
+
+    <label>Vocal recording
+      <select id="srMelodyTrack"></select>
+    </label>
+
+    <div class="toolbar">
+      <button type="button" id="srMelodyAnalyze">
+        Map Vocal Notes
+      </button>
+      <button type="button" id="srMelodyRefresh"
+              class="secondary">
+        Refresh Tracks
+      </button>
+    </div>
+
+    <p id="srMelodyStatus" role="status">
+      Choose a vocal recording.
+    </p>
+
+    <div id="srMelodyResults"></div>
+  `;
+
+  anchor.insertAdjacentElement("afterend", panel);
+
+  const select = panel.querySelector("#srMelodyTrack");
+  const output = panel.querySelector("#srMelodyResults");
+  const statusBox = panel.querySelector("#srMelodyStatus");
+  const analyzeButton = panel.querySelector("#srMelodyAnalyze");
+
+  const noteNames = [
+    "C","C#","D","D#","E","F",
+    "F#","G","G#","A","A#","B"
+  ];
+
+  function refreshTracks() {
+    const previous = select.value;
+    select.replaceChildren();
+
+    const blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = "Choose vocal recording";
+    select.append(blank);
+
+    tracks.filter(t => t.type === "vocal" && t.buffer)
+      .forEach(track => {
+        const option = document.createElement("option");
+        option.value = String(track.id);
+        option.textContent = track.name;
+        select.append(option);
+      });
+
+    if ([...select.options].some(
+      option => option.value === previous
+    )) select.value = previous;
+  }
+
+  function detectPitch(samples, rate) {
+    const size = samples.length;
+    let mean = 0;
+    let energy = 0;
+
+    for (let i = 0; i < size; i++) mean += samples[i];
+    mean /= size;
+
+    const centered = new Float32Array(size);
+
+    for (let i = 0; i < size; i++) {
+      const value = samples[i] - mean;
+      centered[i] = value;
+      energy += value * value;
+    }
+
+    if (Math.sqrt(energy / size) < 0.008) return null;
+
+    const minLag = Math.max(2, Math.floor(rate / 1000));
+    const maxLag = Math.min(
+      Math.floor(rate / 65),
+      Math.floor(size / 2)
+    );
+
+    let bestLag = 0;
+    let bestScore = 0;
+
+    for (let lag = minLag; lag <= maxLag; lag++) {
+      let dot = 0, aa = 0, bb = 0;
+
+      for (let i = 0; i < size - lag; i++) {
+        const a = centered[i];
+        const b = centered[i + lag];
+
+        dot += a * b;
+        aa += a * a;
+        bb += b * b;
+      }
+
+      const score = dot / (Math.sqrt(aa * bb) || 1);
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestLag = lag;
+      }
+    }
+
+    if (bestScore < 0.82 || !bestLag) return null;
+
+    return rate / bestLag;
+  }
+
+  function noteFromFrequency(frequency) {
+    const midi = 69 + 12 * Math.log2(frequency / 440);
+    const nearest = Math.round(midi);
+    const name = noteNames[
+      ((nearest % 12) + 12) % 12
+    ];
+    const octave = Math.floor(nearest / 12) - 1;
+
+    return {
+      midi:nearest,
+      name:name + octave,
+      cents:Math.round((midi - nearest) * 100)
+    };
+  }
+
+  function analyzeMelody(buffer) {
+    const data = buffer.getChannelData(0);
+    const rate = buffer.sampleRate;
+    const size = 4096;
+    const hop = Math.max(512, Math.floor(rate * 0.10));
+    const frames = [];
+
+    for (let start = 0;
+         start + size <= data.length;
+         start += hop) {
+
+      const frequency = detectPitch(
+        data.subarray(start, start + size), rate
+      );
+
+      if (!frequency) {
+        frames.push({
+          time:start / rate,
+          note:null
+        });
+        continue;
+      }
+
+      frames.push({
+        time:start / rate,
+        note:noteFromFrequency(frequency)
+      });
+    }
+
+    const segments = [];
+    let current = null;
+
+    for (const frame of frames) {
+      const midi = frame.note?.midi ?? null;
+
+      if (current && current.midi === midi) {
+        current.end = frame.time + hop / rate;
+
+        if (frame.note) {
+          current.cents.push(frame.note.cents);
+        }
+
+        continue;
+      }
+
+      if (current) segments.push(current);
+
+      current = {
+        midi,
+        name:frame.note?.name || "Unvoiced",
+        start:frame.time,
+        end:frame.time + hop / rate,
+        cents:frame.note ? [frame.note.cents] : []
+      };
+    }
+
+    if (current) segments.push(current);
+
+    return segments.filter(
+      segment => segment.midi !== null &&
+      segment.end - segment.start >= 0.08
+    );
+  }
+
+  function renderResults(segments) {
+    output.replaceChildren();
+
+    if (!segments.length) {
+      output.textContent =
+        "No stable melody notes detected.";
+      return;
+    }
+
+    const table = document.createElement("table");
+    const header = document.createElement("tr");
+
+    ["Time","Note","Deviation"].forEach(label => {
+      const th = document.createElement("th");
+      th.textContent = label;
+      header.append(th);
+    });
+
+    table.append(header);
+
+    for (const segment of segments) {
+      const row = document.createElement("tr");
+
+      const average = segment.cents.reduce(
+        (sum, value) => sum + value, 0
+      ) / segment.cents.length;
+
+      [
+        segment.start.toFixed(2) + "s",
+        segment.name,
+        (average >= 0 ? "+" : "") +
+          average.toFixed(0) + " cents"
+      ].forEach(value => {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+        row.append(cell);
+      });
+
+      table.append(row);
+    }
+
+    output.append(table);
+  }
+
+  panel.querySelector("#srMelodyRefresh")
+    .addEventListener("click", refreshTracks);
+
+  analyzeButton.addEventListener("click", async () => {
+    const id = Number(select.value);
+    const track = tracks.find(
+      t => t.id === id && t.type === "vocal"
+    );
+
+    if (!track) {
+      statusBox.textContent =
+        "Choose a vocal recording first.";
+      return;
+    }
+
+    analyzeButton.disabled = true;
+    statusBox.textContent = "Mapping vocal notes...";
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 30));
+
+      const segments = analyzeMelody(track.buffer);
+
+      renderResults(segments);
+
+      statusBox.textContent =
+        "Melody map complete: " +
+        segments.length +
+        " detected note segments. " +
+        "These are estimates, not verified notes.";
+
+    } catch (error) {
+      statusBox.textContent =
+        "Melody mapping failed: " + error.message;
+    } finally {
+      analyzeButton.disabled = false;
+    }
+  });
+
+  refreshTracks();
+})();
+</script>
+<!-- End StarRise Melody Map Phase 5 -->
+
 </body>
 </html>
