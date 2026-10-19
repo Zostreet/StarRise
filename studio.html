@@ -162,6 +162,82 @@ input[type=range]{width:110px}
 <h2>Multitrack Mixer & Effects</h2>
 <p class="note">Each track has independent volume, pan, low-cut, EQ, presence, sibilance softening, compression, reverb and delay. Vocal tracks also have tone presets. Mix changes apply on the next playback and to new exports.</p>
 <div id="mixerTracks"></div>
+<section id="srCleanup" class="panel">
+  <h2>StarRise Vocal Cleanup Pro</h2>
+  <p class="hint">
+    Reduce quiet background noise between vocal
+    phrases while preserving your original track.
+    This is an adjustable noise gate, not spectral
+    noise removal.
+  </p>
+
+  <label>
+    Vocal Track
+    <select id="srCleanTrack"></select>
+  </label>
+
+  <label>
+    Noise Threshold:
+    <output id="srCleanValue">-45 dB</output>
+    <input id="srCleanThreshold"
+           type="range"
+           min="-65"
+           max="-20"
+           value="-45"
+           step="1">
+  </label>
+
+  <label>
+    Reduction Amount:
+    <output id="srCleanReductionValue">18 dB</output>
+    <input id="srCleanReduction"
+           type="range"
+           min="0"
+           max="40"
+           value="18"
+           step="1">
+  </label>
+
+  <label>
+    Attack:
+    <output id="srCleanAttackValue">10 ms</output>
+    <input id="srCleanAttack"
+           type="range"
+           min="2"
+           max="50"
+           value="10">
+  </label>
+
+  <label>
+    Release:
+    <output id="srCleanReleaseValue">180 ms</output>
+    <input id="srCleanRelease"
+           type="range"
+           min="50"
+           max="600"
+           value="180">
+  </label>
+
+  <div>
+    <button id="srCleanRefresh" type="button">
+      Refresh Vocal Tracks
+    </button>
+    <button id="srCleanApply" type="button">
+      Create Clean Vocal Track
+    </button>
+  </div>
+
+  <p id="srCleanStatus" role="status">
+    Select a vocal recording to begin.
+  </p>
+
+  <p class="hint">
+    A new track is created. The original is muted,
+    not deleted. Compare both tracks by changing
+    their mute settings in the mixer.
+    Save your project after processing.
+  </p>
+</section>
 </div>
 </section>
 
@@ -3640,82 +3716,7 @@ renderTracks();
 }
 </style>
 
-<section id="srCleanup">
-  <h2>StarRise Vocal Cleanup Pro</h2>
-  <p class="hint">
-    Reduce quiet background noise between vocal
-    phrases while preserving your original track.
-    This is an adjustable noise gate, not spectral
-    noise removal.
-  </p>
 
-  <label>
-    Vocal Track
-    <select id="srCleanTrack"></select>
-  </label>
-
-  <label>
-    Noise Threshold:
-    <output id="srCleanValue">-45 dB</output>
-    <input id="srCleanThreshold"
-           type="range"
-           min="-65"
-           max="-20"
-           value="-45"
-           step="1">
-  </label>
-
-  <label>
-    Reduction Amount:
-    <output id="srCleanReductionValue">18 dB</output>
-    <input id="srCleanReduction"
-           type="range"
-           min="0"
-           max="40"
-           value="18"
-           step="1">
-  </label>
-
-  <label>
-    Attack:
-    <output id="srCleanAttackValue">10 ms</output>
-    <input id="srCleanAttack"
-           type="range"
-           min="2"
-           max="50"
-           value="10">
-  </label>
-
-  <label>
-    Release:
-    <output id="srCleanReleaseValue">180 ms</output>
-    <input id="srCleanRelease"
-           type="range"
-           min="50"
-           max="600"
-           value="180">
-  </label>
-
-  <div>
-    <button id="srCleanRefresh" type="button">
-      Refresh Vocal Tracks
-    </button>
-    <button id="srCleanApply" type="button">
-      Create Clean Vocal Track
-    </button>
-  </div>
-
-  <p id="srCleanStatus" role="status">
-    Select a vocal recording to begin.
-  </p>
-
-  <p class="hint">
-    A new track is created. The original is muted,
-    not deleted. Compare both tracks by changing
-    their mute settings in the mixer.
-    Save your project after processing.
-  </p>
-</section>
 
 <script>
 (() => {
