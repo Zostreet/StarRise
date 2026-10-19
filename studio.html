@@ -686,6 +686,8 @@ async function importSharedMessageAudio() {
 }
 
 if (
+  typeof location !== "undefined" &&
+  typeof URLSearchParams !== "undefined" &&
   new URLSearchParams(location.search)
     .get("import") === "message"
 ) {
