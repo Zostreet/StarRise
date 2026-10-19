@@ -1,0 +1,198 @@
+
+name: Upgrade StarRise Studio Vocal FX
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: starrise-studio-vocal-upgrade
+  cancel-in-progress: false
+
+jobs:
+  upgrade:
+    name: Upgrade and test Studio Pro
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout StarRise
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Upgrade Studio Pro vocal effects
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("studio.html")
+          html = path.read_text(encoding="utf-8")
+
+          marker = "STARRISE_VOCAL_FX_AB_V1"
+
+          if marker in html:
+              print("Vocal FX upgrade already installed.")
+              raise SystemExit(0)
+
+          old = '''function connectTrack(track,ac,destination){
+          const source=ac.createBufferSource();
+          source.buffer=track.buffer;
+
+          const gain=ac.createGain();'''
+
+          new = '''// STARRISE_VOCAL_FX_AB_V1
+          const studioFxBypass = new Set();
+
+          function connectTrack(track,ac,destination){
+          const source=ac.createBufferSource();
+          source.buffer=track.buffer;
+
+          if(studioFxBypass.has(track.id)){
+            const dryGain=ac.createGain();
+            dryGain.gain.value=track.mute?0:track.volume;
+            const dryPan=ac.createStereoPanner();
+            dryPan.pan.value=track.pan;
+            source.connect(dryGain);
+            dryGain.connect(dryPan);
+            dryPan.connect(destination);
+            return source;
+          }
+
+          const gain=ac.createGain();'''
+
+          if old not in html:
+              raise SystemExit(
+                  "Audio routing anchor not found. "
+                  "Studio was not modified."
+              )
+
+          html = html.replace(old, new, 1)
+
+          old_slider = '''slider("Sibilance soften",0,100,5,"deess"),'''
+          new_slider = '''slider("De-Esser / Sibilance",0,100,5,"deess"),'''
+
+          if old_slider not in html:
+              raise SystemExit(
+                  "De-esser control not found. "
+                  "Studio was not modified."
+              )
+
+          html = html.replace(old_slider, new_slider, 1)
+
+          old_controls = '''row.append(fx);
+
+          if(track.type==="vocal"){'''
+
+          new_controls = '''row.append(fx);
+
+          const comparison=document.createElement("div");
+          comparison.className="controls";
+
+          const compareButton=document.createElement("button");
+          compareButton.type="button";
+          compareButton.className="secondary";
+
+          function updateCompareLabel(){
+            compareButton.textContent=studioFxBypass.has(track.id)
+              ?"Hear Processed FX"
+              :"Hear Original (Bypass FX)";
+            compareButton.setAttribute(
+              "aria-pressed",
+              String(studioFxBypass.has(track.id))
+            );
+          }
+
+          updateCompareLabel();
+
+          compareButton.onclick=()=>{
+            if(recording){
+              status("Stop recording before comparing effects.");
+              return;
+            }
+
+            const wasPlaying=playing;
+            stopSources();
+
+            if(studioFxBypass.has(track.id)){
+              studioFxBypass.delete(track.id);
+            }else{
+              studioFxBypass.add(track.id);
+            }
+
+            updateCompareLabel();
+
+            status(
+              studioFxBypass.has(track.id)
+              ?"Original track selected. Press Play Session."
+              :"Processed effects selected. Press Play Session."
+            );
+
+            if(wasPlaying){
+              playSession();
+            }
+          };
+
+          const compareNote=document.createElement("small");
+          compareNote.textContent=
+            "Compare original and processed audio. "
+            +"Volume and pan remain active. "
+            +"This comparison does not alter the recording.";
+
+          comparison.append(compareButton,compareNote);
+          row.append(comparison);
+
+          if(track.type==="vocal"){'''
+
+          if old_controls not in html:
+              raise SystemExit(
+                  "Track controls anchor not found. "
+                  "Studio was not modified."
+              )
+
+          html = html.replace(
+              old_controls,
+              new_controls,
+              1
+          )
+
+          path.write_text(html, encoding="utf-8")
+          print("Studio Pro vocal FX comparison installed.")
+          PY
+
+      - name: Install test dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Validate website
+        run: node scripts/validate-site.mjs
+
+      - name: Run Studio and creator tests
+        run: |
+          node --test \
+            creator-studio.test.cjs \
+            studio-pro.test.cjs \
+            studio-sounds.test.cjs \
+            studio-projects.test.cjs \
+            tests/launch-paths.test.cjs
+
+      - name: Check PayPal safety
+        run: |
+          node --experimental-strip-types \
+            --test tests/paypal-payment.test.mjs
+
+      - name: Commit verified Studio upgrade
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add studio.html
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Upgrade Studio Pro vocal FX comparison"
+            git push origin HEAD:main
+          else
+            echo "Studio Pro is already upgraded."
+          fi
