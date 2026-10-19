@@ -22,7 +22,7 @@ jobs:
         with:
           ref: main
 
-      - name: Upgrade Studio Pro vocal effects
+      - name: Add track type selector
         shell: bash
         run: |
           python3 - <<'PY'
@@ -31,144 +31,87 @@ jobs:
           path = Path("studio.html")
           html = path.read_text(encoding="utf-8")
 
-          marker = "STARRISE_VOCAL_FX_AB_V1"
+          marker = "STARRISE_TRACK_TYPE_SELECTOR_V1"
 
           if marker in html:
-              print("Vocal FX upgrade already installed.")
-              raise SystemExit(0)
+              print("Track type selector already installed.")
+          else:
+              old = '''row.append(fx);
 
-          old = '''function connectTrack(track,ac,destination){
-          const source=ac.createBufferSource();
-          source.buffer=track.buffer;
+          const comparison=document.createElement("div");'''
 
-          const gain=ac.createGain();'''
+              new = '''row.append(fx);
 
-          new = '''// STARRISE_VOCAL_FX_AB_V1
-          const studioFxBypass = new Set();
+          // STARRISE_TRACK_TYPE_SELECTOR_V1
+          const typeControls=document.createElement("div");
+          typeControls.className="controls";
 
-          function connectTrack(track,ac,destination){
-          const source=ac.createBufferSource();
-          source.buffer=track.buffer;
+          const typeLabel=document.createElement("label");
+          typeLabel.textContent="Track Type";
 
-          if(studioFxBypass.has(track.id)){
-            const dryGain=ac.createGain();
-            dryGain.gain.value=track.mute?0:track.volume;
-            const dryPan=ac.createStereoPanner();
-            dryPan.pan.value=track.pan;
-            source.connect(dryGain);
-            dryGain.connect(dryPan);
-            dryPan.connect(destination);
-            return source;
-          }
+          const typeSelect=document.createElement("select");
 
-          const gain=ac.createGain();'''
+          [
+            ["audio","Audio / Instrument"],
+            ["vocal","Vocal Recording"]
+          ].forEach(([value,label])=>{
+            const option=document.createElement("option");
+            option.value=value;
+            option.textContent=label;
+            typeSelect.append(option);
+          });
 
-          if old not in html:
-              raise SystemExit(
-                  "Audio routing anchor not found. "
-                  "Studio was not modified."
-              )
+          typeSelect.value=track.type==="vocal"
+            ?"vocal":"audio";
 
-          html = html.replace(old, new, 1)
-
-          old_slider = '''slider("Sibilance soften",0,100,5,"deess"),'''
-          new_slider = '''slider("De-Esser / Sibilance",0,100,5,"deess"),'''
-
-          if old_slider not in html:
-              raise SystemExit(
-                  "De-esser control not found. "
-                  "Studio was not modified."
-              )
-
-          html = html.replace(old_slider, new_slider, 1)
-
-          old_controls = '''row.append(fx);
-
-          if(track.type==="vocal"){'''
-
-          new_controls = '''row.append(fx);
-
-          const comparison=document.createElement("div");
-          comparison.className="controls";
-
-          const compareButton=document.createElement("button");
-          compareButton.type="button";
-          compareButton.className="secondary";
-
-          function updateCompareLabel(){
-            compareButton.textContent=studioFxBypass.has(track.id)
-              ?"Hear Processed FX"
-              :"Hear Original (Bypass FX)";
-            compareButton.setAttribute(
-              "aria-pressed",
-              String(studioFxBypass.has(track.id))
-            );
-          }
-
-          updateCompareLabel();
-
-          compareButton.onclick=()=>{
+          typeSelect.onchange=()=>{
             if(recording){
-              status("Stop recording before comparing effects.");
+              typeSelect.value=track.type==="vocal"
+                ?"vocal":"audio";
+              status("Stop recording before changing track type.");
               return;
             }
 
-            const wasPlaying=playing;
-            stopSources();
-
-            if(studioFxBypass.has(track.id)){
-              studioFxBypass.delete(track.id);
-            }else{
-              studioFxBypass.add(track.id);
-            }
-
-            updateCompareLabel();
+            track.type=typeSelect.value;
+            renderTracks();
 
             status(
-              studioFxBypass.has(track.id)
-              ?"Original track selected. Press Play Session."
-              :"Processed effects selected. Press Play Session."
+              track.type==="vocal"
+                ?"Vocal tools enabled. Save Project to keep this setting."
+                :"Audio track mode enabled. Save Project to keep this setting."
             );
-
-            if(wasPlaying){
-              playSession();
-            }
           };
 
-          const compareNote=document.createElement("small");
-          compareNote.textContent=
-            "Compare original and processed audio. "
-            +"Volume and pan remain active. "
-            +"This comparison does not alter the recording.";
+          typeLabel.append(typeSelect);
+          typeControls.append(typeLabel);
+          row.append(typeControls);
 
-          comparison.append(compareButton,compareNote);
-          row.append(comparison);
+          const comparison=document.createElement("div");'''
 
-          if(track.type==="vocal"){'''
+              if html.count(old)!=1:
+                  raise SystemExit(
+                      "Expected mixer anchor not found exactly once. "
+                      "No changes committed."
+                  )
 
-          if old_controls not in html:
-              raise SystemExit(
-                  "Track controls anchor not found. "
-                  "Studio was not modified."
+              html=html.replace(old,new,1)
+
+              path.write_text(
+                  html,
+                  encoding="utf-8"
               )
 
-          html = html.replace(
-              old_controls,
-              new_controls,
-              1
-          )
+              print("Track type selector installed.")
 
-          path.write_text(html, encoding="utf-8")
-          print("Studio Pro vocal FX comparison installed.")
           PY
 
-      - name: Install test dependencies
+      - name: Install dependencies
         run: npm ci --ignore-scripts
 
       - name: Validate website
         run: node scripts/validate-site.mjs
 
-      - name: Run Studio and creator tests
+      - name: Test Studio and creator features
         run: |
           node --test \
             creator-studio.test.cjs \
@@ -177,12 +120,12 @@ jobs:
             studio-projects.test.cjs \
             tests/launch-paths.test.cjs
 
-      - name: Check PayPal safety
+      - name: Test PayPal safety
         run: |
           node --experimental-strip-types \
             --test tests/paypal-payment.test.mjs
 
-      - name: Commit verified Studio upgrade
+      - name: Commit verified upgrade
         run: |
           git config user.name "github-actions[bot]"
           git config user.email \
@@ -191,8 +134,8 @@ jobs:
           git add studio.html
 
           if ! git diff --cached --quiet; then
-            git commit -m "Upgrade Studio Pro vocal FX comparison"
+            git commit -m "Add Studio Pro vocal track selector"
             git push origin HEAD:main
           else
-            echo "Studio Pro is already upgraded."
+            echo "Studio upgrade already installed."
           fi
