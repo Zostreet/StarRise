@@ -1,0 +1,366 @@
+
+name: Integrate StarRise Vocal Cleanup
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout StarRise
+        uses: actions/checkout@v4
+
+      - name: Install Vocal Cleanup Pro
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("studio.html")
+          html = path.read_text(encoding="utf-8")
+          marker = "STARRISE_VOCAL_CLEANUP_PRO_V1"
+
+          if marker in html:
+              print("Vocal Cleanup Pro already installed.")
+              raise SystemExit(0)
+
+          if "</body>" not in html:
+              raise SystemExit("Studio HTML is invalid.")
+
+          required = [
+              "let tracks=[]",
+              "function makeTrack(",
+              "function renderTracks()"
+          ]
+          for item in required:
+              if item not in html:
+                  raise SystemExit("Missing studio API: " + item)
+
+          upgrade = r'''
+          <!-- STARRISE_VOCAL_CLEANUP_PRO_V1 -->
+          <style>
+          #srCleanup {
+            max-width:1250px;
+            margin:20px auto;
+            padding:20px;
+            border:1px solid #655879;
+            border-radius:16px;
+            background:#211a32;
+            color:#f8f4ff;
+          }
+          #srCleanup h2 {color:#d9a8ff}
+          #srCleanup label {
+            display:block;
+            margin:15px 0;
+          }
+          #srCleanup select,
+          #srCleanup input[type=range] {
+            display:block;
+            width:100%;
+            max-width:700px;
+            margin-top:8px;
+          }
+          #srCleanup button {
+            padding:12px 18px;
+            margin:6px 6px 6px 0;
+          }
+          #srCleanup .hint {
+            color:#d4c8e3;
+            line-height:1.5;
+          }
+          </style>
+
+          <section id="srCleanup">
+            <h2>StarRise Vocal Cleanup Pro</h2>
+            <p class="hint">
+              Reduce quiet background noise between vocal
+              phrases while preserving your original track.
+              This is an adjustable noise gate, not spectral
+              noise removal.
+            </p>
+
+            <label>
+              Vocal Track
+              <select id="srCleanTrack"></select>
+            </label>
+
+            <label>
+              Noise Threshold:
+              <output id="srCleanValue">-45 dB</output>
+              <input id="srCleanThreshold"
+                     type="range"
+                     min="-65"
+                     max="-20"
+                     value="-45"
+                     step="1">
+            </label>
+
+            <label>
+              Reduction Amount:
+              <output id="srCleanReductionValue">18 dB</output>
+              <input id="srCleanReduction"
+                     type="range"
+                     min="0"
+                     max="40"
+                     value="18"
+                     step="1">
+            </label>
+
+            <label>
+              Attack:
+              <output id="srCleanAttackValue">10 ms</output>
+              <input id="srCleanAttack"
+                     type="range"
+                     min="2"
+                     max="50"
+                     value="10">
+            </label>
+
+            <label>
+              Release:
+              <output id="srCleanReleaseValue">180 ms</output>
+              <input id="srCleanRelease"
+                     type="range"
+                     min="50"
+                     max="600"
+                     value="180">
+            </label>
+
+            <div>
+              <button id="srCleanRefresh" type="button">
+                Refresh Vocal Tracks
+              </button>
+              <button id="srCleanApply" type="button">
+                Create Clean Vocal Track
+              </button>
+            </div>
+
+            <p id="srCleanStatus" role="status">
+              Select a vocal recording to begin.
+            </p>
+
+            <p class="hint">
+              A new track is created. The original is muted,
+              not deleted. Compare both tracks by changing
+              their mute settings in the mixer.
+              Save your project after processing.
+            </p>
+          </section>
+
+          <script>
+          (() => {
+            'use strict';
+
+            const el = id => document.getElementById(id);
+            const select = el('srCleanTrack');
+            const apply = el('srCleanApply');
+            const message = el('srCleanStatus');
+
+            const controls = [
+              ['srCleanThreshold','srCleanValue',' dB'],
+              ['srCleanReduction','srCleanReductionValue',' dB'],
+              ['srCleanAttack','srCleanAttackValue',' ms'],
+              ['srCleanRelease','srCleanReleaseValue',' ms']
+            ];
+
+            controls.forEach(([input,output,unit]) => {
+              el(input).addEventListener('input', () => {
+                el(output).textContent = el(input).value + unit;
+              });
+            });
+
+            function refresh() {
+              const previous = select.value;
+              select.replaceChildren();
+
+              tracks.filter(t =>
+                t.type === 'vocal' && t.buffer
+              ).forEach(track => {
+                const option = document.createElement('option');
+                option.value = String(track.id);
+                option.textContent = track.name;
+                select.append(option);
+              });
+
+              if ([...select.options].some(o =>
+                o.value === previous
+              )) {
+                select.value = previous;
+              }
+
+              apply.disabled = !select.options.length;
+            }
+
+            el('srCleanRefresh').onclick = refresh;
+            select.addEventListener('focus', refresh);
+
+            function process(buffer,settings) {
+              const rate = buffer.sampleRate;
+              const result = getContext().createBuffer(
+                buffer.numberOfChannels,
+                buffer.length,
+                rate
+              );
+
+              const threshold = Math.pow(
+                10,settings.threshold / 20
+              );
+
+              const floor = Math.pow(
+                10,-settings.reduction / 20
+              );
+
+              const attack = Math.exp(
+                -1 / (rate * settings.attack / 1000)
+              );
+
+              const release = Math.exp(
+                -1 / (rate * settings.release / 1000)
+              );
+
+              const envelopeCoefficient = Math.exp(
+                -1 / (rate * 0.008)
+              );
+
+              const channels = Array.from(
+                {length:buffer.numberOfChannels},
+                (_,i) => buffer.getChannelData(i)
+              );
+
+              const outputs = Array.from(
+                {length:buffer.numberOfChannels},
+                (_,i) => result.getChannelData(i)
+              );
+
+              let envelope = 0;
+              let gain = 1;
+
+              for(let i=0;i<buffer.length;i++) {
+                let peak = 0;
+
+                for(let c=0;c<channels.length;c++) {
+                  peak = Math.max(
+                    peak,Math.abs(channels[c][i])
+                  );
+                }
+
+                envelope = Math.max(
+                  peak,
+                  envelope * envelopeCoefficient
+                );
+
+                const target = envelope >= threshold
+                  ? 1 : floor;
+
+                const coefficient = target > gain
+                  ? attack : release;
+
+                gain = target +
+                  coefficient * (gain - target);
+
+                for(let c=0;c<channels.length;c++) {
+                  outputs[c][i] = channels[c][i] * gain;
+                }
+              }
+
+              return result;
+            }
+
+            apply.onclick = async () => {
+              const id = Number(select.value);
+              const track = tracks.find(t =>
+                t.id === id && t.type === 'vocal'
+              );
+
+              if (!track) {
+                message.textContent =
+                  'Choose a vocal track first.';
+                return;
+              }
+
+              if (typeof recording !== 'undefined' &&
+                  recording) {
+                message.textContent =
+                  'Stop recording before processing.';
+                return;
+              }
+
+              apply.disabled = true;
+              message.textContent =
+                'Cleaning vocal recording...';
+
+              try {
+                await new Promise(resolve =>
+                  setTimeout(resolve,30)
+                );
+
+                const settings = {
+                  threshold:Number(el(
+                    'srCleanThreshold').value),
+                  reduction:Number(el(
+                    'srCleanReduction').value),
+                  attack:Number(el(
+                    'srCleanAttack').value),
+                  release:Number(el(
+                    'srCleanRelease').value)
+                };
+
+                const output = process(
+                  track.buffer,settings
+                );
+
+                const clean = makeTrack(
+                  track.name + ' (Clean)',
+                  output,
+                  'vocal',
+                  track.offset
+                );
+
+                clean.trimStart = track.trimStart;
+                clean.trimEnd = track.trimEnd;
+                clean.volume = track.volume;
+                clean.pan = track.pan;
+
+                track.mute = true;
+                renderTracks();
+                refresh();
+
+                message.textContent =
+                  'Clean vocal track created. ' +
+                  'Original preserved and muted. ' +
+                  'Compare both in Mixer & FX, ' +
+                  'then save your project.';
+
+              } catch(error) {
+                message.textContent =
+                  'Cleanup failed: ' + error.message;
+              } finally {
+                refresh();
+              }
+            };
+
+            refresh();
+          })();
+          </script>
+          '''
+
+          html = html.replace(
+              "</body>",upgrade + "\n</body>"
+          )
+
+          path.write_text(html,encoding="utf-8")
+          print("Vocal Cleanup Pro installed.")
+          PY
+
+      - name: Commit Upgrade
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add studio.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Add StarRise Vocal Cleanup Pro"
+            git push
+          fi
