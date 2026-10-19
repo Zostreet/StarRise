@@ -1,0 +1,223 @@
+
+name: Integrate Studio Pitch Correction
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout StarRise
+        uses: actions/checkout@v4
+
+      - name: Integrate Studio and Pitch Lab
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          studio = Path("studio.html")
+          pitch = Path("starrise-pitch-lab.html")
+
+          if not studio.exists() or not pitch.exists():
+              raise SystemExit("Required studio files missing")
+
+          source = studio.read_text()
+          target = pitch.read_text()
+
+          marker = "STARRISE_DIRECT_PITCH_BRIDGE_V1"
+
+          if marker not in source:
+              bridge = r'''
+          <!-- STARRISE_DIRECT_PITCH_BRIDGE_V1 -->
+          <script>
+          (() => {
+            const panel = document.getElementById('srPitchIntegration');
+            const frame = document.getElementById('srPitchFrame');
+            const open = document.getElementById('srOpenPitch');
+            if (!panel || !frame || !open) return;
+
+            const select = document.createElement('select');
+            const send = document.createElement('button');
+            const info = document.createElement('p');
+            info.setAttribute('role', 'status');
+            send.textContent = 'Send Vocal to Pitch Lab';
+            send.type = 'button';
+            const label = document.createElement('label');
+            label.textContent = 'Session Vocal ';
+            label.append(select);
+            panel.insertBefore(label, open);
+            panel.insertBefore(send, open);
+            panel.insertBefore(info, open);
+
+            let pending = null;
+
+            function refresh() {
+              const previous = select.value;
+              select.replaceChildren();
+              tracks.filter(t => t.type === 'vocal' && t.buffer)
+                .forEach(t => {
+                  const option = document.createElement('option');
+                  option.value = String(t.id);
+                  option.textContent = t.name;
+                  select.append(option);
+                });
+              if ([...select.options].some(o => o.value === previous))
+                select.value = previous;
+              send.disabled = !select.options.length;
+            }
+
+            select.addEventListener('focus', refresh);
+            send.addEventListener('click', async () => {
+              refresh();
+              const track = tracks.find(t =>
+                t.id === Number(select.value) && t.type === 'vocal');
+              if (!track) {
+                info.textContent = 'Select a vocal track first.';
+                return;
+              }
+              if (document.getElementById('srPitchContainer').hidden)
+                open.click();
+
+              pending = track.id;
+              info.textContent = 'Preparing vocal...';
+              try {
+                const wavData = encodeWav(track.buffer);
+                const bytes = wavData instanceof Blob
+                  ? await wavData.arrayBuffer() : wavData;
+
+                const deliver = () => {
+                  frame.contentWindow.postMessage({
+                    kind: 'sr-pitch-load-v1',
+                    id: track.id,
+                    name: track.name,
+                    bytes
+                  }, location.origin);
+                  info.textContent = 'Vocal sent to Pitch Lab.';
+                };
+
+                if (frame.contentDocument?.readyState === 'complete')
+                  deliver();
+                else frame.addEventListener('load', deliver, {once:true});
+              } catch (error) {
+                info.textContent = error.message;
+              }
+            });
+
+            window.addEventListener('message', async event => {
+              if (event.origin !== location.origin ||
+                  event.source !== frame.contentWindow) return;
+              const msg = event.data;
+              if (!msg || msg.kind !== 'sr-pitch-return-v1' ||
+                  msg.id !== pending) return;
+
+              const original = tracks.find(t => t.id === msg.id);
+              if (!original) return;
+
+              try {
+                const buffer = await getContext()
+                  .decodeAudioData(msg.bytes.slice(0));
+                const corrected = makeTrack(
+                  original.name + ' (Pitch Corrected)',
+                  buffer, 'vocal', original.offset
+                );
+                corrected.trimStart = original.trimStart;
+                corrected.trimEnd = original.trimEnd;
+                corrected.volume = original.volume;
+                corrected.pan = original.pan;
+                original.mute = true;
+                renderTracks();
+                info.textContent =
+                  'Corrected vocal added. Original preserved and muted.';
+                pending = null;
+              } catch (error) {
+                info.textContent = error.message;
+              }
+            });
+            refresh();
+          })();
+          </script>
+          '''
+              source = source.replace("</body>", bridge + "\n</body>")
+              studio.write_text(source)
+
+          if marker not in target:
+              bridge = r'''
+          <!-- STARRISE_DIRECT_PITCH_BRIDGE_V1 -->
+          <script>
+          (() => {
+            let sessionId = null;
+            let sessionFile = null;
+
+            window.addEventListener('message', event => {
+              if (event.origin !== location.origin ||
+                  event.source !== window.parent) return;
+              const msg = event.data;
+              if (!msg || msg.kind !== 'sr-pitch-load-v1' ||
+                  !(msg.bytes instanceof ArrayBuffer)) return;
+
+              sessionId = msg.id;
+              const file = new File(
+                [msg.bytes], 'session-vocal.wav',
+                {type:'audio/wav'}
+              );
+              sessionFile = file;
+              const transfer = new DataTransfer();
+              transfer.items.add(file);
+              $('file').files = transfer.files;
+              $('file').dispatchEvent(new Event('change'));
+              status('Session vocal loaded. Ready to correct.');
+            });
+
+            const button = document.createElement('button');
+            button.textContent = 'Add Corrected Vocal to Studio';
+            button.type = 'button';
+            button.disabled = true;
+            $('download').insertAdjacentElement('afterend', button);
+
+            const observer = new MutationObserver(() => {
+              button.disabled = !correctedBuffer || sessionId === null;
+            });
+            observer.observe($('download'), {
+              attributes:true, attributeFilter:['disabled']
+            });
+
+            $('file').addEventListener('change', () => {
+              if ($('file').files[0] !== sessionFile)
+                sessionId = null;
+              button.disabled = true;
+            });
+
+            button.addEventListener('click', async () => {
+              if (!correctedBuffer || sessionId === null) return;
+              try {
+                const bytes = await wav(correctedBuffer).arrayBuffer();
+                window.parent.postMessage({
+                  kind:'sr-pitch-return-v1',
+                  id:sessionId,
+                  bytes
+                }, location.origin);
+                status('Corrected vocal sent back to Studio Pro.');
+              } catch (error) {
+                status(error.message);
+              }
+            });
+          })();
+          </script>
+          '''
+              target = target.replace("</body>", bridge + "\n</body>")
+              pitch.write_text(target)
+          PY
+
+      - name: Commit integration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add studio.html starrise-pitch-lab.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Integrate Pitch Lab with Studio Pro tracks"
+            git push
+          fi
