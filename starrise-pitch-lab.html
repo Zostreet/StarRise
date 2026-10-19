@@ -1,0 +1,400 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StarRise Pitch Lab</title>
+<style>
+:root{color-scheme:dark}
+body{font:16px system-ui;background:#110d1c;color:#f8f4ff;max-width:800px;margin:auto;padding:20px}
+h1{color:#e7b9ff}
+main{background:#211a32;border:1px solid #634e85;border-radius:16px;padding:20px}
+label{display:block;margin:16px 0}
+select,input[type=file],input[type=range]{display:block;width:100%;margin-top:8px}
+button{background:#9b55e8;color:white;border:0;padding:12px 16px;border-radius:9px;margin:6px 6px 6px 0;font-weight:650}
+button:disabled{opacity:.4}
+p,small{line-height:1.5}
+audio{width:100%;margin-top:8px}
+#status{min-height:3em;color:#e7d5ff}
+progress{width:100%}
+</style>
+</head>
+<body>
+<main>
+<h1>StarRise Pitch Lab</h1>
+<p>Experimental, non-destructive pitch correction for <strong>solo vocal recordings</strong>. This is a standalone test page, not a production Studio Pro update. Polyphonic songs and heavy vibrato may produce artifacts.</p>
+
+<label>Vocal WAV, MP3 or other supported audio
+<input id="file" type="file" accept="audio/*">
+</label>
+
+<label>Key
+<select id="key"></select>
+</label>
+
+<label>Scale
+<select id="scale">
+<option value="chromatic">Chromatic</option>
+<option value="major">Major</option>
+<option value="minor">Natural minor</option>
+</select>
+</label>
+
+<label>Correction strength <output id="strengthValue">75%</output>
+<input id="strength" type="range" min="0" max="100" value="75">
+</label>
+
+<label>Pitch detection range
+<select id="range">
+<option value="70,550">Typical vocals (70–550 Hz)</option>
+<option value="45,300">Low voice (45–300 Hz)</option>
+<option value="120,1000">High voice (120–1000 Hz)</option>
+</select>
+</label>
+
+<button id="process" disabled>Correct Vocal</button>
+<button id="download" disabled>Export Corrected WAV</button>
+<progress id="progress" value="0" max="100"></progress>
+<p id="status" role="status">Choose a vocal recording to begin.</p>
+
+<h3>Original</h3>
+<audio id="original" controls></audio>
+
+<h3>Corrected preview</h3>
+<audio id="corrected" controls></audio>
+
+<small>For evaluation only: offline pitch tracking and overlap-add resynthesis. Timing is approximately preserved; timbre and formants are not guaranteed. Use headphones to compare. Processing stays in this browser and does not upload your audio.</small>
+</main>
+
+<script>
+'use strict';
+
+const $=id=>document.getElementById(id);
+const names=['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+
+names.forEach((n,i)=>{
+  const o=document.createElement('option');
+  o.value=i;
+  o.textContent=n;
+  $('key').append(o);
+});
+
+const status=s=>$('status').textContent=s;
+
+let originalURL=null;
+let correctedURL=null;
+let correctedBuffer=null;
+
+$('strength').oninput=()=>{
+  $('strengthValue').textContent=$('strength').value+'%';
+};
+
+$('file').onchange=()=>{
+  const f=$('file').files[0];
+  $('process').disabled=!f;
+  $('download').disabled=true;
+  correctedBuffer=null;
+
+  if(originalURL) URL.revokeObjectURL(originalURL);
+  if(correctedURL) URL.revokeObjectURL(correctedURL);
+
+  correctedURL=null;
+  $('corrected').removeAttribute('src');
+  $('corrected').load();
+
+  originalURL=f?URL.createObjectURL(f):null;
+  $('original').src=originalURL||'';
+
+  status(f?'Ready: '+f.name:'Choose a vocal recording.');
+};
+
+function nearestMidi(midi,key,scale){
+  const degrees=scale==='major'
+    ?[0,2,4,5,7,9,11]
+    :scale==='minor'
+    ?[0,2,3,5,7,8,10]
+    :[0,1,2,3,4,5,6,7,8,9,10,11];
+
+  let best=midi,dist=Infinity;
+
+  for(let m=Math.floor(midi)-7;m<=Math.ceil(midi)+7;m++){
+    if(
+      degrees.includes(((m-key)%12+12)%12)
+      && Math.abs(m-midi)<dist
+    ){
+      dist=Math.abs(m-midi);
+      best=m;
+    }
+  }
+
+  return best;
+}
+
+function detectPitch(data,center,sr,minHz,maxHz){
+  const N=2048;
+  const half=N>>1;
+  const start=center-half;
+
+  if(start<0||start+N>=data.length)return null;
+
+  let mean=0;
+  for(let i=0;i<N;i++)mean+=data[start+i];
+  mean/=N;
+
+  let energy=0;
+  for(let i=0;i<N;i++){
+    const x=data[start+i]-mean;
+    energy+=x*x;
+  }
+
+  if(energy/N<0.00006)return null;
+
+  const minLag=Math.max(2,Math.floor(sr/maxHz));
+  const maxLag=Math.min(N>>1,Math.ceil(sr/minHz));
+
+  let bestLag=0,best=Infinity;
+
+  for(let lag=minLag;lag<=maxLag;lag++){
+    let diff=0;
+
+    for(let i=0;i<N-lag;i+=2){
+      const d=data[start+i]-data[start+i+lag];
+      diff+=d*d;
+    }
+
+    const normalized=diff/(energy*(N-lag)/N+1e-12);
+
+    if(normalized<best){
+      best=normalized;
+      bestLag=lag;
+    }
+  }
+
+  if(best>.19||!bestLag)return null;
+  return sr/bestLag;
+}
+
+// Experimental overlap-add resynthesis.
+// Source audio remains unchanged.
+function shiftChannel(input,sr,settings,onProgress){
+  const out=new Float32Array(input.length);
+  const weight=new Float32Array(input.length);
+
+  const grain=4096,hop=1024,half=grain>>1;
+  const [lo,hi]=settings.range;
+
+  for(let center=half;center<input.length-half;center+=hop){
+    const hz=detectPitch(input,center,sr,lo,hi);
+    let ratio=1;
+
+    if(hz){
+      const midi=69+12*Math.log2(hz/440);
+      const target=nearestMidi(
+        midi,settings.key,settings.scale
+      );
+
+      ratio=Math.pow(
+        2,
+        (target-midi)*settings.strength/12
+      );
+
+      ratio=Math.max(.75,Math.min(1.34,ratio));
+    }
+
+    for(let i=0;i<grain;i++){
+      const dst=center-half+i;
+      const src=center+(i-half)*ratio;
+
+      if(
+        dst<0||dst>=out.length||
+        src<0||src>=input.length-1
+      )continue;
+
+      const j=Math.floor(src);
+      const frac=src-j;
+      const w=.5-.5*Math.cos(
+        2*Math.PI*i/(grain-1)
+      );
+
+      out[dst]+=(
+        (1-frac)*input[j]+frac*input[j+1]
+      )*w;
+
+      weight[dst]+=w;
+    }
+
+    if(
+      onProgress&&
+      center%(hop*40)===half%(hop*40)
+    ){
+      onProgress(center/input.length);
+    }
+  }
+
+  for(let i=0;i<out.length;i++){
+    out[i]=weight[i]>.001
+      ?Math.max(-1,Math.min(1,out[i]/weight[i]))
+      :input[i];
+  }
+
+  return out;
+}
+
+function wav(buffer){
+  const ch=Math.min(2,buffer.numberOfChannels);
+  const len=buffer.length;
+
+  const ab=new ArrayBuffer(44+len*ch*2);
+  const v=new DataView(ab);
+
+  let p=0;
+
+  const str=s=>{
+    for(const c of s){
+      v.setUint8(p++,c.charCodeAt(0));
+    }
+  };
+
+  str('RIFF');
+  v.setUint32(p,36+len*ch*2,true);p+=4;
+  str('WAVEfmt ');
+  v.setUint32(p,16,true);p+=4;
+  v.setUint16(p,1,true);p+=2;
+  v.setUint16(p,ch,true);p+=2;
+  v.setUint32(p,buffer.sampleRate,true);p+=4;
+  v.setUint32(p,buffer.sampleRate*ch*2,true);p+=4;
+  v.setUint16(p,ch*2,true);p+=2;
+  v.setUint16(p,16,true);p+=2;
+  str('data');
+  v.setUint32(p,len*ch*2,true);p+=4;
+
+  const channels=Array.from(
+    {length:ch},
+    (_,i)=>buffer.getChannelData(i)
+  );
+
+  for(let i=0;i<len;i++){
+    for(let c=0;c<ch;c++){
+      const x=Math.max(
+        -1,Math.min(1,channels[c][i])
+      );
+
+      v.setInt16(
+        p,x<0?x*32768:x*32767,true
+      );
+      p+=2;
+    }
+  }
+
+  return new Blob([ab],{type:'audio/wav'});
+}
+
+$('process').onclick=async()=>{
+  const file=$('file').files[0];
+  if(!file)return;
+
+  const btn=$('process');
+  btn.disabled=true;
+  $('download').disabled=true;
+  $('progress').value=0;
+
+  status('Decoding vocal…');
+
+  let ctx;
+
+  try{
+    ctx=new (
+      window.AudioContext||
+      window.webkitAudioContext
+    )();
+
+    const input=await ctx.decodeAudioData(
+      await file.arrayBuffer()
+    );
+
+    if(input.duration>180){
+      throw Error(
+        'This prototype accepts recordings up to 3 minutes.'
+      );
+    }
+
+    if(input.sampleRate>48000){
+      throw Error(
+        'Use a 44.1 or 48 kHz recording for this prototype.'
+      );
+    }
+
+    const settings={
+      key:Number($('key').value),
+      scale:$('scale').value,
+      strength:Number($('strength').value)/100,
+      range:$('range').value.split(',').map(Number)
+    };
+
+    const out=ctx.createBuffer(
+      input.numberOfChannels,
+      input.length,
+      input.sampleRate
+    );
+
+    for(let c=0;c<input.numberOfChannels;c++){
+      status(
+        'Processing channel '+(c+1)+
+        ' of '+input.numberOfChannels+'…'
+      );
+
+      await new Promise(resolve=>setTimeout(resolve,25));
+
+      out.copyToChannel(
+        shiftChannel(
+          input.getChannelData(c),
+          input.sampleRate,
+          settings,
+          p=>{
+            $('progress').value=Math.round(
+              100*(c+p)/input.numberOfChannels
+            );
+          }
+        ),
+        c
+      );
+    }
+
+    correctedBuffer=out;
+
+    if(correctedURL){
+      URL.revokeObjectURL(correctedURL);
+    }
+
+    correctedURL=URL.createObjectURL(wav(out));
+    $('corrected').src=correctedURL;
+    $('download').disabled=false;
+    $('progress').value=100;
+
+    status(
+      'Correction ready. Compare both players before exporting.'
+    );
+
+  }catch(e){
+    status('Could not process recording: '+e.message);
+  }finally{
+    btn.disabled=false;
+    if(ctx)ctx.close().catch(()=>{});
+  }
+};
+
+$('download').onclick=()=>{
+  if(!correctedBuffer)return;
+
+  const a=document.createElement('a');
+  a.href=correctedURL;
+  a.download='starrise-corrected-vocal.wav';
+
+  document.body.append(a);
+  a.click();
+  a.remove();
+};
+</script>
+</body>
+</html>
