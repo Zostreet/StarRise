@@ -614,6 +614,11 @@ status("Sample import failed: "+e.message);
 
 // STARRISE_STUDIO_TRANSFER_IMPORT
 async function importSharedMessageAudio() {
+  if (
+    typeof location === "undefined" ||
+    typeof URLSearchParams === "undefined"
+  ) return;
+
   const params = new URLSearchParams(location.search);
   if (params.get("import") !== "message") return;
 
