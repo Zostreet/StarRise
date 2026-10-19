@@ -396,5 +396,68 @@ $('download').onclick=()=>{
   a.remove();
 };
 </script>
+
+<!-- STARRISE_DIRECT_PITCH_BRIDGE_V1 -->
+<script>
+(() => {
+  let sessionId = null;
+  let sessionFile = null;
+
+  window.addEventListener('message', event => {
+    if (event.origin !== location.origin ||
+        event.source !== window.parent) return;
+    const msg = event.data;
+    if (!msg || msg.kind !== 'sr-pitch-load-v1' ||
+        !(msg.bytes instanceof ArrayBuffer)) return;
+
+    sessionId = msg.id;
+    const file = new File(
+      [msg.bytes], 'session-vocal.wav',
+      {type:'audio/wav'}
+    );
+    sessionFile = file;
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    $('file').files = transfer.files;
+    $('file').dispatchEvent(new Event('change'));
+    status('Session vocal loaded. Ready to correct.');
+  });
+
+  const button = document.createElement('button');
+  button.textContent = 'Add Corrected Vocal to Studio';
+  button.type = 'button';
+  button.disabled = true;
+  $('download').insertAdjacentElement('afterend', button);
+
+  const observer = new MutationObserver(() => {
+    button.disabled = !correctedBuffer || sessionId === null;
+  });
+  observer.observe($('download'), {
+    attributes:true, attributeFilter:['disabled']
+  });
+
+  $('file').addEventListener('change', () => {
+    if ($('file').files[0] !== sessionFile)
+      sessionId = null;
+    button.disabled = true;
+  });
+
+  button.addEventListener('click', async () => {
+    if (!correctedBuffer || sessionId === null) return;
+    try {
+      const bytes = await wav(correctedBuffer).arrayBuffer();
+      window.parent.postMessage({
+        kind:'sr-pitch-return-v1',
+        id:sessionId,
+        bytes
+      }, location.origin);
+      status('Corrected vocal sent back to Studio Pro.');
+    } catch (error) {
+      status(error.message);
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
