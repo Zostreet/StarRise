@@ -95,6 +95,7 @@ input[type=range]{width:110px}
 <button data-tab="record">Recording</button>
 <button data-tab="mixer">Mixer & FX</button>
 <button data-tab="export">Export</button>
+<button id="srPitchNav" type="button" data-tab="pitch">Pitch Correction</button>
 </nav>
 
 <section id="beats" class="view active">
@@ -191,7 +192,7 @@ input[type=range]{width:110px}
 Choose Save Project to keep this session, including its audio, on this device.
 Choose Load Project to reopen that saved session. Browser storage can be cleared or become full;
 download a full project backup to keep a separate copy or move to another device.
-This version includes vocal tone presets but not automatic pitch correction,
+This version includes vocal tone presets, experimental vocal tuning and Pitch Lab correction, but not professional-grade real-time automatic pitch correction,
 third-party VST hosting or real-time cloud collaboration.
 </p>
 </section>
@@ -3462,6 +3463,35 @@ renderTracks();
         block: "nearest"
       });
     }
+  });
+})();
+</script>
+
+
+<script>
+// STARRISE_PITCH_NAV_V1
+(() => {
+  const nav = document.getElementById("srPitchNav");
+  const panel = document.getElementById(
+    "srPitchIntegration"
+  );
+  const open = document.getElementById(
+    "srOpenPitch"
+  );
+
+  if (!nav || !panel || !open) return;
+
+  nav.addEventListener("click", () => {
+    if (document.getElementById(
+      "srPitchContainer"
+    ).hidden) {
+      open.click();
+    }
+
+    panel.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
   });
 })();
 </script>
