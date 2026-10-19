@@ -22,7 +22,7 @@ jobs:
         with:
           ref: main
 
-      - name: Add track type selector
+      - name: Install safe track type selector
         shell: bash
         run: |
           python3 - <<'PY'
@@ -31,18 +31,18 @@ jobs:
           path = Path("studio.html")
           html = path.read_text(encoding="utf-8")
 
-          marker = "STARRISE_TRACK_TYPE_SELECTOR_V1"
+          marker = "STARRISE_TRACK_TYPE_SELECTOR_V2"
 
           if marker in html:
-              print("Track type selector already installed.")
+              print("Upgrade already installed.")
           else:
-              old = '''row.append(fx);
+              anchor = '''row.append(fx);
 
           const comparison=document.createElement("div");'''
 
-              new = '''row.append(fx);
+              replacement = '''row.append(fx);
 
-          // STARRISE_TRACK_TYPE_SELECTOR_V1
+          // STARRISE_TRACK_TYPE_SELECTOR_V2
           const typeControls=document.createElement("div");
           typeControls.className="controls";
 
@@ -58,25 +58,30 @@ jobs:
             const option=document.createElement("option");
             option.value=value;
             option.textContent=label;
+            option.selected=(
+              value===(track.type==="vocal"?"vocal":"audio")
+            );
             typeSelect.append(option);
           });
 
-          typeSelect.value=track.type==="vocal"
-            ?"vocal":"audio";
-
-          typeSelect.onchange=()=>{
+          typeSelect.onchange=(event)=>{
             if(recording){
-              typeSelect.value=track.type==="vocal"
-                ?"vocal":"audio";
               status("Stop recording before changing track type.");
+              renderTracks();
               return;
             }
 
-            track.type=typeSelect.value;
+            const selected=event.target.value;
+
+            if(selected!=="audio" && selected!=="vocal"){
+              return;
+            }
+
+            track.type=selected;
             renderTracks();
 
             status(
-              track.type==="vocal"
+              selected==="vocal"
                 ?"Vocal tools enabled. Save Project to keep this setting."
                 :"Audio track mode enabled. Save Project to keep this setting."
             );
@@ -88,19 +93,14 @@ jobs:
 
           const comparison=document.createElement("div");'''
 
-              if html.count(old)!=1:
+              if html.count(anchor)!=1:
                   raise SystemExit(
-                      "Expected mixer anchor not found exactly once. "
-                      "No changes committed."
+                      "Studio mixer anchor mismatch. "
+                      "No files changed."
                   )
 
-              html=html.replace(old,new,1)
-
-              path.write_text(
-                  html,
-                  encoding="utf-8"
-              )
-
+              html=html.replace(anchor,replacement,1)
+              path.write_text(html,encoding="utf-8")
               print("Track type selector installed.")
 
           PY
@@ -134,8 +134,8 @@ jobs:
           git add studio.html
 
           if ! git diff --cached --quiet; then
-            git commit -m "Add Studio Pro vocal track selector"
+            git commit -m "Fix Studio Pro vocal track selector"
             git push origin HEAD:main
           else
-            echo "Studio upgrade already installed."
+            echo "Upgrade already installed."
           fi
