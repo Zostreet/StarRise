@@ -1,0 +1,122 @@
+
+name: Fix Vocal Cleanup Navigation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout StarRise
+        uses: actions/checkout@v4
+
+      - name: Move Vocal Cleanup into Mixer
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path("studio.html")
+          html = path.read_text(encoding="utf-8")
+
+          marker = "STARRISE_VOCAL_CLEANUP_PRO_V1"
+
+          if marker not in html:
+              raise SystemExit(
+                  "Vocal Cleanup Pro is not installed."
+              )
+
+          if 'id="mixer"' not in html:
+              raise SystemExit(
+                  "Mixer section was not found."
+              )
+
+          if 'id="srCleanup"' not in html:
+              raise SystemExit(
+                  "Vocal Cleanup panel was not found."
+              )
+
+          # Extract existing cleanup section.
+          match = re.search(
+              r'<section id="srCleanup">.*?</section>',
+              html,
+              flags=re.DOTALL
+          )
+
+          if not match:
+              raise SystemExit(
+                  "Could not locate cleanup section."
+              )
+
+          panel = match.group(0)
+
+          # Remove the original standalone section.
+          html = html[:match.start()] + html[match.end():]
+
+          # Insert into the existing Mixer & FX tab.
+          anchor = '<div id="mixerTracks"></div>'
+
+          if anchor not in html:
+              raise SystemExit(
+                  "Mixer track container was not found."
+              )
+
+          html = html.replace(
+              anchor,
+              anchor + "\n" + panel,
+              1
+          )
+
+          # Make the panel follow existing studio styling.
+          html = html.replace(
+              '<section id="srCleanup">',
+              '<section id="srCleanup" class="panel">'
+          )
+
+          # Confirm exactly one cleanup panel remains.
+          if html.count('id="srCleanup"') != 1:
+              raise SystemExit(
+                  "Unexpected cleanup panel count."
+              )
+
+          path.write_text(html, encoding="utf-8")
+          print(
+              "Vocal Cleanup Pro moved into Mixer & FX."
+          )
+          PY
+
+      - name: Verify Integration
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          html = Path("studio.html").read_text()
+
+          start = html.index('<section id="mixer"')
+          end = html.index('<section id="export"', start)
+
+          mixer = html[start:end]
+
+          assert 'id="srCleanup"' in mixer
+          assert 'id="mixerTracks"' in mixer
+          assert html.count('id="srCleanup"') == 1
+
+          print("Mixer integration verified.")
+          PY
+
+      - name: Commit Fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add studio.html
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Fix Vocal Cleanup Pro navigation"
+            git push
+          fi
