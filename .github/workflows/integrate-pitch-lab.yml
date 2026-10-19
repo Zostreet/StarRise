@@ -1,0 +1,210 @@
+
+name: Integrate StarRise Pitch Lab
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    name: Integrate and test Pitch Lab
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout StarRise
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Integrate Pitch Lab into Studio Pro
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          studio = Path("studio.html")
+          lab = Path("starrise-pitch-lab.html")
+
+          if not studio.exists() or not lab.exists():
+              raise SystemExit("Required Studio files missing.")
+
+          html = studio.read_text(encoding="utf-8")
+
+          marker = "STARRISE_PITCH_LAB_INTEGRATION_V1"
+
+          if marker in html:
+              print("Pitch Lab integration already installed.")
+          else:
+              anchor = "</body>"
+
+              if html.count(anchor) != 1:
+                  raise SystemExit(
+                      "Studio page structure changed. "
+                      "No changes made."
+                  )
+
+              integration = """
+          <!-- STARRISE_PITCH_LAB_INTEGRATION_V1 -->
+          <style>
+          #srPitchIntegration {
+            max-width: 1250px;
+            margin: 18px auto;
+            padding: 16px;
+            background: #211a32;
+            color: #f8f4ff;
+            border: 1px solid #655879;
+            border-radius: 14px;
+          }
+
+          #srPitchIntegration h2 {
+            color: #d9a8ff;
+          }
+
+          #srPitchIntegration iframe {
+            width: 100%;
+            height: 850px;
+            border: 1px solid #655879;
+            border-radius: 12px;
+            background: #110d1c;
+          }
+
+          #srPitchIntegration button {
+            background: #8c48d0;
+            color: white;
+            border: 0;
+            border-radius: 8px;
+            padding: 12px 18px;
+            font-weight: bold;
+          }
+          </style>
+
+          <section id="srPitchIntegration"
+                   aria-labelledby="srPitchHeading">
+
+            <h2 id="srPitchHeading">
+              StarRise Studio Pro | Vocal Pitch Correction
+            </h2>
+
+            <p>
+              Experimental vocal pitch correction is now
+              available inside Studio Pro.
+              Select an isolated vocal recording,
+              choose its key and scale, and compare
+              the corrected audio with the original.
+            </p>
+
+            <p>
+              This first integration uses a separate
+              audio file picker. Automatic transfer
+              from Session Tracks is not enabled yet.
+            </p>
+
+            <button id="srOpenPitch"
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="srPitchFrame">
+              Open Vocal Pitch Correction
+            </button>
+
+            <div id="srPitchContainer" hidden>
+              <iframe
+                id="srPitchFrame"
+                title="StarRise Vocal Pitch Lab"
+                loading="lazy"
+                referrerpolicy="same-origin">
+              </iframe>
+            </div>
+
+          </section>
+
+          <script>
+          (() => {
+            const button =
+              document.getElementById("srOpenPitch");
+
+            const container =
+              document.getElementById("srPitchContainer");
+
+            const frame =
+              document.getElementById("srPitchFrame");
+
+            button.addEventListener("click", () => {
+              const opening = container.hidden;
+
+              container.hidden = !opening;
+
+              button.setAttribute(
+                "aria-expanded",
+                String(opening)
+              );
+
+              button.textContent = opening
+                ? "Close Vocal Pitch Correction"
+                : "Open Vocal Pitch Correction";
+
+              if (opening && !frame.src) {
+                frame.src = "starrise-pitch-lab.html";
+              }
+
+              if (opening) {
+                container.scrollIntoView({
+                  behavior: "smooth",
+                  block: "nearest"
+                });
+              }
+            });
+          })();
+          </script>
+          """
+
+              html = html.replace(
+                  anchor,
+                  integration + "\n" + anchor,
+                  1
+              )
+
+              studio.write_text(
+                  html,
+                  encoding="utf-8"
+              )
+
+              print("Pitch Lab embedded into Studio Pro.")
+
+          PY
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Validate website
+        run: node scripts/validate-site.mjs
+
+      - name: Test Studio features
+        run: |
+          node --test \
+            creator-studio.test.cjs \
+            studio-pro.test.cjs \
+            studio-sounds.test.cjs \
+            studio-projects.test.cjs \
+            tests/launch-paths.test.cjs
+
+      - name: Test PayPal safety
+        run: |
+          node --experimental-strip-types \
+            --test tests/paypal-payment.test.mjs
+
+      - name: Commit verified integration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add studio.html
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Integrate Pitch Lab into Studio Pro"
+            git push origin HEAD:main
+          else
+            echo "Integration already installed."
+          fi
