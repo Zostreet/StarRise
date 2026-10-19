@@ -328,9 +328,23 @@ data[i]=(Math.random()*2-1)*Math.pow(1-i/length,2.5);
 return impulse;
 }
 
+// STARRISE_VOCAL_FX_AB_V1
+const studioFxBypass = new Set();
+
 function connectTrack(track,ac,destination){
 const source=ac.createBufferSource();
 source.buffer=track.buffer;
+
+if(studioFxBypass.has(track.id)){
+  const dryGain=ac.createGain();
+  dryGain.gain.value=track.mute?0:track.volume;
+  const dryPan=ac.createStereoPanner();
+  dryPan.pan.value=track.pan;
+  source.connect(dryGain);
+  dryGain.connect(dryPan);
+  dryPan.connect(destination);
+  return source;
+}
 
 const gain=ac.createGain();
 gain.gain.value=track.volume;
@@ -946,13 +960,69 @@ fx.append(
 slider("EQ / Brightness",-12,12,1,"eq"),
 slider("Low-cut (Hz)",40,180,5,"highpass"),
 slider("Presence (dB)",-6,6,1,"presence"),
-slider("Sibilance soften",0,100,5,"deess"),
+slider("De-Esser / Sibilance",0,100,5,"deess"),
 slider("Compression",0,100,5,"compression"),
 slider("Reverb",0,100,5,"reverb"),
 slider("Delay",0,100,5,"delay")
 );
 
 row.append(fx);
+
+const comparison=document.createElement("div");
+comparison.className="controls";
+
+const compareButton=document.createElement("button");
+compareButton.type="button";
+compareButton.className="secondary";
+
+function updateCompareLabel(){
+  compareButton.textContent=studioFxBypass.has(track.id)
+    ?"Hear Processed FX"
+    :"Hear Original (Bypass FX)";
+  compareButton.setAttribute(
+    "aria-pressed",
+    String(studioFxBypass.has(track.id))
+  );
+}
+
+updateCompareLabel();
+
+compareButton.onclick=()=>{
+  if(recording){
+    status("Stop recording before comparing effects.");
+    return;
+  }
+
+  const wasPlaying=playing;
+  stopSources();
+
+  if(studioFxBypass.has(track.id)){
+    studioFxBypass.delete(track.id);
+  }else{
+    studioFxBypass.add(track.id);
+  }
+
+  updateCompareLabel();
+
+  status(
+    studioFxBypass.has(track.id)
+    ?"Original track selected. Press Play Session."
+    :"Processed effects selected. Press Play Session."
+  );
+
+  if(wasPlaying){
+    playSession();
+  }
+};
+
+const compareNote=document.createElement("small");
+compareNote.textContent=
+  "Compare original and processed audio. "
+  +"Volume and pan remain active. "
+  +"This comparison does not alter the recording.";
+
+comparison.append(compareButton,compareNote);
+row.append(comparison);
 
 if(track.type==="vocal"){
   const presets=document.createElement("div");
