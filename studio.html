@@ -968,6 +968,55 @@ slider("Delay",0,100,5,"delay")
 
 row.append(fx);
 
+// STARRISE_TRACK_TYPE_SELECTOR_V2
+const typeControls=document.createElement("div");
+typeControls.className="controls";
+
+const typeLabel=document.createElement("label");
+typeLabel.textContent="Track Type";
+
+const typeSelect=document.createElement("select");
+
+[
+  ["audio","Audio / Instrument"],
+  ["vocal","Vocal Recording"]
+].forEach(([value,label])=>{
+  const option=document.createElement("option");
+  option.value=value;
+  option.textContent=label;
+  option.selected=(
+    value===(track.type==="vocal"?"vocal":"audio")
+  );
+  typeSelect.append(option);
+});
+
+typeSelect.onchange=(event)=>{
+  if(recording){
+    status("Stop recording before changing track type.");
+    renderTracks();
+    return;
+  }
+
+  const selected=event.target.value;
+
+  if(selected!=="audio" && selected!=="vocal"){
+    return;
+  }
+
+  track.type=selected;
+  renderTracks();
+
+  status(
+    selected==="vocal"
+      ?"Vocal tools enabled. Save Project to keep this setting."
+      :"Audio track mode enabled. Save Project to keep this setting."
+  );
+};
+
+typeLabel.append(typeSelect);
+typeControls.append(typeLabel);
+row.append(typeControls);
+
 const comparison=document.createElement("div");
 comparison.className="controls";
 
