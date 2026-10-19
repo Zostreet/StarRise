@@ -1,0 +1,131 @@
+
+name: Add Studio Pitch Correction Navigation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Add pitch correction navigation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("studio.html")
+          html = path.read_text(encoding="utf-8")
+
+          old = '<button data-tab="export">Export</button>'
+          new = (
+              old +
+              '\n<button id="srPitchNav" '
+              'type="button" data-tab="pitch">'
+              'Pitch Correction</button>'
+          )
+
+          if 'id="srPitchNav"' not in html:
+              if html.count(old) != 1:
+                  raise SystemExit("Navigation not found")
+              html = html.replace(old, new, 1)
+
+          if 'id="srPitchIntegration"' not in html:
+              raise SystemExit("Pitch Lab integration missing")
+
+          marker = "STARRISE_PITCH_NAV_V1"
+
+          if marker not in html:
+              script = """
+          <script>
+          // STARRISE_PITCH_NAV_V1
+          (() => {
+            const nav = document.getElementById("srPitchNav");
+            const panel = document.getElementById(
+              "srPitchIntegration"
+            );
+            const open = document.getElementById(
+              "srOpenPitch"
+            );
+
+            if (!nav || !panel || !open) return;
+
+            nav.addEventListener("click", () => {
+              if (document.getElementById(
+                "srPitchContainer"
+              ).hidden) {
+                open.click();
+              }
+
+              panel.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+              });
+            });
+          })();
+          </script>
+          """
+
+              if html.count("</body>") != 1:
+                  raise SystemExit("Unexpected page structure")
+
+              html = html.replace(
+                  "</body>",
+                  script + "\n</body>",
+                  1
+              )
+
+          old_info = (
+              "This version includes vocal tone presets "
+              "but not automatic pitch correction,"
+          )
+          new_info = (
+              "This version includes vocal tone presets, "
+              "experimental vocal tuning and Pitch Lab "
+              "correction, but not professional-grade "
+              "real-time automatic pitch correction,"
+          )
+
+          if old_info in html:
+              html = html.replace(
+                  old_info, new_info, 1
+              )
+
+          path.write_text(html, encoding="utf-8")
+          print("Pitch Correction navigation installed.")
+          PY
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Validate website
+        run: node scripts/validate-site.mjs
+
+      - name: Run Studio tests
+        run: |
+          node --test \
+            creator-studio.test.cjs \
+            studio-pro.test.cjs \
+            studio-sounds.test.cjs \
+            studio-projects.test.cjs \
+            tests/launch-paths.test.cjs
+
+      - name: Commit verified changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add studio.html
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Add Studio Pitch Correction navigation"
+            git push origin HEAD:main
+          fi
