@@ -9,15 +9,16 @@ permissions:
 
 jobs:
   repair:
+    name: Repair and test Studio
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout StarRise
         uses: actions/checkout@v4
         with:
           ref: main
 
-      - name: Repair Studio browser guard
+      - name: Fix Studio browser compatibility
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -25,39 +26,58 @@ jobs:
           path = Path("studio.html")
           html = path.read_text(encoding="utf-8")
 
-          old = """if (
+          old = '''if (
             new URLSearchParams(location.search)
               .get("import") === "message"
           ) {
             setTimeout(importSharedMessageAudio, 250);
-          }"""
+          }'''
 
-          new = """if (
+          new = '''if (
             typeof location !== "undefined" &&
             typeof URLSearchParams !== "undefined" &&
             new URLSearchParams(location.search)
               .get("import") === "message"
           ) {
             setTimeout(importSharedMessageAudio, 250);
-          }"""
+          }'''
 
           if old not in html:
               raise SystemExit(
-                  "Expected Studio import code not found."
+                  "Studio import guard not found. No changes made."
               )
 
+          updated = html.replace(old, new, 1)
+
           path.write_text(
-              html.replace(old, new, 1),
+              updated,
               encoding="utf-8"
           )
+
+          print("Studio browser compatibility repaired.")
           PY
 
-      - name: Run all Studio tests
-        run: |
-          npm ci --ignore-scripts
-          node --test creator-studio.test.cjs studio-pro.test.cjs studio-sounds.test.cjs studio-projects.test.cjs tests/launch-paths.test.cjs
+      - name: Install test dependencies
+        run: npm ci --ignore-scripts
 
-      - name: Commit tested repair
+      - name: Validate site
+        run: node scripts/validate-site.mjs
+
+      - name: Test Studio and creator features
+        run: |
+          node --test \
+            creator-studio.test.cjs \
+            studio-pro.test.cjs \
+            studio-sounds.test.cjs \
+            studio-projects.test.cjs \
+            tests/launch-paths.test.cjs
+
+      - name: Test PayPal safety
+        run: |
+          node --experimental-strip-types \
+            --test tests/paypal-payment.test.mjs
+
+      - name: Commit verified repair
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -65,6 +85,6 @@ jobs:
           git add studio.html
 
           if ! git diff --cached --quiet; then
-            git commit -m "Fix Studio import initialization in test environments"
+            git commit -m "Fix Studio import browser compatibility"
             git push origin HEAD:main
           fi
