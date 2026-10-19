@@ -162,6 +162,48 @@ input[type=range]{width:110px}
 <h2>Multitrack Mixer & Effects</h2>
 <p class="note">Each track has independent volume, pan, low-cut, EQ, presence, sibilance softening, compression, reverb and delay. Vocal tracks also have tone presets. Mix changes apply on the next playback and to new exports.</p>
 <div id="mixerTracks"></div>
+<div id="srArrangement" class="panel">
+  <h2>StarRise Arrangement Timeline</h2>
+  <p class="note">
+    Organize verses, choruses, bridges and
+    other song sections by bar number.
+    This first version is an arrangement
+    planner, not an audio clip editor.
+  </p>
+
+  <label>Song Section
+    <select id="srSectionType">
+      <option>Intro</option>
+      <option>Verse</option>
+      <option>Pre-Chorus</option>
+      <option>Chorus</option>
+      <option>Bridge</option>
+      <option>Outro</option>
+    </select>
+  </label>
+
+  <label>Start Bar
+    <input id="srSectionBar"
+           type="number" min="1" value="1">
+  </label>
+
+  <label>Length (Bars)
+    <input id="srSectionLength"
+           type="number" min="1" value="8">
+  </label>
+
+  <button type="button" id="srAddSection">
+    Add Section
+  </button>
+
+  <button type="button" id="srClearSections">
+    Clear Arrangement
+  </button>
+
+  <div id="srSectionList"
+       aria-live="polite"></div>
+</div>
+
 <section id="srCleanup" class="panel">
   <h2>StarRise Vocal Cleanup Pro</h2>
   <p class="hint">
@@ -3911,6 +3953,113 @@ renderTracks();
   };
 
   refresh();
+})();
+</script>
+
+
+<script>
+(() => {
+  const root =
+    document.getElementById('srArrangement');
+  if (!root) return;
+
+  const key = 'starrise-arrangement-v1';
+  const list =
+    document.getElementById('srSectionList');
+
+  let sections = [];
+
+  try {
+    const saved =
+      JSON.parse(localStorage.getItem(key) || '[]');
+    if (Array.isArray(saved)) sections = saved;
+  } catch (error) {
+    sections = [];
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(
+        key, JSON.stringify(sections)
+      );
+    } catch (error) {
+      console.warn('Arrangement storage unavailable');
+    }
+  }
+
+  function render() {
+    list.replaceChildren();
+
+    [...sections]
+      .sort((a, b) => a.bar - b.bar)
+      .forEach(section => {
+        const row = document.createElement('div');
+        row.style.cssText =
+          'padding:12px;margin:8px 0;' +
+          'border:1px solid #71558b;' +
+          'border-radius:10px;' +
+          'display:flex;gap:12px;' +
+          'align-items:center;' +
+          'justify-content:space-between';
+
+        const title = document.createElement('span');
+        title.textContent =
+          section.type +
+          ' | Bar ' + section.bar +
+          ' | ' + section.length + ' bars';
+
+        const remove =
+          document.createElement('button');
+        remove.type = 'button';
+        remove.textContent = 'Remove';
+
+        remove.addEventListener('click', () => {
+          sections = sections.filter(
+            item => item.id !== section.id
+          );
+          save();
+          render();
+        });
+
+        row.append(title, remove);
+        list.append(row);
+      });
+  }
+
+  document.getElementById('srAddSection')
+    .addEventListener('click', () => {
+      const type =
+        document.getElementById('srSectionType').value;
+      const bar = Number(
+        document.getElementById('srSectionBar').value
+      );
+      const length = Number(
+        document.getElementById('srSectionLength').value
+      );
+
+      if (
+        !Number.isInteger(bar) || bar < 1 ||
+        !Number.isInteger(length) || length < 1
+      ) return;
+
+      sections.push({
+        id: Date.now() + Math.random(),
+        type, bar, length
+      });
+
+      save();
+      render();
+    });
+
+  document.getElementById('srClearSections')
+    .addEventListener('click', () => {
+      if (!confirm('Clear saved arrangement?')) return;
+      sections = [];
+      save();
+      render();
+    });
+
+  render();
 })();
 </script>
 
