@@ -230,30 +230,32 @@ const ids=[...new Set(services.map(s=>s.user_id).filter(Boolean))];
 let reviews=[];
 
 if(ids.length){
-try{
-const r=await client
-.from("verified_service_ratings")
-.select("seller_id,average_rating,review_count")
-.in("seller_id",ids);
+  try{
+    const r=await client
+      .from("verified_service_ratings")
+      .select("seller_id,average_rating,review_count")
+      .in("seller_id",ids);
 
-if(r.error)throw r.error;
+    if(r.error)throw r.error;
 
-reviews=(r.data||[]).map(row=>({
-seller_id:row.seller_id,
-rating:Number(row.average_rating||0),
-count:Number(row.review_count||0)
-ratingMap[id].total+=Number(r.rating||0)*Number(r.count||0);
-ratingMap[id].count+=Number(r.count||0);
+    reviews=(r.data||[]).map(row=>({
+      seller_id:row.seller_id,
+      rating:Number(row.average_rating||0),
+      count:Number(row.review_count||0)
+    }));
+  }catch(e){
+    console.warn("Verified ratings unavailable",e);
+  }
 }
 
 const ratingMap={};
-reviews.forEach(r=>{
-const id=String(r.seller_id);
-if(!ratingMap[id])ratingMap[id]={total:0,count:0};
-ratingMap[id].total+=Number(r.rating||0);
-ratingMap[id].count++;
-});
 
+reviews.forEach(r=>{
+  const id=String(r.seller_id);
+  if(!ratingMap[id])ratingMap[id]={total:0,count:0};
+  ratingMap[id].total+=Number(r.rating||0)*Number(r.count||0);
+  ratingMap[id].count+=Number(r.count||0);
+});
 services=services.map(s=>{
 const id=String(s.user_id);
 const rating=ratingMap[id]||{total:0,count:0};
