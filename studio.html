@@ -1241,7 +1241,133 @@ canvas.width=900;
 canvas.height=100;
 drawWave(canvas,track.buffer,clip.first,clip.last);
 
-row.append(head,canvas);
+// STARRISE_WAVEFORM_TOUCH_DRAG_V2
+canvas.style.touchAction = "pan-y";
+canvas.style.cursor = "grab";
+canvas.style.userSelect = "none";
+
+canvas.setAttribute("role", "slider");
+canvas.setAttribute("tabindex", "0");
+canvas.setAttribute("aria-label",
+  "Move " + track.name + " left or right");
+
+const dragHelp = document.createElement("small");
+dragHelp.textContent =
+  "Drag waveform left or right to move this clip.";
+dragHelp.style.display = "block";
+
+let waveDrag = null;
+
+canvas.addEventListener("pointerdown", event => {
+  if (event.button !== 0 || !canEditTrack()) return;
+
+  waveDrag = {
+    id: event.pointerId,
+    x: event.clientX,
+    y: event.clientY,
+    origin: track.offset,
+    next: track.offset,
+    active: false
+  };
+});
+
+canvas.addEventListener("pointermove", event => {
+  if (!waveDrag ||
+      waveDrag.id !== event.pointerId) return;
+
+  const dx = event.clientX - waveDrag.x;
+  const dy = event.clientY - waveDrag.y;
+
+  if (!waveDrag.active) {
+    if (Math.abs(dx) < 7) return;
+
+    if (Math.abs(dy) > Math.abs(dx)) {
+      waveDrag = null;
+      return;
+    }
+
+    waveDrag.active = true;
+    canvas.style.touchAction = "none";
+    canvas.setPointerCapture(event.pointerId);
+  }
+
+  const width =
+    Math.max(1, canvas.getBoundingClientRect().width);
+
+  const secondsPerPixel =
+    Math.max(30, sessionDuration()) / width;
+
+  waveDrag.next = Math.max(
+    0,
+    waveDrag.origin + dx * secondsPerPixel
+  );
+
+  canvas.style.transform =
+    "translateX(" +
+    ((waveDrag.next - waveDrag.origin) /
+      secondsPerPixel) +
+    "px)";
+
+  canvas.style.opacity = ".7";
+  canvas.style.cursor = "grabbing";
+
+  event.preventDefault();
+});
+
+function finishWaveDrag(event, canceled) {
+  if (!waveDrag ||
+      waveDrag.id !== event.pointerId) return;
+
+  const drag = waveDrag;
+  waveDrag = null;
+
+  if (canvas.hasPointerCapture(event.pointerId)) {
+    canvas.releasePointerCapture(event.pointerId);
+  }
+
+  canvas.style.transform = "";
+  canvas.style.opacity = "";
+  canvas.style.cursor = "grab";
+  canvas.style.touchAction = "pan-y";
+
+  if (!canceled &&
+      drag.active &&
+      Math.abs(drag.next - drag.origin) > .01) {
+    editTrack(track, {
+      name: track.name,
+      offset: Number(drag.next.toFixed(3)),
+      trimStart: track.trimStart,
+      trimEnd: track.trimEnd
+    });
+  }
+}
+
+canvas.addEventListener("pointerup",
+  event => finishWaveDrag(event, false));
+
+canvas.addEventListener("pointercancel",
+  event => finishWaveDrag(event, true));
+
+canvas.addEventListener("keydown", event => {
+  if (event.key !== "ArrowLeft" &&
+      event.key !== "ArrowRight") return;
+
+  event.preventDefault();
+  if (!canEditTrack()) return;
+
+  editTrack(track, {
+    name: track.name,
+    offset: Math.max(
+      0,
+      track.offset +
+        (event.key === "ArrowRight" ? .5 : -.5)
+    ),
+    trimStart: track.trimStart,
+    trimEnd: track.trimEnd
+  });
+});
+
+row.append(head,canvas,dragHelp);
 
 const controls=document.createElement("div");
 controls.className="controls";
