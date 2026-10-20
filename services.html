@@ -231,11 +231,19 @@ let reviews=[];
 
 if(ids.length){
 try{
-const r=await client.from("service_reviews")
-.select("seller_id,rating")
+const r=await client
+.from("verified_service_ratings")
+.select("seller_id,average_rating,review_count")
 .in("seller_id",ids);
-if(!r.error)reviews=r.data||[];
-}catch(e){console.warn("Reviews unavailable",e);}
+
+if(r.error)throw r.error;
+
+reviews=(r.data||[]).map(row=>({
+seller_id:row.seller_id,
+rating:Number(row.average_rating||0),
+count:Number(row.review_count||0)
+ratingMap[id].total+=Number(r.rating||0)*Number(r.count||0);
+ratingMap[id].count+=Number(r.count||0);
 }
 
 const ratingMap={};
