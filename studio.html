@@ -1242,7 +1242,9 @@ canvas.height=100;
 drawWave(canvas,track.buffer,clip.first,clip.last);
 
 // STARRISE_WAVEFORM_TOUCH_DRAG_V2
-canvas.style.touchAction = "pan-y";
+// STARRISE_MOBILE_DRAG_V3
+// Capture horizontal gestures immediately on mobile.
+canvas.style.touchAction = "none";
 canvas.style.cursor = "grab";
 canvas.style.userSelect = "none";
 
@@ -1279,9 +1281,9 @@ canvas.addEventListener("pointermove", event => {
   const dy = event.clientY - waveDrag.y;
 
   if (!waveDrag.active) {
-    if (Math.abs(dx) < 7) return;
+    if (Math.abs(dx) < 2) return;
 
-    if (Math.abs(dy) > Math.abs(dx)) {
+    if (Math.abs(dy) > Math.abs(dx) * 2) {
       waveDrag = null;
       return;
     }
@@ -1328,7 +1330,7 @@ function finishWaveDrag(event, canceled) {
   canvas.style.transform = "";
   canvas.style.opacity = "";
   canvas.style.cursor = "grab";
-  canvas.style.touchAction = "pan-y";
+  canvas.style.touchAction = "none";
 
   if (!canceled &&
       drag.active &&
