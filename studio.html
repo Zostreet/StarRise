@@ -60,6 +60,24 @@ header{font-size:13px}
 input[type=range]{width:110px}
 }
 </style>
+
+<style>
+/* STARRISE_TOUCH_TIMELINE_STYLE */
+.arrangement-rail {
+  overflow: visible;
+}
+
+.arrangement-clip {
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.arrangement-clip:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+</style>
 </head>
 <body>
 
@@ -1073,7 +1091,107 @@ const rail=document.createElement("div");rail.className="arrangement-rail";
 const bar=document.createElement("span");bar.className="arrangement-clip";
 bar.style.left=(track.offset/end*100)+"%";bar.style.width=(clip.duration/end*100)+"%";
 bar.style.opacity=track.mute?".35":"1";
-rail.append(bar);lane.append(name,rail);box.append(lane);
+
+// STARRISE_TOUCH_TIMELINE_V1
+bar.style.touchAction = "none";
+bar.style.cursor = "grab";
+bar.setAttribute("role", "slider");
+bar.setAttribute("tabindex", "0");
+bar.setAttribute("aria-label",
+  "Move " + track.name + " in song");
+bar.setAttribute("aria-valuemin", "0");
+bar.setAttribute("aria-valuenow",
+  String(track.offset));
+bar.setAttribute("aria-valuetext",
+  track.offset.toFixed(2) + " seconds");
+
+let dragging = false;
+let pointerStart = 0;
+let originalOffset = 0;
+let proposedOffset = 0;
+
+bar.addEventListener("pointerdown", event => {
+  if (!canEditTrack()) return;
+
+  dragging = true;
+  pointerStart = event.clientX;
+  originalOffset = track.offset;
+  proposedOffset = originalOffset;
+
+  bar.setPointerCapture(event.pointerId);
+  bar.style.cursor = "grabbing";
+  event.preventDefault();
+});
+
+bar.addEventListener("pointermove", event => {
+  if (!dragging) return;
+
+  const width = rail.getBoundingClientRect().width;
+  if (width <= 0) return;
+
+  const delta =
+    (event.clientX - pointerStart) / width * end;
+
+  proposedOffset =
+    Math.max(0, originalOffset + delta);
+
+  bar.style.left =
+    (proposedOffset / end * 100) + "%";
+
+  bar.setAttribute("aria-valuenow",
+    proposedOffset.toFixed(2));
+  bar.setAttribute("aria-valuetext",
+    proposedOffset.toFixed(2) + " seconds");
+});
+
+bar.addEventListener("pointerup", event => {
+  if (!dragging) return;
+  dragging = false;
+  bar.style.cursor = "grab";
+
+  if (bar.hasPointerCapture(event.pointerId)) {
+    bar.releasePointerCapture(event.pointerId);
+  }
+
+  if (Math.abs(proposedOffset - originalOffset) > 0.01) {
+    editTrack(track, {
+      name: track.name,
+      offset: Number(proposedOffset.toFixed(3)),
+      trimStart: track.trimStart,
+      trimEnd: track.trimEnd
+    });
+  } else {
+    renderArrangement();
+  }
+});
+
+bar.addEventListener("pointercancel", () => {
+  dragging = false;
+  renderArrangement();
+});
+
+bar.addEventListener("keydown", event => {
+  if (!["ArrowLeft", "ArrowRight"].includes(event.key)) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const delta =
+    event.key === "ArrowRight" ? 0.5 : -0.5;
+
+  editTrack(track, {
+    name: track.name,
+    offset: Math.max(0, track.offset + delta),
+    trimStart: track.trimStart,
+    trimEnd: track.trimEnd
+  });
+});
+
+rail.append(bar);
+lane.append(name,rail);
+box.append(lane);
+
 });
 }
 
