@@ -1,962 +1,336 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title>StarRise Services</title>
-
-  <meta
-    name="description"
-    content="Browse creative, entertainment, business, and professional services offered by StarRise members."
-  >
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      background: #080812;
-      color: #fff;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    header {
-      padding: 20px 24px;
-      border-bottom: 1px solid #ffffff18;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 18px;
-    }
-
-    .logo {
-      font-size: 21px;
-      font-weight: bold;
-    }
-
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 18px;
-    }
-
-    nav a {
-      color: #bbb;
-      font-weight: bold;
-    }
-
-    nav a:hover {
-      color: #fff;
-    }
-
-    main {
-      width: min(1150px, calc(100% - 30px));
-      margin: 35px auto 60px;
-    }
-
-    .hero {
-      padding: 55px 28px;
-      margin-bottom: 20px;
-      border: 1px solid #ffffff18;
-      border-radius: 24px;
-      background: #ffffff08;
-      text-align: center;
-    }
-
-    .eyebrow {
-      color: #999;
-      font-size: 12px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: .12em;
-    }
-
-    h1 {
-      margin: 8px 0 12px;
-      font-size: clamp(42px, 8vw, 70px);
-      line-height: 1.05;
-    }
-
-    .hero p {
-      max-width: 760px;
-      margin: auto;
-      color: #aaa;
-      font-size: 18px;
-    }
-
-    .hero-actions {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 22px;
-    }
-
-    .button {
-      display: inline-block;
-      padding: 12px 20px;
-      border: 0;
-      border-radius: 25px;
-      background: #fff;
-      color: #080812;
-      font: inherit;
-      font-weight: bold;
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .button.secondary {
-      border: 1px solid #ffffff30;
-      background: transparent;
-      color: #fff;
-    }
-
-    .button:hover {
-      opacity: .9;
-    }
-
-    .controls {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    .control {
-      width: 100%;
-      padding: 13px 15px;
-      border: 1px solid #ffffff20;
-      border-radius: 12px;
-      background: #11111d;
-      color: #fff;
-      font: inherit;
-    }
-
-    .control:focus {
-      outline: none;
-      border-color: #ffffff55;
-    }
-
-    .results-bar {
-      margin-bottom: 15px;
-      color: #aaa;
-    }
-
-    .status {
-      padding: 18px;
-      margin-bottom: 18px;
-      border: 1px solid #ffffff18;
-      border-radius: 14px;
-      background: #ffffff08;
-      color: #aaa;
-      text-align: center;
-    }
-
-    .status.error {
-      color: #ffb5b5;
-      background: rgba(200, 50, 50, .12);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
-      gap: 18px;
-    }
-
-    .service-card {
-      padding: 24px;
-      border: 1px solid #ffffff18;
-      border-radius: 20px;
-      background: #ffffff08;
-      display: flex;
-      flex-direction: column;
-      transition: .15s;
-    }
-
-    .service-card:hover {
-      transform: translateY(-2px);
-      border-color: #ffffff35;
-    }
-
-    .category {
-      display: inline-block;
-      width: max-content;
-      padding: 5px 10px;
-      margin-bottom: 12px;
-      border-radius: 20px;
-      background: #ffffff12;
-      color: #bbb;
-      font-size: 12px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: .07em;
-    }
-
-    .service-title {
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    .description {
-      margin: 10px 0;
-      color: #aaa;
-      white-space: pre-wrap;
-      flex: 1;
-    }
-
-    .price {
-      margin: 12px 0;
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .provider {
-      padding-top: 12px;
-      border-top: 1px solid #ffffff12;
-      color: #999;
-      font-size: 14px;
-    }
-
-    .provider strong {
-      color: #fff;
-    }
-
-    .location {
-      margin-top: 3px;
-      color: #888;
-    }
-
-    .rating {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin: 14px 0;
-      color: #aaa;
-      font-size: 13px;
-    }
-
-    .rating-stars {
-      color: #fff;
-      letter-spacing: 2px;
-    }
-
-    .service-actions {
-      display: flex;
-      gap: 9px;
-      margin-top: 12px;
-    }
-
-    .service-actions .button {
-      width: 100%;
-    }
-
-    .empty {
-      padding: 45px 20px;
-      border: 1px solid #ffffff18;
-      border-radius: 20px;
-      background: #ffffff08;
-      color: #999;
-      text-align: center;
-    }
-
-    footer {
-      padding: 30px 15px;
-      border-top: 1px solid #ffffff18;
-      color: #888;
-      text-align: center;
-    }
-
-    @media (max-width: 760px) {
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .controls {
-        grid-template-columns: 1fr;
-      }
-
-      .service-actions {
-        flex-direction: column;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StarRise Services | Fam ENT LLC</title>
+<meta name="description" content="Book Fam ENT vocal services and discover creative services from StarRise members.">
 <link rel="stylesheet" href="starrise-brand.css">
-<link rel="icon" type="image/png" href="starrise-logo.png">
+<link rel="icon" href="starrise-logo.png">
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080812;color:#fff;font:16px/1.6 Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+header{padding:18px 24px;border-bottom:1px solid #ffffff20;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+nav{display:flex;flex-wrap:wrap;gap:15px}
+nav a{color:#bbb;font-weight:bold}
+.logo{font-size:22px;font-weight:bold}
+main{width:min(1150px,calc(100% - 30px));margin:30px auto 60px}
+.hero,.panel{padding:28px;margin-bottom:22px;border:1px solid #ffffff20;border-radius:22px;background:#ffffff08}
+.hero{text-align:center;padding:50px 25px}
+.eyebrow{color:#d9b4ff;font-size:12px;font-weight:bold;letter-spacing:2px;text-transform:uppercase}
+h1{font-size:clamp(38px,8vw,70px);line-height:1.1;margin:12px 0}
+h2{font-size:clamp(25px,5vw,38px);line-height:1.2}
+.hero p{max-width:760px;margin:15px auto;color:#bbb}
+.button{display:inline-block;padding:12px 21px;border:0;border-radius:25px;background:#fff;color:#080812;font:inherit;font-weight:bold;text-align:center;cursor:pointer}
+.button.secondary{background:#24243b;color:#fff;border:1px solid #ffffff35}
+.button.gold{background:#e8c978;color:#080812}
+.actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:23px}
+.offer{background:linear-gradient(135deg,#29172e,#121b2b);border:1px solid #e8c97866;border-radius:22px;padding:30px;margin:25px 0}
+.offer h2{margin:10px 0}
+.offer p{color:#ddd}
+.offer .price{font-size:42px;font-weight:bold;color:#e8c978;margin:15px 0}
+.offer .actions{justify-content:flex-start}
+.notice{padding:17px;margin:24px 0;border:1px solid #ffffff25;border-radius:14px;background:#ffffff08;color:#bbb}
+.controls{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin:25px 0}
+.control{width:100%;padding:14px;background:#151522;border:1px solid #ffffff30;border-radius:12px;color:#fff;font:inherit}
+.results{color:#aaa;margin:15px 0}
+.status,.empty{padding:22px;border:1px solid #ffffff20;border-radius:16px;background:#ffffff08;color:#aaa;text-align:center}
+.status.error{color:#ffb5b5}
+.hidden{display:none!important}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(275px,1fr));gap:18px}
+.card{padding:24px;border:1px solid #ffffff20;border-radius:20px;background:#ffffff08;display:flex;flex-direction:column}
+.tag{display:inline-block;width:max-content;max-width:100%;padding:5px 10px;margin-bottom:12px;border-radius:20px;background:#ffffff12;color:#bbb;font-size:12px;font-weight:bold}
+.card h3{font-size:23px;margin:0}
+.card .description{color:#aaa;white-space:pre-wrap;flex:1;margin:12px 0}
+.card .price{font-size:28px;font-weight:bold;margin:12px 0}
+.provider{border-top:1px solid #ffffff15;padding-top:12px;color:#aaa;font-size:14px}
+.rating{margin:12px 0;color:#bbb;font-size:14px}
+.card .button{margin-top:12px}
+footer{padding:30px 15px;border-top:1px solid #ffffff20;color:#999;text-align:center}
+@media(max-width:760px){
+.controls{grid-template-columns:1fr}
+.offer{padding:22px}
+}
+</style>
 </head>
 
 <body>
-
 <header>
-  <a class="logo starrise-brand" href="index.html" aria-label="StarRise — Home"><img src="starrise-logo.png" alt="StarRise by FAM ENT" width="1697" height="927" decoding="async"></a>
-
-  <nav>    
-  
-    <a href="index.html">Home</a>
-    <a href="community.html">Community</a>
-    <a href="members.html">Members</a>
-   <a href="messages.html">Messages</a>
-    <a href="ecosystem.html">Ecosystem</a>
-    <a href="marketplace.html">Store</a>
-    <a href="services.html">Services</a>
-    <a href="opportunities.html">Opportunities</a>
-    <a href="dashboard.html">Dashboard</a>
-  </nav>
+<a class="logo starrise-brand" href="index.html" aria-label="StarRise Home">
+<img src="starrise-logo.png" alt="StarRise by Fam ENT" width="1697" height="927" decoding="async">
+</a>
+<nav>
+<a href="index.html">Home</a>
+<a href="community.html">Community</a>
+<a href="members.html">Members</a>
+<a href="messages.html">Messages</a>
+<a href="business-network.html">Business Network</a>
+<a href="marketplace.html">Store</a>
+<a href="services.html">Services</a>
+<a href="opportunities.html">Opportunities</a>
+<a href="dashboard.html">Dashboard</a>
+</nav>
 </header>
 
 <main>
-<aside aria-label="Payment availability and fees" style="margin:20px 0;padding:18px;border:1px solid #8c78b855;border-radius:14px;line-height:1.6"><strong>PayPal payments are paused.</strong><p>PayPal payments are paused while marketplace approval, seller onboarding, and purchase, refund, and payout testing are completed.</p><p>Planned fee when payments reopen: StarRise deducts a 10% platform fee from each sale or Talent Fund contribution. The seller or fund recipient also pays PayPal processing fees from their proceeds. Buyers and supporters pay no additional StarRise platform surcharge.</p><p>Automatic seller payouts and a payout schedule are not yet active. <a href="terms.html">Payment terms</a> · <a href="refund-policy.html">Refund policy</a></p></aside>
 
-  <section class="hero">
-    <div class="eyebrow">
-      StarRise Service Marketplace
-    </div>
+<section class="hero">
+<div class="eyebrow">StarRise by Fam ENT LLC</div>
+<h1>Creative Services</h1>
+<p>Book services directly from Fam Entertainment LLC and discover talent across the StarRise community.</p>
+<div class="actions">
+<a class="button" href="create-service.html">+ Offer a Service</a>
+<a class="button secondary" href="members.html">Find Members</a>
+</div>
+</section>
 
-    <h1>Browse Services</h1>
+<section class="offer" id="fam-ent-vocals">
+<div class="eyebrow">Official Fam ENT LLC Service</div>
+<h2>Professional Vocal Services</h2>
+<p>Need vocals for your song or creative project? Work directly with Fam Entertainment LLC.</p>
+<div class="price">$100 USD</div>
+<p>Vocal recording for an agreed-upon music project. Confirm the project scope, turnaround time, revisions, and usage rights before payment.</p>
+<div class="actions">
+<a class="button gold"
+href="https://www.paypal.com/ncp/payment/WV6R7ZKCN5WNQ"
+target="_blank"
+rel="noopener noreferrer">
+Pay $100 with PayPal
+</a>
+<a class="button secondary" href="messages.html">Discuss Your Project</a>
+</div>
+<p style="font-size:13px;color:#aaa;margin-top:20px">
+Sold directly by Fam Entertainment LLC. This payment link is separate from StarRise third-party marketplace transactions.
+</p>
+</section>
 
-    <p>
-      Discover services offered by StarRise members,
-      compare providers, and request the service
-      that fits what you need.
-    </p>
+<aside class="notice" aria-label="Marketplace payment status">
+<strong>Marketplace payments remain paused.</strong>
+<p>Third-party seller checkout, payouts, and platform-fee processing remain disabled pending PayPal marketplace approval and verification.</p>
+<p>When approved, StarRise plans to deduct a 10% platform fee from marketplace sales. Sellers also pay applicable PayPal processing fees from their proceeds.</p>
+<a href="terms.html">Payment Terms</a> ·
+<a href="refund-policy.html">Refund Policy</a>
+</aside>
 
-    <div class="hero-actions">
-      <a class="button" href="create-service.html">
-        + Offer a Service
-      </a>
+<section aria-labelledby="browseTitle">
+<h2 id="browseTitle">Browse Member Services</h2>
+<p style="color:#aaa">Explore active service listings from StarRise members.</p>
 
-      <a class="button secondary" href="members.html">
-        Find Members
-      </a>
-    </div>
-  </section>
+<div class="controls">
+<input id="search" class="control" type="search" placeholder="Search services, providers, or locations..." aria-label="Search services">
 
-  <section class="controls">
-    <input
-      id="search"
-      class="control"
-      type="search"
-      placeholder="Search services, providers, or locations..."
-      autocomplete="off"
-    >
+<select id="category" class="control" aria-label="Category">
+<option value="all">All Categories</option>
+</select>
 
-    <select id="category" class="control">
-      <option value="all">All Categories</option>
-    </select>
+<select id="sort" class="control" aria-label="Sort services">
+<option value="newest">Newest</option>
+<option value="price-low">Price: Low to High</option>
+<option value="price-high">Price: High to Low</option>
+<option value="rating">Highest Rated</option>
+<option value="title">Name: A to Z</option>
+</select>
+</div>
 
-    <select id="sort" class="control">
-      <option value="newest">Newest</option>
-      <option value="price-low">Price: Low to High</option>
-      <option value="price-high">Price: High to Low</option>
-      <option value="rating">Highest Rated</option>
-      <option value="title">Name: A to Z</option>
-    </select>
-  </section>
-
-  <div class="results-bar">
-    <div id="results-count">
-      Loading services...
-    </div>
-  </div>
-
-  <div id="status" class="status">
-    Loading StarRise services...
-  </div>
-
-  <section
-    id="services"
-    class="services-grid hidden"
-  ></section>
-
-  <div id="empty" class="empty hidden">
-    <h2>No services found</h2>
-
-    <p>
-      Try another search or category.
-    </p>
-  </div>
+<div id="results-count" class="results">Loading services...</div>
+<div id="status" class="status">Loading StarRise services...</div>
+<div id="services" class="grid hidden"></div>
+<div id="empty" class="empty hidden">No services found.</div>
+</section>
 
 </main>
 
 <footer>
-  ⭐ StarRise — Where Talent Rises.
-<p style="font-size:12px;line-height:1.5">Payment information effective October 6, 2026. <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund-policy.html">Refunds</a> · <a href="support.html">Support</a></p>
+StarRise by Fam ENT LLC · Where Talent Rises
+<p style="font-size:12px">
+<a href="terms.html">Terms</a> ·
+<a href="privacy.html">Privacy</a> ·
+<a href="refund-policy.html">Refunds</a> ·
+<a href="support.html">Support</a>
+</p>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-(function () {
-  'use strict';
-
-  const SUPABASE_URL =
-    'https://rcnikxotdalxtuvpmlvm.supabase.co';
-
-  const SUPABASE_KEY =
-    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN';
-
-  const supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
-  const searchInput =
-    document.getElementById('search');
-
-  const categorySelect =
-    document.getElementById('category');
-
-  const sortSelect =
-    document.getElementById('sort');
-
-  const statusElement =
-    document.getElementById('status');
-
-  const servicesElement =
-    document.getElementById('services');
-
-  const emptyElement =
-    document.getElementById('empty');
-
-  const resultsCount =
-    document.getElementById('results-count');
-
-  let allServices = [];
-
-  function escapeHtml(value) {
-    return String(value ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  function money(cents) {
-    return (
-      Number(cents || 0) / 100
-    ).toLocaleString(
-      'en-US',
-      {
-        style: 'currency',
-        currency: 'USD'
-      }
-    );
-  }
-
-  function normalize(value) {
-    return String(value || '')
-      .trim()
-      .toLowerCase();
-  }
-
-  function stars(rating) {
-    const value =
-      Number(rating || 0);
-
-    let output = '';
-
-    for (let index = 1; index <= 5; index++) {
-      output +=
-        index <= Math.round(value)
-          ? '★'
-          : '☆';
-    }
-
-    return output;
-  }
-
-  function providerName(service) {
-    const profile =
-      service.profile || {};
-
-    return (
-      profile.display_name ||
-      profile.full_name ||
-      profile.name ||
-      'StarRise Member'
-    );
-  }
-
-  async function loadServices() {
-    statusElement.textContent =
-      'Loading StarRise services...';
-
-    statusElement.className =
-      'status';
-
-    servicesElement.innerHTML = '';
-
-    try {
-      const result =
-        await supabaseClient
-          .from('star_rise_services')
-          .select(`
-            id,
-            user_id,
-            title,
-            description,
-            category,
-            price_cents,
-            is_active,
-            created_at
-          `)
-          .eq('is_active', true)
-          .order(
-            'created_at',
-            { ascending: false }
-          );
-
-      if (result.error) {
-        throw result.error;
-      }
-
-      allServices =
-        result.data || [];
-
-      if (!allServices.length) {
-        statusElement.classList.add('hidden');
-        emptyElement.classList.remove('hidden');
-
-        emptyElement.innerHTML = `
-          <h2>No services available yet</h2>
-
-          <p>
-            StarRise members have not published
-            any active services yet.
-          </p>
-        `;
-
-        resultsCount.textContent =
-          '0 services';
-
-        return;
-      }
-
-      const providerIds =
-        [
-          ...new Set(
-            allServices.map(
-              service =>
-                service.user_id
-            )
-          )
-        ];
-
-      let profiles = [];
-
-      try {
-        const profileResult =
-          await supabaseClient
-            .rpc('get_public_members');
-
-        if (!profileResult.error) {
-          profiles =
-            profileResult.data || [];
-        }
-      } catch (profileError) {
-        console.warn(
-          'Profile lookup failed:',
-          profileError
-        );
-      }
-
-      const profileMap =
-        new Map(
-          profiles.map(
-            profile => [
-              String(profile.id),
-              profile
-            ]
-          )
-        );
-
-      let reviews = [];
-
-      if (providerIds.length) {
-        const reviewResult =
-          await supabaseClient
-            .from('service_reviews')
-            .select(`
-              seller_id,
-              rating
-            `)
-            .in('seller_id', providerIds);
-
-        if (!reviewResult.error) {
-          reviews =
-            reviewResult.data || [];
-        }
-      }
-
-      const ratingMap = {};
-
-      reviews.forEach(
-        review => {
-          const sellerId =
-            String(review.seller_id);
-
-          if (!ratingMap[sellerId]) {
-            ratingMap[sellerId] = {
-              total: 0,
-              count: 0
-            };
-          }
-
-          ratingMap[sellerId].total +=
-            Number(review.rating || 0);
-
-          ratingMap[sellerId].count += 1;
-        }
-      );
-
-      allServices =
-        allServices.map(
-          service => {
-            const sellerId =
-              String(service.user_id);
-
-            const ratingData =
-              ratingMap[sellerId] || {
-                total: 0,
-                count: 0
-              };
-
-            return {
-              ...service,
-
-              profile:
-                profileMap.get(sellerId) ||
-                null,
-
-              averageRating:
-                ratingData.count
-                  ? ratingData.total /
-                    ratingData.count
-                  : 0,
-
-              reviewCount:
-                ratingData.count
-            };
-          }
-        );
-
-      buildCategories();
-
-      statusElement.classList.add('hidden');
-      servicesElement.classList.remove('hidden');
-
-      renderServices();
-    } catch (error) {
-      console.error(
-        'Services error:',
-        error
-      );
-
-      statusElement.textContent =
-        'Unable to load services. ' +
-        (
-          error.message ||
-          'Please try again.'
-        );
-
-      statusElement.className =
-        'status error';
-
-      resultsCount.textContent = '';
-    }
-  }
-
-  function buildCategories() {
-    const categories =
-      [
-        ...new Set(
-          allServices
-            .map(
-              service =>
-                String(
-                  service.category || ''
-                ).trim()
-            )
-            .filter(Boolean)
-        )
-      ].sort(
-        (a, b) =>
-          a.localeCompare(b)
-      );
-
-    categorySelect.innerHTML =
-      '<option value="all">All Categories</option>';
-
-    categories.forEach(
-      category => {
-        const option =
-          document.createElement('option');
-
-        option.value =
-          category;
-
-        option.textContent =
-          category;
-
-        categorySelect.appendChild(option);
-      }
-    );
-  }
-
-  function renderServices() {
-    const search =
-      normalize(searchInput.value);
-
-    const selectedCategory =
-      categorySelect.value;
-
-    const selectedSort =
-      sortSelect.value;
-
-    let filtered =
-      allServices.filter(
-        service => {
-          const provider =
-            providerName(service);
-
-          const location =
-            service.profile
-              ? service.profile.location || ''
-              : '';
-
-          const searchText =
-            [
-              service.title,
-              service.description,
-              service.category,
-              provider,
-              location
-            ]
-              .join(' ')
-              .toLowerCase();
-
-          const matchesSearch =
-            !search ||
-            searchText.includes(search);
-
-          const matchesCategory =
-            selectedCategory === 'all' ||
-            String(
-              service.category || ''
-            ).trim() === selectedCategory;
-
-          return (
-            matchesSearch &&
-            matchesCategory
-          );
-        }
-      );
-
-    filtered.sort(
-      (a, b) => {
-        if (selectedSort === 'price-low') {
-          return (
-            Number(a.price_cents || 0) -
-            Number(b.price_cents || 0)
-          );
-        }
-
-        if (selectedSort === 'price-high') {
-          return (
-            Number(b.price_cents || 0) -
-            Number(a.price_cents || 0)
-          );
-        }
-
-        if (selectedSort === 'rating') {
-          return (
-            Number(b.averageRating || 0) -
-            Number(a.averageRating || 0)
-          );
-        }
-
-        if (selectedSort === 'title') {
-          return String(a.title || '')
-            .localeCompare(
-              String(b.title || '')
-            );
-        }
-
-        return (
-          new Date(b.created_at) -
-          new Date(a.created_at)
-        );
-      }
-    );
-
-    resultsCount.textContent =
-      filtered.length === 1
-        ? '1 service'
-        : filtered.length + ' services';
-
-    if (!filtered.length) {
-      servicesElement.classList.add('hidden');
-      emptyElement.classList.remove('hidden');
-      return;
-    }
-
-    emptyElement.classList.add('hidden');
-    servicesElement.classList.remove('hidden');
-
-    servicesElement.innerHTML =
-      filtered
-        .map(
-          service => {
-            const provider =
-              providerName(service);
-
-            const location =
-              service.profile
-                ? service.profile.location || ''
-                : '';
-
-            const rating =
-              Number(
-                service.averageRating || 0
-              );
-
-            const reviewCount =
-              Number(
-                service.reviewCount || 0
-              );
-
-            const category =
-              service.category
-                ? `
-                  <div class="category">
-                    ${escapeHtml(service.category)}
-                  </div>
-                `
-                : '';
-
-            const ratingBlock =
-              reviewCount
-                ? `
-                  <div class="rating">
-                    <div class="rating-stars">
-                      ${stars(rating)}
-                    </div>
-
-                    <div>
-                      ${rating.toFixed(1)}
-                      ·
-                      ${reviewCount}
-                      ${
-                        reviewCount === 1
-                          ? 'review'
-                          : 'reviews'
-                      }
-                    </div>
-                  </div>
-                `
-                : `
-                  <div class="rating">
-                    <div class="rating-stars">
-                      ☆☆☆☆☆
-                    </div>
-
-                    <div>No reviews yet</div>
-                  </div>
-                `;
-
-            return `
-              <article class="service-card">
-                ${category}
-
-                <div class="service-title">
-                  ${escapeHtml(
-                    service.title ||
-                    'StarRise Service'
-                  )}
-                </div>
-
-                <div class="description">
-                  ${escapeHtml(
-                    service.description ||
-                    'No description provided.'
-                  )}
-                </div>
-
-                <div class="price">
-                  ${escapeHtml(
-                    money(service.price_cents)
-                  )}
-                </div>
-
-                <div class="provider">
-                  Provider:
-                  <strong>
-                    ${escapeHtml(provider)}
-                  </strong>
-
-                  ${
-                    location
-                      ? `
-                        <div class="location">
-                          ${escapeHtml(location)}
-                        </div>
-                      `
-                      : ''
-                  }
-                </div>
-
-                ${ratingBlock}
-
-                <div class="service-actions">
-                  <a
-                    class="button"
-                    href="service.html?id=${encodeURIComponent(service.id)}"
-                  >
-                    View Service
-                  </a>
-                </div>
-              </article>
-            `;
-          }
-        )
-        .join('');
-  }
-
-  searchInput.addEventListener(
-    'input',
-    renderServices
-  );
-
-  categorySelect.addEventListener(
-    'change',
-    renderServices
-  );
-
-  sortSelect.addEventListener(
-    'change',
-    renderServices
-  );
-
-  loadServices();
+(function(){
+"use strict";
+
+const URL="https://rcnikxotdalxtuvpmlvm.supabase.co";
+const KEY="sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
+
+const search=document.getElementById("search");
+const category=document.getElementById("category");
+const sort=document.getElementById("sort");
+const status=document.getElementById("status");
+const grid=document.getElementById("services");
+const empty=document.getElementById("empty");
+const count=document.getElementById("results-count");
+
+let services=[];
+
+function escapeHtml(v){
+return String(v??"")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+}
+
+function money(cents){
+return (Number(cents||0)/100).toLocaleString("en-US",{
+style:"currency",currency:"USD"
+});
+}
+
+function providerName(s){
+const p=s.profile||{};
+return p.display_name||p.full_name||p.name||"StarRise Member";
+}
+
+function stars(r){
+let out="";
+for(let i=1;i<=5;i++)out+=i<=Math.round(Number(r||0))?"★":"☆";
+return out;
+}
+
+async function load(){
+if(!window.supabase){
+status.textContent="Service connection unavailable. Please refresh.";
+status.classList.add("error");
+return;
+}
+
+const client=window.supabase.createClient(URL,KEY);
+
+try{
+const result=await client
+.from("star_rise_services")
+.select("id,user_id,title,description,category,price_cents,is_active,created_at")
+.eq("is_active",true)
+.order("created_at",{ascending:false});
+
+if(result.error)throw result.error;
+services=result.data||[];
+
+let profiles=[];
+try{
+const p=await client.rpc("get_public_members");
+if(!p.error)profiles=p.data||[];
+}catch(e){console.warn("Profiles unavailable",e);}
+
+const profileMap=new Map(
+profiles.map(p=>[String(p.id),p])
+);
+
+const ids=[...new Set(services.map(s=>s.user_id).filter(Boolean))];
+let reviews=[];
+
+if(ids.length){
+try{
+const r=await client.from("service_reviews")
+.select("seller_id,rating")
+.in("seller_id",ids);
+if(!r.error)reviews=r.data||[];
+}catch(e){console.warn("Reviews unavailable",e);}
+}
+
+const ratingMap={};
+reviews.forEach(r=>{
+const id=String(r.seller_id);
+if(!ratingMap[id])ratingMap[id]={total:0,count:0};
+ratingMap[id].total+=Number(r.rating||0);
+ratingMap[id].count++;
+});
+
+services=services.map(s=>{
+const id=String(s.user_id);
+const rating=ratingMap[id]||{total:0,count:0};
+return{
+...s,
+profile:profileMap.get(id)||null,
+averageRating:rating.count?rating.total/rating.count:0,
+reviewCount:rating.count
+};
+});
+
+const categories=[...new Set(services.map(s=>String(s.category||"").trim()).filter(Boolean))].sort();
+category.replaceChildren(new Option("All Categories","all"));
+categories.forEach(c=>category.add(new Option(c,c)));
+
+status.classList.add("hidden");
+render();
+}catch(e){
+console.error(e);
+status.textContent="Unable to load services. "+(e.message||"Please try again.");
+status.classList.add("error");
+count.textContent="";
+}
+}
+
+function render(){
+const q=search.value.trim().toLowerCase();
+const cat=category.value;
+const order=sort.value;
+
+const filtered=services.filter(s=>{
+const p=providerName(s);
+const loc=s.profile?.location||"";
+const text=[s.title,s.description,s.category,p,loc].join(" ").toLowerCase();
+return(!q||text.includes(q))&&(cat==="all"||String(s.category||"").trim()===cat);
+});
+
+filtered.sort((a,b)=>{
+if(order==="price-low")return Number(a.price_cents||0)-Number(b.price_cents||0);
+if(order==="price-high")return Number(b.price_cents||0)-Number(a.price_cents||0);
+if(order==="rating")return Number(b.averageRating||0)-Number(a.averageRating||0);
+if(order==="title")return String(a.title||"").localeCompare(String(b.title||""));
+return new Date(b.created_at)-new Date(a.created_at);
+});
+
+count.textContent=filtered.length+" service"+(filtered.length===1?"":"s");
+
+if(!filtered.length){
+grid.classList.add("hidden");
+empty.classList.remove("hidden");
+empty.textContent=services.length?"No matching services found.":"No active member services available yet.";
+return;
+}
+
+empty.classList.add("hidden");
+grid.classList.remove("hidden");
+
+grid.innerHTML=filtered.map(s=>{
+const rating=Number(s.averageRating||0);
+const reviews=Number(s.reviewCount||0);
+const loc=s.profile?.location||"";
+
+return \`
+<article class="card">
+<div class="tag">\${escapeHtml(s.category||"Creative Service")}</div>
+<h3>\${escapeHtml(s.title||"StarRise Service")}</h3>
+<div class="description">\${escapeHtml(s.description||"No description provided.")}</div>
+<div class="price">\${escapeHtml(money(s.price_cents))}</div>
+<div class="provider">
+Provider: <strong>\${escapeHtml(providerName(s))}</strong>
+\${loc?"<div>"+escapeHtml(loc)+"</div>":""}
+</div>
+<div class="rating">
+\${stars(rating)} · \${reviews?rating.toFixed(1)+" ("+reviews+" reviews)":"No reviews yet"}
+</div>
+<a class="button" href="service.html?id=\${encodeURIComponent(s.id)}">View Service</a>
+</article>\`;
+}).join("");
+}
+
+search.addEventListener("input",render);
+category.addEventListener("change",render);
+sort.addEventListener("change",render);
+load();
 })();
 </script>
-
 </body>
 </html>
-
