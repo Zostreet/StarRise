@@ -314,25 +314,25 @@ empty.classList.add("hidden");
 grid.classList.remove("hidden");
 
 grid.innerHTML=filtered.map(s=>{
-const rating=Number(s.averageRating||0);
-const reviews=Number(s.reviewCount||0);
-const loc=s.profile?.location||"";
+  const rating=Number(s.averageRating||0);
+  const reviews=Number(s.reviewCount||0);
+  const loc=s.profile?.location||"";
 
-return \`
-<article class="card">
-<div class="tag">\${escapeHtml(s.category||"Creative Service")}</div>
-<h3>\${escapeHtml(s.title||"StarRise Service")}</h3>
-<div class="description">\${escapeHtml(s.description||"No description provided.")}</div>
-<div class="price">\${escapeHtml(money(s.price_cents))}</div>
-<div class="provider">
-Provider: <strong>\${escapeHtml(providerName(s))}</strong>
-\${loc?"<div>"+escapeHtml(loc)+"</div>":""}
-</div>
-<div class="rating">
-\${stars(rating)} · \${reviews?rating.toFixed(1)+" ("+reviews+" reviews)":"No reviews yet"}
-</div>
-<a class="button" href="service.html?id=\${encodeURIComponent(s.id)}">View Service</a>
-</article>\`;
+  return `
+    <article class="card">
+      <div class="tag">${escapeHtml(s.category||"Creative Service")}</div>
+      <h3>${escapeHtml(s.title||"StarRise Service")}</h3>
+      <div class="description">${escapeHtml(s.description||"No description provided.")}</div>
+      <div class="price">${escapeHtml(money(s.price_cents))}</div>
+      <div class="provider">
+        Provider: <strong>${escapeHtml(providerName(s))}</strong>
+        ${loc?"<div>"+escapeHtml(loc)+"</div>":""}
+      </div>
+      <div class="rating">
+        ${stars(rating)} · ${reviews?rating.toFixed(1)+" ("+reviews+" reviews)":"No reviews yet"}
+      </div>
+      <a class="button" href="service.html?id=${encodeURIComponent(s.id)}">View Service</a>
+    </article>`;
 }).join("");
 }
 
