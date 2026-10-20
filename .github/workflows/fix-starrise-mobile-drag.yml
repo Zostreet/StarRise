@@ -1,0 +1,83 @@
+
+name: Fix StarRise Mobile Drag
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix-mobile-drag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Repair waveform touch controls
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("studio.html")
+          html = path.read_text(encoding="utf-8")
+
+          marker = "STARRISE_MOBILE_DRAG_V3"
+
+          if marker in html:
+              print("Already installed.")
+              raise SystemExit(0)
+
+          anchor = 'canvas.style.touchAction = "pan-y";'
+
+          if anchor not in html:
+              raise SystemExit(
+                  "Expected drag controls not found. "
+                  "No changes made."
+              )
+
+          html = html.replace(
+              anchor,
+              '''// STARRISE_MOBILE_DRAG_V3
+          // Capture horizontal gestures immediately on mobile.
+          canvas.style.touchAction = "none";''',
+              1
+          )
+
+          html = html.replace(
+              'canvas.style.touchAction = "pan-y";',
+              'canvas.style.touchAction = "none";'
+          )
+
+          html = html.replace(
+              'if (Math.abs(dx) < 7) return;',
+              'if (Math.abs(dx) < 2) return;'
+          )
+
+          html = html.replace(
+              '''if (Math.abs(dy) > Math.abs(dx)) {
+                waveDrag = null;
+                return;
+              }''',
+              '''if (Math.abs(dy) > Math.abs(dx) * 2) {
+                waveDrag = null;
+                return;
+              }'''
+          )
+
+          path.write_text(html, encoding="utf-8")
+          print("Mobile drag repair installed.")
+          PY
+
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add studio.html
+
+          if ! git diff --cached --quiet; then
+            git commit -m "Repair mobile waveform drag gestures"
+            git push
+          fi
