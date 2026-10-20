@@ -1,0 +1,359 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StarRise Business Directory | Fam Ent LLC</title>
+<meta name="description" content="Discover artists, recording studios, vendors, sponsors and creative businesses in the StarRise network.">
+<link rel="icon" href="starrise-logo.png">
+<link rel="stylesheet" href="starrise-brand.css">
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#080812;
+  color:#fff;
+  font:16px/1.6 Arial,sans-serif
+}
+a{color:inherit;text-decoration:none}
+.wrap{width:min(1150px,calc(100% - 30px));margin:auto}
+header{
+  background:#11111e;
+  border-bottom:1px solid #ffffff25;
+  padding:18px 0
+}
+nav{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.logo{font-size:24px;font-weight:800;color:#e8c978}
+.links{display:flex;gap:15px;flex-wrap:wrap}
+.links a{color:#ccc}
+.hero{text-align:center;padding:65px 0 40px}
+.eyebrow{color:#c5a0fa;font-size:13px;font-weight:bold;letter-spacing:2px;text-transform:uppercase}
+h1{font-size:clamp(38px,8vw,70px);line-height:1.1;margin:12px 0}
+.hero p{max-width:750px;margin:20px auto;color:#bbb;font-size:18px}
+.btn{
+  display:inline-block;
+  border:0;
+  border-radius:25px;
+  background:#e8c978;
+  color:#080812;
+  padding:12px 20px;
+  font:inherit;
+  font-weight:bold;
+  cursor:pointer
+}
+.btn.alt{background:#24243b;color:#fff;border:1px solid #ffffff30}
+.actions{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin:25px 0}
+.filters{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:12px;
+  margin:25px 0
+}
+input,select{
+  min-width:0;
+  width:100%;
+  padding:14px;
+  background:#171727;
+  border:1px solid #ffffff35;
+  border-radius:12px;
+  color:#fff;
+  font:inherit
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:18px;
+  margin:25px 0 50px
+}
+.card{
+  display:flex;
+  flex-direction:column;
+  padding:24px;
+  background:#ffffff09;
+  border:1px solid #ffffff25;
+  border-radius:20px
+}
+.card h2{font-size:23px;margin:10px 0}
+.card p{color:#bbb}
+.card .description{flex:1}
+.symbol{font-size:38px}
+.tag{
+  display:inline-block;
+  width:max-content;
+  max-width:100%;
+  padding:5px 11px;
+  border-radius:20px;
+  background:#ffffff15;
+  color:#ddd;
+  font-size:12px
+}
+.card .btn{align-self:flex-start;margin-top:14px}
+.muted{color:#aaa}
+.panel{
+  background:linear-gradient(135deg,#21142f,#121b2a);
+  border:1px solid #ffffff25;
+  border-radius:20px;
+  padding:28px;
+  margin:35px 0
+}
+#empty{display:none;padding:25px;color:#bbb;text-align:center}
+dialog{
+  width:min(560px,calc(100% - 24px));
+  max-height:85vh;
+  overflow:auto;
+  border:1px solid #ffffff40;
+  border-radius:20px;
+  background:#151522;
+  color:#fff;
+  padding:26px
+}
+dialog::backdrop{background:#000b}
+dialog h2{margin-top:0}
+dialog p{color:#bbb}
+footer{
+  padding:35px 15px;
+  text-align:center;
+  border-top:1px solid #ffffff20;
+  color:#999
+}
+@media(max-width:700px){
+  .filters{grid-template-columns:1fr}
+  nav{align-items:flex-start;flex-direction:column}
+}
+</style>
+</head>
+
+<body>
+<header>
+<nav class="wrap">
+<a href="index.html" class="logo">★ StarRise</a>
+<div class="links">
+<a href="index.html">Home</a>
+<a href="business-network.html">Business Network</a>
+<a href="vendors.html">Vendors</a>
+<a href="partners.html">Partners</a>
+<a href="marketplace.html">Marketplace</a>
+</div>
+</nav>
+</header>
+
+<main class="wrap">
+
+<section class="hero">
+<div class="eyebrow">Fam Ent LLC • Everyone Eats</div>
+<h1>StarRise Business Directory</h1>
+<p>Discover businesses, creators, studios, vendors, and partners building opportunities through StarRise.</p>
+<div class="actions">
+<a class="btn" href="vendors.html">Join as a Vendor</a>
+<a class="btn alt" href="partners.html">Become a Partner</a>
+<a class="btn alt" href="business-network.html">Business Network</a>
+</div>
+</section>
+
+<section aria-labelledby="directoryHeading">
+<h2 id="directoryHeading">Explore Businesses & Services</h2>
+<p class="muted">
+Search available StarRise network categories. Individual business listings will appear once the directory is connected to approved business profiles.
+</p>
+
+<div class="filters">
+<input id="search" type="search" placeholder="Search studios, vendors, artists..." aria-label="Search directory">
+
+<select id="category" aria-label="Business category">
+<option value="all">All Categories</option>
+<option value="studio">Recording Studios</option>
+<option value="artist">Artists & Creators</option>
+<option value="vendor">Vendors & Retail</option>
+<option value="events">Events & Venues</option>
+<option value="partner">Partners & Sponsors</option>
+<option value="services">Creative Services</option>
+</select>
+
+<select id="location" aria-label="Location">
+<option value="all">All Locations</option>
+<option value="charlotte">Charlotte</option>
+<option value="kannapolis">Kannapolis</option>
+<option value="north-carolina">North Carolina</option>
+<option value="online">Online / Nationwide</option>
+</select>
+</div>
+
+<p id="count" class="muted" aria-live="polite"></p>
+
+<div class="grid" id="directory"></div>
+<div id="empty" role="status">No matching directory categories. Try another search or filter.</div>
+</section>
+
+<section class="panel">
+<h2>Get Your Business Discovered</h2>
+<p>
+StarRise is building a directory where businesses can showcase their services, connect with artists, and find new opportunities.
+</p>
+<div class="actions">
+<a class="btn" href="vendors.html">Vendor Information</a>
+<a class="btn alt" href="partners.html">Partnership Information</a>
+</div>
+</section>
+
+<p class="muted">
+Directory note: Category cards are navigation links, not verified business profiles. Ratings, individual listings, and geographic discovery require approved business data and additional integration.
+</p>
+
+</main>
+
+<dialog id="details">
+<h2 id="detailTitle"></h2>
+<p id="detailDescription"></p>
+<p id="detailLocation"></p>
+<a id="detailLink" class="btn" href="business-network.html">Explore</a>
+<button id="closeDetails" class="btn alt" type="button">Close</button>
+</dialog>
+
+<footer>
+StarRise by Fam Ent LLC<br>
+<a href="terms.html">Terms</a> |
+<a href="privacy.html">Privacy</a>
+</footer>
+
+<script>
+"use strict";
+
+const directoryData=[
+{
+name:"Recording Studios",
+category:"studio",
+location:"all",
+symbol:"🎙️",
+description:"Explore recording, music production, engineering, and studio collaboration opportunities.",
+link:"services.html"
+},
+{
+name:"Artists & Creators",
+category:"artist",
+location:"all",
+symbol:"🎤",
+description:"Discover singers, rappers, musicians, performers, and other creative talent.",
+link:"members.html"
+},
+{
+name:"Vendors & Retail",
+category:"vendor",
+location:"all",
+symbol:"🏪",
+description:"Connect with businesses offering products, equipment, merchandise, and vendor services.",
+link:"vendors.html"
+},
+{
+name:"Events & Venues",
+category:"events",
+location:"all",
+symbol:"🎟️",
+description:"Explore performances, talent shows, events, and event-related opportunities.",
+link:"events.html"
+},
+{
+name:"Partners & Sponsors",
+category:"partner",
+location:"all",
+symbol:"🤝",
+description:"Learn about business collaborations, sponsorships, and community partnerships.",
+link:"partners.html"
+},
+{
+name:"Creative Services",
+category:"services",
+location:"all",
+symbol:"🎧",
+description:"Find services for recording, production, vocals, promotion, and other creative needs.",
+link:"services.html"
+}
+];
+
+const search=document.getElementById("search");
+const category=document.getElementById("category");
+const locationFilter=document.getElementById("location");
+const directory=document.getElementById("directory");
+const count=document.getElementById("count");
+const empty=document.getElementById("empty");
+const details=document.getElementById("details");
+
+function makeElement(tag,className,text){
+const el=document.createElement(tag);
+if(className)el.className=className;
+if(text)el.textContent=text;
+return el;
+}
+
+function openDetails(item){
+document.getElementById("detailTitle").textContent=item.name;
+document.getElementById("detailDescription").textContent=item.description;
+document.getElementById("detailLocation").textContent=
+"Coverage: StarRise network. Location-specific business listings are not yet available.";
+document.getElementById("detailLink").href=item.link;
+if(typeof details.showModal==="function"){
+details.showModal();
+}else{
+window.location.href=item.link;
+}
+}
+
+function renderDirectory(){
+const term=search.value.trim().toLowerCase();
+const selectedCategory=category.value;
+const selectedLocation=locationFilter.value;
+
+const results=directoryData.filter(item=>{
+const categoryMatch=selectedCategory==="all"||item.category===selectedCategory;
+const text=(item.name+" "+item.description).toLowerCase();
+const searchMatch=!term||text.includes(term);
+
+/* These are network-wide categories, not local business records. */
+const locationMatch=selectedLocation==="all";
+
+return categoryMatch&&searchMatch&&locationMatch;
+});
+
+directory.replaceChildren();
+
+results.forEach(item=>{
+const card=makeElement("article","card");
+card.appendChild(makeElement("div","symbol",item.symbol));
+card.appendChild(makeElement("span","tag","Network Category"));
+card.appendChild(makeElement("h2","",item.name));
+card.appendChild(makeElement("p","description",item.description));
+
+const button=makeElement("button","btn","View Details");
+button.type="button";
+button.addEventListener("click",()=>openDetails(item));
+card.appendChild(button);
+directory.appendChild(card);
+});
+
+count.textContent=results.length+" categories available";
+empty.style.display=results.length?"none":"block";
+
+if(selectedLocation!=="all"){
+empty.textContent="Location-specific listings are coming soon. Choose All Locations to browse network categories.";
+}else{
+empty.textContent="No matching directory categories. Try another search or filter.";
+}
+}
+
+search.addEventListener("input",renderDirectory);
+category.addEventListener("change",renderDirectory);
+locationFilter.addEventListener("change",renderDirectory);
+
+document.getElementById("closeDetails").addEventListener("click",()=>{
+details.close();
+});
+
+details.addEventListener("click",event=>{
+if(event.target===details)details.close();
+});
+
+renderDirectory();
+</script>
+</body>
+</html>
