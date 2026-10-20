@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StarRise Business Network | Fam Ent LLC</title>
+<meta name="description" content="Connect with artists, vendors, sponsors, businesses, and creative professionals through StarRise.">
+<link rel="icon" href="starrise-logo.png">
+<link rel="stylesheet" href="starrise-brand.css">
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080812;color:#fff;font-family:Arial,sans-serif;line-height:1.6}
+a{color:inherit;text-decoration:none}
+.container{width:min(1150px,calc(100% - 30px));margin:auto}
+header{background:#10101d;border-bottom:1px solid #ffffff20;padding:18px 0}
+nav{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.logo{font-size:24px;font-weight:800;color:#e8c978}
+.links{display:flex;gap:16px;flex-wrap:wrap}
+.links a{color:#ccc}
+.hero{text-align:center;padding:75px 15px 45px}
+.eyebrow{color:#c5a0fa;text-transform:uppercase;letter-spacing:3px;font-size:13px;font-weight:bold}
+h1{font-size:clamp(40px,8vw,75px);line-height:1.1;margin:12px 0}
+.hero p{max-width:760px;margin:20px auto;color:#bbb;font-size:19px}
+.buttons{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:25px}
+.button{display:inline-block;background:#e8c978;color:#080812;padding:13px 22px;border-radius:25px;font-weight:bold}
+.button.secondary{background:#222238;color:#fff;border:1px solid #ffffff30}
+.section{padding:35px 0}
+.section h2{font-size:32px;margin-bottom:8px}
+.muted{color:#aaa}
+.filters{display:flex;gap:12px;flex-wrap:wrap;margin:25px 0}
+.filters input,.filters select{background:#171727;border:1px solid #ffffff30;color:#fff;padding:14px;border-radius:12px;font:inherit}
+.filters input{flex:2;min-width:200px}
+.filters select{flex:1;min-width:170px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.card{background:#ffffff09;border:1px solid #ffffff20;border-radius:20px;padding:25px;display:flex;flex-direction:column}
+.card .symbol{font-size:36px;margin-bottom:12px}
+.card h3{font-size:23px;margin:0}
+.card p{color:#bbb;flex:1}
+.card .button{align-self:flex-start;margin-top:12px}
+.panel{background:linear-gradient(135deg,#20132e,#111b29);border:1px solid #ffffff25;border-radius:22px;padding:30px;margin:40px 0}
+.panel h2{margin-top:0}
+.notice{padding:18px;border:1px solid #ffffff25;border-radius:14px;background:#ffffff08;color:#bbb}
+footer{text-align:center;padding:35px 15px;border-top:1px solid #ffffff20;color:#888}
+#empty{display:none;padding:20px;color:#bbb}
+@media(max-width:650px){
+nav{flex-direction:column;align-items:flex-start}
+.filters{flex-direction:column}
+.filters input,.filters select{width:100%}
+.hero{padding-top:50px}
+}
+</style>
+</head>
+
+<body>
+<header>
+<nav class="container">
+<a class="logo" href="index.html">★ StarRise</a>
+<div class="links">
+<a href="index.html">Home</a>
+<a href="community.html">Community</a>
+<a href="marketplace.html">Marketplace</a>
+<a href="services.html">Services</a>
+<a href="opportunities.html">Opportunities</a>
+<a href="dashboard.html">Dashboard</a>
+</div>
+</nav>
+</header>
+
+<main class="container">
+
+<section class="hero">
+<div class="eyebrow">Fam Ent LLC • Everyone Eats</div>
+<h1>StarRise<br>Business Network</h1>
+<p>
+Where talent meets opportunity. Connect with creators,
+business owners, vendors, sponsors, and professionals
+ready to build something extraordinary.
+</p>
+<div class="buttons">
+<a class="button" href="vendors.html">Join as a Vendor</a>
+<a class="button secondary" href="partners.html">Become a Partner</a>
+<a class="button secondary" href="join.html">Join StarRise</a>
+</div>
+</section>
+
+<section class="section">
+<h2>Explore Our Network</h2>
+<p class="muted">
+Discover the different ways to connect, collaborate,
+and grow through StarRise.
+</p>
+
+<div class="filters">
+<input type="search" id="search" placeholder="Search artists, studios, vendors..." aria-label="Search network">
+<select id="category" aria-label="Filter category">
+<option value="all">All Categories</option>
+<option value="creative">Creative Talent</option>
+<option value="business">Businesses & Partners</option>
+<option value="opportunities">Opportunities</option>
+</select>
+</div>
+
+<p id="count" class="muted" aria-live="polite"></p>
+
+<div class="grid" id="networkGrid">
+
+<article class="card" data-category="creative" data-search="artists musicians singers rappers creators members">
+<div class="symbol">🎤</div>
+<h3>Artists & Creators</h3>
+<p>Discover singers, rappers, musicians, performers, and talented creators.</p>
+<a class="button" href="members.html">Find Creators</a>
+</article>
+
+<article class="card" data-category="creative" data-search="studio recording production beats vocals photography services">
+<div class="symbol">🎧</div>
+<h3>Creative Services</h3>
+<p>Find music production, recording, creative services, and professional talent.</p>
+<a class="button" href="services.html">Browse Services</a>
+</article>
+
+<article class="card" data-category="business" data-search="vendors businesses suppliers equipment merchandise">
+<div class="symbol">🏪</div>
+<h3>Vendors & Businesses</h3>
+<p>Connect your products, equipment, spaces, and services with the StarRise community.</p>
+<a class="button" href="vendors.html">Vendor Network</a>
+</article>
+
+<article class="card" data-category="business" data-search="partners sponsors charities organizations nonprofits">
+<div class="symbol">🤝</div>
+<h3>Partners & Sponsors</h3>
+<p>Explore partnerships, sponsorships, and collaborative opportunities with Fam Ent LLC.</p>
+<a class="button" href="partners.html">Partnerships</a>
+</article>
+
+<article class="card" data-category="creative" data-search="marketplace store beats clothes artwork products">
+<div class="symbol">🛍️</div>
+<h3>Creator Marketplace</h3>
+<p>Discover music, artwork, clothing, digital creations, and other products.</p>
+<a class="button" href="marketplace.html">Visit Marketplace</a>
+</article>
+
+<article class="card" data-category="opportunities" data-search="events auditions talent shows jobs performances">
+<div class="symbol">🎟️</div>
+<h3>Events & Opportunities</h3>
+<p>Find auditions, events, performances, collaborations, and opportunities.</p>
+<a class="button" href="opportunities.html">Explore Opportunities</a>
+</article>
+
+</div>
+
+<p id="empty">No matching categories found. Try another search.</p>
+</section>
+
+<section class="panel">
+<h2>Grow Your Business With StarRise</h2>
+<p>
+Whether you're an independent creator, local business,
+event organizer, studio owner, vendor, or sponsor,
+StarRise is building a network where everyone has
+the opportunity to grow.
+</p>
+<div class="buttons">
+<a class="button" href="vendors.html">Vendor Information</a>
+<a class="button secondary" href="partners.html">Partner Information</a>
+</div>
+</section>
+
+<section class="section">
+<h2>What's Coming Next</h2>
+<div class="grid">
+
+<div class="card">
+<div class="symbol">⭐</div>
+<h3>Verified Reviews</h3>
+<p>Future customer ratings and verified transaction-based reviews.</p>
+</div>
+
+<div class="card">
+<div class="symbol">📍</div>
+<h3>Local Discovery</h3>
+<p>Find nearby creators, studios, venues, and businesses.</p>
+</div>
+
+<div class="card">
+<div class="symbol">📊</div>
+<h3>Business Analytics</h3>
+<p>Future tools for tracking profile views, customer inquiries, and business activity.</p>
+</div>
+
+</div>
+</section>
+
+<div class="notice">
+<strong>Payment Notice:</strong>
+StarRise marketplace payments remain paused pending
+PayPal approval and final integration verification.
+Business Network browsing does not require payment.
+</div>
+
+</main>
+
+<footer>
+StarRise by Fam Ent LLC
+<br>
+<a href="terms.html">Terms</a> |
+<a href="privacy.html">Privacy</a>
+</footer>
+
+<script>
+const search=document.getElementById("search");
+const category=document.getElementById("category");
+const cards=[...document.querySelectorAll(".card[data-category]")];
+const count=document.getElementById("count");
+const empty=document.getElementById("empty");
+
+function filterNetwork(){
+const term=search.value.trim().toLowerCase();
+const selected=category.value;
+let visible=0;
+
+cards.forEach(card=>{
+const matchesCategory=selected==="all"||card.dataset.category===selected;
+const content=(card.dataset.search+" "+card.textContent).toLowerCase();
+const matchesSearch=!term||content.includes(term);
+const show=matchesCategory&&matchesSearch;
+
+card.style.display=show?"flex":"none";
+if(show)visible++;
+});
+
+count.textContent=visible+" network categories";
+empty.style.display=visible?"none":"block";
+}
+
+search.addEventListener("input",filterNetwork);
+category.addEventListener("change",filterNetwork);
+filterNetwork();
+</script>
+
+</body>
+</html>
