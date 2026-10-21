@@ -60,6 +60,24 @@ header{font-size:13px}
 input[type=range]{width:110px}
 }
 </style>
+
+<style>
+/* STARRISE_TOUCH_TIMELINE_STYLE */
+.arrangement-rail {
+  overflow: visible;
+}
+
+.arrangement-clip {
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.arrangement-clip:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+</style>
 </head>
 <body>
 
@@ -95,6 +113,7 @@ input[type=range]{width:110px}
 <button data-tab="record">Recording</button>
 <button data-tab="mixer">Mixer & FX</button>
 <button data-tab="export">Export</button>
+<button id="srPitchNav" type="button" data-tab="pitch">Pitch Correction</button>
 </nav>
 
 <section id="beats" class="view active">
@@ -161,6 +180,124 @@ input[type=range]{width:110px}
 <h2>Multitrack Mixer & Effects</h2>
 <p class="note">Each track has independent volume, pan, low-cut, EQ, presence, sibilance softening, compression, reverb and delay. Vocal tracks also have tone presets. Mix changes apply on the next playback and to new exports.</p>
 <div id="mixerTracks"></div>
+<div id="srArrangement" class="panel">
+  <h2>StarRise Arrangement Timeline</h2>
+  <p class="note">
+    Organize verses, choruses, bridges and
+    other song sections by bar number.
+    This first version is an arrangement
+    planner, not an audio clip editor.
+  </p>
+
+  <label>Song Section
+    <select id="srSectionType">
+      <option>Intro</option>
+      <option>Verse</option>
+      <option>Pre-Chorus</option>
+      <option>Chorus</option>
+      <option>Bridge</option>
+      <option>Outro</option>
+    </select>
+  </label>
+
+  <label>Start Bar
+    <input id="srSectionBar"
+           type="number" min="1" value="1">
+  </label>
+
+  <label>Length (Bars)
+    <input id="srSectionLength"
+           type="number" min="1" value="8">
+  </label>
+
+  <button type="button" id="srAddSection">
+    Add Section
+  </button>
+
+  <button type="button" id="srClearSections">
+    Clear Arrangement
+  </button>
+
+  <div id="srSectionList"
+       aria-live="polite"></div>
+</div>
+
+<section id="srCleanup" class="panel">
+  <h2>StarRise Vocal Cleanup Pro</h2>
+  <p class="hint">
+    Reduce quiet background noise between vocal
+    phrases while preserving your original track.
+    This is an adjustable noise gate, not spectral
+    noise removal.
+  </p>
+
+  <label>
+    Vocal Track
+    <select id="srCleanTrack"></select>
+  </label>
+
+  <label>
+    Noise Threshold:
+    <output id="srCleanValue">-45 dB</output>
+    <input id="srCleanThreshold"
+           type="range"
+           min="-65"
+           max="-20"
+           value="-45"
+           step="1">
+  </label>
+
+  <label>
+    Reduction Amount:
+    <output id="srCleanReductionValue">18 dB</output>
+    <input id="srCleanReduction"
+           type="range"
+           min="0"
+           max="40"
+           value="18"
+           step="1">
+  </label>
+
+  <label>
+    Attack:
+    <output id="srCleanAttackValue">10 ms</output>
+    <input id="srCleanAttack"
+           type="range"
+           min="2"
+           max="50"
+           value="10">
+  </label>
+
+  <label>
+    Release:
+    <output id="srCleanReleaseValue">180 ms</output>
+    <input id="srCleanRelease"
+           type="range"
+           min="50"
+           max="600"
+           value="180">
+  </label>
+
+  <div>
+    <button id="srCleanRefresh" type="button">
+      Refresh Vocal Tracks
+    </button>
+    <button id="srCleanApply" type="button">
+      Create Clean Vocal Track
+    </button>
+  </div>
+
+  <p id="srCleanStatus" role="status">
+    Select a vocal recording to begin.
+  </p>
+
+  <p class="hint">
+    A new track is created. The original is muted,
+    not deleted. Compare both tracks by changing
+    their mute settings in the mixer.
+    Save your project after processing.
+  </p>
+</section>
 </div>
 </section>
 
@@ -191,7 +328,7 @@ input[type=range]{width:110px}
 Choose Save Project to keep this session, including its audio, on this device.
 Choose Load Project to reopen that saved session. Browser storage can be cleared or become full;
 download a full project backup to keep a separate copy or move to another device.
-This version includes vocal tone presets but not automatic pitch correction,
+This version includes vocal tone presets, experimental vocal tuning and Pitch Lab correction, but not professional-grade real-time automatic pitch correction,
 third-party VST hosting or real-time cloud collaboration.
 </p>
 </section>
@@ -328,9 +465,23 @@ data[i]=(Math.random()*2-1)*Math.pow(1-i/length,2.5);
 return impulse;
 }
 
+// STARRISE_VOCAL_FX_AB_V1
+const studioFxBypass = new Set();
+
 function connectTrack(track,ac,destination){
 const source=ac.createBufferSource();
 source.buffer=track.buffer;
+
+if(studioFxBypass.has(track.id)){
+  const dryGain=ac.createGain();
+  dryGain.gain.value=track.mute?0:track.volume;
+  const dryPan=ac.createStereoPanner();
+  dryPan.pan.value=track.pan;
+  source.connect(dryGain);
+  dryGain.connect(dryPan);
+  dryPan.connect(destination);
+  return source;
+}
 
 const gain=ac.createGain();
 gain.gain.value=track.volume;
@@ -611,6 +762,94 @@ status("Sample import failed: "+e.message);
 }
 };
 
+
+// STARRISE_STUDIO_TRANSFER_IMPORT
+async function importSharedMessageAudio() {
+  if (
+    typeof location === "undefined" ||
+    typeof URLSearchParams === "undefined"
+  ) return;
+
+  const params = new URLSearchParams(location.search);
+  if (params.get("import") !== "message") return;
+
+  try {
+    const db = await new Promise((resolve, reject) => {
+      const request = indexedDB.open(
+        "starrise-studio-transfer", 1
+      );
+
+      request.onupgradeneeded = () => {
+        const database = request.result;
+        if (!database.objectStoreNames.contains("audio")) {
+          database.createObjectStore("audio");
+        }
+      };
+
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+
+    const item = await new Promise((resolve, reject) => {
+      const tx = db.transaction("audio", "readonly");
+      const request = tx.objectStore("audio").get("incoming");
+
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+
+    if (!item || !item.bytes) {
+      throw new Error("No shared audio was found.");
+    }
+
+    const ac = await ready();
+    const buffer = await ac.decodeAudioData(
+      item.bytes.slice(0)
+    );
+
+    makeTrack(
+      item.name || "Shared audio",
+      buffer,
+      "audio"
+    );
+
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction("audio", "readwrite");
+      tx.objectStore("audio").delete("incoming");
+
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+
+    db.close();
+
+    history.replaceState(
+      null,
+      "",
+      location.pathname
+    );
+
+    status("Shared audio imported into Studio.");
+
+  } catch (error) {
+    console.error("Studio import failed:", error);
+    status(
+      "Shared audio import failed: " +
+      (error.message || error)
+    );
+  }
+}
+
+if (
+  typeof location !== "undefined" &&
+  typeof URLSearchParams !== "undefined" &&
+  new URLSearchParams(location.search)
+    .get("import") === "message"
+) {
+  setTimeout(importSharedMessageAudio, 250);
+}
+
 $("audioUpload").onchange=async event=>{
 try{
 const ac=await ready();
@@ -677,6 +916,107 @@ return false;
 }
 }
 
+
+// STARRISE_CLIP_EDITOR_V2
+
+function splitAudioTrack(track, seconds) {
+  if (!canEditTrack()) return;
+
+  try {
+    const clip = clipRange(track);
+    const split = Number(seconds);
+
+    if (
+      !Number.isFinite(split) ||
+      split <= 0 ||
+      split >= clip.duration
+    ) {
+      status(
+        "Choose a split point inside the clip."
+      );
+      return;
+    }
+
+    const rate = track.buffer.sampleRate;
+    const splitFrame =
+      clip.first + Math.round(split * rate);
+
+    if (
+      splitFrame <= clip.first ||
+      splitFrame >= clip.last
+    ) {
+      status("Split point is outside the clip.");
+      return;
+    }
+
+    const splitTime = splitFrame / rate;
+    const index = tracks.indexOf(track);
+
+    if (index < 0) return;
+
+    const original = {
+      ...track
+    };
+
+    const second = {
+      ...track,
+      id: nextTrackId++,
+      name: track.name + " Part 2",
+      offset:
+        track.offset +
+        (splitFrame - clip.first) / rate,
+      trimStart: splitTime,
+      trimEnd: track.trimEnd
+    };
+
+    track.name = track.name + " Part 1";
+    track.trimEnd = splitTime;
+
+    tracks.splice(index + 1, 0, second);
+
+    rememberTrackEdit({
+      kind: "split",
+      id: track.id,
+      secondId: second.id,
+      before: original
+    });
+
+    renderTracks();
+
+    status(
+      "Clip split successfully. " +
+      "Original audio preserved. " +
+      "Save Project to keep changes."
+    );
+
+  } catch (error) {
+    status(
+      "Split failed: " + error.message
+    );
+  }
+}
+
+function moveAudioTrack(track, seconds) {
+  if (!canEditTrack()) return;
+
+  const position = Number(seconds);
+
+  if (
+    !Number.isFinite(position) ||
+    position < 0
+  ) {
+    status("Enter a valid start time.");
+    return;
+  }
+
+  editTrack(track, {
+    name: track.name,
+    offset: position,
+    trimStart: track.trimStart,
+    trimEnd: track.trimEnd
+  });
+}
+
 function duplicateTrack(track){
 if(!canEditTrack())return;
 const copy={...track,id:nextTrackId++,name:track.name.slice(0,195)+" copy",offset:track.offset+clipRange(track).duration};
@@ -699,6 +1039,24 @@ status("Track removed. Undo Track Edit can restore it.");
 $("undoTrackEdit").onclick=()=>{
 if(!canEditTrack()||!trackEditHistory.length)return;
 const edit=trackEditHistory.pop();
+
+if (edit.kind === "split") {
+  tracks = tracks.filter(
+    t => t.id !== edit.secondId
+  );
+
+  const originalTrack = tracks.find(
+    t => t.id === edit.id
+  );
+
+  if (originalTrack) {
+    Object.assign(
+      originalTrack,
+      edit.before
+    );
+  }
+}
+
 if(edit.kind==="add")tracks=tracks.filter(t=>t.id!==edit.id);
 if(edit.kind==="remove")tracks.splice(Math.min(edit.index,tracks.length),0,edit.track);
 if(edit.kind==="update"){
@@ -733,7 +1091,107 @@ const rail=document.createElement("div");rail.className="arrangement-rail";
 const bar=document.createElement("span");bar.className="arrangement-clip";
 bar.style.left=(track.offset/end*100)+"%";bar.style.width=(clip.duration/end*100)+"%";
 bar.style.opacity=track.mute?".35":"1";
-rail.append(bar);lane.append(name,rail);box.append(lane);
+
+// STARRISE_TOUCH_TIMELINE_V1
+bar.style.touchAction = "none";
+bar.style.cursor = "grab";
+bar.setAttribute("role", "slider");
+bar.setAttribute("tabindex", "0");
+bar.setAttribute("aria-label",
+  "Move " + track.name + " in song");
+bar.setAttribute("aria-valuemin", "0");
+bar.setAttribute("aria-valuenow",
+  String(track.offset));
+bar.setAttribute("aria-valuetext",
+  track.offset.toFixed(2) + " seconds");
+
+let dragging = false;
+let pointerStart = 0;
+let originalOffset = 0;
+let proposedOffset = 0;
+
+bar.addEventListener("pointerdown", event => {
+  if (!canEditTrack()) return;
+
+  dragging = true;
+  pointerStart = event.clientX;
+  originalOffset = track.offset;
+  proposedOffset = originalOffset;
+
+  bar.setPointerCapture(event.pointerId);
+  bar.style.cursor = "grabbing";
+  event.preventDefault();
+});
+
+bar.addEventListener("pointermove", event => {
+  if (!dragging) return;
+
+  const width = rail.getBoundingClientRect().width;
+  if (width <= 0) return;
+
+  const delta =
+    (event.clientX - pointerStart) / width * end;
+
+  proposedOffset =
+    Math.max(0, originalOffset + delta);
+
+  bar.style.left =
+    (proposedOffset / end * 100) + "%";
+
+  bar.setAttribute("aria-valuenow",
+    proposedOffset.toFixed(2));
+  bar.setAttribute("aria-valuetext",
+    proposedOffset.toFixed(2) + " seconds");
+});
+
+bar.addEventListener("pointerup", event => {
+  if (!dragging) return;
+  dragging = false;
+  bar.style.cursor = "grab";
+
+  if (bar.hasPointerCapture(event.pointerId)) {
+    bar.releasePointerCapture(event.pointerId);
+  }
+
+  if (Math.abs(proposedOffset - originalOffset) > 0.01) {
+    editTrack(track, {
+      name: track.name,
+      offset: Number(proposedOffset.toFixed(3)),
+      trimStart: track.trimStart,
+      trimEnd: track.trimEnd
+    });
+  } else {
+    renderArrangement();
+  }
+});
+
+bar.addEventListener("pointercancel", () => {
+  dragging = false;
+  renderArrangement();
+});
+
+bar.addEventListener("keydown", event => {
+  if (!["ArrowLeft", "ArrowRight"].includes(event.key)) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const delta =
+    event.key === "ArrowRight" ? 0.5 : -0.5;
+
+  editTrack(track, {
+    name: track.name,
+    offset: Math.max(0, track.offset + delta),
+    trimStart: track.trimStart,
+    trimEnd: track.trimEnd
+  });
+});
+
+rail.append(bar);
+lane.append(name,rail);
+box.append(lane);
+
 });
 }
 
@@ -783,7 +1241,135 @@ canvas.width=900;
 canvas.height=100;
 drawWave(canvas,track.buffer,clip.first,clip.last);
 
-row.append(head,canvas);
+// STARRISE_WAVEFORM_TOUCH_DRAG_V2
+// STARRISE_MOBILE_DRAG_V3
+// Capture horizontal gestures immediately on mobile.
+canvas.style.touchAction = "none";
+canvas.style.cursor = "grab";
+canvas.style.userSelect = "none";
+
+canvas.setAttribute("role", "slider");
+canvas.setAttribute("tabindex", "0");
+canvas.setAttribute("aria-label",
+  "Move " + track.name + " left or right");
+
+const dragHelp = document.createElement("small");
+dragHelp.textContent =
+  "Drag waveform left or right to move this clip.";
+dragHelp.style.display = "block";
+
+let waveDrag = null;
+
+canvas.addEventListener("pointerdown", event => {
+  if (event.button !== 0 || !canEditTrack()) return;
+
+  waveDrag = {
+    id: event.pointerId,
+    x: event.clientX,
+    y: event.clientY,
+    origin: track.offset,
+    next: track.offset,
+    active: false
+  };
+});
+
+canvas.addEventListener("pointermove", event => {
+  if (!waveDrag ||
+      waveDrag.id !== event.pointerId) return;
+
+  const dx = event.clientX - waveDrag.x;
+  const dy = event.clientY - waveDrag.y;
+
+  if (!waveDrag.active) {
+    if (Math.abs(dx) < 2) return;
+
+    if (Math.abs(dy) > Math.abs(dx) * 2) {
+      waveDrag = null;
+      return;
+    }
+
+    waveDrag.active = true;
+    canvas.style.touchAction = "none";
+    canvas.setPointerCapture(event.pointerId);
+  }
+
+  const width =
+    Math.max(1, canvas.getBoundingClientRect().width);
+
+  const secondsPerPixel =
+    Math.max(30, sessionDuration()) / width;
+
+  waveDrag.next = Math.max(
+    0,
+    waveDrag.origin + dx * secondsPerPixel
+  );
+
+  canvas.style.transform =
+    "translateX(" +
+    ((waveDrag.next - waveDrag.origin) /
+      secondsPerPixel) +
+    "px)";
+
+  canvas.style.opacity = ".7";
+  canvas.style.cursor = "grabbing";
+
+  event.preventDefault();
+});
+
+function finishWaveDrag(event, canceled) {
+  if (!waveDrag ||
+      waveDrag.id !== event.pointerId) return;
+
+  const drag = waveDrag;
+  waveDrag = null;
+
+  if (canvas.hasPointerCapture(event.pointerId)) {
+    canvas.releasePointerCapture(event.pointerId);
+  }
+
+  canvas.style.transform = "";
+  canvas.style.opacity = "";
+  canvas.style.cursor = "grab";
+  canvas.style.touchAction = "none";
+
+  if (!canceled &&
+      drag.active &&
+      Math.abs(drag.next - drag.origin) > .01) {
+    editTrack(track, {
+      name: track.name,
+      offset: Number(drag.next.toFixed(3)),
+      trimStart: track.trimStart,
+      trimEnd: track.trimEnd
+    });
+  }
+}
+
+canvas.addEventListener("pointerup",
+  event => finishWaveDrag(event, false));
+
+canvas.addEventListener("pointercancel",
+  event => finishWaveDrag(event, true));
+
+canvas.addEventListener("keydown", event => {
+  if (event.key !== "ArrowLeft" &&
+      event.key !== "ArrowRight") return;
+
+  event.preventDefault();
+  if (!canEditTrack()) return;
+
+  editTrack(track, {
+    name: track.name,
+    offset: Math.max(
+      0,
+      track.offset +
+        (event.key === "ArrowRight" ? .5 : -.5)
+    ),
+    trimStart: track.trimStart,
+    trimEnd: track.trimEnd
+  });
+});
+
+row.append(head,canvas,dragHelp);
 
 const controls=document.createElement("div");
 controls.className="controls";
@@ -849,7 +1435,83 @@ editTrack(track,{name:nameInput.value,offset:Number(startInput.value),trimStart:
 };
 const restore=document.createElement("button");restore.textContent="Restore Full Audio";restore.className="secondary";
 restore.onclick=()=>editTrack(track,{name:track.name,offset:track.offset,trimStart:0,trimEnd:null});
-editor.append(apply,restore);row.append(editor);
+
+editor.append(apply,restore);
+
+const clipTools =
+  document.createElement("div");
+
+clipTools.className = "trackedit";
+
+const splitLabel =
+  document.createElement("label");
+
+splitLabel.textContent =
+  "Split at seconds into clip";
+
+const splitInput =
+  document.createElement("input");
+
+splitInput.type = "number";
+splitInput.min = "0";
+splitInput.step = "0.01";
+splitInput.value =
+  (clip.duration / 2).toFixed(2);
+
+splitLabel.append(splitInput);
+
+const splitButton =
+  document.createElement("button");
+
+splitButton.type = "button";
+splitButton.textContent = "Split Clip";
+
+splitButton.onclick = () => {
+  splitAudioTrack(
+    track,
+    splitInput.value
+  );
+};
+
+const moveLabel =
+  document.createElement("label");
+
+moveLabel.textContent =
+  "Move Clip To (seconds)";
+
+const moveInput =
+  document.createElement("input");
+
+moveInput.type = "number";
+moveInput.min = "0";
+moveInput.step = "0.01";
+moveInput.value = track.offset;
+
+moveLabel.append(moveInput);
+
+const moveButton =
+  document.createElement("button");
+
+moveButton.type = "button";
+moveButton.textContent = "Move Clip";
+
+moveButton.onclick = () => {
+  moveAudioTrack(
+    track,
+    moveInput.value
+  );
+};
+
+clipTools.append(
+  splitLabel,
+  splitButton,
+  moveLabel,
+  moveButton
+);
+
+editor.append(clipTools);
+row.append(editor);
+
 
 const fx=document.createElement("div");
 fx.className="fx controls";
@@ -858,13 +1520,118 @@ fx.append(
 slider("EQ / Brightness",-12,12,1,"eq"),
 slider("Low-cut (Hz)",40,180,5,"highpass"),
 slider("Presence (dB)",-6,6,1,"presence"),
-slider("Sibilance soften",0,100,5,"deess"),
+slider("De-Esser / Sibilance",0,100,5,"deess"),
 slider("Compression",0,100,5,"compression"),
 slider("Reverb",0,100,5,"reverb"),
 slider("Delay",0,100,5,"delay")
 );
 
 row.append(fx);
+
+// STARRISE_TRACK_TYPE_SELECTOR_V2
+const typeControls=document.createElement("div");
+typeControls.className="controls";
+
+const typeLabel=document.createElement("label");
+typeLabel.textContent="Track Type";
+
+const typeSelect=document.createElement("select");
+
+[
+  ["audio","Audio / Instrument"],
+  ["vocal","Vocal Recording"]
+].forEach(([value,label])=>{
+  const option=document.createElement("option");
+  option.value=value;
+  option.textContent=label;
+  option.selected=(
+    value===(track.type==="vocal"?"vocal":"audio")
+  );
+  typeSelect.append(option);
+});
+
+typeSelect.onchange=(event)=>{
+  if(recording){
+    status("Stop recording before changing track type.");
+    renderTracks();
+    return;
+  }
+
+  const selected=event.target.value;
+
+  if(selected!=="audio" && selected!=="vocal"){
+    return;
+  }
+
+  track.type=selected;
+  renderTracks();
+
+  status(
+    selected==="vocal"
+      ?"Vocal tools enabled. Save Project to keep this setting."
+      :"Audio track mode enabled. Save Project to keep this setting."
+  );
+};
+
+typeLabel.append(typeSelect);
+typeControls.append(typeLabel);
+row.append(typeControls);
+
+const comparison=document.createElement("div");
+comparison.className="controls";
+
+const compareButton=document.createElement("button");
+compareButton.type="button";
+compareButton.className="secondary";
+
+function updateCompareLabel(){
+  compareButton.textContent=studioFxBypass.has(track.id)
+    ?"Hear Processed FX"
+    :"Hear Original (Bypass FX)";
+  compareButton.setAttribute(
+    "aria-pressed",
+    String(studioFxBypass.has(track.id))
+  );
+}
+
+updateCompareLabel();
+
+compareButton.onclick=()=>{
+  if(recording){
+    status("Stop recording before comparing effects.");
+    return;
+  }
+
+  const wasPlaying=playing;
+  stopSources();
+
+  if(studioFxBypass.has(track.id)){
+    studioFxBypass.delete(track.id);
+  }else{
+    studioFxBypass.add(track.id);
+  }
+
+  updateCompareLabel();
+
+  status(
+    studioFxBypass.has(track.id)
+    ?"Original track selected. Press Play Session."
+    :"Processed effects selected. Press Play Session."
+  );
+
+  if(wasPlaying){
+    playSession();
+  }
+};
+
+const compareNote=document.createElement("small");
+compareNote.textContent=
+  "Compare original and processed audio. "
+  +"Volume and pan remain active. "
+  +"This comparison does not alter the recording.";
+
+comparison.append(compareButton,compareNote);
+row.append(comparison);
 
 if(track.type==="vocal"){
   const presets=document.createElement("div");
@@ -1578,5 +2345,2164 @@ renderSequencer();
 renderTracks();
 
 </script>
+
+<style>
+#srMonitorPanel {
+  margin: 14px 0;
+  padding: 15px;
+  background: #29243e;
+  border: 1px solid #655879;
+  border-radius: 12px;
+}
+#srMonitorPanel h3 { margin-top: 0; }
+#srLevelBar {
+  height: 18px;
+  background: #100f20;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+#srLevelFill {
+  width: 0%;
+  height: 100%;
+  background: #40ca92;
+  transition: width .08s;
+}
+#srMonitorPanel label {
+  display: inline-flex;
+  margin: 8px 12px 8px 0;
+}
+#srLevelText { font-weight: bold; }
+#srClipWarning { color: #ff9292; }
+</style>
+
+<script>
+(() => {
+  "use strict";
+
+  const recordButton = document.getElementById("recordVocal");
+  if (!recordButton || typeof prepareRecorder !== "function") return;
+
+  const panel = document.createElement("section");
+  panel.id = "srMonitorPanel";
+  panel.innerHTML = `
+    <h3>StarRise Live Vocal Monitor</h3>
+    <p class="note">Connect headphones before enabling live monitoring.</p>
+
+    <div id="srLevelBar">
+      <div id="srLevelFill"></div>
+    </div>
+
+    <p id="srLevelText">Microphone: Waiting</p>
+    <p id="srClipWarning" role="status"></p>
+
+    <label>
+      <span>Headphone monitoring</span>
+      <input id="srMonitorEnabled" type="checkbox">
+    </label>
+
+    <label>
+      <span>Headphone volume</span>
+      <input id="srMonitorVolume"
+             type="range" min="0" max="100" value="35">
+    </label>
+  `;
+
+  const toolbar = recordButton.closest(".toolbar");
+  toolbar.insertAdjacentElement("afterend", panel);
+
+  const fill = panel.querySelector("#srLevelFill");
+  const label = panel.querySelector("#srLevelText");
+  const warning = panel.querySelector("#srClipWarning");
+  const enabled = panel.querySelector("#srMonitorEnabled");
+  const volume = panel.querySelector("#srMonitorVolume");
+
+  let monitoring = null;
+  let animation = 0;
+
+  function disconnectMonitor() {
+    cancelAnimationFrame(animation);
+    animation = 0;
+
+    if (monitoring) {
+      try { monitoring.source.disconnect(); } catch {}
+      try { monitoring.analyser.disconnect(); } catch {}
+      try { monitoring.gain.disconnect(); } catch {}
+    }
+
+    monitoring = null;
+    enabled.checked = false;
+    fill.style.width = "0%";
+    label.textContent = "Microphone: Waiting";
+    warning.textContent = "";
+  }
+
+  function updateVolume() {
+    if (!monitoring) return;
+
+    const value = enabled.checked
+      ? Number(volume.value) / 100
+      : 0;
+
+    monitoring.gain.gain.setTargetAtTime(
+      value,
+      monitoring.ac.currentTime,
+      .015
+    );
+  }
+
+  enabled.addEventListener("change", updateVolume);
+  volume.addEventListener("input", updateVolume);
+
+  function startMonitor(session) {
+    disconnectMonitor();
+
+    if (!session.stream || !session.ac) return;
+
+    const ac = session.ac;
+    const source = ac.createMediaStreamSource(session.stream);
+    const analyser = ac.createAnalyser();
+    const gain = ac.createGain();
+
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = .65;
+    gain.gain.value = 0;
+
+    source.connect(analyser);
+    analyser.connect(gain);
+    gain.connect(ac.destination);
+
+    monitoring = { ac, source, analyser, gain, session };
+
+    const samples = new Float32Array(analyser.fftSize);
+
+    function draw() {
+      if (!monitoring || monitoring.session !== session) return;
+
+      analyser.getFloatTimeDomainData(samples);
+
+      let peak = 0;
+      let sum = 0;
+
+      for (let i = 0; i < samples.length; i++) {
+        const value = Math.abs(samples[i]);
+        peak = Math.max(peak, value);
+        sum += samples[i] * samples[i];
+      }
+
+      const rms = Math.sqrt(sum / samples.length);
+      const db = rms > 0
+        ? 20 * Math.log10(rms)
+        : -Infinity;
+
+      const percent = Math.min(100, peak * 100);
+
+      fill.style.width = percent + "%";
+      fill.style.background =
+        peak >= .98 ? "#ff5555" :
+        peak >= .75 ? "#ffbb44" :
+        "#40ca92";
+
+      label.textContent = Number.isFinite(db)
+        ? "Microphone: " + db.toFixed(1) + " dBFS"
+        : "Microphone: Silent";
+
+      warning.textContent = peak >= .98
+        ? "Clipping risk: Lower your microphone input level."
+        : "";
+
+      animation = requestAnimationFrame(draw);
+    }
+
+    updateVolume();
+    draw();
+  }
+
+  const originalPrepareRecorder = prepareRecorder;
+
+  prepareRecorder = async function(session) {
+    await originalPrepareRecorder(session);
+
+    if (
+      typeof activeRecording === "function" &&
+      activeRecording(session)
+    ) {
+      try {
+        startMonitor(session);
+      } catch (error) {
+        console.warn("Vocal monitoring unavailable:", error);
+        disconnectMonitor();
+      }
+    }
+  };
+
+  const originalReleaseRecording = releaseRecording;
+
+  releaseRecording = function(session) {
+    if (monitoring && monitoring.session === session) {
+      disconnectMonitor();
+    }
+
+    return originalReleaseRecording(session);
+  };
+
+  window.addEventListener("pagehide", disconnectMonitor);
+})();
+</script>
+
+<!-- StarRise Studio Pro: Vocal Recording Gain -->
+<style>
+#srGainPanel {
+  margin: 14px 0;
+  padding: 15px;
+  background: #29243e;
+  border: 1px solid #655879;
+  border-radius: 12px;
+}
+#srGainPanel h3 { margin: 0 0 12px; }
+#srGainPanel input[type="range"] {
+  width: min(100%, 280px);
+}
+#srGainValue {
+  font-weight: bold;
+  color: #dcb9ff;
+}
+#srGainPanel .srGainNote {
+  font-size: 13px;
+  color: #d4c8e3;
+  line-height: 1.5;
+}
+</style>
+
+<script>
+(() => {
+  "use strict";
+
+  if (
+    typeof prepareRecorder !== "function" ||
+    typeof releaseRecording !== "function"
+  ) return;
+
+  const recordButton = document.getElementById("recordVocal");
+  if (!recordButton) return;
+
+  const panel = document.createElement("section");
+  panel.id = "srGainPanel";
+
+  panel.innerHTML = `
+    <h3>Professional Vocal Input Gain</h3>
+
+    <label for="srInputGain">
+      Recording gain:
+      <span id="srGainValue">0 dB</span>
+    </label>
+
+    <div>
+      <input
+        id="srInputGain"
+        type="range"
+        min="-12"
+        max="12"
+        step="1"
+        value="0"
+      >
+    </div>
+
+    <button
+      type="button"
+      id="srResetGain"
+      class="secondary"
+    >Reset Gain</button>
+
+    <p class="srGainNote">
+      Suggested vocal peaks: -12 to -6 dBFS.
+      Start at 0 dB and adjust gradually.
+      Gain above 0 dB increases the recorded signal.
+    </p>
+
+    <p id="srGainStatus" class="srGainNote">
+      Ready. Recording gain is neutral.
+    </p>
+  `;
+
+  const monitorPanel = document.getElementById("srMonitorPanel");
+
+  if (monitorPanel) {
+    monitorPanel.insertAdjacentElement("afterend", panel);
+  } else {
+    recordButton.closest(".toolbar")
+      .insertAdjacentElement("afterend", panel);
+  }
+
+  const slider = panel.querySelector("#srInputGain");
+  const valueLabel = panel.querySelector("#srGainValue");
+  const reset = panel.querySelector("#srResetGain");
+  const status = panel.querySelector("#srGainStatus");
+
+  let activeGain = null;
+  let activeSession = null;
+
+  function gainMultiplier() {
+    return Math.pow(10, Number(slider.value) / 20);
+  }
+
+  function updateGain() {
+    const db = Number(slider.value);
+
+    valueLabel.textContent =
+      (db > 0 ? "+" : "") + db + " dB";
+
+    if (activeGain && activeSession) {
+      activeGain.gain.setTargetAtTime(
+        gainMultiplier(),
+        activeSession.ac.currentTime,
+        0.015
+      );
+    }
+  }
+
+  slider.addEventListener("input", updateGain);
+
+  reset.addEventListener("click", () => {
+    slider.value = "0";
+    updateGain();
+  });
+
+  function disconnectGain() {
+    if (activeGain) {
+      try { activeGain.disconnect(); } catch {}
+    }
+
+    activeGain = null;
+    activeSession = null;
+
+    slider.disabled = false;
+    reset.disabled = false;
+  }
+
+  const previousPrepare = prepareRecorder;
+
+  prepareRecorder = async function(session) {
+    await previousPrepare(session);
+
+    if (
+      !activeRecording(session) ||
+      !session.input ||
+      !session.processor ||
+      session.mode !== "pcm"
+    ) {
+      status.textContent =
+        "This browser uses encoded recording. " +
+        "Input gain requires PCM recording mode.";
+
+      slider.disabled = true;
+      reset.disabled = true;
+      return;
+    }
+
+    try {
+      const ac = session.ac;
+
+      const gain = ac.createGain();
+      const compressor = ac.createDynamicsCompressor();
+
+      gain.gain.value = gainMultiplier();
+
+      compressor.threshold.value = -3;
+      compressor.knee.value = 6;
+      compressor.ratio.value = 12;
+      compressor.attack.value = 0.003;
+      compressor.release.value = 0.1;
+
+      // Replace the direct microphone-to-recorder
+      // connection with a controlled recording chain.
+      session.input.disconnect();
+
+      session.input.connect(gain);
+      gain.connect(compressor);
+      compressor.connect(session.processor);
+
+      activeGain = gain;
+      activeSession = session;
+
+      session.srGainCompressor = compressor;
+
+      status.textContent =
+        "Recording gain active. " +
+        "Watch the microphone meter for clipping.";
+
+    } catch (error) {
+      console.warn("Input gain setup failed:", error);
+
+      // Restore the original recording path if possible.
+      try {
+        session.input.disconnect();
+        session.input.connect(session.processor);
+      } catch {}
+
+      disconnectGain();
+
+      status.textContent =
+        "Gain processing unavailable. " +
+        "Original recording path restored.";
+    }
+  };
+
+  const previousRelease = releaseRecording;
+
+  releaseRecording = function(session) {
+    if (activeSession === session) {
+      disconnectGain();
+
+      try {
+        session.srGainCompressor?.disconnect();
+      } catch {}
+    }
+
+    return previousRelease(session);
+  };
+
+  updateGain();
+})();
+</script>
+<!-- End StarRise Vocal Gain Upgrade -->
+
+<!-- StarRise Studio Pro: Mastering Phase 1 -->
+<style>
+#srMasterPanel {
+  background: #29243e;
+  border: 1px solid #655879;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 0;
+}
+#srMasterPanel h3 { margin: 0 0 12px; }
+#srMasterPanel p {
+  color: #d4c8e3;
+  line-height: 1.5;
+}
+#srMasterPanel label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+</style>
+
+<script>
+(() => {
+  "use strict";
+
+  const exportView = document.getElementById("export");
+
+  if (
+    !exportView ||
+    typeof renderSession !== "function"
+  ) return;
+
+  const panel = document.createElement("section");
+  panel.id = "srMasterPanel";
+
+  panel.innerHTML = `
+    <h3>StarRise Mastering Suite</h3>
+
+    <label>
+      <input
+        id="srMasterEnabled"
+        type="checkbox"
+        checked
+      >
+      Enable automatic peak normalization
+    </label>
+
+    <p>
+      Target peak: -1 dBFS
+    </p>
+
+    <p>
+      Automatically adjusts the final song level
+      during WAV export. Individual tracks and
+      project recordings remain unchanged.
+    </p>
+
+    <p id="srMasterStatus" role="status">
+      Mastering ready.
+    </p>
+  `;
+
+  exportView.append(panel);
+
+  const enabled = panel.querySelector("#srMasterEnabled");
+  const output = panel.querySelector("#srMasterStatus");
+
+  const originalRenderSession = renderSession;
+
+  renderSession = async function(onlyTrack = null) {
+    const buffer = await originalRenderSession(onlyTrack);
+
+    // Do not alter individual stem exports.
+    if (onlyTrack || !enabled.checked) return buffer;
+
+    const channels = [];
+
+    for (let c = 0; c < buffer.numberOfChannels; c++) {
+      channels.push(buffer.getChannelData(c));
+    }
+
+    let peak = 0;
+
+    for (const channel of channels) {
+      for (let i = 0; i < channel.length; i++) {
+        const sample = Math.abs(channel[i]);
+
+        if (Number.isFinite(sample)) {
+          peak = Math.max(peak, sample);
+        }
+      }
+    }
+
+    if (peak === 0) {
+      output.textContent = "Silent mix. No adjustment applied.";
+      return buffer;
+    }
+
+    const target = Math.pow(10, -1 / 20);
+    const multiplier = target / peak;
+
+    // Keep the adjustment reasonable.
+    // Avoid excessive amplification of quiet recordings.
+    const safeMultiplier = Math.min(multiplier, 4);
+
+    for (const channel of channels) {
+      for (let i = 0; i < channel.length; i++) {
+        channel[i] *= safeMultiplier;
+      }
+    }
+
+    const changeDB = 20 * Math.log10(safeMultiplier);
+
+    output.textContent =
+      "Mastering applied: " +
+      (changeDB >= 0 ? "+" : "") +
+      changeDB.toFixed(1) +
+      " dB. Exporting WAV.";
+
+    return buffer;
+  };
+})();
+</script>
+<!-- End StarRise Mastering Phase 1 -->.
+
+<!-- StarRise Studio Pro: Vocal Pitch Detection -->
+<style>
+#srPitchPanel {
+  background: #29243e;
+  border: 1px solid #655879;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 14px 0;
+}
+#srPitchPanel h3 { margin-top: 0; }
+#srPitchPanel select {
+  width: 100%;
+  max-width: 400px;
+}
+#srPitchResult {
+  background: #141125;
+  border-radius: 8px;
+  padding: 14px;
+  margin-top: 12px;
+  line-height: 1.7;
+}
+#srPitchNote {
+  font-size: 30px;
+  font-weight: bold;
+  color: #dcb9ff;
+}
+</style>
+
+<script>
+(() => {
+  "use strict";
+
+  const recordingView = document.getElementById("record");
+
+  if (!recordingView || typeof tracks === "undefined") return;
+
+  const panel = document.createElement("section");
+  panel.id = "srPitchPanel";
+
+  panel.innerHTML = `
+    <h3>StarRise Vocal Pitch Analyzer</h3>
+
+    <p class="note">
+      Analyze a recorded vocal to identify its
+      dominant musical note and pitch accuracy.
+    </p>
+
+    <label>
+      Select Vocal Track
+      <select id="srPitchTrack">
+        <option value="">Choose a vocal recording</option>
+      </select>
+    </label>
+
+    <div class="toolbar">
+      <button type="button" id="srAnalyzePitch">
+        Analyze Vocal Pitch
+      </button>
+      <button type="button" id="srRefreshPitch" class="secondary">
+        Refresh Tracks
+      </button>
+    </div>
+
+    <div id="srPitchResult" role="status">
+      <div id="srPitchNote">--</div>
+      <div id="srPitchFrequency">Frequency: --</div>
+      <div id="srPitchCents">Pitch deviation: --</div>
+      <div id="srPitchMessage">
+        Record a vocal, then select it to analyze.
+      </div>
+    </div>
+  `;
+
+  recordingView.append(panel);
+
+  const trackSelect = panel.querySelector("#srPitchTrack");
+  const noteOutput = panel.querySelector("#srPitchNote");
+  const frequencyOutput = panel.querySelector("#srPitchFrequency");
+  const centsOutput = panel.querySelector("#srPitchCents");
+  const messageOutput = panel.querySelector("#srPitchMessage");
+
+  const noteNames = [
+    "C", "C#", "D", "D#", "E", "F",
+    "F#", "G", "G#", "A", "A#", "B"
+  ];
+
+  function refreshTracks() {
+    const previous = trackSelect.value;
+
+    trackSelect.replaceChildren();
+
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Choose a vocal recording";
+    trackSelect.append(placeholder);
+
+    tracks
+      .filter(track => track.type === "vocal" && track.buffer)
+      .forEach(track => {
+        const option = document.createElement("option");
+        option.value = String(track.id);
+        option.textContent = track.name;
+        trackSelect.append(option);
+      });
+
+    if ([...trackSelect.options].some(o => o.value === previous)) {
+      trackSelect.value = previous;
+    }
+  }
+
+  function estimateFrequency(samples, sampleRate) {
+    const size = samples.length;
+
+    if (size < 256) return null;
+
+    let rms = 0;
+    let mean = 0;
+
+    for (let i = 0; i < size; i++) {
+      mean += samples[i];
+    }
+
+    mean /= size;
+
+    const centered = new Float32Array(size);
+
+    for (let i = 0; i < size; i++) {
+      const value = samples[i] - mean;
+      centered[i] = value;
+      rms += value * value;
+    }
+
+    rms = Math.sqrt(rms / size);
+
+    if (rms < 0.008) return null;
+
+    const minLag = Math.max(2, Math.floor(sampleRate / 1000));
+    const maxLag = Math.min(
+      Math.floor(sampleRate / 65),
+      Math.floor(size / 2)
+    );
+
+    let bestLag = 0;
+    let bestScore = -1;
+
+    for (let lag = minLag; lag <= maxLag; lag++) {
+      let correlation = 0;
+      let energyA = 0;
+      let energyB = 0;
+
+      for (let i = 0; i < size - lag; i++) {
+        const a = centered[i];
+        const b = centered[i + lag];
+
+        correlation += a * b;
+        energyA += a * a;
+        energyB += b * b;
+      }
+
+      const denominator = Math.sqrt(energyA * energyB);
+      const score = denominator > 0
+        ? correlation / denominator
+        : 0;
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestLag = lag;
+      }
+    }
+
+    if (bestScore < 0.82 || bestLag === 0) return null;
+
+    return {
+      frequency: sampleRate / bestLag,
+      confidence: bestScore
+    };
+  }
+
+  function analyzeTrack(track) {
+    const buffer = track.buffer;
+    const sampleRate = buffer.sampleRate;
+
+    const windowSize = 4096;
+    const channel = buffer.getChannelData(0);
+
+    if (channel.length < windowSize) {
+      throw Error("Recording is too short to analyze.");
+    }
+
+    const estimates = [];
+
+    const step = Math.max(
+      windowSize,
+      Math.floor(sampleRate * 0.12)
+    );
+
+    for (
+      let start = 0;
+      start + windowSize <= channel.length;
+      start += step
+    ) {
+      const samples = channel.subarray(
+        start,
+        start + windowSize
+      );
+
+      const result = estimateFrequency(samples, sampleRate);
+
+      if (result) estimates.push(result.frequency);
+
+      if (estimates.length >= 80) break;
+    }
+
+    if (!estimates.length) {
+      throw Error(
+        "No stable vocal pitch detected. Try a sustained sung note."
+      );
+    }
+
+    estimates.sort((a, b) => a - b);
+
+    const frequency = estimates[
+      Math.floor(estimates.length / 2)
+    ];
+
+    const midi = 69 + 12 * Math.log2(frequency / 440);
+    const nearest = Math.round(midi);
+
+    const note = noteNames[
+      ((nearest % 12) + 12) % 12
+    ];
+
+    const octave = Math.floor(nearest / 12) - 1;
+    const cents = Math.round((midi - nearest) * 100);
+
+    return {
+      frequency,
+      note: note + octave,
+      cents,
+      frames: estimates.length
+    };
+  }
+
+  panel.querySelector("#srRefreshPitch")
+    .addEventListener("click", refreshTracks);
+
+  panel.querySelector("#srAnalyzePitch")
+    .addEventListener("click", () => {
+      refreshTracks();
+
+      const selectedId = Number(trackSelect.value);
+
+      const track = tracks.find(
+        item => item.id === selectedId &&
+                item.type === "vocal"
+      );
+
+      if (!track) {
+        messageOutput.textContent =
+          "Select a vocal recording first.";
+        return;
+      }
+
+      try {
+        const result = analyzeTrack(track);
+
+        noteOutput.textContent = result.note;
+
+        frequencyOutput.textContent =
+          "Frequency: " +
+          result.frequency.toFixed(1) +
+          " Hz";
+
+        centsOutput.textContent =
+          "Pitch deviation: " +
+          (result.cents > 0 ? "+" : "") +
+          result.cents +
+          " cents";
+
+        messageOutput.textContent =
+          "Analyzed " + result.frames +
+          " stable audio windows. " +
+          "This is an estimated dominant pitch, " +
+          "not automatic pitch correction.";
+
+      } catch (error) {
+        noteOutput.textContent = "--";
+        frequencyOutput.textContent = "Frequency: --";
+        centsOutput.textContent = "Pitch deviation: --";
+        messageOutput.textContent = error.message;
+      }
+    });
+
+  refreshTracks();
+})();
+</script>
+<!-- End StarRise Vocal Pitch Detection -->
+
+<!-- StarRise Studio Pro: Pitch Correction Phase 1 -->
+<style>
+#srTunePanel {
+  background:#29243e;
+  border:1px solid #655879;
+  border-radius:12px;
+  padding:16px;
+  margin:14px 0;
+}
+#srTunePanel h3 {margin-top:0}
+#srTunePanel select,
+#srTunePanel input[type="range"] {
+  width:100%;
+  max-width:420px;
+}
+#srTunePanel label {
+  display:block;
+  margin:12px 0;
+}
+#srTuneStatus {
+  background:#141125;
+  padding:12px;
+  border-radius:8px;
+  margin-top:12px;
+}
+</style>
+
+<script>
+(() => {
+  "use strict";
+
+  if (document.getElementById("srTunePanel")) return;
+  if (typeof tracks === "undefined" ||
+      typeof makeTrack !== "function") return;
+
+  const host = document.getElementById("srPitchPanel");
+  if (!host) return;
+
+  const panel = document.createElement("section");
+  panel.id = "srTunePanel";
+
+  panel.innerHTML = `
+    <h3>StarRise Vocal Tuning Lab</h3>
+    <p>Experimental pitch correction for a sustained
+    vocal note. Creates a new track and keeps your
+    original recording unchanged.</p>
+
+    <label>Vocal recording
+      <select id="srTuneTrack"></select>
+    </label>
+
+    <label>Musical key
+      <select id="srTuneKey"></select>
+    </label>
+
+    <label>Scale
+      <select id="srTuneScale">
+        <option value="chromatic">Chromatic</option>
+        <option value="major">Major</option>
+        <option value="minor">Natural Minor</option>
+      </select>
+    </label>
+
+    <label>Correction strength:
+      <strong id="srTuneAmountText">100%</strong>
+      <input id="srTuneAmount" type="range"
+             min="0" max="100" value="100">
+    </label>
+
+    <div class="toolbar">
+      <button type="button" id="srTuneApply">
+        Create Tuned Take
+      </button>
+      <button type="button" id="srTuneRefresh"
+              class="secondary">
+        Refresh Tracks
+      </button>
+    </div>
+
+    <p id="srTuneStatus" role="status">
+      Select a sustained vocal note to begin.
+    </p>
+  `;
+
+  host.insertAdjacentElement("afterend", panel);
+
+  const $t = id => panel.querySelector("#" + id);
+  const trackSelect = $t("srTuneTrack");
+  const keySelect = $t("srTuneKey");
+  const statusBox = $t("srTuneStatus");
+  const applyButton = $t("srTuneApply");
+
+  const notes = [
+    "C","C#","D","D#","E","F",
+    "F#","G","G#","A","A#","B"
+  ];
+
+  const scales = {
+    chromatic:[0,1,2,3,4,5,6,7,8,9,10,11],
+    major:[0,2,4,5,7,9,11],
+    minor:[0,2,3,5,7,8,10]
+  };
+
+  notes.forEach((name, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = name;
+    keySelect.append(option);
+  });
+
+  keySelect.value = "0";
+
+  function refresh() {
+    const previous = trackSelect.value;
+    trackSelect.replaceChildren();
+
+    const blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = "Choose vocal recording";
+    trackSelect.append(blank);
+
+    tracks.filter(t => t.type === "vocal" && t.buffer)
+      .forEach(track => {
+        const option = document.createElement("option");
+        option.value = String(track.id);
+        option.textContent = track.name;
+        trackSelect.append(option);
+      });
+
+    if ([...trackSelect.options].some(
+      option => option.value === previous
+    )) trackSelect.value = previous;
+  }
+
+  function detectPitch(data, rate) {
+    const size = Math.min(4096, data.length);
+    if (size < 1024) return null;
+
+    const samples = data.subarray(0, size);
+    let mean = 0, power = 0;
+
+    for (let i = 0; i < size; i++) mean += samples[i];
+    mean /= size;
+
+    const centered = new Float32Array(size);
+
+    for (let i = 0; i < size; i++) {
+      centered[i] = samples[i] - mean;
+      power += centered[i] * centered[i];
+    }
+
+    if (Math.sqrt(power / size) < 0.008) return null;
+
+    const minLag = Math.floor(rate / 1000);
+    const maxLag = Math.min(
+      Math.floor(rate / 65), size / 2
+    );
+
+    let bestLag = 0, bestScore = 0;
+
+    for (let lag = minLag; lag <= maxLag; lag++) {
+      let dot = 0, aa = 0, bb = 0;
+
+      for (let i = 0; i < size - lag; i++) {
+        const a = centered[i];
+        const b = centered[i + lag];
+        dot += a * b;
+        aa += a * a;
+        bb += b * b;
+      }
+
+      const score = dot / (Math.sqrt(aa * bb) || 1);
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestLag = lag;
+      }
+    }
+
+    return bestScore >= 0.82 && bestLag
+      ? rate / bestLag
+      : null;
+  }
+
+  function findDominantPitch(buffer) {
+    const data = buffer.getChannelData(0);
+    const rate = buffer.sampleRate;
+    const size = 4096;
+    const step = Math.max(size, Math.floor(rate * 0.12));
+    const results = [];
+
+    for (let pos = 0;
+         pos + size <= data.length && results.length < 80;
+         pos += step) {
+      const frequency = detectPitch(
+        data.subarray(pos, pos + size), rate
+      );
+      if (frequency) results.push(frequency);
+    }
+
+    if (!results.length) return null;
+
+    results.sort((a,b) => a-b);
+    return results[Math.floor(results.length / 2)];
+  }
+
+  function nearestScaleFrequency(frequency) {
+    const midi = 69 + 12 * Math.log2(frequency / 440);
+    const root = Number(keySelect.value);
+    const intervals = scales[$t("srTuneScale").value];
+
+    let nearest = null;
+    let distance = Infinity;
+
+    for (let note = 24; note <= 108; note++) {
+      const pitchClass = ((note - root) % 12 + 12) % 12;
+
+      if (!intervals.includes(pitchClass)) continue;
+
+      const difference = Math.abs(note - midi);
+
+      if (difference < distance) {
+        distance = difference;
+        nearest = note;
+      }
+    }
+
+    return nearest === null
+      ? frequency
+      : 440 * Math.pow(2, (nearest - 69) / 12);
+  }
+
+  function shiftBuffer(buffer, ratio) {
+    const length = buffer.length;
+    const rate = buffer.sampleRate;
+    const channels = buffer.numberOfChannels;
+
+    const output = new AudioBuffer({
+      length,
+      sampleRate:rate,
+      numberOfChannels:channels
+    });
+
+    // Granular overlap-add pitch shifting.
+    // Preserves approximate duration, but may introduce artifacts.
+    const grain = 2048;
+    const hop = 256;
+    const total = length;
+
+    for (let channel = 0; channel < channels; channel++) {
+      const input = buffer.getChannelData(channel);
+      const result = output.getChannelData(channel);
+      const weights = new Float32Array(total);
+
+      for (let position = 0;
+           position < total;
+           position += hop) {
+
+        for (let i = 0; i < grain; i++) {
+          const destination = position + i;
+          if (destination >= total) break;
+
+          const sourcePosition = position + i * ratio;
+          const index = Math.floor(sourcePosition);
+          const fraction = sourcePosition - index;
+
+          if (index < 0 || index + 1 >= total) continue;
+
+          const sample = input[index] * (1 - fraction)
+            + input[index + 1] * fraction;
+
+          const window = 0.5 -
+            0.5 * Math.cos(2 * Math.PI * i / (grain - 1));
+
+          result[destination] += sample * window;
+          weights[destination] += window;
+        }
+      }
+
+      for (let i = 0; i < total; i++) {
+        if (weights[i] > 0.00001) {
+          result[i] /= weights[i];
+        }
+      }
+    }
+
+    return output;
+  }
+
+  $t("srTuneAmount").addEventListener("input", () => {
+    $t("srTuneAmountText").textContent =
+      $t("srTuneAmount").value + "%";
+  });
+
+  $t("srTuneRefresh").addEventListener("click", refresh);
+
+  applyButton.addEventListener("click", async () => {
+    const id = Number(trackSelect.value);
+    const track = tracks.find(
+      t => t.id === id && t.type === "vocal"
+    );
+
+    if (!track) {
+      statusBox.textContent = "Choose a vocal recording.";
+      return;
+    }
+
+    if (typeof recording !== "undefined" && recording) {
+      statusBox.textContent =
+        "Stop recording before tuning.";
+      return;
+    }
+
+    if (typeof playing !== "undefined" && playing) {
+      statusBox.textContent =
+        "Stop playback before tuning.";
+      return;
+    }
+
+    applyButton.disabled = true;
+    statusBox.textContent = "Analyzing vocal...";
+
+    try {
+      // Yield so the status can appear on mobile.
+      await new Promise(resolve => setTimeout(resolve, 30));
+
+      const original = findDominantPitch(track.buffer);
+
+      if (!original) {
+        throw Error(
+          "No stable pitch found. Try one sustained note."
+        );
+      }
+
+      const target = nearestScaleFrequency(original);
+      const strength =
+        Number($t("srTuneAmount").value) / 100;
+
+      const ratio = Math.pow(target / original, strength);
+
+      if (!Number.isFinite(ratio) ||
+          ratio < 0.5 || ratio > 2) {
+        throw Error("Pitch shift is outside safe range.");
+      }
+
+      statusBox.textContent = "Creating tuned audio...";
+
+      await new Promise(resolve => setTimeout(resolve, 30));
+
+      const tuned = shiftBuffer(track.buffer, ratio);
+
+      const newTrack = makeTrack(
+        track.name + " (Tuned)",
+        tuned,
+        "vocal",
+        track.offset
+      );
+
+      newTrack.volume = track.volume;
+      newTrack.pan = track.pan;
+
+      // Mute original to avoid hearing two takes together.
+      track.mute = true;
+
+      if (typeof renderTracks === "function") {
+        renderTracks();
+      }
+
+      const cents = 1200 * Math.log2(ratio);
+
+      statusBox.textContent =
+        "Tuned take created. Pitch adjustment: " +
+        (cents >= 0 ? "+" : "") +
+        cents.toFixed(1) +
+        " cents. Original track muted, not deleted. " +
+        "Compare by switching track mute settings.";
+
+      refresh();
+
+    } catch (error) {
+      statusBox.textContent =
+        "Tuning failed: " + error.message;
+    } finally {
+      applyButton.disabled = false;
+    }
+  });
+
+  refresh();
+})();
+</script>
+<!-- End StarRise Pitch Correction Phase 1 -->
+
+<!-- StarRise Studio Pro: Melody Map Phase 5 -->
+<style>
+#srMelodyPanel {
+  background:#29243e;
+  border:1px solid #655879;
+  border-radius:12px;
+  padding:16px;
+  margin:14px 0;
+}
+#srMelodyPanel select {
+  width:100%;
+  max-width:420px;
+}
+#srMelodyPanel label {
+  display:block;
+  margin:12px 0;
+}
+#srMelodyResults {
+  background:#141125;
+  padding:12px;
+  border-radius:8px;
+  margin-top:12px;
+  max-height:340px;
+  overflow:auto;
+}
+#srMelodyResults table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+#srMelodyResults th,
+#srMelodyResults td {
+  padding:8px 5px;
+  text-align:left;
+  border-bottom:1px solid #514762;
+}
+</style>
+
+<script>
+(() => {
+  "use strict";
+
+  if (document.getElementById("srMelodyPanel")) return;
+  if (typeof tracks === "undefined") return;
+
+  const anchor = document.getElementById("srTunePanel");
+  if (!anchor) return;
+
+  const panel = document.createElement("section");
+  panel.id = "srMelodyPanel";
+
+  panel.innerHTML = `
+    <h3>StarRise Melody Map</h3>
+    <p>Detect changing vocal notes across a recording.
+    This analysis does not alter your audio.</p>
+
+    <label>Vocal recording
+      <select id="srMelodyTrack"></select>
+    </label>
+
+    <div class="toolbar">
+      <button type="button" id="srMelodyAnalyze">
+        Map Vocal Notes
+      </button>
+      <button type="button" id="srMelodyRefresh"
+              class="secondary">
+        Refresh Tracks
+      </button>
+    </div>
+
+    <p id="srMelodyStatus" role="status">
+      Choose a vocal recording.
+    </p>
+
+    <div id="srMelodyResults"></div>
+  `;
+
+  anchor.insertAdjacentElement("afterend", panel);
+
+  const select = panel.querySelector("#srMelodyTrack");
+  const output = panel.querySelector("#srMelodyResults");
+  const statusBox = panel.querySelector("#srMelodyStatus");
+  const analyzeButton = panel.querySelector("#srMelodyAnalyze");
+
+  const noteNames = [
+    "C","C#","D","D#","E","F",
+    "F#","G","G#","A","A#","B"
+  ];
+
+  function refreshTracks() {
+    const previous = select.value;
+    select.replaceChildren();
+
+    const blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = "Choose vocal recording";
+    select.append(blank);
+
+    tracks.filter(t => t.type === "vocal" && t.buffer)
+      .forEach(track => {
+        const option = document.createElement("option");
+        option.value = String(track.id);
+        option.textContent = track.name;
+        select.append(option);
+      });
+
+    if ([...select.options].some(
+      option => option.value === previous
+    )) select.value = previous;
+  }
+
+  function detectPitch(samples, rate) {
+    const size = samples.length;
+    let mean = 0;
+    let energy = 0;
+
+    for (let i = 0; i < size; i++) mean += samples[i];
+    mean /= size;
+
+    const centered = new Float32Array(size);
+
+    for (let i = 0; i < size; i++) {
+      const value = samples[i] - mean;
+      centered[i] = value;
+      energy += value * value;
+    }
+
+    if (Math.sqrt(energy / size) < 0.008) return null;
+
+    const minLag = Math.max(2, Math.floor(rate / 1000));
+    const maxLag = Math.min(
+      Math.floor(rate / 65),
+      Math.floor(size / 2)
+    );
+
+    let bestLag = 0;
+    let bestScore = 0;
+
+    for (let lag = minLag; lag <= maxLag; lag++) {
+      let dot = 0, aa = 0, bb = 0;
+
+      for (let i = 0; i < size - lag; i++) {
+        const a = centered[i];
+        const b = centered[i + lag];
+
+        dot += a * b;
+        aa += a * a;
+        bb += b * b;
+      }
+
+      const score = dot / (Math.sqrt(aa * bb) || 1);
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestLag = lag;
+      }
+    }
+
+    if (bestScore < 0.82 || !bestLag) return null;
+
+    return rate / bestLag;
+  }
+
+  function noteFromFrequency(frequency) {
+    const midi = 69 + 12 * Math.log2(frequency / 440);
+    const nearest = Math.round(midi);
+    const name = noteNames[
+      ((nearest % 12) + 12) % 12
+    ];
+    const octave = Math.floor(nearest / 12) - 1;
+
+    return {
+      midi:nearest,
+      name:name + octave,
+      cents:Math.round((midi - nearest) * 100)
+    };
+  }
+
+  function analyzeMelody(buffer) {
+    const data = buffer.getChannelData(0);
+    const rate = buffer.sampleRate;
+    const size = 4096;
+    const hop = Math.max(512, Math.floor(rate * 0.10));
+    const frames = [];
+
+    for (let start = 0;
+         start + size <= data.length;
+         start += hop) {
+
+      const frequency = detectPitch(
+        data.subarray(start, start + size), rate
+      );
+
+      if (!frequency) {
+        frames.push({
+          time:start / rate,
+          note:null
+        });
+        continue;
+      }
+
+      frames.push({
+        time:start / rate,
+        note:noteFromFrequency(frequency)
+      });
+    }
+
+    const segments = [];
+    let current = null;
+
+    for (const frame of frames) {
+      const midi = frame.note?.midi ?? null;
+
+      if (current && current.midi === midi) {
+        current.end = frame.time + hop / rate;
+
+        if (frame.note) {
+          current.cents.push(frame.note.cents);
+        }
+
+        continue;
+      }
+
+      if (current) segments.push(current);
+
+      current = {
+        midi,
+        name:frame.note?.name || "Unvoiced",
+        start:frame.time,
+        end:frame.time + hop / rate,
+        cents:frame.note ? [frame.note.cents] : []
+      };
+    }
+
+    if (current) segments.push(current);
+
+    return segments.filter(
+      segment => segment.midi !== null &&
+      segment.end - segment.start >= 0.08
+    );
+  }
+
+  function renderResults(segments) {
+    output.replaceChildren();
+
+    if (!segments.length) {
+      output.textContent =
+        "No stable melody notes detected.";
+      return;
+    }
+
+    const table = document.createElement("table");
+    const header = document.createElement("tr");
+
+    ["Time","Note","Deviation"].forEach(label => {
+      const th = document.createElement("th");
+      th.textContent = label;
+      header.append(th);
+    });
+
+    table.append(header);
+
+    for (const segment of segments) {
+      const row = document.createElement("tr");
+
+      const average = segment.cents.reduce(
+        (sum, value) => sum + value, 0
+      ) / segment.cents.length;
+
+      [
+        segment.start.toFixed(2) + "s",
+        segment.name,
+        (average >= 0 ? "+" : "") +
+          average.toFixed(0) + " cents"
+      ].forEach(value => {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+        row.append(cell);
+      });
+
+      table.append(row);
+    }
+
+    output.append(table);
+  }
+
+  panel.querySelector("#srMelodyRefresh")
+    .addEventListener("click", refreshTracks);
+
+  analyzeButton.addEventListener("click", async () => {
+    const id = Number(select.value);
+    const track = tracks.find(
+      t => t.id === id && t.type === "vocal"
+    );
+
+    if (!track) {
+      statusBox.textContent =
+        "Choose a vocal recording first.";
+      return;
+    }
+
+    analyzeButton.disabled = true;
+    statusBox.textContent = "Mapping vocal notes...";
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 30));
+
+      const segments = analyzeMelody(track.buffer);
+
+      renderResults(segments);
+
+      statusBox.textContent =
+        "Melody map complete: " +
+        segments.length +
+        " detected note segments. " +
+        "These are estimates, not verified notes.";
+
+    } catch (error) {
+      statusBox.textContent =
+        "Melody mapping failed: " + error.message;
+    } finally {
+      analyzeButton.disabled = false;
+    }
+  });
+
+  refreshTracks();
+})();
+</script>
+<!-- End StarRise Melody Map Phase 5 -->
+
+
+<!-- STARRISE_PITCH_LAB_INTEGRATION_V1 -->
+<style>
+#srPitchIntegration {
+  max-width: 1250px;
+  margin: 18px auto;
+  padding: 16px;
+  background: #211a32;
+  color: #f8f4ff;
+  border: 1px solid #655879;
+  border-radius: 14px;
+}
+
+#srPitchIntegration h2 {
+  color: #d9a8ff;
+}
+
+#srPitchIntegration iframe {
+  width: 100%;
+  height: 850px;
+  border: 1px solid #655879;
+  border-radius: 12px;
+  background: #110d1c;
+}
+
+#srPitchIntegration button {
+  background: #8c48d0;
+  color: white;
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 18px;
+  font-weight: bold;
+}
+</style>
+
+<section id="srPitchIntegration"
+         aria-labelledby="srPitchHeading">
+
+  <h2 id="srPitchHeading">
+    StarRise Studio Pro | Vocal Pitch Correction
+  </h2>
+
+  <p>
+    Experimental vocal pitch correction is now
+    available inside Studio Pro.
+    Select an isolated vocal recording,
+    choose its key and scale, and compare
+    the corrected audio with the original.
+  </p>
+
+  <p>
+    This first integration uses a separate
+    audio file picker. Automatic transfer
+    from Session Tracks is not enabled yet.
+  </p>
+
+  <button id="srOpenPitch"
+          type="button"
+          aria-expanded="false"
+          aria-controls="srPitchFrame">
+    Open Vocal Pitch Correction
+  </button>
+
+  <div id="srPitchContainer" hidden>
+    <iframe
+      id="srPitchFrame"
+      title="StarRise Vocal Pitch Lab"
+      loading="lazy"
+      referrerpolicy="same-origin">
+    </iframe>
+  </div>
+
+</section>
+
+<script>
+(() => {
+  const button =
+    document.getElementById("srOpenPitch");
+
+  const container =
+    document.getElementById("srPitchContainer");
+
+  const frame =
+    document.getElementById("srPitchFrame");
+
+  button.addEventListener("click", () => {
+    const opening = container.hidden;
+
+    container.hidden = !opening;
+
+    button.setAttribute(
+      "aria-expanded",
+      String(opening)
+    );
+
+    button.textContent = opening
+      ? "Close Vocal Pitch Correction"
+      : "Open Vocal Pitch Correction";
+
+    if (opening && !frame.src) {
+      frame.src = "starrise-pitch-lab.html";
+    }
+
+    if (opening) {
+      container.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+    }
+  });
+})();
+</script>
+
+
+<script>
+// STARRISE_PITCH_NAV_V1
+(() => {
+  const nav = document.getElementById("srPitchNav");
+  const panel = document.getElementById(
+    "srPitchIntegration"
+  );
+  const open = document.getElementById(
+    "srOpenPitch"
+  );
+
+  if (!nav || !panel || !open) return;
+
+  nav.addEventListener("click", () => {
+    if (document.getElementById(
+      "srPitchContainer"
+    ).hidden) {
+      open.click();
+    }
+
+    panel.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  });
+})();
+</script>
+
+
+<!-- STARRISE_DIRECT_PITCH_BRIDGE_V1 -->
+<script>
+(() => {
+  const panel = document.getElementById('srPitchIntegration');
+  const frame = document.getElementById('srPitchFrame');
+  const open = document.getElementById('srOpenPitch');
+  if (!panel || !frame || !open) return;
+
+  const select = document.createElement('select');
+  const send = document.createElement('button');
+  const info = document.createElement('p');
+  info.setAttribute('role', 'status');
+  send.textContent = 'Send Vocal to Pitch Lab';
+  send.type = 'button';
+  const label = document.createElement('label');
+  label.textContent = 'Session Vocal ';
+  label.append(select);
+  panel.insertBefore(label, open);
+  panel.insertBefore(send, open);
+  panel.insertBefore(info, open);
+
+  let pending = null;
+
+  function refresh() {
+    const previous = select.value;
+    select.replaceChildren();
+    tracks.filter(t => t.type === 'vocal' && t.buffer)
+      .forEach(t => {
+        const option = document.createElement('option');
+        option.value = String(t.id);
+        option.textContent = t.name;
+        select.append(option);
+      });
+    if ([...select.options].some(o => o.value === previous))
+      select.value = previous;
+    send.disabled = !select.options.length;
+  }
+
+  select.addEventListener('focus', refresh);
+  send.addEventListener('click', async () => {
+    refresh();
+    const track = tracks.find(t =>
+      t.id === Number(select.value) && t.type === 'vocal');
+    if (!track) {
+      info.textContent = 'Select a vocal track first.';
+      return;
+    }
+    if (document.getElementById('srPitchContainer').hidden)
+      open.click();
+
+    pending = track.id;
+    info.textContent = 'Preparing vocal...';
+    try {
+      const wavData = encodeWav(track.buffer);
+      const bytes = wavData instanceof Blob
+        ? await wavData.arrayBuffer() : wavData;
+
+      const deliver = () => {
+        frame.contentWindow.postMessage({
+          kind: 'sr-pitch-load-v1',
+          id: track.id,
+          name: track.name,
+          bytes
+        }, location.origin);
+        info.textContent = 'Vocal sent to Pitch Lab.';
+      };
+
+      if (frame.contentDocument?.readyState === 'complete')
+        deliver();
+      else frame.addEventListener('load', deliver, {once:true});
+    } catch (error) {
+      info.textContent = error.message;
+    }
+  });
+
+  window.addEventListener('message', async event => {
+    if (event.origin !== location.origin ||
+        event.source !== frame.contentWindow) return;
+    const msg = event.data;
+    if (!msg || msg.kind !== 'sr-pitch-return-v1' ||
+        msg.id !== pending) return;
+
+    const original = tracks.find(t => t.id === msg.id);
+    if (!original) return;
+
+    try {
+      const buffer = await getContext()
+        .decodeAudioData(msg.bytes.slice(0));
+      const corrected = makeTrack(
+        original.name + ' (Pitch Corrected)',
+        buffer, 'vocal', original.offset
+      );
+      corrected.trimStart = original.trimStart;
+      corrected.trimEnd = original.trimEnd;
+      corrected.volume = original.volume;
+      corrected.pan = original.pan;
+      original.mute = true;
+      renderTracks();
+      info.textContent =
+        'Corrected vocal added. Original preserved and muted.';
+      pending = null;
+    } catch (error) {
+      info.textContent = error.message;
+    }
+  });
+  refresh();
+})();
+</script>
+
+
+<!-- STARRISE_VOCAL_CLEANUP_PRO_V1 -->
+<style>
+#srCleanup {
+  max-width:1250px;
+  margin:20px auto;
+  padding:20px;
+  border:1px solid #655879;
+  border-radius:16px;
+  background:#211a32;
+  color:#f8f4ff;
+}
+#srCleanup h2 {color:#d9a8ff}
+#srCleanup label {
+  display:block;
+  margin:15px 0;
+}
+#srCleanup select,
+#srCleanup input[type=range] {
+  display:block;
+  width:100%;
+  max-width:700px;
+  margin-top:8px;
+}
+#srCleanup button {
+  padding:12px 18px;
+  margin:6px 6px 6px 0;
+}
+#srCleanup .hint {
+  color:#d4c8e3;
+  line-height:1.5;
+}
+</style>
+
+
+
+<script>
+(() => {
+  'use strict';
+
+  const el = id => document.getElementById(id);
+  const select = el('srCleanTrack');
+  const apply = el('srCleanApply');
+  const message = el('srCleanStatus');
+
+  const controls = [
+    ['srCleanThreshold','srCleanValue',' dB'],
+    ['srCleanReduction','srCleanReductionValue',' dB'],
+    ['srCleanAttack','srCleanAttackValue',' ms'],
+    ['srCleanRelease','srCleanReleaseValue',' ms']
+  ];
+
+  controls.forEach(([input,output,unit]) => {
+    el(input).addEventListener('input', () => {
+      el(output).textContent = el(input).value + unit;
+    });
+  });
+
+  function refresh() {
+    const previous = select.value;
+    select.replaceChildren();
+
+    tracks.filter(t =>
+      t.type === 'vocal' && t.buffer
+    ).forEach(track => {
+      const option = document.createElement('option');
+      option.value = String(track.id);
+      option.textContent = track.name;
+      select.append(option);
+    });
+
+    if ([...select.options].some(o =>
+      o.value === previous
+    )) {
+      select.value = previous;
+    }
+
+    apply.disabled = !select.options.length;
+  }
+
+  el('srCleanRefresh').onclick = refresh;
+  select.addEventListener('focus', refresh);
+
+  function process(buffer,settings) {
+    const rate = buffer.sampleRate;
+    const result = getContext().createBuffer(
+      buffer.numberOfChannels,
+      buffer.length,
+      rate
+    );
+
+    const threshold = Math.pow(
+      10,settings.threshold / 20
+    );
+
+    const floor = Math.pow(
+      10,-settings.reduction / 20
+    );
+
+    const attack = Math.exp(
+      -1 / (rate * settings.attack / 1000)
+    );
+
+    const release = Math.exp(
+      -1 / (rate * settings.release / 1000)
+    );
+
+    const envelopeCoefficient = Math.exp(
+      -1 / (rate * 0.008)
+    );
+
+    const channels = Array.from(
+      {length:buffer.numberOfChannels},
+      (_,i) => buffer.getChannelData(i)
+    );
+
+    const outputs = Array.from(
+      {length:buffer.numberOfChannels},
+      (_,i) => result.getChannelData(i)
+    );
+
+    let envelope = 0;
+    let gain = 1;
+
+    for(let i=0;i<buffer.length;i++) {
+      let peak = 0;
+
+      for(let c=0;c<channels.length;c++) {
+        peak = Math.max(
+          peak,Math.abs(channels[c][i])
+        );
+      }
+
+      envelope = Math.max(
+        peak,
+        envelope * envelopeCoefficient
+      );
+
+      const target = envelope >= threshold
+        ? 1 : floor;
+
+      const coefficient = target > gain
+        ? attack : release;
+
+      gain = target +
+        coefficient * (gain - target);
+
+      for(let c=0;c<channels.length;c++) {
+        outputs[c][i] = channels[c][i] * gain;
+      }
+    }
+
+    return result;
+  }
+
+  apply.onclick = async () => {
+    const id = Number(select.value);
+    const track = tracks.find(t =>
+      t.id === id && t.type === 'vocal'
+    );
+
+    if (!track) {
+      message.textContent =
+        'Choose a vocal track first.';
+      return;
+    }
+
+    if (typeof recording !== 'undefined' &&
+        recording) {
+      message.textContent =
+        'Stop recording before processing.';
+      return;
+    }
+
+    apply.disabled = true;
+    message.textContent =
+      'Cleaning vocal recording...';
+
+    try {
+      await new Promise(resolve =>
+        setTimeout(resolve,30)
+      );
+
+      const settings = {
+        threshold:Number(el(
+          'srCleanThreshold').value),
+        reduction:Number(el(
+          'srCleanReduction').value),
+        attack:Number(el(
+          'srCleanAttack').value),
+        release:Number(el(
+          'srCleanRelease').value)
+      };
+
+      const output = process(
+        track.buffer,settings
+      );
+
+      const clean = makeTrack(
+        track.name + ' (Clean)',
+        output,
+        'vocal',
+        track.offset
+      );
+
+      clean.trimStart = track.trimStart;
+      clean.trimEnd = track.trimEnd;
+      clean.volume = track.volume;
+      clean.pan = track.pan;
+
+      track.mute = true;
+      renderTracks();
+      refresh();
+
+      message.textContent =
+        'Clean vocal track created. ' +
+        'Original preserved and muted. ' +
+        'Compare both in Mixer & FX, ' +
+        'then save your project.';
+
+    } catch(error) {
+      message.textContent =
+        'Cleanup failed: ' + error.message;
+    } finally {
+      refresh();
+    }
+  };
+
+  refresh();
+})();
+</script>
+
+
+<script>
+(() => {
+  const root =
+    document.getElementById('srArrangement');
+  if (!root) return;
+
+  const key = 'starrise-arrangement-v1';
+  const list =
+    document.getElementById('srSectionList');
+
+  let sections = [];
+
+  try {
+    const saved =
+      JSON.parse(localStorage.getItem(key) || '[]');
+    if (Array.isArray(saved)) sections = saved;
+  } catch (error) {
+    sections = [];
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(
+        key, JSON.stringify(sections)
+      );
+    } catch (error) {
+      console.warn('Arrangement storage unavailable');
+    }
+  }
+
+  function render() {
+    list.replaceChildren();
+
+    [...sections]
+      .sort((a, b) => a.bar - b.bar)
+      .forEach(section => {
+        const row = document.createElement('div');
+        row.style.cssText =
+          'padding:12px;margin:8px 0;' +
+          'border:1px solid #71558b;' +
+          'border-radius:10px;' +
+          'display:flex;gap:12px;' +
+          'align-items:center;' +
+          'justify-content:space-between';
+
+        const title = document.createElement('span');
+        title.textContent =
+          section.type +
+          ' | Bar ' + section.bar +
+          ' | ' + section.length + ' bars';
+
+        const remove =
+          document.createElement('button');
+        remove.type = 'button';
+        remove.textContent = 'Remove';
+
+        remove.addEventListener('click', () => {
+          sections = sections.filter(
+            item => item.id !== section.id
+          );
+          save();
+          render();
+        });
+
+        row.append(title, remove);
+        list.append(row);
+      });
+  }
+
+  document.getElementById('srAddSection')
+    .addEventListener('click', () => {
+      const type =
+        document.getElementById('srSectionType').value;
+      const bar = Number(
+        document.getElementById('srSectionBar').value
+      );
+      const length = Number(
+        document.getElementById('srSectionLength').value
+      );
+
+      if (
+        !Number.isInteger(bar) || bar < 1 ||
+        !Number.isInteger(length) || length < 1
+      ) return;
+
+      sections.push({
+        id: Date.now() + Math.random(),
+        type, bar, length
+      });
+
+      save();
+      render();
+    });
+
+  document.getElementById('srClearSections')
+    .addEventListener('click', () => {
+      if (!confirm('Clear saved arrangement?')) return;
+      sections = [];
+      save();
+      render();
+    });
+
+  render();
+})();
+</script>
+
 </body>
 </html>
