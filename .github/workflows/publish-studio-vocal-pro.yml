@@ -16,7 +16,7 @@ jobs:
         with:
           ref: main
 
-      - name: Create fresh Vocal Pro page
+      - name: Validate and publish Vocal Pro
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -27,27 +27,35 @@ jobs:
               "Vocal tone presets",
               "Warm R&B",
               "Low-cut (Hz)",
-              "Sibilance soften",
           ]
 
           missing = [item for item in required if item not in source]
+
+          if "De-Esser / Sibilance" not in source and "Sibilance soften" not in source:
+              missing.append("De-Esser / Sibilance")
+
           if missing:
-              raise SystemExit("Missing Vocal Pro features: " + ", ".join(missing))
+              raise SystemExit(
+                  "Missing Vocal Pro features: " + ", ".join(missing)
+              )
 
           Path("studio-vocal-pro.html").write_text(
               source, encoding="utf-8"
           )
-          print("Created fresh Vocal Pro studio page.")
+
+          print("Vocal Pro page synchronized with Studio Pro.")
           PY
 
-      - name: Commit fresh studio page
+      - name: Commit published page
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git add studio-vocal-pro.html
+
           if git diff --cached --quiet; then
-            echo "Fresh studio page already exists."
+            echo "Vocal Pro page is already current."
           else
-            git commit -m "Publish fresh StarRise Vocal Pro page"
+            git commit -m "Publish current StarRise Vocal Pro studio"
             git push origin HEAD:main
           fi
