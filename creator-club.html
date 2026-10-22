@@ -8,138 +8,340 @@
 <meta name="description" content="StarRise Creator Club, a planned creative and recreation hub for musicians, artists, influencers and entertainers.">
 <title>StarRise Creator Club | Create. Connect. Recharge.</title>
 <style>
-:root{color-scheme:dark;--bg:#0b0916;--panel:#171329;--line:#403458;--text:#faf7ff;--muted:#c1b7d1;--accent:#d7b5ff;--gold:#f3ca71}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:radial-gradient(ellipse at 80% 0%,#30204b 0,transparent 42%),var(--bg);color:var(--text);font:16px/1.65 system-ui,Arial,sans-serif}
-a{color:var(--accent)}
-header{position:sticky;top:0;z-index:5;background:#0b0916ee;border-bottom:1px solid #ffffff1c;backdrop-filter:blur(12px)}
-.nav,main,.footer-inner{width:min(1120px,calc(100% - 32px));margin:auto}
-.nav{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:12px 0}
-.brand{font-weight:850;font-size:21px;color:#fff;text-decoration:none}
-.navlinks{display:flex;gap:15px;flex-wrap:wrap}
-.navlinks a{text-decoration:none;color:#ddd;font-size:14px}
-.hero{padding:78px 0 60px;max-width:900px}
-.kicker{color:var(--gold);font-size:12px;letter-spacing:2.5px;text-transform:uppercase;font-weight:800}
-h1{font-size:clamp(42px,8vw,78px);line-height:1.03;letter-spacing:-2px;margin:16px 0}
-h2{font-size:clamp(28px,5vw,42px);line-height:1.15;margin:0 0 12px}
-h3{margin:0 0 8px;font-size:21px}
-p{margin:0 0 14px}
-.lead{font-size:20px;color:#e2d9ef;max-width:790px}
-.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:25px}
-.btn{display:inline-block;padding:12px 19px;border-radius:999px;text-decoration:none;font-weight:800;border:1px solid #ffffff35}
-.btn.primary{background:var(--gold);color:#171021;border-color:var(--gold)}
-.btn.secondary{background:#ffffff09;color:#fff}
-.notice{margin-top:24px;padding:15px 17px;border:1px solid #d7b5ff66;border-radius:14px;background:#ffffff08;color:#e8def4}
-section{padding:45px 0}
-.intro{color:var(--muted);max-width:760px;margin-bottom:24px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:16px}
-.card{border:1px solid var(--line);background:linear-gradient(150deg,#211936,#12101f);border-radius:18px;padding:23px}
-.icon{font-size:28px;margin-bottom:12px}
-.card p{color:var(--muted);margin:0}
-.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
-.tier{border:1px solid var(--line);border-radius:18px;padding:23px;background:#ffffff08}
-.status{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:var(--gold);font-weight:800}
-.tier ul{padding-left:20px;color:var(--muted)}
-.tier li{margin:7px 0}
-.callout{border:1px solid #d7b5ff50;background:linear-gradient(135deg,#261a3d,#151022);padding:30px;border-radius:22px}
-.small{font-size:13px;color:var(--muted)}
-footer{border-top:1px solid #ffffff1c;margin-top:32px;padding:26px 0;color:var(--muted)}
-@media(max-width:600px){.hero{padding-top:52px}.nav{align-items:flex-start}.navlinks{gap:12px}}
+:root {
+  color-scheme: dark;
+  --bg: #0b0916;
+  --panel: #171329;
+  --line: #403458;
+  --text: #faf7ff;
+  --muted: #c1b7d1;
+  --accent: #d7b5ff;
+  --gold: #f3ca71;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: radial-gradient(ellipse at 80% 0%, #30204b 0, transparent 42%), var(--bg);
+  color: var(--text);
+  font: 16px/1.65 system-ui, Arial, sans-serif;
+}
+a { color: var(--accent); }
+header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #0b0916ee;
+  border-bottom: 1px solid #ffffff1c;
+  backdrop-filter: blur(12px);
+}
+.nav, main, .footer-inner {
+  width: min(1120px, calc(100% - 32px));
+  margin: auto;
+}
+.nav {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 12px 0;
+}
+.brand {
+  font-weight: 850;
+  font-size: 21px;
+  color: #fff;
+  text-decoration: none;
+}
+.nav-toggle {
+  display: none;
+  background: #211a36;
+  color: #fff;
+  border: 1px solid #594873;
+  border-radius: 10px;
+  padding: 9px 13px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.nav-toggle:focus-visible,
+.navlinks a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.navlinks {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+.navlinks a {
+  text-decoration: none;
+  color: #ddd;
+  font-size: 14px;
+}
+.hero {
+  padding: 78px 0 60px;
+  max-width: 900px;
+}
+.kicker {
+  color: var(--gold);
+  font-size: 12px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+h1 {
+  font-size: clamp(42px, 8vw, 78px);
+  line-height: 1.03;
+  letter-spacing: -2px;
+  margin: 16px 0;
+}
+h2 {
+  font-size: clamp(28px, 5vw, 42px);
+  line-height: 1.15;
+  margin: 0 0 12px;
+}
+h3 { margin: 0 0 8px; font-size: 21px; }
+p { margin: 0 0 14px; }
+.lead {
+  font-size: 20px;
+  color: #e2d9ef;
+  max-width: 790px;
+}
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 25px;
+}
+.btn {
+  display: inline-block;
+  padding: 12px 19px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 800;
+  border: 1px solid #ffffff35;
+}
+.btn.primary {
+  background: var(--gold);
+  color: #171021;
+  border-color: var(--gold);
+}
+.btn.secondary { background: #ffffff09; color: #fff; }
+.notice {
+  margin-top: 24px;
+  padding: 15px 17px;
+  border: 1px solid #d7b5ff66;
+  border-radius: 14px;
+  background: #ffffff08;
+  color: #e8def4;
+}
+section { padding: 45px 0; }
+.intro { color: var(--muted); max-width: 760px; margin-bottom: 24px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(225px, 1fr));
+  gap: 16px;
+}
+.card {
+  border: 1px solid var(--line);
+  background: linear-gradient(150deg, #211936, #12101f);
+  border-radius: 18px;
+  padding: 23px;
+}
+.icon { font-size: 28px; margin-bottom: 12px; }
+.card p { color: var(--muted); margin: 0; }
+.tiers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+}
+.tier {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 23px;
+  background: #ffffff08;
+}
+.status {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--gold);
+  font-weight: 800;
+}
+.tier ul { padding-left: 20px; color: var(--muted); }
+.tier li { margin: 7px 0; }
+.callout {
+  border: 1px solid #d7b5ff50;
+  background: linear-gradient(135deg, #261a3d, #151022);
+  padding: 30px;
+  border-radius: 22px;
+}
+.small { font-size: 13px; color: var(--muted); }
+footer {
+  border-top: 1px solid #ffffff1c;
+  margin-top: 32px;
+  padding: 26px 0;
+  color: var(--muted);
+}
+
+@media (max-width: 700px) {
+  .hero { padding-top: 52px; }
+  .nav { align-items: center; }
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+  }
+  .navlinks {
+    display: none;
+    flex: 0 0 100%;
+    flex-direction: column;
+    gap: 0;
+    padding: 8px 0 12px;
+  }
+  .navlinks.is-open { display: flex; }
+  .navlinks a {
+    padding: 11px 4px;
+    border-top: 1px solid #ffffff17;
+    font-size: 15px;
+  }
+}
 </style>
 </head>
 <body>
 <header>
-<div class="nav">
-<a class="brand" href="index.html">⭐ StarRise</a>
-<nav class="navlinks" aria-label="Main navigation">
-<a href="index.html">Home</a>
-<a href="community.html">Community</a>
-<a href="studio.html">Recording Studio</a>
-<a href="creator-studio.html">Creator Studio</a>
-<a href="membership.html">Memberships</a>
-<a href="events.html">Events</a>
-</nav>
-</div>
+  <div class="nav">
+    <a class="brand" href="index.html">⭐ StarRise</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="club-nav">Menu</button>
+    <nav class="navlinks" id="club-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="community.html">Community</a>
+      <a href="studio.html">Recording Studio</a>
+      <a href="creator-studio.html">Creator Studio</a>
+      <a href="membership.html">Memberships</a>
+      <a href="events.html">Events</a>
+    </nav>
+  </div>
 </header>
 
 <main>
-<section class="hero">
-<div class="kicker">A Fam ENT LLC initiative · Planned physical location</div>
-<h1>Creator Club.<br><span style="color:var(--accent)">Create. Connect. Recharge.</span></h1>
-<p class="lead">A membership-based recreation and creation hub for artists, influencers, musicians, video creators, performers, and the next generation of entertainment talent.</p>
-<p>Make music, film content, play games, meet collaborators, practice performances, attend creator events, or simply relax around people who understand the creative life.</p>
-<div class="actions">
-<a class="btn primary" href="join.html">Join the StarRise Community</a>
-<a class="btn secondary" href="membership.html">Existing Digital Memberships</a>
-</div>
-<div class="notice"><strong>Planning stage:</strong> The physical Creator Club is not open yet. Proposed pricing, location, amenities, opening dates, and access rules are not finalized. This page does not accept payments or guarantee access.</div>
-</section>
+  <section class="hero">
+    <div class="kicker">A Fam ENT LLC initiative · Planned physical location</div>
+    <h1>Creator Club.<br><span style="color:var(--accent)">Create. Connect. Recharge.</span></h1>
+    <p class="lead">A membership-based recreation and creation hub for artists, influencers, musicians, video creators, performers, and the next generation of entertainment talent.</p>
+    <p>Make music, film content, play games, meet collaborators, practice performances, attend creator events, or simply relax around people who understand the creative life.</p>
+    <div class="actions">
+      <a class="btn primary" href="join.html">Join the StarRise Community</a>
+      <a class="btn secondary" href="membership.html">Existing Digital Memberships</a>
+    </div>
+    <div class="notice"><strong>Planning stage:</strong> The physical Creator Club is not open yet. Proposed pricing, location, amenities, opening dates, and access rules are not finalized. This page does not accept payments or guarantee access.</div>
+  </section>
 
-<section>
-<h2>One place. Many ways to create.</h2>
-<p class="intro">The goal is a welcoming space where creators can enjoy themselves, collaborate, and develop real projects.</p>
-<div class="grid">
-<article class="card"><div class="icon">🎤</div><h3>Music Lab</h3><p>Recording, beatmaking, songwriting, listening sessions, and artist collaborations.</p></article>
-<article class="card"><div class="icon">🎬</div><h3>Content Zone</h3><p>Video shoots, short-form content, podcasts, interviews, livestreams, and creator challenges.</p></article>
-<article class="card"><div class="icon">🎮</div><h3>Recreation Lounge</h3><p>Games, movies, and available recreation activities with room to relax and socialize.</p></article>
-<article class="card"><div class="icon">💃</div><h3>Performance Lab</h3><p>Dance practice, acting exercises, choreography, auditions, and showcases.</p></article>
-<article class="card"><div class="icon">🤝</div><h3>Opportunity Hub</h3><p>Networking with producers, videographers, brands, promoters, and industry professionals.</p></article>
-<article class="card"><div class="icon">🛋️</div><h3>Chill &amp; Recharge</h3><p>A comfortable social setting where members can relax without performing for a camera.</p></article>
-</div>
-</section>
+  <section>
+    <h2>One place. Many ways to create.</h2>
+    <p class="intro">The goal is a welcoming space where creators can enjoy themselves, collaborate, and develop real projects.</p>
+    <div class="grid">
+      <article class="card"><div class="icon">🎤</div><h3>Music Lab</h3><p>Recording, beatmaking, songwriting, listening sessions, and artist collaborations.</p></article>
+      <article class="card"><div class="icon">🎬</div><h3>Content Zone</h3><p>Video shoots, short-form content, podcasts, interviews, livestreams, and creator challenges.</p></article>
+      <article class="card"><div class="icon">🎮</div><h3>Recreation Lounge</h3><p>Games, movies, and available recreation activities with room to relax and socialize.</p></article>
+      <article class="card"><div class="icon">💃</div><h3>Performance Lab</h3><p>Dance practice, acting exercises, choreography, auditions, and showcases.</p></article>
+      <article class="card"><div class="icon">🤝</div><h3>Opportunity Hub</h3><p>Networking with producers, videographers, brands, promoters, and industry professionals.</p></article>
+      <article class="card"><div class="icon">🛋️</div><h3>Chill &amp; Recharge</h3><p>A comfortable social setting where members can relax without performing for a camera.</p></article>
+    </div>
+  </section>
 
-<section>
-<h2>Membership built around access</h2>
-<p class="intro">These are proposed concepts, not finalized prices or benefits. Final terms depend on the property, operating costs, capacity, and member demand.</p>
-<div class="tiers">
-<article class="tier">
-<div class="status">Proposed · Entry</div>
-<h3>Creator Basic</h3>
-<p>For creators who want community, recreation, and member events.</p>
-<ul><li>Approved access during designated hours</li><li>Social lounge and available recreation amenities</li><li>Member networking and events</li><li>Potential member rates for studio services</li></ul>
-</article>
-<article class="tier">
-<div class="status">Proposed · Plus</div>
-<h3>Creator Plus</h3>
-<p>For members who want more structured creative time.</p>
-<ul><li>Basic benefits</li><li>Earlier booking windows</li><li>Potential session credits under final terms</li><li>Creator workshops and collaborations</li></ul>
-</article>
-<article class="tier">
-<div class="status">Proposed · Premium</div>
-<h3>VIP Creator</h3>
-<p>For frequent creators who want premium booking privileges.</p>
-<ul><li>Plus benefits</li><li>Expanded booking privileges, subject to availability</li><li>Selected VIP networking events</li><li>Priority consideration for eligible opportunities</li></ul>
-</article>
-</div>
-<p class="small">No recurring billing is active on this page. Existing StarRise digital memberships remain separate from the planned physical club.</p>
-</section>
+  <section>
+    <h2>Membership built around access</h2>
+    <p class="intro">These are proposed concepts, not finalized prices or benefits. Final terms depend on the property, operating costs, capacity, and member demand.</p>
+    <div class="tiers">
+      <article class="tier">
+        <div class="status">Proposed · Entry</div>
+        <h3>Creator Basic</h3>
+        <p>For creators who want community, recreation, and member events.</p>
+        <ul>
+          <li>Approved access during designated hours</li>
+          <li>Social lounge and available recreation amenities</li>
+          <li>Member networking and events</li>
+          <li>Potential member rates for studio services</li>
+        </ul>
+      </article>
+      <article class="tier">
+        <div class="status">Proposed · Plus</div>
+        <h3>Creator Plus</h3>
+        <p>For members who want more structured creative time.</p>
+        <ul>
+          <li>Basic benefits</li>
+          <li>Earlier booking windows</li>
+          <li>Potential session credits under final terms</li>
+          <li>Creator workshops and collaborations</li>
+        </ul>
+      </article>
+      <article class="tier">
+        <div class="status">Proposed · Premium</div>
+        <h3>VIP Creator</h3>
+        <p>For frequent creators who want premium booking privileges.</p>
+        <ul>
+          <li>Plus benefits</li>
+          <li>Expanded booking privileges, subject to availability</li>
+          <li>Selected VIP networking events</li>
+          <li>Priority consideration for eligible opportunities</li>
+        </ul>
+      </article>
+    </div>
+    <p class="small">No recurring billing is active on this page. Existing StarRise digital memberships remain separate from the planned physical club.</p>
+  </section>
 
-<section>
-<div class="callout">
-<div class="kicker">Safety comes first</div>
-<h2>A creator space with clear boundaries.</h2>
-<p>This is planned as a recreation and creation club, not a communal residence. The owner lives at the property. Overnight stays would require individual approval; all other visitors would follow approved access, booking, and guest rules. Private residential areas would remain off-limits.</p>
-<p>Before opening, StarRise must confirm applicable zoning, occupancy, insurance, fire safety, business-use, and privacy requirements. Filming without consent, harassment, and unapproved guests would not be permitted.</p>
-</div>
-</section>
+  <section>
+    <div class="callout">
+      <div class="kicker">Safety comes first</div>
+      <h2>A creator space with clear boundaries.</h2>
+      <p>This is planned as a recreation and creation club, not a communal residence. The owner lives at the property. Overnight stays would require individual approval; all other visitors would follow approved access, booking, and guest rules. Private residential areas would remain off-limits.</p>
+      <p>Before opening, StarRise must confirm applicable zoning, occupancy, insurance, fire safety, business-use, and privacy requirements. Filming without consent, harassment, and unapproved guests would not be permitted.</p>
+    </div>
+  </section>
 
-<section>
-<h2>Help shape the founding club</h2>
-<p class="intro">StarRise is developing this concept before committing to a permanent property. Join the community to follow announcements while the physical location and founding-member program are planned.</p>
-<div class="actions">
-<a class="btn primary" href="join.html">Join StarRise</a>
-<a class="btn secondary" href="events.html">Explore Events</a>
-<a class="btn secondary" href="support.html">Contact StarRise</a>
-</div>
-</section>
+  <section>
+    <h2>Help shape the founding club</h2>
+    <p class="intro">StarRise is developing this concept before committing to a permanent property. Join the community to follow announcements while the physical location and founding-member program are planned.</p>
+    <div class="actions">
+      <a class="btn primary" href="join.html">Join StarRise</a>
+      <a class="btn secondary" href="events.html">Explore Events</a>
+      <a class="btn secondary" href="support.html">Contact StarRise</a>
+    </div>
+  </section>
 </main>
 
 <footer>
-<div class="footer-inner">
-<p><strong>StarRise by Fam ENT LLC</strong> · Where Talent Rises.</p>
-<p class="small">Creator Club is a planned initiative and is not currently open for physical access or paid enrollment.</p>
-</div>
+  <div class="footer-inner">
+    <p><strong>StarRise by Fam ENT LLC</strong> · Where Talent Rises.</p>
+    <p class="small">Creator Club is a planned initiative and is not currently open for physical access or paid enrollment.</p>
+  </div>
 </footer>
+
+<script>
+(function () {
+  const toggle = document.querySelector('.nav-toggle');
+  const nav = document.getElementById('club-nav');
+
+  if (!toggle || !nav) return;
+
+  toggle.addEventListener('click', function () {
+    const open = nav.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.textContent = open ? 'Close' : 'Menu';
+  });
+
+  nav.addEventListener('click', function (event) {
+    if (event.target.closest('a') && window.matchMedia('(max-width: 700px)').matches) {
+      nav.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.textContent = 'Menu';
+    }
+  });
+})();
+</script>
 </body>
 </html>
