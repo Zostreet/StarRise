@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -124,7 +123,6 @@ footer{border-top:1px solid #ffffff18;padding:28px 0;color:#999}
       <a href="services.html">Services</a>
       <a href="artist-services.html">Artist Services</a>
       <a href="events.html">Events</a>
-      <a href="launch-rsvp.html">Launch RSVP</a>
       <a href="opportunities.html">Opportunities</a>
       <a href="executive-careers.html">Careers</a>
       <a href="founding-creators.html">Founding Creators</a>
@@ -145,7 +143,6 @@ footer{border-top:1px solid #ffffff18;padding:28px 0;color:#999}
       <a class="button primary" href="artist-services.html">Request Artist Services</a>
       <a class="button secondary" href="studio.html">Make Music</a>
       <a class="button secondary" href="#talent">Explore StarRise</a>
-      <a class="button gold" href="launch-rsvp.html">Launch Party RSVP</a>
       <a class="button secondary" href="join.html">Join the Community</a>
     </div>
   </div>
@@ -338,36 +335,6 @@ footer{border-top:1px solid #ffffff18;padding:28px 0;color:#999}
   </div>
 </section>
 
-<section id="launch-party">
-  <div class="panel purple-panel">
-    <div class="fund-badge">DECEMBER 31, 2026 · PRIVATE RSVP CELEBRATION</div>
-    <div class="section-heading">
-      <h2>StarRise Launch Party &amp; Founding Creators Celebration</h2>
-      <p>We're bringing together founding creators, emerging artists, prospective members, sponsors, vendors, and community partners to celebrate the beginning of StarRise.</p>
-    </div>
-    <p><strong>Charlotte / Kannapolis, North Carolina.</strong> Venue, event time, and capacity are still being finalized. Attendance is by invitation, and RSVP requests require approval.</p>
-    <ul>
-      <li>Meet founding creators and community partners</li>
-      <li>Explore StarRise app demonstrations</li>
-      <li>Enjoy selected short performances</li>
-      <li>Network with local artists and businesses</li>
-      <li>Learn about community and youth development goals</li>
-    </ul>
-    <div class="fund-actions">
-      <a class="button gold" href="launch-rsvp.html">Request Your Invitation</a>
-      <a class="button secondary" href="founding-creators.html">Become a Founding Creator</a>
-      <a class="button secondary" href="partners.html">Explore Partnerships</a>
-    </div>
-    <p class="notice">No tickets or payments are being collected through the RSVP page. An invitation request does not guarantee admission.</p>
-    <div style="border-top:1px solid #ffffff25;margin-top:28px;padding-top:22px">
-      <div class="fund-badge">COMING IN 2027</div>
-      <h3>Countdown to Stardom</h3>
-      <p>Our larger talent competition featuring singers, rappers, dancers, and other performers has been postponed until 2027. A new date, venue, application process, judges, and prize details will be announced once confirmed.</p>
-      <a class="button secondary" href="events.html">Explore Upcoming Events</a>
-    </div>
-  </div>
-</section>
-
 <section id="leadership">
   <div class="section-heading">
     <h2>Help Build the Future of Fam ENT</h2>
@@ -386,7 +353,6 @@ footer{border-top:1px solid #ffffff18;padding:28px 0;color:#999}
     </div>
     <div class="fund-actions">
       <a class="button primary" href="join.html">Join StarRise</a>
-      <a class="button gold" href="launch-rsvp.html">Launch Party RSVP</a>
       <a class="button secondary" href="creator-club.html">Creator Club</a>
       <a class="button secondary" href="talent-funds.html">Support Talent</a>
     </div>
@@ -432,8 +398,10 @@ footer{border-top:1px solid #ffffff18;padding:28px 0;color:#999}
   });
 
   nav.addEventListener("click", event => {
-    if (event.target.closest("a") &&
-        window.matchMedia("(max-width: 700px)").matches) {
+    if (
+      event.target.closest("a") &&
+      window.matchMedia("(max-width: 700px)").matches
+    ) {
       closeMenu();
     }
   });
