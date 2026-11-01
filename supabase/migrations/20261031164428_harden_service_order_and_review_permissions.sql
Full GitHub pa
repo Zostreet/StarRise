@@ -1,0 +1,83 @@
+-- Keep service-order creation and payment fields server-controlled.
+revoke insert, update, delete on table public.service_orders from anon, authenticated;
+
+do $$
+declare
+  cols text;
+begin
+  select string_agg(format('%I', column_name), ', ' order by ordinal_position)
+    into cols
+  from information_schema.columns
+  where table_schema = 'public' and table_name = 'service_orders';
+
+  if cols is not null then
+    execute format(
+      'revoke insert (%1$s), update (%1$s) on table public.service_orders from anon, authenticated',
+      cols
+    );
+  end if;
+end
+$$;
+
+grant update (status, updated_at) on table public.service_orders to authenticated;
+
+drop policy if exists "Buyers can create orders for active services"
+  on public.service_orders;
+drop policy if exists "Sellers can update order status"
+  on public.service_orders;
+
+create policy "Sellers can update non-completed service status"
+on public.service_orders
+for update
+to authenticated
+using (seller_id = (select auth.uid()))
+with check (
+  seller_id = (select auth.uid())
+  and status <> 'completed'
+);
+
+-- Keep reviews tied to the actual seller on a completed, paid order.
+revoke insert, update, delete on table public.service_reviews from anon, authenticated;
+
+do $$
+declare
+  cols text;
+begin
+  select string_agg(format('%I', column_name), ', ' order by ordinal_position)
+    into cols
+  from information_schema.columns
+  where table_schema = 'public' and table_name = 'service_reviews';
+
+  if cols is not null then
+    execute format(
+      'revoke insert (%1$s), update (%1$s) on table public.service_reviews from anon, authenticated',
+      cols
+    );
+  end if;
+end
+$$;
+
+grant insert (order_id, reviewer_id, seller_id, rating, review)
+  on table public.service_reviews to authenticated;
+grant update (rating, review, updated_at)
+  on table public.service_reviews to authenticated;
+
+drop policy if exists "buyers can create reviews for completed orders"
+  on public.service_reviews;
+
+create policy "Buyers can review their completed paid service orders"
+on public.service_reviews
+for insert
+to authenticated
+with check (
+  reviewer_id = (select auth.uid())
+  and exists (
+    select 1
+    from public.service_orders o
+    where o.id = service_reviews.order_id
+      and o.buyer_id = (select auth.uid())
+      and o.seller_id = service_reviews.seller_id
+      and o.status = 'completed'
+      and o.payment_status = 'paid'
+  )
+);
