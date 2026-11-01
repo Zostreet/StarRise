@@ -7,7 +7,7 @@ verify_jwt = true
 [functions.paypal-sandbox-cancel-order]
 verify_jwt = true
 
-# These existing functions validate the user session in the handler.
+# These functions validate the user session in their handlers.
 # The webhook verifies PayPal's signature instead of a user JWT.
 
 [functions.paypal-platform-status]
@@ -31,6 +31,9 @@ verify_jwt = false
 [functions.paypal-complete-service-order]
 verify_jwt = false
 
+[functions.complete-service-order]
+verify_jwt = false
+
 [functions.paypal-seller-status]
 verify_jwt = false
 
@@ -39,4 +42,3 @@ verify_jwt = false
 
 [functions.paypal-live-webhook]
 verify_jwt = false
-
