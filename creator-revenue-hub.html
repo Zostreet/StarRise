@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fam Creator Revenue Hub | StarRise</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090914;color:#f7f7fb;font:16px/1.55 Arial,sans-serif}
+header{padding:18px;background:#111121;border-bottom:1px solid #39334d}
+header a{color:#d8c8ff;text-decoration:none}
+main{max-width:1000px;margin:25px auto;padding:0 15px}
+section{background:#151525;border:1px solid #39334d;border-radius:16px;padding:20px;margin:17px 0}
+h1,h2{color:#d8c8ff}
+.muted{color:#aaa}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px}
+.tile{background:#202035;padding:15px;border-radius:12px}
+label.field{display:block;margin:12px 0}
+.field span{display:block;color:#bbb;font-size:13px;margin-bottom:5px}
+input,select,textarea{width:100%;padding:12px;border-radius:9px;border:1px solid #555;background:#10101e;color:white;font:inherit}
+button{padding:12px 18px;border:0;border-radius:22px;background:#d8c8ff;color:#111;font-weight:bold;margin:5px;cursor:pointer}
+.secondary{background:transparent;border:1px solid #aaa;color:white}
+a{color:#d8c8ff}
+.check{display:flex;gap:10px;margin:12px 0}
+.check input{width:auto}
+.bar{height:9px;background:#333;border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:#b99cff}
+.status{padding:12px;background:#202035;border-radius:9px}
+.small{font-size:13px}
+</style>
+</head>
+<body>
+<header>
+<a href="dashboard.html">← Back to StarRise Dashboard</a>
+</header>
+
+<main>
+<section>
+<p class="muted">FAM ENTERTAINMENT GLOBAL REACH</p>
+<h1>Creator Revenue Hub</h1>
+<p>Promote your work. Build your audience. Activate every eligible revenue opportunity. Manage your creator business in one place.</p>
+<div class="status" id="status">Your creator workspace is ready.</div>
+</section>
+
+<section>
+<h2>1. Creator Profile</h2>
+<div class="grid">
+<label class="field"><span>Artist / Creator Name</span><input id="name" placeholder="Your name or stage name"></label>
+<label class="field"><span>Creator Type</span>
+<select id="type">
+<option>Music Artist</option>
+<option>Video Creator</option>
+<option>Podcaster</option>
+<option>Visual Artist</option>
+<option>Multi-Platform Creator</option>
+<option>Other</option>
+</select></label>
+<label class="field"><span>Main Goal</span>
+<select id="goal">
+<option>Grow My Audience</option>
+<option>Activate Monetization</option>
+<option>Sell Products</option>
+<option>Find Sponsors</option>
+<option>Promote Music</option>
+<option>Build Multiple Income Streams</option>
+</select></label>
+<label class="field"><span>Main Content Link</span><input id="link" type="url" placeholder="https://"></label>
+</div>
+</section>
+
+<section>
+<h2>2. Platform Readiness</h2>
+<p class="muted">Track your current accounts and monetization progress.</p>
+<div class="grid" id="platforms"></div>
+</section>
+
+<section>
+<h2>3. Revenue Setup Checklist</h2>
+<div id="tasks">
+<label class="check"><input type="checkbox"> I own or have permission to monetize my content.</label>
+<label class="check"><input type="checkbox"> My music distributor or rights-holder arrangements are established where needed.</label>
+<label class="check"><input type="checkbox"> My songwriting and publishing information is documented where applicable.</label>
+<label class="check"><input type="checkbox"> My provider payout and tax information is completed.</label>
+<label class="check"><input type="checkbox"> I have reviewed each platform's monetization requirements.</label>
+<label class="check"><input type="checkbox"> My products or services have prices and clear terms.</label>
+<label class="check"><input type="checkbox"> I have a creator bio and contact information for sponsorships.</label>
+</div>
+<div class="bar"><i id="progress"></i></div>
+<p id="progressText" class="muted small">0 of 7 steps completed</p>
+</section>
+
+<section>
+<h2>4. Global Promotion Campaign</h2>
+<div class="grid">
+<label class="field"><span>Campaign Name</span><input id="campaign" placeholder="New single, video, product launch..."></label>
+<label class="field"><span>Campaign Objective</span>
+<select id="objective">
+<option>Audience Growth</option>
+<option>Music Discovery</option>
+<option>Sales</option>
+<option>Monetization Readiness</option>
+<option>Sponsorship Opportunities</option>
+</select></label>
+<label class="field"><span>Campaign Start</span><input id="date" type="date"></label>
+<label class="field"><span>Proposed Advertising Budget</span><input id="budget" type="number" min="0" step=".01" placeholder="0.00"></label>
+</div>
+<label class="field"><span>Campaign Details</span><textarea id="notes" rows="4" placeholder="Audience, release dates, links and campaign ideas"></textarea></label>
+<p class="muted small">Entering an advertising budget does not authorize spending. Creator approval is required before paid promotion begins. Advertising costs are separate from Fam Entertainment service fees.</p>
+</section>
+
+<section>
+<h2>5. Official Platform Resources</h2>
+<div class="grid">
+<div class="tile"><h3>YouTube</h3><a href="https://www.youtube.com/creators/partner-program/" target="_blank">Partner Program</a></div>
+<div class="tile"><h3>Spotify</h3><a href="https://artists.spotify.com/" target="_blank">Spotify for Artists</a></div>
+<div class="tile"><h3>Apple Music</h3><a href="https://artists.apple.com/" target="_blank">Apple Music for Artists</a></div>
+<div class="tile"><h3>Pandora</h3><a href="https://amp.pandora.com/" target="_blank">Pandora AMP</a></div>
+<div class="tile"><h3>TikTok</h3><a href="https://www.tiktok.com/creator-center" target="_blank">Creator Center</a></div>
+<div class="tile"><h3>SoundCloud</h3><a href="https://artists.soundcloud.com/" target="_blank">SoundCloud for Artists</a></div>
+</div>
+</section>
+
+<section>
+<h2>6. Save Your Creator Workspace</h2>
+<p class="muted">Save your information on this device or export a copy to share with Fam Entertainment.</p>
+<button onclick="save()">Save Workspace</button>
+<button class="secondary" onclick="exportBrief()">Export Creator Brief</button>
+<button class="secondary" onclick="clearData()">Clear Workspace</button>
+<p class="muted small">Platform monetization depends on eligibility, rights, approval and provider rules. No guaranteed streams, views, placements or earnings. Never share account passwords or verification codes.</p>
+</section>
+</main>
+
+<script>
+const platformNames=[
+"YouTube","Spotify","Apple Music","Pandora",
+"TikTok","Instagram","Facebook","SoundCloud"
+];
+
+const platformBox=document.getElementById("platforms");
+
+platformNames.forEach((name,i)=>{
+const card=document.createElement("div");
+card.className="tile";
+const title=document.createElement("h3");
+title.textContent=name;
+const label=document.createElement("label");
+label.className="field";
+const span=document.createElement("span");
+span.textContent="Current Status";
+const select=document.createElement("select");
+select.id="platform"+i;
+
+[
+"Not Started",
+"Account Exists",
+"Profile Claimed",
+"Monetization Eligible",
+"Monetization Active",
+"Needs Review"
+].forEach(value=>{
+const option=document.createElement("option");
+option.value=value;
+option.textContent=value;
+select.appendChild(option);
+});
+
+label.append(span,select);
+card.append(title,label);
+platformBox.appendChild(card);
+});
+
+const fieldIds=[
+"name","type","goal","link","campaign",
+"objective","date","budget","notes"
+];
+
+function collect(){
+const data={};
+fieldIds.forEach(id=>{
+data[id]=document.getElementById(id).value;
+});
+platformNames.forEach((name,i)=>{
+data["platform"+i]=document.getElementById("platform"+i).value;
+});
+data.tasks=[...document.querySelectorAll("#tasks input")].map(x=>x.checked);
+return data;
+}
+
+function restore(data){
+if(!data)return;
+fieldIds.forEach(id=>{
+if(data[id]!==undefined)document.getElementById(id).value=data[id];
+});
+platformNames.forEach((name,i)=>{
+if(data["platform"+i])document.getElementById("platform"+i).value=data["platform"+i];
+});
+if(data.tasks){
+document.querySelectorAll("#tasks input").forEach((x,i)=>x.checked=!!data.tasks[i]);
+}
+updateProgress();
+}
+
+function save(){
+try{
+localStorage.setItem("famCreatorRevenueHub",JSON.stringify(collect()));
+document.getElementById("status").textContent="Workspace saved on this device.";
+}catch(e){
+document.getElementById("status").textContent="Unable to save. Please export your brief.";
+}
+}
+
+function updateProgress(){
+const boxes=[...document.querySelectorAll("#tasks input")];
+const count=boxes.filter(x=>x.checked).length;
+document.getElementById("progress").style.width=(count/boxes.length*100)+"%";
+document.getElementById("progressText").textContent=count+" of "+boxes.length+" steps completed";
+}
+
+function exportBrief(){
+const data=collect();
+const text=Object.entries(data).map(([key,value])=>{
+return key+": "+(Array.isArray(value)?value.map(x=>x?"Complete":"Incomplete").join(", "):value);
+}).join("\n");
+const blob=new Blob([text],{type:"text/plain"});
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");
+a.href=url;
+a.download="Fam-Entertainment-Creator-Brief.txt";
+a.click();
+URL.revokeObjectURL(url);
+}
+
+function clearData(){
+if(confirm("Clear the saved workspace on this device?")){
+localStorage.removeItem("famCreatorRevenueHub");
+location.reload();
+}
+}
+
+document.querySelectorAll("#tasks input").forEach(x=>x.addEventListener("change",updateProgress));
+
+try{
+restore(JSON.parse(localStorage.getItem("famCreatorRevenueHub")||"null"));
+}catch(e){}
+
+updateProgress();
+</script>
+</body>
+</html>
