@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fam Entertainment | Company IP Registry</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0b16;color:#f5f3fa;font:16px/1.5 Arial,sans-serif}
+header{padding:18px;background:#151525;border-bottom:1px solid #45405b}
+a{color:#d7c3ff}
+main{max-width:1000px;margin:auto;padding:20px}
+section{background:#171727;border:1px solid #45405b;border-radius:14px;padding:20px;margin:18px 0}
+h1,h2{color:#d7c3ff}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+label{display:block;margin:12px 0;color:#c9c4d5;font-size:14px}
+input,select,textarea{display:block;width:100%;margin-top:5px;padding:12px;border-radius:8px;border:1px solid #555;background:#0e0e1b;color:white;font:inherit}
+button{padding:12px 17px;border:0;border-radius:20px;background:#d7c3ff;color:#171222;font-weight:bold;margin:5px;cursor:pointer}
+.secondary{background:transparent;border:1px solid #aaa;color:white}
+.card{background:#24243a;border-radius:10px;padding:14px;margin:10px 0;overflow-wrap:anywhere}
+.muted{color:#aaa;font-size:13px}
+.status{padding:12px;background:#24243a;border-radius:9px;overflow-wrap:anywhere}
+hr{border:0;border-top:1px solid #45405b;margin:22px 0}
+</style>
+</head>
+<body>
+<header>
+<a href="dashboard.html">← StarRise Dashboard</a>
+</header>
+<main>
+<section>
+<p class="muted">FAM ENTERTAINMENT LLC</p>
+<h1>Company Intellectual Property Registry</h1>
+<p>A central record of company brands, software, creative works, inventions, registrations and ownership documentation.</p>
+<div class="status" id="status">Company registry ready.</div>
+</section>
+
+<section>
+<h2>1. Register a Company Asset</h2>
+<div class="grid">
+<label>Owning Business / Brand
+<select id="business">
+<option>Fam Entertainment LLC</option>
+<option>StarRise</option>
+<option>OmniForge AI</option>
+<option>Other Fam Entertainment Project</option>
+</select></label>
+
+<label>Asset Name
+<input id="asset" placeholder="Name of asset"></label>
+
+<label>Protection Category
+<select id="category">
+<option>Copyright</option>
+<option>Trademark</option>
+<option>Patent / Invention</option>
+<option>Trade Secret</option>
+<option>Domain / Digital Identity</option>
+<option>Software / Source Code</option>
+<option>Contract / License</option>
+<option>Other</option>
+</select></label>
+
+<label>Asset Description
+<input id="description" placeholder="What does this asset contain?"></label>
+
+<label>Creator / Inventor / Contributor
+<input id="creator" placeholder="People who created or contributed"></label>
+
+<label>Ownership Status
+<select id="ownership">
+<option>Company-owned</option>
+<option>Founder-created, assignment needed</option>
+<option>Jointly owned</option>
+<option>Licensed to company</option>
+<option>Third-party owned</option>
+<option>Ownership needs legal review</option>
+</select></label>
+
+<label>Registration / Protection Status
+<select id="protection">
+<option>Not researched</option>
+<option>Research in progress</option>
+<option>Application being prepared</option>
+<option>Application submitted</option>
+<option>Pending</option>
+<option>Registered / Granted</option>
+<option>Not applicable</option>
+</select></label>
+
+<label>Registration / Application Number
+<input id="number" placeholder="If applicable"></label>
+
+<label>Filing / Registration Date
+<input id="filingDate" type="date"></label>
+
+<label>Renewal / Deadline Date
+<input id="deadline" type="date"></label>
+
+<label>Evidence / Agreement Reference
+<input id="evidence" placeholder="Secure document location or reference"></label>
+</div>
+
+<label>Ownership, licensing and legal notes
+<textarea id="notes" rows="4" placeholder="Assignments, licenses, contributor agreements, restrictions, ownership questions..."></textarea></label>
+
+<button onclick="addAsset()">Add Company Asset</button>
+<button class="secondary" onclick="clearForm()">Clear Form</button>
+</section>
+
+<section>
+<h2>2. Company Asset Inventory</h2>
+<p class="muted">Records saved in this browser on this device.</p>
+<div id="inventory"></div>
+<button onclick="exportRecords()">Export Registry</button>
+<button class="secondary" onclick="printRegistry()">Print Registry</button>
+</section>
+
+<section>
+<h2>3. Initial Protection Priorities</h2>
+<div class="card">
+<strong>Fam Entertainment LLC</strong>
+<p>Company identity, logo, original business materials, contracts, operating systems and original content.</p>
+</div>
+<div class="card">
+<strong>StarRise</strong>
+<p>Brand name, logo, original software, source code, original designs, platform documentation and original media.</p>
+</div>
+<div class="card">
+<strong>OmniForge AI</strong>
+<p>Brand name, logo, original software, user interfaces, original code, documentation and product materials.</p>
+</div>
+<p class="muted">These are planning categories, not verified registrations or conclusions about legal ownership.</p>
+</section>
+
+<section>
+<h2>4. Official Filing Resources</h2>
+<ul>
+<li><a href="https://copyright.gov/registration/" target="_blank" rel="noopener">U.S. Copyright Office</a></li>
+<li><a href="https://www.uspto.gov/trademarks" target="_blank" rel="noopener">USPTO Trademark Center</a></li>
+<li><a href="https://www.uspto.gov/patents" target="_blank" rel="noopener">USPTO Patents</a></li>
+<li><a href="https://www.uspto.gov/trademarks/search" target="_blank" rel="noopener">Search Existing Trademarks</a></li>
+</ul>
+</section>
+
+<section>
+<h2>5. Ownership Rules</h2>
+<ul>
+<li>Record the actual creator, inventor and legal owner separately.</li>
+<li>Do not assume that paying for work automatically transfers all intellectual property rights.</li>
+<li>Use written assignments or licenses where appropriate.</li>
+<li>Keep creator-owned work separate from company-owned assets.</li>
+<li>Restrict access to confidential inventions and trade secrets.</li>
+<li>Have qualified counsel review important ownership and filing decisions.</li>
+</ul>
+<p class="muted">This registry is an administrative record. It does not file applications, create legal ownership, or replace legal advice. Avoid entering passwords, private keys, sensitive invention details or confidential trade secrets into an unprotected browser record.</p>
+</section>
+</main>
+
+<script>
+"use strict";
+const KEY="famCompanyIPRegistry_v1";
+let records=[];
+
+function loadRecords(){
+ try{
+  records=JSON.parse(localStorage.getItem(KEY)||"[]");
+  if(!Array.isArray(records))records=[];
+ }catch(e){records=[];}
+ render();
+}
+
+function value(id){
+ return document.getElementById(id).value.trim();
+}
+
+function addAsset(){
+ const asset=value("asset");
+ if(!asset){
+  alert("Enter an asset name first.");
+  return;
+ }
+
+ const record={
+  id:Date.now().toString(),
+  business:value("business"),
+  asset,
+  category:value("category"),
+  description:value("description"),
+  creator:value("creator"),
+  ownership:value("ownership"),
+  protection:value("protection"),
+  number:value("number"),
+  filingDate:value("filingDate"),
+  deadline:value("deadline"),
+  evidence:value("evidence"),
+  notes:value("notes"),
+  created:new Date().toISOString()
+ };
+
+ records.push(record);
+ save();
+ clearForm();
+ document.getElementById("status").textContent="Company asset added to this device's registry.";
+}
+
+function save(){
+ localStorage.setItem(KEY,JSON.stringify(records));
+ render();
+}
+
+function safe(text){
+ return String(text||"").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ })[c]);
+}
+
+function render(){
+ const area=document.getElementById("inventory");
+ area.innerHTML="";
+
+ if(!records.length){
+  area.textContent="No company assets have been entered yet.";
+  return;
+ }
+
+ records.slice().reverse().forEach(record=>{
+  const card=document.createElement("div");
+  card.className="card";
+
+  const heading=document.createElement("h3");
+  heading.textContent=record.asset;
+
+  const details=document.createElement("p");
+  details.innerHTML=
+   "<strong>Business:</strong> "+safe(record.business)+"<br>"+
+   "<strong>Category:</strong> "+safe(record.category)+"<br>"+
+   "<strong>Ownership:</strong> "+safe(record.ownership)+"<br>"+
+   "<strong>Status:</strong> "+safe(record.protection)+"<br>"+
+   "<strong>Creator:</strong> "+safe(record.creator||"Not specified")+"<br>"+
+   "<strong>Number:</strong> "+safe(record.number||"Not provided")+"<br>"+
+   "<strong>Deadline:</strong> "+safe(record.deadline||"Not entered")+"<br>"+
+   "<strong>Evidence:</strong> "+safe(record.evidence||"Not entered")+"<br>"+
+   "<strong>Notes:</strong> "+safe(record.notes||"None");
+
+  const remove=document.createElement("button");
+  remove.className="secondary";
+  remove.textContent="Delete Record";
+  remove.onclick=()=>{
+   if(confirm("Delete this asset record?")){
+    records=records.filter(item=>item.id!==record.id);
+    save();
+   }
+  };
+
+  card.append(heading,details,remove);
+  area.appendChild(card);
+ });
+}
+
+function clearForm(){
+ [
+ "asset","description","creator","number",
+ "filingDate","deadline","evidence","notes"
+ ].forEach(id=>document.getElementById(id).value="");
+}
+
+function exportRecords(){
+ const blob=new Blob(
+  [JSON.stringify(records,null,2)],
+  {type:"application/json"}
+ );
+ const url=URL.createObjectURL(blob);
+ const link=document.createElement("a");
+ link.href=url;
+ link.download="Fam-Entertainment-IP-Registry.json";
+ link.click();
+ URL.revokeObjectURL(url);
+}
+
+function printRegistry(){
+ window.print();
+}
+
+loadRecords();
+</script>
+</body>
+</html>
