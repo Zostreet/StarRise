@@ -4,46 +4,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fam Creator Revenue Hub | StarRise</title>
+<title>Fam Creator Revenue & IP Hub | StarRise</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#090914;color:#f7f7fb;font:16px/1.55 Arial,sans-serif}
 header{padding:18px;background:#111121;border-bottom:1px solid #39334d}
-header a{color:#d8c8ff;text-decoration:none}
-main{max-width:1000px;margin:25px auto;padding:0 15px}
-section{background:#151525;border:1px solid #39334d;border-radius:16px;padding:20px;margin:17px 0}
+header a,a{color:#d8c8ff}
+header a{text-decoration:none}
+main{max-width:1050px;margin:24px auto;padding:0 15px}
+section{background:#151525;border:1px solid #39334d;border-radius:16px;padding:20px;margin:18px 0}
 h1,h2{color:#d8c8ff}
+h3{color:#eee5ff}
 .muted{color:#aaa}
+.small{font-size:13px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px}
 .tile{background:#202035;padding:15px;border-radius:12px}
-label.field{display:block;margin:12px 0}
+.field{display:block;margin:12px 0}
 .field span{display:block;color:#bbb;font-size:13px;margin-bottom:5px}
 input,select,textarea{width:100%;padding:12px;border-radius:9px;border:1px solid #555;background:#10101e;color:white;font:inherit}
+textarea{resize:vertical}
 button{padding:12px 18px;border:0;border-radius:22px;background:#d8c8ff;color:#111;font-weight:bold;margin:5px;cursor:pointer}
 .secondary{background:transparent;border:1px solid #aaa;color:white}
-a{color:#d8c8ff}
-.check{display:flex;gap:10px;margin:12px 0}
-.check input{width:auto}
+.status{padding:13px;background:#202035;border-radius:9px;overflow-wrap:anywhere}
 .bar{height:9px;background:#333;border-radius:9px;overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:#b99cff}
-.status{padding:12px;background:#202035;border-radius:9px;overflow-wrap:anywhere}
-.small{font-size:13px}
+.check{display:flex;gap:10px;margin:12px 0;align-items:flex-start}
+.check input{width:auto;margin-top:5px}
+hr{border:0;border-top:1px solid #39334d;margin:24px 0}
 button:disabled{opacity:.5;cursor:not-allowed}
+.notice{border-left:3px solid #b99cff;padding:12px;background:#202035}
 </style>
 </head>
 <body>
+
 <header>
 <a href="dashboard.html">← Back to StarRise Dashboard</a>
 </header>
 
 <main>
+
 <section>
 <p class="muted">FAM ENTERTAINMENT GLOBAL REACH</p>
 <h1>Creator Revenue Hub</h1>
-<p>Promote your work. Build your audience. Activate every eligible revenue opportunity. Manage your creator business in one place.</p>
-<div class="status" id="status" role="status" aria-live="polite">
-Connecting to your StarRise creator workspace...
-</div>
+<p>Promote your work, build your audience, protect your intellectual property, and develop multiple revenue opportunities.</p>
+<div class="status" id="status">Your creator workspace is ready.</div>
 </section>
 
 <section>
@@ -56,6 +60,8 @@ Connecting to your StarRise creator workspace...
 <option>Video Creator</option>
 <option>Podcaster</option>
 <option>Visual Artist</option>
+<option>Writer</option>
+<option>Inventor</option>
 <option>Multi-Platform Creator</option>
 <option>Other</option>
 </select></label>
@@ -66,6 +72,7 @@ Connecting to your StarRise creator workspace...
 <option>Sell Products</option>
 <option>Find Sponsors</option>
 <option>Promote Music</option>
+<option>Protect My Work</option>
 <option>Build Multiple Income Streams</option>
 </select></label>
 <label class="field"><span>Main Content Link</span><input id="link" type="url" placeholder="https://"></label>
@@ -73,18 +80,18 @@ Connecting to your StarRise creator workspace...
 </section>
 
 <section>
-<h2>2. Platform Readiness</h2>
-<p class="muted">Track your current accounts and monetization progress. These statuses are self-reported and do not verify platform approval.</p>
+<h2>2. Global Platform Promotion</h2>
+<p class="muted">Track your accounts and monetization progress across major platforms.</p>
 <div class="grid" id="platforms"></div>
 </section>
 
 <section>
-<h2>3. Revenue Setup Checklist</h2>
+<h2>3. Revenue Readiness Checklist</h2>
 <div id="tasks">
 <label class="check"><input type="checkbox"> I own or have permission to monetize my content.</label>
 <label class="check"><input type="checkbox"> My music distributor or rights-holder arrangements are established where needed.</label>
 <label class="check"><input type="checkbox"> My songwriting and publishing information is documented where applicable.</label>
-<label class="check"><input type="checkbox"> My provider payout and tax information is completed.</label>
+<label class="check"><input type="checkbox"> My payout and tax information is completed directly with the appropriate provider.</label>
 <label class="check"><input type="checkbox"> I have reviewed each platform's monetization requirements.</label>
 <label class="check"><input type="checkbox"> My products or services have prices and clear terms.</label>
 <label class="check"><input type="checkbox"> I have a creator bio and contact information for sponsorships.</label>
@@ -105,15 +112,126 @@ Connecting to your StarRise creator workspace...
 <option>Monetization Readiness</option>
 <option>Sponsorship Opportunities</option>
 </select></label>
-<label class="field"><span>Campaign Start</span><input id="date" type="date"></label>
+<label class="field"><span>Campaign Start Date</span><input id="date" type="date"></label>
 <label class="field"><span>Proposed Advertising Budget</span><input id="budget" type="number" min="0" step=".01" placeholder="0.00"></label>
 </div>
 <label class="field"><span>Campaign Details</span><textarea id="notes" rows="4" placeholder="Audience, release dates, links and campaign ideas"></textarea></label>
-<p class="muted small">Entering an advertising budget does not authorize spending. Creator approval is required before paid promotion begins. Advertising costs are separate from Fam Entertainment service fees.</p>
+<p class="muted small">Entering a budget does not authorize spending. Paid advertising requires separate creator approval. Advertising costs are separate from Fam Entertainment service fees.</p>
 </section>
 
 <section>
-<h2>5. Official Platform Resources</h2>
+<h2>5. Intellectual Property Protection Center</h2>
+<p>Keep organized records of original creative works, inventions, brands, ownership, and registration progress.</p>
+
+<h3>Copyright Records</h3>
+<div class="grid">
+<label class="field"><span>Work Title</span><input id="ipCopyrightTitle" placeholder="Song, album, video, artwork..."></label>
+<label class="field"><span>Work Type</span>
+<select id="ipCopyrightType">
+<option>Musical Composition</option>
+<option>Sound Recording</option>
+<option>Lyrics / Written Work</option>
+<option>Video / Film</option>
+<option>Photography</option>
+<option>Artwork / Design</option>
+<option>Software / Code</option>
+<option>Other Creative Work</option>
+</select></label>
+<label class="field"><span>Creator(s) / Contributor(s)</span><input id="ipCopyrightCreators" placeholder="Writers, producers, artists..."></label>
+<label class="field"><span>Ownership / Rights Status</span>
+<select id="ipCopyrightOwnership">
+<option>Owned by me</option>
+<option>Joint ownership</option>
+<option>Work made for hire</option>
+<option>Licensed to me</option>
+<option>Ownership needs clarification</option>
+</select></label>
+<label class="field"><span>Copyright Registration Status</span>
+<select id="ipCopyrightStatus">
+<option>Not registered</option>
+<option>Preparing application</option>
+<option>Application submitted</option>
+<option>Pending / Under review</option>
+<option>Registered</option>
+</select></label>
+<label class="field"><span>Registration Number</span><input id="ipCopyrightNumber" placeholder="If registered"></label>
+<label class="field"><span>Creation Date</span><input id="ipCopyrightDate" type="date"></label>
+<label class="field"><span>Registration Date</span><input id="ipCopyrightRegistrationDate" type="date"></label>
+</div>
+<p><a href="https://copyright.gov/registration/" target="_blank" rel="noopener">U.S. Copyright Office: Register a Work</a></p>
+
+<hr>
+
+<h3>Patent / Invention Records</h3>
+<div class="grid">
+<label class="field"><span>Invention Title</span><input id="ipPatentTitle" placeholder="Name of invention"></label>
+<label class="field"><span>Invention Category</span>
+<select id="ipPatentType">
+<option>Utility Invention</option>
+<option>Design Invention</option>
+<option>Plant Invention</option>
+<option>Not Sure Yet</option>
+</select></label>
+<label class="field"><span>Inventor(s)</span><input id="ipPatentInventors" placeholder="All contributing inventors"></label>
+<label class="field"><span>Patent Filing Status</span>
+<select id="ipPatentStatus">
+<option>Idea documented only</option>
+<option>Researching patentability</option>
+<option>Preparing application</option>
+<option>Provisional application filed</option>
+<option>Nonprovisional application filed</option>
+<option>Patent pending</option>
+<option>Patent granted</option>
+<option>Not applicable</option>
+</select></label>
+<label class="field"><span>Application / Patent Number</span><input id="ipPatentNumber" placeholder="If filed"></label>
+<label class="field"><span>Filing Date</span><input id="ipPatentDate" type="date"></label>
+<label class="field"><span>Public Disclosure Date</span><input id="ipPatentDisclosureDate" type="date"></label>
+</div>
+<p><a href="https://www.uspto.gov/patents/basics/apply" target="_blank" rel="noopener">USPTO: Patent Application Guidance</a></p>
+
+<hr>
+
+<h3>Trademark / Brand Protection</h3>
+<div class="grid">
+<label class="field"><span>Brand, Artist or Product Name</span><input id="ipTrademarkName" placeholder="Brand or artist name"></label>
+<label class="field"><span>Trademark Status</span>
+<select id="ipTrademarkStatus">
+<option>Not researched</option>
+<option>Search in progress</option>
+<option>Preparing application</option>
+<option>Application filed</option>
+<option>Registered</option>
+<option>Needs legal review</option>
+</select></label>
+<label class="field"><span>Trademark Application / Registration Number</span><input id="ipTrademarkNumber" placeholder="If filed"></label>
+</div>
+<p><a href="https://www.uspto.gov/trademarks/basics" target="_blank" rel="noopener">USPTO: Trademark Resources</a></p>
+
+<hr>
+
+<h3>Ownership, Agreements and Evidence</h3>
+<div class="grid">
+<label class="field"><span>Agreement Status</span>
+<select id="ipAgreementStatus">
+<option>Not reviewed</option>
+<option>Written agreements available</option>
+<option>Agreements needed</option>
+<option>Legal review needed</option>
+</select></label>
+<label class="field"><span>Evidence Location / Reference</span><input id="ipEvidence" placeholder="Secure file location or reference"></label>
+</div>
+<label class="field"><span>Ownership and Protection Notes</span>
+<textarea id="ipNotes" rows="5" placeholder="Document split agreements, producer agreements, licenses, assignments, permissions, collaborators, and unresolved ownership questions."></textarea>
+</label>
+
+<div class="notice small">
+<strong>Important:</strong> Copyright generally begins when qualifying original work is fixed in a tangible form. Registration is a separate process. Patents protect qualifying inventions, not ordinary creative works. A provisional patent application is not an issued patent and generally requires a follow-on nonprovisional application within 12 months. Public disclosure can affect patent rights. Trademarks protect qualifying brand identifiers. These records do not themselves constitute legal registration or legal advice.
+</div>
+</section>
+
+<section>
+<h2>6. Official Platform Resources</h2>
 <div class="grid">
 <div class="tile"><h3>YouTube</h3><a href="https://www.youtube.com/creators/partner-program/" target="_blank" rel="noopener">Partner Program</a></div>
 <div class="tile"><h3>Spotify</h3><a href="https://artists.spotify.com/" target="_blank" rel="noopener">Spotify for Artists</a></div>
@@ -125,63 +243,56 @@ Connecting to your StarRise creator workspace...
 </section>
 
 <section>
-<h2>6. Save Your Creator Workspace</h2>
-<p class="muted">Your signed-in StarRise account can save this workspace privately in the StarRise database.</p>
-<button type="button" id="cloudSave" onclick="saveCloud()">Save to StarRise</button>
-<button type="button" class="secondary" onclick="loadCloud()">Load Cloud Workspace</button>
-<button type="button" class="secondary" onclick="saveLocal()">Save on This Device</button>
-<button type="button" class="secondary" onclick="exportBrief()">Export Creator Brief</button>
-<button type="button" class="secondary" onclick="clearLocal()">Clear Device Copy</button>
-<p class="muted small">Cloud saving requires an active StarRise sign-in. Your workspace is restricted to your account. Never enter platform passwords, verification codes, banking details or tax identification numbers here.</p>
-<p class="muted small">Platform monetization depends on eligibility, rights, approval and provider rules. No guaranteed streams, views, placements or earnings.</p>
+<h2>7. Save Your Creator Workspace</h2>
+<p class="muted">Save your profile, campaign, platform statuses, readiness checklist, and intellectual property records together.</p>
+<button type="button" onclick="saveWorkspace()">Save on This Device</button>
+<button type="button" class="secondary" onclick="loadWorkspace()">Load Saved Workspace</button>
+<button type="button" class="secondary" onclick="exportBrief()">Export Complete Creator Record</button>
+<button type="button" class="secondary" onclick="clearWorkspace()">Clear Saved Device Copy</button>
+<p class="muted small">This version saves in this browser on this device. It does not yet synchronize between devices or connect platform accounts. Never enter passwords, verification codes, banking details, or tax identification numbers here.</p>
 </section>
+
+<section>
+<h2>8. Fam Entertainment Creator Rights Principles</h2>
+<ul>
+<li>Creators retain ownership of their original work unless a separate, clearly disclosed agreement states otherwise.</li>
+<li>Fam Entertainment does not receive ownership simply because a creator uses StarRise.</li>
+<li>Collaborators should document songwriting, production, recording, artwork, and other contributions.</li>
+<li>Any licensing, distribution, promotion, or revenue-sharing arrangement must have clear terms and creator authorization.</li>
+<li>Creators must have a way to review their agreements and ownership records.</li>
+<li>No guaranteed streams, followers, placements, sales, or earnings.</li>
+</ul>
+</section>
+
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 "use strict";
 
-const SUPABASE_URL = "https://rcnikxotdalxtuvpmlvm.supabase.co";
-const SUPABASE_KEY = "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN";
-
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
-const APP_MARKER = "fam_creator_revenue_hub";
-const LOCAL_KEY = "famCreatorRevenueHub";
-let currentUser = null;
-let cloudRecordId = null;
+const STORAGE_KEY = "famCreatorRevenueHub_v2";
 
 const platformNames = [
-  "YouTube",
-  "Spotify",
-  "Apple Music",
-  "Pandora",
-  "TikTok",
-  "Instagram",
-  "Facebook",
-  "SoundCloud"
+"YouTube","Spotify","Apple Music","Pandora",
+"TikTok","Instagram","Facebook","SoundCloud"
 ];
 
 const platformBox = document.getElementById("platforms");
 
-platformNames.forEach((name, i) => {
-  const card = document.createElement("div");
-  card.className = "tile";
+platformNames.forEach((name,index)=>{
+  const card=document.createElement("div");
+  card.className="tile";
 
-  const title = document.createElement("h3");
-  title.textContent = name;
+  const heading=document.createElement("h3");
+  heading.textContent=name;
 
-  const label = document.createElement("label");
-  label.className = "field";
+  const label=document.createElement("label");
+  label.className="field";
 
-  const span = document.createElement("span");
-  span.textContent = "Current Status";
+  const span=document.createElement("span");
+  span.textContent="Current Status";
 
-  const select = document.createElement("select");
-  select.id = "platform" + i;
+  const select=document.createElement("select");
+  select.id="platform"+index;
 
   [
     "Not Started",
@@ -190,269 +301,183 @@ platformNames.forEach((name, i) => {
     "Monetization Eligible",
     "Monetization Active",
     "Needs Review"
-  ].forEach(value => {
-    const option = document.createElement("option");
-    option.value = value;
-    option.textContent = value;
+  ].forEach(value=>{
+    const option=document.createElement("option");
+    option.value=value;
+    option.textContent=value;
     select.appendChild(option);
   });
 
-  label.append(span, select);
-  card.append(title, label);
+  label.append(span,select);
+  card.append(heading,label);
   platformBox.appendChild(card);
 });
 
-const fieldIds = [
-  "name",
-  "type",
-  "goal",
-  "link",
-  "campaign",
-  "objective",
-  "date",
-  "budget",
-  "notes"
+const fieldIds=[
+"name","type","goal","link",
+"campaign","objective","date","budget","notes",
+"ipCopyrightTitle","ipCopyrightType","ipCopyrightCreators",
+"ipCopyrightOwnership","ipCopyrightStatus","ipCopyrightNumber",
+"ipCopyrightDate","ipCopyrightRegistrationDate",
+"ipPatentTitle","ipPatentType","ipPatentInventors",
+"ipPatentStatus","ipPatentNumber","ipPatentDate",
+"ipPatentDisclosureDate",
+"ipTrademarkName","ipTrademarkStatus","ipTrademarkNumber",
+"ipAgreementStatus","ipEvidence","ipNotes"
 ];
 
-function setStatus(message) {
-  document.getElementById("status").textContent = message;
+function setStatus(message){
+  document.getElementById("status").textContent=message;
 }
 
-function collect() {
-  const data = {};
+function collectWorkspace(){
+  const data={version:2,fields:{},platforms:{},tasks:[]};
 
-  fieldIds.forEach(id => {
-    data[id] = document.getElementById(id).value;
+  fieldIds.forEach(id=>{
+    data.fields[id]=document.getElementById(id).value;
   });
 
-  platformNames.forEach((name, i) => {
-    data["platform" + i] =
-      document.getElementById("platform" + i).value;
+  platformNames.forEach((name,index)=>{
+    data.platforms[name]=document.getElementById("platform"+index).value;
   });
 
-  data.tasks = [
-    ...document.querySelectorAll("#tasks input")
-  ].map(input => input.checked);
+  data.tasks=[...document.querySelectorAll("#tasks input")]
+    .map(input=>input.checked);
+
+  data.savedAt=new Date().toISOString();
 
   return data;
 }
 
-function restore(data) {
-  if (!data || typeof data !== "object") return;
+function restoreWorkspace(data){
+  if(!data||typeof data!=="object")return;
 
-  fieldIds.forEach(id => {
-    if (data[id] !== undefined) {
-      document.getElementById(id).value = data[id];
+  const fields=data.fields||{};
+
+  fieldIds.forEach(id=>{
+    const element=document.getElementById(id);
+    if(element&&fields[id]!==undefined){
+      element.value=fields[id];
     }
   });
 
-  platformNames.forEach((name, i) => {
-    if (data["platform" + i]) {
-      document.getElementById("platform" + i).value =
-        data["platform" + i];
+  const platforms=data.platforms||{};
+
+  platformNames.forEach((name,index)=>{
+    const element=document.getElementById("platform"+index);
+    if(element&&platforms[name]){
+      element.value=platforms[name];
     }
   });
 
-  if (Array.isArray(data.tasks)) {
-    document.querySelectorAll("#tasks input").forEach((input, i) => {
-      input.checked = !!data.tasks[i];
+  if(Array.isArray(data.tasks)){
+    document.querySelectorAll("#tasks input").forEach((input,index)=>{
+      input.checked=!!data.tasks[index];
     });
   }
 
   updateProgress();
 }
 
-function updateProgress() {
-  const boxes = [
-    ...document.querySelectorAll("#tasks input")
-  ];
-
-  const count = boxes.filter(input => input.checked).length;
-
-  document.getElementById("progress").style.width =
-    (count / boxes.length * 100) + "%";
-
-  document.getElementById("progressText").textContent =
-    count + " of " + boxes.length + " steps completed";
-}
-
-async function getSignedInUser() {
-  const { data, error } = await supabaseClient.auth.getUser();
-
-  if (error) throw error;
-
-  if (!data || !data.user) {
-    throw new Error("Please sign in to StarRise before saving to your cloud workspace.");
-  }
-
-  currentUser = data.user;
-  return currentUser;
-}
-
-async function findCloudRecord(userId) {
-  const { data, error } = await supabaseClient
-    .from("music_release_drafts")
-    .select("id, document, updated_at")
-    .eq("owner_id", userId)
-    .contains("document", { app: APP_MARKER })
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (error) throw error;
-
-  return data;
-}
-
-async function saveCloud() {
-  const button = document.getElementById("cloudSave");
-  button.disabled = true;
-
-  try {
-    setStatus("Checking your StarRise sign-in...");
-
-    const user = await getSignedInUser();
-    const existing = await findCloudRecord(user.id);
-
-    const documentData = {
-      app: APP_MARKER,
-      version: 1,
-      workspace: collect(),
-      saved_at: new Date().toISOString()
-    };
-
-    if (existing) {
-      const { error } = await supabaseClient
-        .from("music_release_drafts")
-        .update({
-          document: documentData,
-          state: "draft",
-          updated_at: new Date().toISOString()
-        })
-        .eq("id", existing.id)
-        .eq("owner_id", user.id);
-
-      if (error) throw error;
-
-      cloudRecordId = existing.id;
-    } else {
-      const { data, error } = await supabaseClient
-        .from("music_release_drafts")
-        .insert({
-          owner_id: user.id,
-          document: documentData,
-          state: "draft"
-        })
-        .select("id")
-        .single();
-
-      if (error) throw error;
-
-      cloudRecordId = data.id;
-    }
-
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(collect()));
-
-    setStatus("Saved securely to your StarRise account. Your creator workspace is available when you sign in again.");
-  } catch (error) {
-    console.error("Creator workspace save error:", error);
-    setStatus("Cloud save was not completed: " + error.message);
-  } finally {
-    button.disabled = false;
+function saveWorkspace(){
+  try{
+    const data=collectWorkspace();
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+    setStatus("Your creator workspace and intellectual property records have been saved on this device.");
+  }catch(error){
+    setStatus("Save failed: "+error.message);
   }
 }
 
-async function loadCloud() {
-  try {
-    setStatus("Loading your StarRise creator workspace...");
+function loadWorkspace(){
+  try{
+    const saved=localStorage.getItem(STORAGE_KEY);
 
-    const user = await getSignedInUser();
-    const record = await findCloudRecord(user.id);
-
-    if (!record || !record.document || !record.document.workspace) {
-      cloudRecordId = null;
-      setStatus("No cloud workspace found yet. Complete your profile and save it to StarRise.");
+    if(!saved){
+      setStatus("No saved workspace was found on this device.");
       return;
     }
 
-    cloudRecordId = record.id;
-    restore(record.document.workspace);
-
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(record.document.workspace));
-
-    setStatus("Your StarRise cloud workspace has been loaded.");
-  } catch (error) {
-    console.error("Creator workspace load error:", error);
-    setStatus("Cloud loading was not completed: " + error.message);
+    restoreWorkspace(JSON.parse(saved));
+    setStatus("Your saved creator workspace has been loaded.");
+  }catch(error){
+    setStatus("Load failed: "+error.message);
   }
 }
 
-function saveLocal() {
-  try {
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(collect()));
-    setStatus("A copy of your workspace has been saved on this device only.");
-  } catch (error) {
-    setStatus("Device save failed: " + error.message);
+function exportBrief(){
+  try{
+    const data=collectWorkspace();
+    const lines=[
+      "FAM ENTERTAINMENT CREATOR REVENUE & IP RECORD",
+      "Generated: "+new Date().toLocaleString(),
+      "",
+      "CREATOR PROFILE"
+    ];
+
+    Object.entries(data.fields).forEach(([key,value])=>{
+      lines.push(key+": "+(value||"Not provided"));
+    });
+
+    lines.push("","PLATFORM STATUSES");
+
+    Object.entries(data.platforms).forEach(([key,value])=>{
+      lines.push(key+": "+value);
+    });
+
+    lines.push("","REVENUE READINESS CHECKLIST");
+
+    data.tasks.forEach((complete,index)=>{
+      lines.push("Step "+(index+1)+": "+(complete?"Complete":"Incomplete"));
+    });
+
+    lines.push("","This is a record of creator-provided information, not proof of legal registration or ownership.");
+
+    const blob=new Blob([lines.join("\n")],{type:"text/plain"});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement("a");
+
+    link.href=url;
+    link.download="Fam-Entertainment-Creator-and-IP-Record.txt";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    setStatus("Your complete creator record has been exported.");
+  }catch(error){
+    setStatus("Export failed: "+error.message);
   }
 }
 
-function exportBrief() {
-  const data = collect();
-
-  const brief = Object.entries(data).map(([key, value]) => {
-    return key + ": " +
-      (Array.isArray(value)
-        ? value.map(x => x ? "Complete" : "Incomplete").join(", ")
-        : value);
-  }).join("\n");
-
-  const blob = new Blob([brief], { type: "text/plain" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = "Fam-Entertainment-Creator-Brief.txt";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-function clearLocal() {
-  if (!confirm("Clear the saved workspace copy on this device? This does not delete your StarRise cloud workspace.")) {
+function clearWorkspace(){
+  if(!confirm("Delete the saved workspace from this device? This cannot be undone.")){
     return;
   }
 
-  localStorage.removeItem(LOCAL_KEY);
-  setStatus("The device copy was cleared. Your StarRise cloud workspace was not deleted.");
+  localStorage.removeItem(STORAGE_KEY);
+  setStatus("The saved device copy has been cleared. The form fields currently on screen have not been changed.");
 }
 
-document.querySelectorAll("#tasks input").forEach(input => {
-  input.addEventListener("change", updateProgress);
+function updateProgress(){
+  const inputs=[...document.querySelectorAll("#tasks input")];
+  const completed=inputs.filter(input=>input.checked).length;
+
+  document.getElementById("progress").style.width=
+    (completed/inputs.length*100)+"%";
+
+  document.getElementById("progressText").textContent=
+    completed+" of "+inputs.length+" steps completed";
+}
+
+document.querySelectorAll("#tasks input").forEach(input=>{
+  input.addEventListener("change",updateProgress);
 });
 
-try {
-  const localCopy = JSON.parse(
-    localStorage.getItem(LOCAL_KEY) || "null"
-  );
-
-  if (localCopy) restore(localCopy);
-} catch (error) {
-  console.warn("Could not read local creator workspace:", error);
-}
-
+loadWorkspace();
 updateProgress();
-
-(async function initializeWorkspace() {
-  try {
-    await getSignedInUser();
-    await loadCloud();
-  } catch (error) {
-    setStatus("Sign in through StarRise to use cloud saving. You can still save a device copy or export your brief.");
-  }
-})();
-
 </script>
+
 </body>
 </html>
