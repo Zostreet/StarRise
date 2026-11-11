@@ -246,10 +246,12 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <h2>7. Save Your Creator Workspace</h2>
 <p class="muted">Save your profile, campaign, platform statuses, readiness checklist, and intellectual property records together.</p>
 <button type="button" onclick="saveWorkspace()">Save on This Device</button>
-<button type="button" class="secondary" onclick="loadWorkspace()">Load Saved Workspace</button>
+<button type="button" onclick="saveCloudWorkspace(event)">Save to My StarRise Account</button>
+<button type="button" class="secondary" onclick="loadCloudWorkspace(event)">Load from My StarRise Account</button>
+<button type="button" class="secondary" onclick="loadWorkspace()">Load Saved Device Copy</button>
 <button type="button" class="secondary" onclick="exportBrief()">Export Complete Creator Record</button>
 <button type="button" class="secondary" onclick="clearWorkspace()">Clear Saved Device Copy</button>
-<p class="muted small">This version saves in this browser on this device. It does not yet synchronize between devices or connect platform accounts. Never enter passwords, verification codes, banking details, or tax identification numbers here.</p>
+<p class="muted small">Cloud sync stores this private workspace in your signed-in StarRise account. Only your account can read or change it. Device backup and export remain available. This does not connect platform accounts or process payments. Never enter passwords, verification codes, banking details, or tax identification numbers here.</p>
 </section>
 
 <section>
@@ -266,8 +268,14 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 "use strict";
+
+const cloudClient = window.supabase.createClient(
+  "https://rcnikxotdalxtuvpmlvm.supabase.co",
+  "sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN"
+);
 
 const STORAGE_KEY = "famCreatorRevenueHub_v2";
 
@@ -386,6 +394,64 @@ function saveWorkspace(){
     setStatus("Your creator workspace and intellectual property records have been saved on this device.");
   }catch(error){
     setStatus("Save failed: "+error.message);
+  }
+}
+
+async function saveCloudWorkspace(buttonEvent){
+  const button=buttonEvent?.currentTarget;
+  if(button){button.disabled=true;button.textContent="Saving securely...";}
+  try{
+    const {data:{user},error:authError}=await cloudClient.auth.getUser();
+    if(authError)throw authError;
+    if(!user){
+      setStatus("Please sign in to StarRise before saving to your cloud account.");
+      return;
+    }
+    const workspace=collectWorkspace();
+    const {error}=await cloudClient
+      .from("creator_revenue_workspaces")
+      .upsert({
+        user_id:user.id,
+        workspace_data:workspace,
+        updated_at:new Date().toISOString()
+      },{onConflict:"user_id"});
+    if(error)throw error;
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(workspace));
+    setStatus("Saved to your private StarRise account and backed up on this device.");
+  }catch(error){
+    setStatus("Cloud save failed: "+(error.message||"Please sign in and try again."));
+  }finally{
+    if(button){button.disabled=false;button.textContent="Save to My StarRise Account";}
+  }
+}
+
+async function loadCloudWorkspace(buttonEvent){
+  const button=buttonEvent?.currentTarget;
+  if(button){button.disabled=true;button.textContent="Loading securely...";}
+  try{
+    const {data:{user},error:authError}=await cloudClient.auth.getUser();
+    if(authError)throw authError;
+    if(!user){
+      setStatus("Please sign in to StarRise before loading your cloud account.");
+      return;
+    }
+    const {data,error}=await cloudClient
+      .from("creator_revenue_workspaces")
+      .select("workspace_data,updated_at")
+      .eq("user_id",user.id)
+      .maybeSingle();
+    if(error)throw error;
+    if(!data){
+      setStatus("No cloud workspace exists yet. Save this workspace to your StarRise account first.");
+      return;
+    }
+    restoreWorkspace(data.workspace_data);
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data.workspace_data));
+    setStatus("Cloud workspace loaded. Last saved: "+new Date(data.updated_at).toLocaleString()+".");
+  }catch(error){
+    setStatus("Cloud load failed: "+(error.message||"Please sign in and try again."));
+  }finally{
+    if(button){button.disabled=false;button.textContent="Load from My StarRise Account";}
   }
 }
 
