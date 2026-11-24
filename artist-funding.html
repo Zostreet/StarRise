@@ -1,0 +1,1122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Artist Funding | StarRise</title>
+
+  <meta
+    name="description"
+    content="StarRise artist funding: estimate an advance against future streaming income, keep your masters, and apply in minutes. Estimates are not offers and no funding is guaranteed."
+  >
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #080812;
+      color: #fff;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #ffffff18;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    nav a {
+      color: #aaa;
+      font-weight: normal;
+    }
+
+    nav a:hover {
+      color: #fff;
+    }
+
+    nav a.current {
+      color: #fff;
+      font-weight: bold;
+    }
+
+    main {
+      width: min(1100px, calc(100% - 30px));
+      margin: 45px auto 70px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .hero h1 {
+      font-size: clamp(40px, 8vw, 68px);
+      margin: 0 0 12px;
+    }
+
+    .hero p {
+      max-width: 720px;
+      margin: auto;
+      color: #aaa;
+      font-size: 18px;
+    }
+
+    .motto {
+      color: #d8c8ff;
+      font-weight: bold;
+    }
+
+    .disclaimer {
+      border: 1px solid #e8a91566;
+      background: rgba(232, 169, 21, .08);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin: 24px 0;
+      line-height: 1.6;
+    }
+
+    .disclaimer strong {
+      color: #ffcd64;
+    }
+
+    section.card {
+      border: 1px solid #ffffff18;
+      border-radius: 20px;
+      background: #ffffff08;
+      padding: 28px;
+      margin: 28px 0;
+    }
+
+    section.card h2 {
+      margin-top: 0;
+      font-size: 28px;
+    }
+
+    section.card h3 {
+      margin-bottom: 6px;
+    }
+
+    .muted {
+      color: #aaa;
+    }
+
+    .small {
+      font-size: 13px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .step {
+      border: 1px solid #ffffff18;
+      border-radius: 14px;
+      background: #080812;
+      padding: 18px;
+    }
+
+    .step-number {
+      font-size: 26px;
+      font-weight: bold;
+      color: #d8c8ff;
+    }
+
+    .field {
+      display: block;
+      margin: 14px 0;
+    }
+
+    .field span {
+      display: block;
+      color: #bbb;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ffffff25;
+      background: #080812;
+      color: #fff;
+      font-size: 16px;
+      font-family: inherit;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+    }
+
+    input[type="range"] {
+      padding: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .results {
+      display: none;
+      margin-top: 22px;
+      border: 1px solid #d8c8ff55;
+      border-radius: 14px;
+      background: #080812;
+      padding: 20px;
+    }
+
+    .results.show {
+      display: block;
+    }
+
+    .results h3 {
+      margin-top: 0;
+      color: #d8c8ff;
+    }
+
+    .estimate-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #ffffff12;
+    }
+
+    .estimate-row:last-child {
+      border-bottom: 0;
+    }
+
+    .estimate-value {
+      font-size: 22px;
+      font-weight: bold;
+      text-align: right;
+    }
+
+    .estimate-value.mid {
+      color: #ffcd64;
+    }
+
+    .status {
+      padding: 15px;
+      border-radius: 12px;
+      background: #ffffff08;
+      color: #aaa;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .status.error {
+      color: #ffb5b5;
+      background: rgba(200, 50, 50, .12);
+    }
+
+    .status.success {
+      color: #baffca;
+      background: rgba(50, 200, 100, .10);
+    }
+
+    .button {
+      border: 0;
+      border-radius: 25px;
+      padding: 13px 24px;
+      background: #fff;
+      color: #080812;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .button:hover {
+      opacity: .9;
+    }
+
+    .button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    .button.secondary {
+      background: transparent;
+      color: #fff;
+      border: 1px solid #ffffff30;
+    }
+
+    .confirmation {
+      display: none;
+      text-align: center;
+      padding: 30px 10px;
+    }
+
+    .confirmation.show {
+      display: block;
+    }
+
+    .confirmation h3 {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+
+    footer {
+      border-top: 1px solid #ffffff18;
+      padding: 30px;
+      text-align: center;
+      color: #888;
+    }
+
+    footer a {
+      color: #d8c8ff;
+    }
+
+    @media (max-width: 650px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      main {
+        margin-top: 30px;
+      }
+
+      section.card {
+        padding: 20px;
+      }
+    }
+  </style>
+<link rel="stylesheet" href="starrise-brand.css">
+<link rel="icon" type="image/png" href="starrise-logo.png">
+</head>
+
+<body>
+
+<header>
+
+  <a href="index.html" class="starrise-brand" aria-label="StarRise — Home"><img src="starrise-logo.png" alt="StarRise by FAM ENT" width="1697" height="927" decoding="async"></a>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="members.html">Talent</a>
+    <a href="talent-funds.html">Talent Funds</a>
+    <a href="artist-funding.html" class="current">Artist Funding</a>
+    <a href="dashboard.html">Dashboard</a>
+  </nav>
+
+</header>
+
+
+<main>
+
+  <section class="hero">
+
+    <h1>
+      Artist Funding
+    </h1>
+
+    <p>
+      Get an advance on the music you have already made — and keep
+      your masters. StarRise artist funding is built for independent
+      artists who want real capital without giving up ownership.
+    </p>
+
+    <p class="motto">
+      Everybody Eats. Every Talent Deserves a Chance.
+    </p>
+
+  </section>
+
+
+  <div class="disclaimer" role="note">
+    <strong>Please read this first:</strong> every number on this page
+    is an <strong>estimate, not an offer</strong>. No funding is
+    guaranteed. Any advance is subject to review and a funding
+    partner's approval, and final terms may look different from the
+    estimate. StarRise does not lend money and does not promise
+    funding. Funding review is based on the work and the numbers —
+    never on background, race, gender, age, or who you know.
+  </div>
+
+
+  <section class="card">
+
+    <h2>How StarRise artist advances work</h2>
+
+    <p class="muted">
+      An advance is money up front against the streaming income your
+      music is already earning. You spend it on your career — studio
+      time, videos, marketing, touring — and it is repaid from a share
+      of your future streaming revenue only.
+    </p>
+
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Check your estimate</h3>
+        <p class="muted">
+          Enter your trailing 12-month streaming income and pick a
+          term. The estimator shows a range, not a promise.
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>Apply in minutes</h3>
+        <p class="muted">
+          Share your streaming profiles, your numbers, and a
+          distribution report if you have one. No fee to apply.
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>We review it</h3>
+        <p class="muted">
+          The StarRise team reviews your application and your
+          streaming history. We will contact you at the email you
+          provide.
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-number">4</div>
+        <h3>Terms are set with a funding partner</h3>
+        <p class="muted">
+          If your application moves forward, final terms are set with
+          a funding partner. You keep 100% of your masters and
+          ownership — repayment comes only from a share of streaming
+          revenue.
+        </p>
+      </div>
+
+    </div>
+
+    <p class="muted small" style="margin-top:20px">
+      You choose how much of your monthly streaming income you keep
+      during the term (50% to 90%). The rest goes toward repaying the
+      advance. Income from merch, live shows, physical sales, sync,
+      and publishing is not part of repayment.
+    </p>
+
+  </section>
+
+
+  <section class="card" id="estimator">
+
+    <h2>Advance estimator</h2>
+
+    <p class="muted">
+      See what an advance <em>could</em> look like for your catalog.
+      This is a rough estimate based on your numbers — not an offer,
+      and not a guarantee of funding.
+    </p>
+
+    <div class="grid">
+
+      <label class="field">
+        <span>Trailing 12-month streaming income (USD)</span>
+        <input
+          id="estIncome"
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="e.g. 12000"
+        >
+      </label>
+
+      <label class="field">
+        <span>Monthly listeners</span>
+        <input
+          id="estListeners"
+          type="number"
+          min="0"
+          step="1"
+          placeholder="e.g. 25000"
+        >
+      </label>
+
+      <label class="field">
+        <span>Term length</span>
+        <select id="estTerm">
+          <option value="12">12 months</option>
+          <option value="18">18 months</option>
+          <option value="24" selected>24 months</option>
+          <option value="30">30 months</option>
+          <option value="36">36 months</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>
+          Monthly streaming income you keep:
+          <strong id="estKeptLabel">70%</strong>
+        </span>
+        <input
+          id="estKept"
+          type="range"
+          min="50"
+          max="90"
+          step="5"
+          value="70"
+        >
+        <span class="small muted">
+          50% to 90%. The rest goes toward repaying the advance.
+        </span>
+      </label>
+
+    </div>
+
+    <p>
+      <button
+        id="estimateButton"
+        class="button"
+        type="button"
+      >
+        Estimate my advance
+      </button>
+    </p>
+
+    <div id="estimateResults" class="results" aria-live="polite">
+
+      <h3>Estimated advance range</h3>
+
+      <div class="estimate-row">
+        <span>Low estimate <span class="muted small">(1.5&times;)</span></span>
+        <span id="estLow" class="estimate-value">$0</span>
+      </div>
+
+      <div class="estimate-row">
+        <span>Mid estimate <span class="muted small">(2&times;)</span></span>
+        <span id="estMid" class="estimate-value mid">$0</span>
+      </div>
+
+      <div class="estimate-row">
+        <span>High estimate <span class="muted small">(3&times;)</span></span>
+        <span id="estHigh" class="estimate-value">$0</span>
+      </div>
+
+      <div class="estimate-row">
+        <span>Share of streaming income going to repayment</span>
+        <span id="estRecoupShare" class="estimate-value">30%</span>
+      </div>
+
+      <div class="estimate-row">
+        <span>Estimated monthly repayment (mid estimate)</span>
+        <span id="estMonthlyRecoup" class="estimate-value">$0</span>
+      </div>
+
+      <div class="estimate-row">
+        <span>Estimated time to repay (mid estimate)</span>
+        <span id="estRecoupMonths" class="estimate-value">—</span>
+      </div>
+
+      <p id="estTermNote" class="muted small"></p>
+
+      <p id="estListenerNote" class="muted small"></p>
+
+      <p class="small muted">
+        How this is calculated: estimate = trailing 12-month streaming
+        income &times; multiple (1.5&times; to 3&times;) &times; term
+        factor (term in months &divide; 24). The high estimate is capped
+        at 3&times; your trailing income. Monthly repayment =
+        (income &divide; 12) &times; the share going to repayment.
+        These are planning numbers only — a real offer depends on a
+        full review of your streaming history and a funding partner.
+      </p>
+
+      <p>
+        <button
+          id="useNumbersButton"
+          class="button secondary"
+          type="button"
+        >
+          Use these numbers in my application
+        </button>
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <section class="card" id="apply">
+
+    <h2>Apply for artist funding</h2>
+
+    <p class="muted">
+      Tell us about your music and your numbers. There is no fee to
+      apply, and applying does not commit you to anything. A
+      distribution report (from DistroKid, TuneCore, UnitedMasters,
+      or your distributor) helps us review faster, but it is optional.
+    </p>
+
+    <div id="formStatus" class="status" hidden></div>
+
+    <form id="fundingForm" novalidate>
+
+      <div class="grid">
+
+        <label class="field">
+          <span>Artist / stage name *</span>
+          <input
+            id="artistName"
+            type="text"
+            required
+            maxlength="200"
+            placeholder="Your name or stage name"
+          >
+        </label>
+
+        <label class="field">
+          <span>Contact email *</span>
+          <input
+            id="email"
+            type="email"
+            required
+            maxlength="320"
+            placeholder="you@example.com"
+          >
+        </label>
+
+        <label class="field">
+          <span>Distributor</span>
+          <input
+            id="distributor"
+            type="text"
+            maxlength="200"
+            placeholder="e.g. DistroKid, TuneCore, UnitedMasters"
+          >
+        </label>
+
+        <label class="field">
+          <span>Monthly listeners</span>
+          <input
+            id="monthlyListeners"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="e.g. 25000"
+          >
+        </label>
+
+        <label class="field">
+          <span>Trailing 12-month streaming income (USD)</span>
+          <input
+            id="trailingIncome"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="e.g. 12000"
+          >
+        </label>
+
+        <label class="field">
+          <span>Amount requested (USD) *</span>
+          <input
+            id="amountRequested"
+            type="number"
+            min="1"
+            step="0.01"
+            required
+            placeholder="e.g. 5000"
+          >
+        </label>
+
+        <label class="field">
+          <span>Preferred term</span>
+          <select id="termMonths">
+            <option value="12">12 months</option>
+            <option value="18">18 months</option>
+            <option value="24" selected>24 months</option>
+            <option value="30">30 months</option>
+            <option value="36">36 months</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Monthly streaming income you want to keep</span>
+          <select id="incomeShareKept">
+            <option value="50">50% (repay faster)</option>
+            <option value="60">60%</option>
+            <option value="70" selected>70%</option>
+            <option value="80">80%</option>
+            <option value="90">90% (repay slower)</option>
+          </select>
+        </label>
+
+      </div>
+
+      <label class="field">
+        <span>Streaming profile links (Spotify, Apple Music, etc.)</span>
+        <textarea
+          id="streamingLinks"
+          rows="3"
+          maxlength="2000"
+          placeholder="Paste one link per line — your Spotify artist page, Apple Music page, or anywhere your music streams."
+        ></textarea>
+      </label>
+
+      <label class="field">
+        <span>What would you use the funds for?</span>
+        <textarea
+          id="useOfFunds"
+          rows="3"
+          maxlength="2000"
+          placeholder="Studio time, a music video, marketing, touring — whatever moves your career forward."
+        ></textarea>
+      </label>
+
+      <label class="field">
+        <span>Distribution report (optional, PDF / CSV / spreadsheet, up to 25 MB)</span>
+        <input
+          id="reportFile"
+          type="file"
+          accept=".pdf,.csv,.xls,.xlsx"
+        >
+        <span class="small muted">
+          Your report stays private — only StarRise admins can open
+          it, and only to review your application. Never upload
+          passwords, banking details, or tax identification numbers.
+        </span>
+      </label>
+
+      <p class="small muted">
+        By applying, you confirm this information is yours to share
+        and that you understand this is an application for review —
+        not a funded offer. StarRise will contact you at the email
+        above about your application.
+      </p>
+
+      <p>
+        <button
+          id="submitButton"
+          class="button"
+          type="submit"
+        >
+          Submit application
+        </button>
+      </p>
+
+    </form>
+
+    <div id="confirmation" class="confirmation" aria-live="polite">
+
+      <h3>Application received</h3>
+
+      <p>
+        Thank you — your artist funding application is in. The
+        StarRise team will review it and reach out at the email you
+        provided.
+      </p>
+
+      <p class="muted small">
+        This is an application for review, not a funded offer. No
+        funding is guaranteed, and final terms (if any) are set with a
+        funding partner after review.
+      </p>
+
+      <p>
+        <button
+          id="applyAgainButton"
+          class="button secondary"
+          type="button"
+        >
+          Submit another application
+        </button>
+      </p>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<footer>
+  ⭐ StarRise — Where Talent Rises.
+  <p>Everybody Eats. Every Talent Deserves a Chance.</p>
+<p style="font-size:12px;line-height:1.5">Funding estimates are not offers and no funding is guaranteed. <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund-policy.html">Refunds</a> · <a href="support.html">Support</a></p>
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script>
+
+const starRiseSupabase =
+  window.supabase.createClient(
+    'https://rcnikxotdalxtuvpmlvm.supabase.co',
+    'sb_publishable_VVprrzpACjd89clo0tFs4Q_VAKVL3GN'
+  );
+
+const REPORT_BUCKET = 'funding-reports';
+const REPORT_MAX_BYTES = 25 * 1024 * 1024;
+
+const REPORT_MIME_TYPES = [
+  'application/pdf',
+  'text/csv',
+  'text/plain',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+];
+
+
+/*
+  HELPERS
+*/
+
+function dollars(amount) {
+  return Number(amount || 0).toLocaleString(
+    'en-US',
+    {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0
+    }
+  );
+}
+
+function roundToNearest50(amount) {
+  return Math.round(Number(amount || 0) / 50) * 50;
+}
+
+function safeFilename(name) {
+  return String(name || 'report')
+    .replace(/[^a-zA-Z0-9._-]+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 120);
+}
+
+function showStatus(message, kind) {
+  const status = document.getElementById('formStatus');
+  status.textContent = message;
+  status.className = 'status' + (kind ? ' ' + kind : '');
+  status.hidden = false;
+}
+
+function hideStatus() {
+  const status = document.getElementById('formStatus');
+  status.hidden = true;
+  status.textContent = '';
+  status.className = 'status';
+}
+
+
+/*
+  ESTIMATOR
+  Formula (shown on the page):
+    termFactor = termMonths / 24
+    low  = 1.5 x trailing 12-month income x termFactor
+    mid  = 2.0 x trailing 12-month income x termFactor
+    high = min(3.0 x trailing 12-month income x termFactor,
+               3.0 x trailing 12-month income) — capped at 3x income
+    monthlyRepayment = (income / 12) x (1 - keptShare)
+    monthsToRepay = mid / monthlyRepayment
+  All outputs are estimates, rounded to the nearest $50.
+*/
+
+const estIncome = document.getElementById('estIncome');
+const estListeners = document.getElementById('estListeners');
+const estTerm = document.getElementById('estTerm');
+const estKept = document.getElementById('estKept');
+const estKeptLabel = document.getElementById('estKeptLabel');
+const estimateButton = document.getElementById('estimateButton');
+const estimateResults = document.getElementById('estimateResults');
+
+estKept.addEventListener('input', () => {
+  estKeptLabel.textContent = estKept.value + '%';
+});
+
+function runEstimator() {
+  const income = Number(estIncome.value || 0);
+  const listeners = Number(estListeners.value || 0);
+  const termMonths = Number(estTerm.value || 24);
+  const keptShare = Number(estKept.value || 70);
+
+  if (!income || income <= 0) {
+    estimateResults.classList.remove('show');
+    return;
+  }
+
+  const termFactor = termMonths / 24;
+  const low = roundToNearest50(1.5 * income * termFactor);
+  const mid = roundToNearest50(2.0 * income * termFactor);
+  const high = roundToNearest50(Math.min(3.0 * income * termFactor, 3.0 * income));
+
+  const recoupShare = 1 - (keptShare / 100);
+  const monthlyIncome = income / 12;
+  const monthlyRecoup = monthlyIncome * recoupShare;
+  const monthsToRepay = monthlyRecoup > 0
+    ? mid / monthlyRecoup
+    : 0;
+
+  document.getElementById('estLow').textContent = dollars(low);
+  document.getElementById('estMid').textContent = dollars(mid);
+  document.getElementById('estHigh').textContent = dollars(high);
+  document.getElementById('estRecoupShare').textContent =
+    Math.round(recoupShare * 100) + '%';
+  document.getElementById('estMonthlyRecoup').textContent =
+    dollars(monthlyRecoup);
+  document.getElementById('estRecoupMonths').textContent =
+    monthsToRepay > 0
+      ? Math.ceil(monthsToRepay) + ' months'
+      : '—';
+
+  const termNote = document.getElementById('estTermNote');
+  if (monthsToRepay > termMonths) {
+    termNote.textContent =
+      'At the mid estimate, repayment would take about ' +
+      Math.ceil(monthsToRepay) +
+      ' months — longer than your ' + termMonths +
+      '-month term. In a real deal, the term would simply continue ' +
+      'until the advance is repaid; the amount owed would not go up.';
+  } else if (monthsToRepay > 0) {
+    termNote.textContent =
+      'At the mid estimate, repayment would take about ' +
+      Math.ceil(monthsToRepay) +
+      ' months — inside your ' + termMonths + '-month term.';
+  } else {
+    termNote.textContent = '';
+  }
+
+  const listenerNote = document.getElementById('estListenerNote');
+  if (listeners > 0 && listeners < 10000) {
+    listenerNote.textContent =
+      'Artists with 10,000+ monthly listeners typically see larger ' +
+      'estimates, because advances are sized from streaming history. ' +
+      'Smaller catalogs can still apply — every application is ' +
+      'reviewed on the work and the numbers.';
+  } else {
+    listenerNote.textContent = '';
+  }
+
+  estimateResults.classList.add('show');
+}
+
+estimateButton.addEventListener('click', () => {
+  const income = Number(estIncome.value || 0);
+
+  if (!income || income <= 0) {
+    estimateResults.classList.remove('show');
+    estIncome.focus();
+    return;
+  }
+
+  runEstimator();
+});
+
+[estIncome, estListeners, estTerm, estKept].forEach((input) => {
+  input.addEventListener('change', () => {
+    if (estimateResults.classList.contains('show')) {
+      runEstimator();
+    }
+  });
+});
+
+
+/*
+  USE ESTIMATOR NUMBERS IN THE APPLICATION
+*/
+
+document.getElementById('useNumbersButton').addEventListener('click', () => {
+  document.getElementById('trailingIncome').value = estIncome.value;
+  document.getElementById('monthlyListeners').value = estListeners.value;
+  document.getElementById('termMonths').value = estTerm.value;
+  document.getElementById('incomeShareKept').value = estKept.value;
+
+  document.getElementById('apply').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('artistName').focus();
+});
+
+
+/*
+  APPLICATION SUBMIT
+  1. Upload the report (if any) to the private funding-reports bucket.
+  2. Insert the application row.
+  3. If the insert fails after an upload, remove the uploaded file.
+*/
+
+const fundingForm = document.getElementById('fundingForm');
+const submitButton = document.getElementById('submitButton');
+const confirmation = document.getElementById('confirmation');
+const reportFileInput = document.getElementById('reportFile');
+
+fundingForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  hideStatus();
+
+  const artistName = document.getElementById('artistName').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const amountRequested = Number(
+    document.getElementById('amountRequested').value || 0
+  );
+
+  if (!artistName) {
+    showStatus('Please enter your artist or stage name.', 'error');
+    document.getElementById('artistName').focus();
+    return;
+  }
+
+  if (!email || email.indexOf('@') < 1) {
+    showStatus('Please enter a valid contact email.', 'error');
+    document.getElementById('email').focus();
+    return;
+  }
+
+  if (!amountRequested || amountRequested <= 0) {
+    showStatus('Please enter the amount you are requesting.', 'error');
+    document.getElementById('amountRequested').focus();
+    return;
+  }
+
+  const reportFile = reportFileInput.files && reportFileInput.files[0];
+
+  if (reportFile) {
+    if (reportFile.size > REPORT_MAX_BYTES) {
+      showStatus(
+        'That report is over the 25 MB limit. Please upload a smaller file.',
+        'error'
+      );
+      return;
+    }
+
+    if (
+      reportFile.type &&
+      REPORT_MIME_TYPES.indexOf(reportFile.type) === -1
+    ) {
+      showStatus(
+        'Please upload a PDF, CSV, or spreadsheet report.',
+        'error'
+      );
+      return;
+    }
+  }
+
+  submitButton.disabled = true;
+  submitButton.textContent = 'Submitting...';
+  showStatus('Submitting your application...');
+
+  let reportFilePath = null;
+
+  try {
+    const { data: { user } } = await starRiseSupabase.auth.getUser();
+    const ownerFolder = user ? user.id : 'anon';
+
+    if (reportFile) {
+      reportFilePath =
+        'applications/' + ownerFolder + '/' +
+        crypto.randomUUID() + '-' +
+        safeFilename(reportFile.name);
+
+      const { error: uploadError } = await starRiseSupabase
+        .storage
+        .from(REPORT_BUCKET)
+        .upload(reportFilePath, reportFile, {
+          contentType: reportFile.type || undefined,
+          upsert: false
+        });
+
+      if (uploadError) {
+        throw new Error(
+          'Your report could not be uploaded: ' + uploadError.message +
+          ' You can remove the file and submit without it, then try again.'
+        );
+      }
+    }
+
+    const { error: insertError } = await starRiseSupabase
+      .from('artist_funding_applications')
+      .insert({
+        artist_name: artistName,
+        email: email,
+        distributor: document.getElementById('distributor').value.trim(),
+        streaming_links: document.getElementById('streamingLinks').value.trim(),
+        monthly_listeners: Number(
+          document.getElementById('monthlyListeners').value || 0
+        ),
+        trailing_12mo_income: Number(
+          document.getElementById('trailingIncome').value || 0
+        ),
+        amount_requested: amountRequested,
+        use_of_funds: document.getElementById('useOfFunds').value.trim(),
+        report_file_path: reportFilePath,
+        term_months: Number(
+          document.getElementById('termMonths').value || 24
+        ),
+        income_share_kept: Number(
+          document.getElementById('incomeShareKept').value || 70
+        ),
+        user_id: user ? user.id : null
+      });
+
+    if (insertError) {
+      if (reportFilePath) {
+        await starRiseSupabase
+          .storage
+          .from(REPORT_BUCKET)
+          .remove([reportFilePath]);
+      }
+      throw insertError;
+    }
+
+    hideStatus();
+    fundingForm.hidden = true;
+    confirmation.classList.add('show');
+    confirmation.scrollIntoView({ behavior: 'smooth' });
+  } catch (error) {
+    console.error('Artist funding application error:', error);
+    showStatus(
+      'We could not submit your application: ' +
+      (error.message || 'Please try again.') +
+      ' If this keeps happening, reach out on the support page.',
+      'error'
+    );
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = 'Submit application';
+  }
+});
+
+document.getElementById('applyAgainButton').addEventListener('click', () => {
+  fundingForm.reset();
+  fundingForm.hidden = false;
+  confirmation.classList.remove('show');
+  hideStatus();
+  document.getElementById('artistName').focus();
+});
+
+</script>
+
+</body>
+</html>
